@@ -36,6 +36,18 @@ Srate Flow Faces are not available at Maven Central,  add the following reposito
 
 To run the test, run "state-flow-basic-demo.war" on the server.
 
+## Built With
+
+* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
+* [Maven](https://maven.apache.org/) - Dependency Management
+
+## Contributing
+
+## Versioning
+
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/wklaczynski/state-flow-faces/tags). 
+
+
 ## Authors
 
 * **Waldemar Kłaczyński** - *Initial work* - [Waldemar Kłaczyński](https://github.com/wklaczynski)
