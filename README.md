@@ -29,7 +29,7 @@ Srate Flow Faces are not available at Maven Central,  add the following reposito
    <snapshots>
       <enabled>true</enabled>
       <updatePolicy>always</updatePolicy>
-      </snapshots>
+   </snapshots>
 </repository>
 ```
 ## Running the tests
@@ -48,10 +48,8 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* Inspiration
-
-https://www.w3.org/TR/scxml/
-http://www.oracle.com/technetwork/java/javaee/javaserverfaces-139869.html
-http://commons.apache.org/proper/commons-scxml/
+* Model documentation https://www.w3.org/TR/scxml/
+* Inspiration http://commons.apache.org/proper/commons-scxml/
+* Required http://www.oracle.com/technetwork/java/javaee/javaserverfaces-139869.html
 
 
