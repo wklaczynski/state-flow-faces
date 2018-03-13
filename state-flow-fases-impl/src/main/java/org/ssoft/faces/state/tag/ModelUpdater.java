@@ -26,6 +26,8 @@ import javax.faces.state.model.Transition;
 import javax.faces.state.model.TransitionTarget;
 import javax.faces.state.utils.StateFlowHelper;
 import javax.faces.view.facelets.Tag;
+import javax.faces.view.facelets.TagAttribute;
+import javax.faces.view.facelets.TagAttributeException;
 import javax.faces.view.facelets.TagException;
 
 /**
@@ -268,7 +270,7 @@ public class ModelUpdater {
                 String id = ids.nextToken();
                 TransitionTarget tt = (TransitionTarget) targets.get(id);
                 if (tt == null) {
-                    logAndThrowModelError(transition, ERR_TARGET_NOT_FOUND, new Object[]{
+                    logAndThrowModelError(transition, "target", ERR_TARGET_NOT_FOUND, new Object[]{
                         id});
                 }
                 tts.add(tt);
@@ -276,7 +278,7 @@ public class ModelUpdater {
             if (tts.size() > 1) {
                 boolean legal = verifyTransitionTargets(tts);
                 if (!legal) {
-                    logAndThrowModelError(transition, ERR_ILLEGAL_TARGETS, new Object[]{
+                    logAndThrowModelError(transition, "target", ERR_ILLEGAL_TARGETS, new Object[]{
                         next});
                 }
             }
@@ -311,9 +313,9 @@ public class ModelUpdater {
         String errMsg = msgFormat.format(msgArgs);
         
         Tag tag = tags.get(element);
-        tag.getAttributes().get(parametr);
+        TagAttribute attribute = tag.getAttributes().get(parametr);
         
-        throw new TagException(tag, errMsg);
+        throw new TagAttributeException(attribute, errMsg);
     }
     
     
@@ -370,14 +372,14 @@ public class ModelUpdater {
     /**
      * Error message when SCXML document specifies an illegal initial state.
      */
-    private static final String ERR_SCXML_NO_INIT = "No SCXML child state "
-            + "with ID \"{0}\" found; illegal initialstate for SCXML document";
+    private static final String ERR_SCXML_NO_INIT = "no SCXML child state "
+            + "\"{0}\" found; illegal initialstate for SCXML document";
 
     /**
      * Error message when a state element specifies an initial state which
      * cannot be found.
      */
-    private static final String ERR_STATE_NO_INIT = "No initial element available for {0}";
+    private static final String ERR_STATE_NO_INIT = "no initial element available for {0}";
 
     /**
      * Error message when a state element specifies an initial state which is
@@ -389,13 +391,13 @@ public class ModelUpdater {
      * Error message when a state element specifies an initial state which is
      * not a direct descendent.
      */
-    private static final String ERR_STATE_BAD_INIT = "Initial state null or not a descendant of {0}";
+    private static final String ERR_STATE_BAD_INIT = "initial state null or not a descendant of {0}";
 
     /**
      * Error message when a state element specifies an initial state which is
      * not a direct descendent.
      */
-    private static final String ERR_STATE_BAD_INIT_DES = "Initial state not a descendant of {0}";
+    private static final String ERR_STATE_BAD_INIT_DES = "initial state not a descendant of {0}";
 
     /**
      * Error message when a state element contains anything other than one
@@ -410,31 +412,32 @@ public class ModelUpdater {
      * Error message when a referenced history state cannot be found.
      */
     private static final String ERR_STATE_NO_HIST = "Referenced history state"
-            + " null for {0}";
+            + "null for {0}";
 
     /**
      * Error message when a shallow history state is not a child state.
      */
     private static final String ERR_STATE_BAD_SHALLOW_HIST = "History state"
-            + " for shallow history is not child for {0}";
+            + "for shallow history is not child for {0}";
 
     /**
      * Error message when a deep history state is not a descendent state.
      */
     private static final String ERR_STATE_BAD_DEEP_HIST = "History state"
-            + " for deep history is not descendant for {0}";
+            + "for deep history is not descendant for {0}";
 
     /**
      * Transition target is not a legal IDREF (not found).
      */
     private static final String ERR_TARGET_NOT_FOUND
-            = "Transition target with ID \"{0}\" not found";
+            = "destination target \"{0}\" not found";
 
     /**
      * Transition targets do not form a legal configuration.
      */
     private static final String ERR_ILLEGAL_TARGETS
-            = "Transition targets \"{0}\" do not satisfy the requirements for target regions belonging to a <parallel>";
+            = "destination targets \"{0}\" do not satisfy the requirements"
+            + " for target regions belonging to a <parallel>";
 
     /**
      * Simple states should not contain a history.
@@ -446,14 +449,14 @@ public class ModelUpdater {
      * History does not specify a default transition target.
      */
     private static final String ERR_HISTORY_NO_DEFAULT
-            = "No default target specified for history with ID \"{0}\""
+            = "no default target specified for history \"{0}\""
             + " belonging to {1}";
 
     /**
      * History specifies a bad default transition target.
      */
     private static final String ERR_HISTORY_BAD_DEFAULT
-            = "Default target specified for history with ID \"{0}\""
+            = "default target specified for history \"{0}\""
             + " belonging to \"{1}\" is also a history";
 
     /**
@@ -461,21 +464,21 @@ public class ModelUpdater {
      * attribute.
      */
     private static final String ERR_INVOKE_NO_TARGETTYPE = "{0} contains "
-            + "<invoke> with no \"targettype\" attribute specified.";
+            + "with no \"targettype\" attribute specified.";
 
     /**
      * Error message when an &lt;invoke&gt; does not specify a "src" or a
      * "srcexpr" attribute.
      */
     private static final String ERR_INVOKE_NO_SRC = "{0} contains "
-            + "<invoke> without a \"src\" or \"srcexpr\" attribute specified.";
+            + "without a \"src\" or \"srcexpr\" attribute specified.";
 
     /**
      * Error message when an &lt;invoke&gt; specifies both "src" and "srcexpr"
      * attributes.
      */
     private static final String ERR_INVOKE_AMBIGUOUS_SRC = "{0} contains "
-            + "<invoke> with both \"src\" and \"srcexpr\" attributes specified,"
+            + "with both \"src\" and \"srcexpr\" attributes specified,"
             + " must specify either one, but not both.";
 
 }
