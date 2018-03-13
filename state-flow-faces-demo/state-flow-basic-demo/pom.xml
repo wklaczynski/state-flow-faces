@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-    <artifactId>state-flow-faces-demo</artifactId>
-    <groupId>org.apache.faces</groupId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
+        <artifactId>state-flow-faces-demo</artifactId>
+        <groupId>org.ssoft.faces</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-    <groupId>org.apache.faces</groupId>
+    <groupId>org.apache.faces.demo</groupId>
     <artifactId>state-flow-basic-demo</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
@@ -27,12 +27,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.faces</groupId>
+            <groupId>org.ssoft.faces</groupId>
             <artifactId>state-flow-fases-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.faces</groupId>
+            <groupId>org.ssoft.faces</groupId>
             <artifactId>state-flow-fases-impl</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
