@@ -38,7 +38,7 @@ To run the test, deploy "state-flow-basic-demo.war" on the server.
 
 ## Built With
 
-* [JSF](http://www.oracle.com/technetwork/java/javaee/javaserverfaces-139869.html) - The web framework used
+* [JSF](http://www.oracle.com/technetwork/java/javaee/javaserverfaces-139869.html) - The Java Server Faces used 
 * [Maven](https://maven.apache.org/) - Dependency Management
 
 ## Contributing
