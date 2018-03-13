@@ -5,11 +5,11 @@
     xmlns:x="http://xmlns.ssoft.org/flow/scxml"
     xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
     >
-    <x:scxml id="main" initial="start">
+    <x:scxml initial="start">
 
         <x:state id="start">
             <x:onentry>
-                <x:if cond="#{main.prepare()}">
+                <x:if cond="#{orders.prepare()}">
                     <x:raise event="main.prepare.success"/>
                     <x:else/>
                     <x:raise event="main.prepare.failed"/>
@@ -20,8 +20,20 @@
         </x:state>
 
         <x:state id="main">
-            <x:invoke type="view" src="StartPage.xhtml"/>
+            <x:invoke type="view" src="Main.xhtml"/>
         </x:state> 
+
+        <x:parallel>
+
+            <x:state id="state_a">
+                <x:invoke type="view" src="StartPage.xhtml"/>
+            </x:state> 
+
+            <x:state id="state_b">
+                <x:invoke type="view" src="StartPage.xhtml"/>
+            </x:state> 
+
+        </x:parallel>
 
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml">

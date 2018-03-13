@@ -6,7 +6,6 @@ and open the template in the editor.
 <scxml 
     xmlns="http://xmlns.ssoft.org/flow/scxml"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:pui="http://www.azzumi.com/scxml/portal"
     initial="start">
 
     <state id="start">
@@ -25,21 +24,6 @@ and open the template in the editor.
         <invoke type="view" src="StartPage.xhtml"/>
     </state> 
     
-    <parallel>
-        <state id="state_a">
-            <initial>
-                <transition target="state_ab"/>
-            </initial>
-            <state id="state_ab">
-                <invoke type="view" src="StartPage.xhtml"/>
-            </state> 
-        </state> 
-        <state id="state_b">
-            <invoke type="view" src="StartPage.xhtml"/>
-        </state> 
-    </parallel>
-    
-    
     <state id="error"> 
         <invoke type="scxml" src="/common/error.scxml">
             <finalize/>
@@ -48,8 +32,6 @@ and open the template in the editor.
     </state>      
 
     <final id="exit">
-        <onexit>
-        </onexit>
     </final>
 
 </scxml>
