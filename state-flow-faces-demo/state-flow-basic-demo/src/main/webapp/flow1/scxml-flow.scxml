@@ -4,7 +4,7 @@ To change this template, choose Tools | Templates
 and open the template in the editor.
 -->
 <scxml 
-    xmlns="http://faces.apache.com/flow/scxml"
+    xmlns="http://xmlns.ssoft.org/flow/scxml"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:pui="http://www.azzumi.com/scxml/portal"
     initial="start">
