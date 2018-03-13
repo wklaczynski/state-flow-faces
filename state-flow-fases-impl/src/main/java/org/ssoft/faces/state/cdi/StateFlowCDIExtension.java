@@ -17,7 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ssoft.faces.state.utils.Util;
 import javax.faces.state.annotation.ParallelScoped;
-import javax.faces.state.annotation.DialogScoped;
+import javax.faces.state.annotation.StateChartScoped;
 
 /**
  *
@@ -34,13 +34,13 @@ public class StateFlowCDIExtension implements Extension {
     }
 
     public void beforeBean(@Observes final BeforeBeanDiscovery event, BeanManager beanManager) {
-        event.addScope(DialogScoped.class, true, true);
+        event.addScope(StateChartScoped.class, true, true);
         event.addScope(ParallelScoped.class, true, true);
         event.addScope(StateScoped.class, true, true);
     }
 
     public void processBean(@Observes ProcessBean<?> event) {
-        DialogScoped dialogScoped = event.getAnnotated().getAnnotation(DialogScoped.class);
+        StateChartScoped dialogScoped = event.getAnnotated().getAnnotation(StateChartScoped.class);
         if (dialogScoped != null && log.isDebugEnabled()) {
             log.debug("Processing occurrence of @DialogScoped");
         }

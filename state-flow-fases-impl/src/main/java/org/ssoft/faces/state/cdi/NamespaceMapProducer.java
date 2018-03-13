@@ -8,7 +8,7 @@ package org.ssoft.faces.state.cdi;
 import java.lang.reflect.Type;
 import java.util.Map;
 import javax.faces.state.NamespacePrefixesHolder;
-import javax.faces.state.annotation.DialogScoped;
+import javax.faces.state.annotation.StateChartScoped;
 import javax.faces.state.semantics.StateChartSemantics;
 
 /**
@@ -24,7 +24,7 @@ public class NamespaceMapProducer extends CdiProducer<Map<String, String>> {
     
     public NamespaceMapProducer() {
         super.name("flowNamespaces")
-             .scope(DialogScoped.class)
+             .scope(StateChartScoped.class)
              .qualifiers(new NamespaceMapAnnotationLiteral())
              .types(
                  new ParameterizedTypeImpl(Map.class, new Type[]{String.class, String.class}),

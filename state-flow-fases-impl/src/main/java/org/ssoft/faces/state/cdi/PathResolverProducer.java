@@ -6,7 +6,7 @@
 package org.ssoft.faces.state.cdi;
 
 import javax.faces.state.PathResolver;
-import javax.faces.state.annotation.DialogScoped;
+import javax.faces.state.annotation.StateChartScoped;
 import javax.faces.state.semantics.StateChartSemantics;
 
 /**
@@ -22,7 +22,7 @@ public class PathResolverProducer extends CdiProducer<PathResolver> {
     
     public PathResolverProducer() {
         super.name("flowPathResolver")
-             .scope(DialogScoped.class)
+             .scope(StateChartScoped.class)
              .beanClassAndType(PathResolver.class)   
              .create(e -> StateChartSemantics.getCurrent(PathResolver.class));
     }

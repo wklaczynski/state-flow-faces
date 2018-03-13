@@ -39,14 +39,9 @@
             </x:invoke>
             <x:transition event="show-order.invoke.cancel" target="main"/>
             <x:transition event="show-order.invoke.success" target="main">
-                <x:assign location="" expr=""/>
+                <x:send event="sss" type="method"/>
             </x:transition>
         </x:state>      
-
-
-
-
-
 
 
 

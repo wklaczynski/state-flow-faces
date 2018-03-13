@@ -22,7 +22,7 @@ import javax.faces.state.StateFlowExecutor;
 import javax.servlet.http.HttpSessionEvent;
 import org.ssoft.faces.state.log.FlowLogger;
 import org.ssoft.faces.state.utils.Util;
-import javax.faces.state.annotation.DialogScoped;
+import javax.faces.state.annotation.StateChartScoped;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -77,7 +77,7 @@ public class StateChartScopeCDIContex extends AbstractContext {
 
     @Override
     public Class<? extends Annotation> getScope() {
-        return DialogScoped.class;
+        return StateChartScoped.class;
     }
 
     @Override

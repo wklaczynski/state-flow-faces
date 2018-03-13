@@ -14,15 +14,15 @@ import javax.faces.state.annotation.StateScoped;
 import javax.faces.state.model.Parallel;
 import javax.faces.state.model.State;
 import javax.faces.state.annotation.ParallelScoped;
-import javax.faces.state.annotation.DialogScoped;
+import javax.faces.state.annotation.StateChartScoped;
 
 public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHelper {
 
     @Inject
-    @Initialized(DialogScoped.class)
+    @Initialized(StateChartScoped.class)
     Event<StateFlowExecutor> stateChartScopeInitializedEvent;
     @Inject
-    @Destroyed(DialogScoped.class)
+    @Destroyed(StateChartScoped.class)
     Event<StateFlowExecutor> stateChartScopeDestroyedEvent;
 
     @Inject
