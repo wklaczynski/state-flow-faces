@@ -33,7 +33,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
     
     @Override
     public ViewMetadata getViewMetadata(FacesContext context, String viewId) {
-        return wrapped.getViewMetadata(context, viewId);
+        return new ViewMetadataImpl(wrapped.getViewMetadata(context, viewId));
     }
 
     @Override

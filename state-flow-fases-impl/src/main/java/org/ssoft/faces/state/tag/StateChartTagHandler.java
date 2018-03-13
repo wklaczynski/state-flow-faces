@@ -85,8 +85,8 @@ public class StateChartTagHandler extends TagHandler {
             uichart = (UIStateChartFlow) facetComponent.findComponent(chartId);
         }
 
-        if (uichart != null) {
-            throw new TagException(this.tag, String.format("state chart id:[%s] already defined!", chartId));
+        if (uichart != null && uichart.getStateChart() != null) {
+            return;
         }
 
         chart = new StateChart();
@@ -110,21 +110,19 @@ public class StateChartTagHandler extends TagHandler {
             facetComponent.setId(StateChart.STATECHART_FACET_NAME);
         }
 
-        uichart = (UIStateChartFlow) app.createComponent(UIStateChartFlow.COMPONENT_TYPE);
-        uichart.setId(chartId);
+        if (uichart == null) {
+            uichart = (UIStateChartFlow) app.createComponent(UIStateChartFlow.COMPONENT_TYPE);
+            uichart.setId(chartId);
+            facetComponent.getChildren().add(uichart);
+        }
         uichart.setStateChart(chart);
-        facetComponent.getChildren().add(uichart);
-
-        uichart.setRendered(false);
-        uichart.setTransient(true);
 
         Map<Object, Tag> tags = new HashMap<>();
 
         build(ctx, uichart, chart, tags);
-        
+
         ModelUpdater updater = new ModelUpdater(tags);
         updater.updateSCXML(chart);
-
 
     }
 

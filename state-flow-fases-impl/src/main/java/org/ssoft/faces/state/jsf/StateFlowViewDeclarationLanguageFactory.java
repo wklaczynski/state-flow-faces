@@ -33,8 +33,6 @@ public class StateFlowViewDeclarationLanguageFactory extends ViewDeclarationLang
         if (viewId.endsWith(".scxml")) {
             return new ScxmlFileViewHandlingStrategy();
         }
-
-//        return getWrapped().getViewDeclarationLanguage(viewId);
         return new StateFlowViewDeclarationLanguage(getWrapped().getViewDeclarationLanguage(viewId));
     }
 

@@ -6,6 +6,9 @@
 package javax.faces.state.component;
 
 import javax.faces.component.UIComponentBase;
+import javax.faces.event.ComponentSystemEvent;
+import javax.faces.event.ComponentSystemEventListener;
+import javax.faces.event.PostRestoreStateEvent;
 import javax.faces.state.model.StateChart;
 
 /**
@@ -26,7 +29,7 @@ public class UIStateChartFlow extends UIComponentBase {
      * The standard component family for this component.</p>
      */
     public static final String COMPONENT_FAMILY = "javax.faces.UIStateChartFlow";
-    
+
     enum PropertyKeys {
         stateChart
     }
@@ -35,6 +38,14 @@ public class UIStateChartFlow extends UIComponentBase {
     public UIStateChartFlow() {
         super();
         setRendererType(null);
+        setRendered(false);
+        setTransient(false);
+
+        addFacesListener((ComponentSystemEventListener) (ComponentSystemEvent event) -> {
+            if (event instanceof PostRestoreStateEvent) {
+                postRestoreState();
+            }
+        });
     }
 
     @Override
@@ -50,5 +61,10 @@ public class UIStateChartFlow extends UIComponentBase {
         getStateHelper().put(PropertyKeys.stateChart, stateChart);
     }
 
+    private void postRestoreState() {
 
+
+
+    }
+    
 }
