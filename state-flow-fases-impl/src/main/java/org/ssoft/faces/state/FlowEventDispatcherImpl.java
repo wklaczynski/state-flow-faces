@@ -7,9 +7,10 @@ package org.ssoft.faces.state;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.state.FlowEventDispatcher;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.ssoft.faces.state.log.FlowLogger;
 
 /**
  *
@@ -20,7 +21,7 @@ public class FlowEventDispatcherImpl implements FlowEventDispatcher {
     /**
      * Implementation independent log category.
      */
-    private final Log log = LogFactory.getLog(FlowEventDispatcher.class);
+    public static final Logger log = FlowLogger.FLOW.getLogger();
 
     /**
      * Constructor.
@@ -34,8 +35,8 @@ public class FlowEventDispatcherImpl implements FlowEventDispatcher {
      */
     @Override
     public void cancel(final String sendId) {
-        if (log.isInfoEnabled()) {
-            log.info("cancel( sendId: " + sendId + ")");
+        if (log.isLoggable(Level.INFO)) {
+            log.log(Level.INFO, "cancel( sendId: {0})", sendId);
         }
     }
 
@@ -47,7 +48,7 @@ public class FlowEventDispatcherImpl implements FlowEventDispatcher {
     public void send(final String sendId, final String target,
             final String targetType, final String event, final Map params,
             final Object hints, final long delay, final List externalNodes) {
-        if (log.isInfoEnabled()) {
+        if (log.isLoggable(Level.INFO)) {
             StringBuilder buf = new StringBuilder();
             buf.append("send ( sendId: ").append(sendId);
             buf.append(", target: ").append(target);

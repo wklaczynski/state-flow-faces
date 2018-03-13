@@ -20,12 +20,6 @@
     
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>javax.enterprise</groupId>
             <artifactId>cdi-api</artifactId>
             <version>2.0</version>
@@ -59,11 +53,6 @@
             <artifactId>jsf-impl</artifactId>
             <scope>provided</scope>
             <version>2.2.16</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-digester</groupId>
-            <artifactId>commons-digester</artifactId>
-            <version>2.1</version>
         </dependency>
         <dependency>
             <groupId>org.ssoft.faces</groupId>

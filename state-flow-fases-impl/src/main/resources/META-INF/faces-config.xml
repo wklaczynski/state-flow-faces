@@ -24,8 +24,8 @@
     </factory>
 
     <component>
-        <component-type>javax.faces.UIStateChartFlow</component-type>
-        <component-class>javax.faces.state.component.UIStateChartFlow</component-class>
+        <component-type>javax.faces.StateChartFlow</component-type>
+        <component-class>javax.faces.state.component.StateChartFlow</component-class>
     </component>
     
     

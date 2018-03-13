@@ -8,9 +8,10 @@ package org.ssoft.faces.state;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.state.FlowContext;
+import org.ssoft.faces.state.log.FlowLogger;
 
 /**
  *
@@ -18,8 +19,7 @@ import javax.faces.state.FlowContext;
  */
 public class FlowContextImpl implements FlowContext, Serializable {
 
-    /** Implementation independent log category. */
-    private Log log = LogFactory.getLog(FlowContext.class);
+    public static final Logger log = FlowLogger.FLOW.getLogger();
     /** The parent Context to this Context. */
     private FlowContext parent;
     /** The Map of variables and their values in this Context. */
@@ -153,8 +153,8 @@ public class FlowContextImpl implements FlowContext, Serializable {
     @Override
     public void setLocal(final String name, final Object value) {
         vars.put(name, value);
-        if (log.isDebugEnabled() && !name.equals("_ALL_STATES")) {
-            log.debug(name + " = " + String.valueOf(value));
+        if (log.isLoggable(Level.FINE) && !name.equals("_ALL_STATES")) {
+            log.log(Level.FINE, "{0} = {1}", new Object[]{name, String.valueOf(value)});
         }
     }
 
@@ -175,24 +175,6 @@ public class FlowContextImpl implements FlowContext, Serializable {
     @Override
     public Map getVars() {
         return vars;
-    }
-
-    /**
-     * Set the log used by this <code>Context</code> instance.
-     *
-     * @param log The new log.
-     */
-    protected void setLog(final Log log) {
-        this.log = log;
-    }
-
-    /**
-     * Get the log used by this <code>Context</code> instance.
-     *
-     * @return Log The log being used.
-     */
-    protected Log getLog() {
-        return log;
     }
 
 }

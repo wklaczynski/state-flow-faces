@@ -24,11 +24,8 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.context.FacesContext;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ssoft.faces.state.FlowConstants;
 import org.ssoft.faces.state.log.FlowLogger;
-import org.ssoft.faces.state.cdi.StateFlowCDIExtension;
 
 /**
  *
@@ -36,13 +33,10 @@ import org.ssoft.faces.state.cdi.StateFlowCDIExtension;
  */
 public class Util {
 
-    // Log instance for this class
-    private static final Logger LOGGER = FlowLogger.APPLICATION.getLogger();
-
     /**
      * Stores the logger.
      */
-    private final static Log log = LogFactory.getLog(StateFlowCDIExtension.class);
+    public static final Logger log = FlowLogger.APPLICATION.getLogger();
 
     public static boolean isCdiOneOneOrGreater() {
 
@@ -53,8 +47,8 @@ public class Util {
             Class.forName("javax.enterprise.context.Initialized");
             result = true;
         } catch (ClassNotFoundException ignored) {
-            if (log.isDebugEnabled()) {
-                log.debug("Dected CDI 1.0", ignored);
+            if (log.isLoggable(Level.FINE)) {
+                log.log(Level.FINE, "Dected CDI 1.0", ignored);
             }
         }
         return result;
@@ -78,8 +72,8 @@ public class Util {
                 Class.forName("javax.enterprise.context.Initialized");
                 result = true;
             } catch (ClassNotFoundException ignored) {
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.log(Level.FINEST, "Detected CDI 1.0", ignored);
+                if (log.isLoggable(Level.FINEST)) {
+                    log.log(Level.FINEST, "Detected CDI 1.0", ignored);
                 }
             }
 
@@ -209,8 +203,8 @@ public class Util {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.log(Level.FINEST, "Closing stream", e);
+                    if (log.isLoggable(Level.FINEST)) {
+                        log.log(Level.FINEST, "Closing stream", e);
                     }
                 }
             }
@@ -240,7 +234,7 @@ public class Util {
                     postConstruct.invoke(instance);
                     postConstruct.setAccessible(accessibility);
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                    LOGGER.log(Level.SEVERE, "Post Construct Error " + instance.getClass().getName(), ex);
+                    log.log(Level.SEVERE, "Post Construct Error " + instance.getClass().getName(), ex);
                 }
             }
 
@@ -271,16 +265,16 @@ public class Util {
                     preDestroy.invoke(instance);
                     preDestroy.setAccessible(accessibility);
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                    LOGGER.log(Level.SEVERE, "Pre Destroy Error " + instance.getClass().getName(), ex);
+                    log.log(Level.SEVERE, "Pre Destroy Error " + instance.getClass().getName(), ex);
                 }
             }
 
             clazz = clazz.getSuperclass();
         }
     }
-    
+
     private static final String FACES_CONTEXT_ATTRIBUTES_XMLDECL_KEY = Util.class.getName() + "_FACES_CONTEXT_ATTRS_XMLDECL_KEY";
-    
+
     public static void saveXMLDECLToFacesContextAttributes(String XMLDECL) {
         FacesContext context = FacesContext.getCurrentInstance();
         if (null == context) {
@@ -288,9 +282,9 @@ public class Util {
         }
         Map<Object, Object> attrs = context.getAttributes();
         attrs.put(FACES_CONTEXT_ATTRIBUTES_XMLDECL_KEY, XMLDECL);
-        
+
     }
-    
+
     public static String getXMLDECLFromFacesContextAttributes(FacesContext context) {
         if (null == context) {
             return null;
@@ -298,9 +292,9 @@ public class Util {
         Map<Object, Object> attrs = context.getAttributes();
         return (String) attrs.get(FACES_CONTEXT_ATTRIBUTES_XMLDECL_KEY);
     }
-    
+
     private static final Pattern EXTENSION_PATTERN = Pattern.compile("\\.[^/]+$");
-    
+
     public static String getExtension(String alias) {
         String ext = null;
 
@@ -311,7 +305,7 @@ public class Util {
             }
         }
 
-        return (ext == null) ? "xhtml": ext;
+        return (ext == null) ? "xhtml" : ext;
     }
-    
+
 }

@@ -15,7 +15,7 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.context.Flash;
 import javax.faces.state.StateFlowHandler;
-import javax.faces.state.component.UIStateChartFlow;
+import javax.faces.state.component.StateChartFlow;
 import javax.faces.state.model.StateChart;
 import javax.faces.view.ViewMetadata;
 
@@ -45,7 +45,7 @@ public class ViewMetadataImpl extends ViewMetadata {
 
         UIComponent facet = viewRoot.getFacet(StateChart.STATECHART_FACET_NAME);
         if (facet != null) {
-            UIStateChartFlow uichart = (UIStateChartFlow) facet.findComponent("main");
+            StateChartFlow uichart = (StateChartFlow) facet.findComponent("main");
             if (uichart != null) {
                 stateChart = uichart.getStateChart();
             }

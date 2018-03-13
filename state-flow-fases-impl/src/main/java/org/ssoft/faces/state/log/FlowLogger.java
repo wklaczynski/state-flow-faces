@@ -22,6 +22,7 @@ public enum FlowLogger {
 
     FACES("faces"),
     FLOW("flow"),
+    CDI("cdi"),
     PARSER("parser"),
     APPLICATION("apps"),
     TAGLIB("taglib")

@@ -5,7 +5,6 @@
  */
 package org.ssoft.faces.state;
 
-import org.ssoft.faces.state.impl.StateFlowCache;
 import com.sun.faces.application.ApplicationAssociate;
 import com.sun.faces.facelets.impl.DefaultFaceletFactory;
 import com.sun.faces.util.RequestStateManager;
@@ -27,7 +26,6 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.inject.spi.BeanManager;
-import javax.faces.application.ProjectStage;
 import static javax.faces.application.StateManager.IS_BUILDING_INITIAL_STATE;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
@@ -50,15 +48,13 @@ import javax.faces.view.facelets.Facelet;
 import javax.servlet.ServletContext;
 import static org.ssoft.faces.state.FlowConstants.ANNOTATED_CLASSES;
 import org.ssoft.faces.state.cdi.StateChartScopeCDIContex;
-import org.ssoft.faces.state.impl.DefaultStateFlowCache;
-import org.ssoft.faces.state.impl.DefaultStateFlowFactory;
 import org.ssoft.faces.state.invokers.SubInvoker;
 import org.ssoft.faces.state.invokers.ViewInvoker;
 import org.ssoft.faces.state.utils.AsyncTrigger;
 import org.ssoft.faces.state.utils.Util;
 import javax.faces.state.annotation.FlowAction;
 import javax.faces.state.annotation.FlowInvoker;
-import javax.faces.state.component.UIStateChartFlow;
+import javax.faces.state.component.StateChartFlow;
 
 /**
  *
@@ -70,8 +66,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     private List<CustomAction> customActions = Collections.synchronizedList(new ArrayList<>());
     private final Map<String, Class<?>> customInvokers = Collections.synchronizedMap(new HashMap<>());
     private final ServletContext ctx;
-
-    private DefaultStateFlowFactory stateFlowFactory;
 
     public StateFlowHandlerImpl(ServletContext ctx) {
         super();
@@ -95,40 +89,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
         }
 
-    }
-
-    public DefaultStateFlowFactory getStateFlowFactory() {
-        if (stateFlowFactory == null) {
-            stateFlowFactory = createStateFlowFactory();
-        }
-        return stateFlowFactory;
-    }
-
-    protected DefaultStateFlowFactory createStateFlowFactory() {
-        FacesContext fc = FacesContext.getCurrentInstance();
-
-        boolean isProduction = fc.getApplication().getProjectStage() == ProjectStage.Production;
-        String refreshPeriod;
-        String parametr = ctx.getInitParameter(FlowConstants.STATEFLOW_REFRESH_PERIOD_PARAM_NAME);
-        if (parametr != null && !parametr.isEmpty()) {
-            refreshPeriod = parametr;
-        } else if (isProduction) {
-            refreshPeriod = "-1";
-        } else {
-            refreshPeriod = "0";
-        }
-
-        long period = Long.parseLong(refreshPeriod);
-
-        StateFlowCache cache = new DefaultStateFlowCache(period);
-
-        PathResolver resolver = new ServletContextResolver(ctx);
-
-        DefaultStateFlowFactory toFactory = new DefaultStateFlowFactory(this);
-
-        toFactory.init(cache, period, resolver);
-
-        return toFactory;
     }
 
     @Override
@@ -553,7 +513,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 
                 UIComponent facet = view.getFacet(StateChart.STATECHART_FACET_NAME);
                 if(facet != null) {
-                    UIStateChartFlow uichart = (UIStateChartFlow) facet.findComponent("main");
+                    StateChartFlow uichart = (StateChartFlow) facet.findComponent("main");
                     if(uichart != null) {
                         stateChart = uichart.getStateChart();                   
                     }

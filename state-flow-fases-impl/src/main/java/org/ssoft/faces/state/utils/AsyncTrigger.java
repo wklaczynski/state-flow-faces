@@ -7,24 +7,24 @@ package org.ssoft.faces.state.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.state.FlowTriggerEvent;
 import javax.faces.state.ModelException;
 import javax.faces.state.StateFlowExecutor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.ssoft.faces.state.log.FlowLogger;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
 public class AsyncTrigger implements Runnable {
-
+    
+    public static final Logger log = FlowLogger.FLOW.getLogger();
 
     private final StateFlowExecutor executor;
 
     private final List<FlowTriggerEvent> events;
-
-    private final Log log = LogFactory.getLog(AsyncTrigger.class);
 
     public AsyncTrigger(final StateFlowExecutor executor, final FlowTriggerEvent event) {
         this.executor = executor;
@@ -79,7 +79,7 @@ public class AsyncTrigger implements Runnable {
                 executor.triggerEvents(evts);
             }
         } catch (ModelException me) {
-            log.error(me.getMessage(), me);
+            log.log(Level.SEVERE, me.getMessage(), me);
         }
     }
 }

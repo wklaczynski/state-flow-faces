@@ -330,8 +330,7 @@ public class Send extends Action implements ExternalContent {
             }
         }
         // Lets see if we should handle it ourselves
-        if (targettypeValue != null
-                && targettypeValue.trim().equalsIgnoreCase(TARGETTYPE_SCXML)) {
+        if (targettypeValue != null && targettypeValue.trim().equalsIgnoreCase(TARGETTYPE_SCXML)) {
             if (StateFlowHelper.isStringEmpty(targetValue)) {
                 // TODO: Remove both short-circuit passes in v1.0
                 if (wait == 0L) {
@@ -358,8 +357,7 @@ public class Send extends Action implements ExternalContent {
             log.log(Level.FINE, "<send>: Dispatching event ''{0}'' to target ''{1}'' of target type ''{2}'' with suggested delay of {3}ms", new Object[]{eventValue, targetValue, targettypeValue, wait});
         }
         // Else, let the EventDispatcher take care of it
-        evtDispatcher.send(sendid, targetValue, targettypeValue, eventValue,
-                params, hintsValue, wait, externalNodes);
+        evtDispatcher.send(sendid, targetValue, targettypeValue, eventValue, params, hintsValue, wait, externalNodes);
     }
 
     /**

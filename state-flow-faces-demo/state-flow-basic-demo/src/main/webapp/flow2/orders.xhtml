@@ -39,7 +39,7 @@
             </x:invoke>
             <x:transition event="show-order.invoke.cancel" target="main"/>
             <x:transition event="show-order.invoke.success" target="main">
-                <x:send event="sss" type="method"/>
+                <x:send event="update" target="#{orders.dispatchSend}"/>
             </x:transition>
         </x:state>      
 

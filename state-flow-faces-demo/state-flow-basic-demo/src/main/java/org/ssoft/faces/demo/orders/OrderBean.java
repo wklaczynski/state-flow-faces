@@ -32,5 +32,8 @@ public class OrderBean implements Serializable {
         this.selected = selected;
     }
     
+    public void dispatchSend() {
+        
+    }
     
 }

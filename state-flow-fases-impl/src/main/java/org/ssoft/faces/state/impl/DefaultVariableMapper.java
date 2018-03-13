@@ -37,6 +37,7 @@ public class DefaultVariableMapper extends VariableMapper {
 
     /**
      * @param name
+     * @param expression
      * @return 
      * @see javax.el.VariableMapper#setVariable(java.lang.String, javax.el.ValueExpression)
      */

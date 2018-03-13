@@ -5,6 +5,8 @@
  */
 package org.ssoft.faces.state.cdi;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.Bean;
@@ -13,11 +15,10 @@ import javax.enterprise.inject.spi.BeforeBeanDiscovery;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessBean;
 import javax.faces.state.annotation.StateScoped;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ssoft.faces.state.utils.Util;
 import javax.faces.state.annotation.ParallelScoped;
 import javax.faces.state.annotation.StateChartScoped;
+import org.ssoft.faces.state.log.FlowLogger;
 
 /**
  *
@@ -27,7 +28,7 @@ public class StateFlowCDIExtension implements Extension {
 
     private boolean cdiOneOneOrGreater = false;
 
-    private final Log log = LogFactory.getLog(StateFlowCDIExtension.class);
+    public static final Logger log = FlowLogger.CDI.getLogger();
 
     public StateFlowCDIExtension() {
         cdiOneOneOrGreater = Util.isCdiOneOneOrGreater();
@@ -41,16 +42,16 @@ public class StateFlowCDIExtension implements Extension {
 
     public void processBean(@Observes ProcessBean<?> event) {
         StateChartScoped dialogScoped = event.getAnnotated().getAnnotation(StateChartScoped.class);
-        if (dialogScoped != null && log.isDebugEnabled()) {
-            log.debug("Processing occurrence of @DialogScoped");
+        if (dialogScoped != null && log.isLoggable(Level.FINE)) {
+            log.log(Level.FINE, "Processing occurrence of @DialogScoped");
         }
         ParallelScoped parallerScoped = event.getAnnotated().getAnnotation(ParallelScoped.class);
-        if (parallerScoped != null && log.isDebugEnabled()) {
-            log.debug("Processing occurrence of @ParallerScoped");
+        if (dialogScoped != null && log.isLoggable(Level.FINE)) {
+            log.log(Level.FINE, "Processing occurrence of @ParallerScoped");
         }
         StateScoped stateScoped = event.getAnnotated().getAnnotation(StateScoped.class);
-        if (stateScoped != null && log.isDebugEnabled()) {
-            log.debug("Processing occurrence of @StateScoped");
+        if (dialogScoped != null && log.isLoggable(Level.FINE)) {
+            log.log(Level.FINE, "Processing occurrence of @StateScoped");
         }
 
     }
@@ -68,8 +69,8 @@ public class StateFlowCDIExtension implements Extension {
             try {
                 clazz = Class.forName(StateFlowCDIEventFireHelperImpl.class.getName());
             } catch (ClassNotFoundException ex) {
-                if (log.isErrorEnabled()) {
-                    log.error("CDI 1.1 events not enabled", ex);
+                if (log.isLoggable(Level.SEVERE)) {
+                    log.log(Level.SEVERE, "CDI 1.1 events not enabled", ex);
                 }
                 return;
             }

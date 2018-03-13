@@ -10,8 +10,6 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Map;
 import javax.el.FunctionMapper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -19,7 +17,6 @@ import org.apache.commons.logging.LogFactory;
  */
 public class TagsFunctionMapper extends FunctionMapper implements Serializable {
 
-    private final Log log = LogFactory.getLog(TagsFunctionMapper.class);
     private final Map namespaces;
     private final TagLibrary tagLibrary;
 

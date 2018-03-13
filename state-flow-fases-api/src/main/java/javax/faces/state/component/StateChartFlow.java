@@ -5,7 +5,6 @@
  */
 package javax.faces.state.component;
 
-import javax.faces.component.UIComponentBase;
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.event.ComponentSystemEventListener;
 import javax.faces.event.PostRestoreStateEvent;
@@ -15,42 +14,26 @@ import javax.faces.state.model.StateChart;
  *
  * @author Waldemar Kłaczyński
  */
-public class UIStateChartFlow extends UIComponentBase {
+public class StateChartFlow extends UIStateFlow {
 
-    // ------------------------------------------------------ Manifest Constants
-    /**
-     * <p>
-     * The standard component type for this component.</p>
-     */
-    public static final String COMPONENT_TYPE = "javax.faces.UIStateChartFlow";
-
-    /**
-     * <p>
-     * The standard component family for this component.</p>
-     */
-    public static final String COMPONENT_FAMILY = "javax.faces.UIStateChartFlow";
+    public static final String COMPONENT_TYPE = "javax.faces.StateChartFlow";
 
     enum PropertyKeys {
         stateChart
     }
 
     @SuppressWarnings("OverridableMethodCallInConstructor")
-    public UIStateChartFlow() {
+    public StateChartFlow() {
         super();
         setRendererType(null);
         setRendered(false);
-        setTransient(false);
+        setTransient(true);
 
         addFacesListener((ComponentSystemEventListener) (ComponentSystemEvent event) -> {
             if (event instanceof PostRestoreStateEvent) {
                 postRestoreState();
             }
         });
-    }
-
-    @Override
-    public String getFamily() {
-        return (COMPONENT_FAMILY);
     }
 
     public StateChart getStateChart() {

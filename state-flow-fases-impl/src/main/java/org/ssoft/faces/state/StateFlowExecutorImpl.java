@@ -5,7 +5,6 @@
  */
 package org.ssoft.faces.state;
 
-import org.ssoft.faces.state.log.FlowErrorReporterImpl;
 import javax.faces.state.FlowErrorReporter;
 import javax.faces.state.FlowEvaluator;
 import javax.faces.state.FlowEventDispatcher;
@@ -15,6 +14,7 @@ import javax.faces.state.StateFlowExecutor;
 import org.ssoft.faces.state.el.FlowEvaluatorImpl;
 import org.ssoft.faces.state.semantics.StateChartSemanticsImpl;
 import javax.faces.state.semantics.StateChartSemantics;
+import org.ssoft.faces.state.log.FlowErrorReporterImpl;
 
 /**
  *

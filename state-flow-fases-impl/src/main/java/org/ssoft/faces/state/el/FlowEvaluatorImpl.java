@@ -75,7 +75,7 @@ public class FlowEvaluatorImpl implements FlowEvaluator, Serializable {
         }
     }
 
-    public void evalSet(FlowContext ctx, String expr, Object value) throws FlowExpressionException {
+    public void evalSet(FlowContext ctx, String expr, Object value, FunctionMapper functionMapper) throws FlowExpressionException {
         if (expr == null) {
             return;
         }

@@ -9,13 +9,13 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.state.FlowErrorReporter;
 import javax.faces.state.model.State;
 import javax.faces.state.model.StateChart;
 import javax.faces.state.model.TransitionTarget;
 import javax.faces.state.semantics.ErrorConstants;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ssoft.faces.state.utils.LogUtils;
 
 /**
@@ -27,7 +27,7 @@ public class FlowErrorReporterImpl implements FlowErrorReporter, Serializable {
     /** Serial version UID. */
     private static final long serialVersionUID = 1L;
     /** Log. */
-    private final Log log = LogFactory.getLog(getClass());
+    public static final Logger log = FlowLogger.FLOW.getLogger();
 
     /**
      * Constructor.
@@ -89,8 +89,8 @@ public class FlowErrorReporterImpl implements FlowErrorReporter, Serializable {
                 msg.append(']');
             }
         }
-        if (log.isWarnEnabled()) {
-            log.warn(msg.toString());
+        if (log.isLoggable(Level.WARNING)) {
+            log.log(Level.WARNING, msg.toString());
         }
     }
 

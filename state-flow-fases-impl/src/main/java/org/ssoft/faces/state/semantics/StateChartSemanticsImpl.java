@@ -19,6 +19,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.context.FacesContext;
 import javax.faces.state.ModelException;
@@ -40,8 +42,6 @@ import javax.faces.state.model.StateChart;
 import javax.faces.state.model.Transition;
 import javax.faces.state.model.TransitionTarget;
 import javax.faces.state.utils.StateFlowHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import javax.faces.state.FlowStep;
 import javax.faces.state.FlowContext;
 import javax.faces.state.FlowEventDispatcher;
@@ -50,12 +50,12 @@ import javax.faces.state.FlowEvaluator;
 import javax.faces.state.FlowExpressionException;
 import javax.faces.state.FlowNotificationRegistry;
 import javax.faces.state.PathResolver;
-import javax.faces.state.NamespacePrefixesHolder;
 import javax.faces.state.model.Param;
 import javax.faces.state.PathResolverHolder;
 import org.ssoft.faces.state.cdi.CdiUtil;
 import org.ssoft.faces.state.utils.Util;
 import javax.faces.state.semantics.StateChartSemantics;
+import org.ssoft.faces.state.log.FlowLogger;
 
 /**
  *
@@ -66,7 +66,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
     /**
      * SCXML Logger for the application.
      */
-    private Log appLog = LogFactory.getLog(StateChartSemantics.class);
+    public static final Logger log = FlowLogger.FLOW.getLogger();
 
     /**
      * The TransitionTarget comparator.
@@ -692,7 +692,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                 try {
                     inv.parentEvents(events);
                 } catch (InvokerException ie) {
-                    appLog.error(ie.getMessage(), ie);
+                    log.log(Level.SEVERE, ie.getMessage(), ie);
                     throw new ModelException(ie.getMessage(), ie.getCause());
                 }
             }
@@ -877,24 +877,6 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
      */
     protected Comparator getTTComparator() {
         return targetComparator;
-    }
-
-    /**
-     * Set the log used by this <code>SCXMLSemantics</code> instance.
-     *
-     * @param log The new log.
-     */
-    protected void setLog(final Log log) {
-        this.appLog = log;
-    }
-
-    /**
-     * Get the log used by this <code>SCXMLSemantics</code> instance.
-     *
-     * @return Log The log being used.
-     */
-    protected Log getLog() {
-        return appLog;
     }
 
 }

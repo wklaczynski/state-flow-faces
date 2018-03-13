@@ -9,15 +9,16 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.state.model.TransitionTarget;
 import javax.xml.transform.TransformerException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ssoft.faces.state.utils.SFHelper;
 import org.apache.xml.utils.PrefixResolver;
 import org.apache.xpath.XPath;
 import org.apache.xpath.XPathAPI;
 import org.apache.xpath.XPathContext;
+import org.ssoft.faces.state.log.FlowLogger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -27,6 +28,8 @@ import org.w3c.dom.NodeList;
  */
 public class Builtin implements Serializable {
 
+    public static final Logger log = FlowLogger.FLOW.getLogger();
+    
     /**
      * Implements the In() predicate for flow documents. The method
      * name chosen is different since &quot;in&quot; is a reserved token
@@ -64,8 +67,7 @@ public class Builtin implements Serializable {
      */
     public static Node dataNode(final Map namespaces, final Object data, final String path) {
         if (data == null || !(data instanceof Node)) {
-            Log log = LogFactory.getLog(Builtin.class);
-            log.error("Data(): Cannot evaluate an XPath expression"
+            log.log(Level.SEVERE, "Data(): Cannot evaluate an XPath expression"
                 + " in the absence of a context Node, null returned");
             return null;
         }
@@ -73,11 +75,10 @@ public class Builtin implements Serializable {
         NodeList result;
         try {
             if (namespaces == null || namespaces.isEmpty()) {
-                Log log = LogFactory.getLog(Builtin.class);
-                if (log.isDebugEnabled()) {
-                    log.debug("Turning off namespaced XPath evaluation since "
-                        + "no namespace information is available for path: "
-                        + path);
+                if (log.isLoggable(Level.FINE)) {
+                    log.log(Level.FINE, "Turning off namespaced XPath evaluation "
+                            + "since no namespace information is available for "
+                            + "path: {0}", path);
                 }
                 result = XPathAPI.selectNodeList(dataNode, path);
             } else {
@@ -90,21 +91,18 @@ public class Builtin implements Serializable {
                     prefixResolver).nodelist();
             }
         } catch (TransformerException te) {
-            Log log = LogFactory.getLog(Builtin.class);
-            log.error(te.getMessage(), te);
+            log.log(Level.SEVERE, te.getMessage(), te);
             return null;
         }
         int length = result.getLength();
         if (length == 0) {
-            Log log = LogFactory.getLog(Builtin.class);
-            log.warn("Data(): No nodes matching the XPath expression \""
-                + path + "\", returning null");
+            log.log(Level.WARNING, "Data(): No nodes matching the XPath"
+                    + " expression \"{0}\", returning null", path);
             return null;
         } else {
             if (length > 1) {
-                Log log = LogFactory.getLog(Builtin.class);
-                log.warn("Data(): Multiple nodes matching XPath expression \""
-                    + path + "\", returning first");
+                log.log(Level.WARNING, "Data(): Multiple nodes matching XPath"
+                        + " expression \"{0}\", returning first", path);
             }
             return result.item(0);
         }
@@ -161,8 +159,7 @@ public class Builtin implements Serializable {
      */
     public static Node dataNode(final Object data, final String path) {
         if (data == null || !(data instanceof Node)) {
-            Log log = LogFactory.getLog(Builtin.class);
-            log.error("Data(): Cannot evaluate an XPath expression"
+            log.log(Level.SEVERE, "Data(): Cannot evaluate an XPath expression"
                 + " in the absence of a context Node, null returned");
             return null;
         }
@@ -171,21 +168,18 @@ public class Builtin implements Serializable {
         try {
             result = XPathAPI.selectNodeList(dataNode, path);
         } catch (TransformerException te) {
-            Log log = LogFactory.getLog(Builtin.class);
-            log.error(te.getMessage(), te);
+            log.log(Level.SEVERE, te.getMessage(), te);
             return null;
         }
         int length = result.getLength();
         if (length == 0) {
-            Log log = LogFactory.getLog(Builtin.class);
-            log.warn("Data(): No nodes matching the XPath expression \""
-                + path + "\", returning null");
+            log.log(Level.WARNING, "Data(): No nodes matching the XPath "
+                    + "expression \"{0}\", returning null", path);
             return null;
         } else {
             if (length > 1) {
-                Log log = LogFactory.getLog(Builtin.class);
-                log.warn("Data(): Multiple nodes matching XPath expression \""
-                    + path + "\", returning first");
+                log.log(Level.WARNING, "Data(): Multiple nodes matching XPath "
+                        + "expression \"{0}\", returning first", path);
             }
             return result.item(0);
         }

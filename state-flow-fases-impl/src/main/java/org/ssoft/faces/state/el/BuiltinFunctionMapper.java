@@ -9,9 +9,10 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.el.FunctionMapper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.ssoft.faces.state.log.FlowLogger;
 
 /**
  *
@@ -20,7 +21,7 @@ import org.apache.commons.logging.LogFactory;
 public class BuiltinFunctionMapper extends FunctionMapper implements Serializable {
 
         private static final long serialVersionUID = 1L;
-        private final Log log = LogFactory.getLog(BuiltinFunctionMapper.class);
+        public static final Logger log = FlowLogger.FLOW.getLogger();
 
         public BuiltinFunctionMapper() {
             super();
@@ -34,7 +35,7 @@ public class BuiltinFunctionMapper extends FunctionMapper implements Serializabl
                     try {
                         return Builtin.class.getMethod("isMember", attrs);
                     } catch (SecurityException | NoSuchMethodException e) {
-                        log.error("resolving isMember(Set, String)", e);
+                        log.log(Level.SEVERE, "resolving isMember(Set, String)", e);
                     }
                 }
                 case "Data": {
@@ -44,7 +45,7 @@ public class BuiltinFunctionMapper extends FunctionMapper implements Serializabl
                     try {
                         return Builtin.class.getMethod("data", attrs);
                     } catch (SecurityException | NoSuchMethodException e) {
-                        log.error("resolving data(Node, String)", e);
+                        log.log(Level.SEVERE, "resolving data(Node, String)", e);
                     }
                 }
                 case "LData": {
@@ -54,7 +55,7 @@ public class BuiltinFunctionMapper extends FunctionMapper implements Serializabl
                     try {
                         return Builtin.class.getMethod("dataNode", attrs);
                     } catch (SecurityException | NoSuchMethodException e) {
-                        log.error("resolving data(Node, String)", e);
+                        log.log(Level.SEVERE, "resolving data(Node, String)", e);
                     }
                 }
                 default:
