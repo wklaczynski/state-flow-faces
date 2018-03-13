@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<scxml 
+    xmlns="http://faces.apache.com/flow/scxml"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:pui="http://www.azzumi.com/scxml/portal"
+    initial="start">
+
+    <state id="start">
+        <onentry>
+            <if cond="#{main.prepare()}">
+                <raise event="main.prepare.success"/>
+                <else/>
+                <raise event="main.prepare.failed"/>
+            </if>
+        </onentry>
+        <transition event="main.prepare.success" target="main"/>
+        <transition event="main.prepare.failed" target="exit"/>
+    </state>
+
+    <state id="main">
+        <invoke type="view" src="StartPage.xhtml"/>
+    </state> 
+    
+    <parallel>
+        <state id="state_a">
+            <initial>
+                <transition target="state_ab"/>
+            </initial>
+            <state id="state_ab">
+                <invoke type="view" src="StartPage.xhtml"/>
+            </state> 
+        </state> 
+        <state id="state_b">
+            <invoke type="view" src="StartPage.xhtml"/>
+        </state> 
+    </parallel>
+    
+    
+    <state id="error"> 
+        <invoke type="scxml" src="/common/error.scxml">
+            <finalize/>
+        </invoke>
+        <transition event="error.invoke.done" target="exit"/>
+    </state>      
+
+    <final id="exit">
+        <onexit>
+        </onexit>
+    </final>
+
+</scxml>

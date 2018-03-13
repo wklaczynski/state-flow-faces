@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<faces-config
+    xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+    http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
+    version="2.0">
+
+    <ordering>
+        <before>
+            <others />
+        </before>
+    </ordering>    
+    
+    <application>
+        <el-resolver>org.apache.faces.state.jsf.ViewELResolver</el-resolver>
+        <el-resolver>org.apache.faces.state.jsf.StateFlowScopeELResolver</el-resolver>
+        <navigation-handler>org.apache.faces.state.jsf.StateFlowNavigationHandler</navigation-handler>
+        <view-handler>org.apache.faces.state.jsf.StateFlowViewHandler</view-handler>
+    </application>
+    
+    <factory>
+        <view-declaration-language-factory>org.apache.faces.state.jsf.StateFlowViewDeclarationLanguageFactory</view-declaration-language-factory>
+    </factory>
+
+    <component>
+        <component-type>javax.faces.UIStateChartFlow</component-type>
+        <component-class>javax.faces.state.component.UIStateChartFlow</component-class>
+    </component>
+    
+    
+</faces-config>

@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<f:metadata
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:x="http://faces.apache.com/flow/scxml"
+    xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+    >
+    <x:scxml id="main" initial="start">
+
+        <x:datamodel>
+            <x:data id="phone" expr="2321331233444455"/>
+        </x:datamodel>
+
+        <x:state id="start">
+            <x:onentry>
+                <x:if cond="#{main.prepare()}">
+                    <x:raise event="main.prepare.success"/>
+                    <x:else/>
+                    <x:raise event="main.prepare.failed"/>
+                </x:if>
+            </x:onentry>
+            <x:transition event="main.prepare.success" target="main"/>
+            <x:transition event="main.prepare.failed" target="exit"/>
+        </x:state>
+
+        <x:state id="main">
+            <x:invoke type="view" src="StartPage.xhtml"/>
+        </x:state> 
+
+        <x:parallel>
+
+            <x:state id="state_a">
+                <x:invoke type="view" src="StartPage.xhtml"/>
+            </x:state> 
+
+            <x:state id="state_b">
+                <x:invoke type="view" src="StartPage.xhtml"/>
+            </x:state> 
+
+        </x:parallel>
+
+        <x:state id="error"> 
+            <x:invoke type="scxml" src="/common/error.scxml">
+                <x:finalize/>
+            </x:invoke>
+            <x:transition event="error.invoke.done" target="exit"/>
+        </x:state>      
+
+        <x:final id="exit">
+            <x:onexit>
+
+            </x:onexit>
+        </x:final>
+
+    </x:scxml>    
+
+</f:metadata>
