@@ -57,7 +57,7 @@ public class StateFlowCDIExtension implements Extension {
 
     public void afterBean(@Observes final AfterBeanDiscovery event, BeanManager beanManager) {
 
-        event.addContext(new DialogScopeCDIContex(beanManager));
+        event.addContext(new StateChartScopeCDIContex(beanManager));
         event.addContext(new ParallelScopeCDIContext(beanManager));
         event.addContext(new StateScopeCDIContex(beanManager));
 //        event.addBean(new NamespaceMapProducer());

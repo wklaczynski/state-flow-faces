@@ -29,16 +29,16 @@ import javax.servlet.http.HttpSession;
  *
  * @author Waldemar Kłaczyński
  */
-public class DialogScopeCDIContex extends AbstractContext {
+public class StateChartScopeCDIContex extends AbstractContext {
 
     private static final Logger LOGGER = FlowLogger.FLOW.getLogger();
 
-    private static final String STORAGE_KEY = "_____@@@SopeDialogContext____";
-    private static final String SESSION_STORAGES_LIST = DialogScopeCDIContex.class.getPackage().getName() + ".STATE_FOW_STORAGES";
+    private static final String STORAGE_KEY = "_____@@@SopeStateChartContext____";
+    private static final String SESSION_STORAGES_LIST = StateChartScopeCDIContex.class.getPackage().getName() + ".STATE_FOW_STORAGES";
     
     private final BeanManager beanManager;
 
-    public DialogScopeCDIContex(BeanManager beanManager) {
+    public StateChartScopeCDIContex(BeanManager beanManager) {
         super(beanManager);
         this.beanManager = beanManager;
     }
@@ -90,13 +90,6 @@ public class DialogScopeCDIContex extends AbstractContext {
         }
         return result;
     }
-
-//    public void onExitEvent(@Observes StateFlowOnExitEvent event) {
-//        StateFlowExecutor executor = getExecutor();
-//        if (executor.getCurrentStatus().isFinal()) {
-//            destroyAllActive();
-//        }
-//    }
 
     public static void sessionDestroyed(HttpSessionEvent hse) {
         HttpSession session = hse.getSession();

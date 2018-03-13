@@ -20,10 +20,10 @@ public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHel
 
     @Inject
     @Initialized(DialogScoped.class)
-    Event<StateFlowExecutor> dialogScopeInitializedEvent;
+    Event<StateFlowExecutor> stateChartScopeInitializedEvent;
     @Inject
     @Destroyed(DialogScoped.class)
-    Event<StateFlowExecutor> dialogScopeDestroyedEvent;
+    Event<StateFlowExecutor> stateChartScopeDestroyedEvent;
 
     @Inject
     @Initialized(StateScoped.class)
@@ -43,12 +43,12 @@ public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHel
 
     @Override
     public void fireExecutorInitializedEvent(StateFlowExecutor executor) {
-        dialogScopeInitializedEvent.fire(executor);
+        stateChartScopeInitializedEvent.fire(executor);
     }
 
     @Override
     public void fireExecutorDestroyedEvent(StateFlowExecutor executor) {
-        dialogScopeDestroyedEvent.fire(executor);
+        stateChartScopeDestroyedEvent.fire(executor);
     }
 
     @Override

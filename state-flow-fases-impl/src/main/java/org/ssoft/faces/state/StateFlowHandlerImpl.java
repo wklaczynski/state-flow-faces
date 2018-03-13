@@ -49,7 +49,7 @@ import javax.faces.state.model.StateChart;
 import javax.faces.view.facelets.Facelet;
 import javax.servlet.ServletContext;
 import static org.ssoft.faces.state.FlowConstants.ANNOTATED_CLASSES;
-import org.ssoft.faces.state.cdi.DialogScopeCDIContex;
+import org.ssoft.faces.state.cdi.StateChartScopeCDIContex;
 import org.ssoft.faces.state.impl.DefaultStateFlowCache;
 import org.ssoft.faces.state.impl.DefaultStateFlowFactory;
 import org.ssoft.faces.state.invokers.SubInvoker;
@@ -301,7 +301,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 if (roots.peek() != id) {
                     roots.push(id);
                 }
-                DialogScopeCDIContex.flowExecutorEntered(executor);
+                StateChartScopeCDIContex.flowExecutorEntered(executor);
             }
 
             try {
@@ -385,7 +385,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             trigger.start();
         }
 
-        DialogScopeCDIContex.flowExecutorExited(executor);
+        StateChartScopeCDIContex.flowExecutorExited(executor);
     }
 
     static FlowDeque<StateFlowExecutor> getFlowStack(FacesContext context, boolean create) {

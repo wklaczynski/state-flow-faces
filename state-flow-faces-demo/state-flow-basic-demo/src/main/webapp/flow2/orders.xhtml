@@ -7,6 +7,10 @@
     >
     <x:scxml initial="start">
 
+        <x:datamodel>
+            <x:data id="hasback" expr="#{scxml_has_parent == true}"/>
+        </x:datamodel>
+
         <x:state id="start">
             <x:onentry>
                 <x:if cond="#{orders.prepare()}">
@@ -21,19 +25,32 @@
 
         <x:state id="main">
             <x:invoke type="view" src="Main.xhtml"/>
+
+            <x:transition event="show.view.show" target="show-order"/>
+            <!--x:transition event="main.view.insert" target="insert-order"/>
+            <x:transition event="main.view.edit" target="insert-order"/>
+            <x:transition event="main.view.remove" target="insert-order"/-->
         </x:state> 
 
-        <x:parallel>
+        <x:state id="show-order"> 
+            <x:invoke type="view" src="show-order.xhtml">
+                <x:param name="id"  expr="#{orders.selected}"/>
+                <x:param name="name" expr="#{orders.selected.name}"/>
+            </x:invoke>
+            <x:transition event="show-order.invoke.cancel" target="main"/>
+            <x:transition event="show-order.invoke.success" target="main">
+                <x:assign location="" expr=""/>
+            </x:transition>
+        </x:state>      
 
-            <x:state id="state_a">
-                <x:invoke type="view" src="StartPage.xhtml"/>
-            </x:state> 
 
-            <x:state id="state_b">
-                <x:invoke type="view" src="StartPage.xhtml"/>
-            </x:state> 
 
-        </x:parallel>
+
+
+
+
+
+
 
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml">
