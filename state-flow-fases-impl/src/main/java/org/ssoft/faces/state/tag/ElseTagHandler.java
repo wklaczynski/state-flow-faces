@@ -28,6 +28,7 @@ public class ElseTagHandler extends AbstractFlowTagHandler<Else> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         Else action = new Else();
+        decorate(ctx, parent, action);
 
         applyNext(ctx, parent, action);
 

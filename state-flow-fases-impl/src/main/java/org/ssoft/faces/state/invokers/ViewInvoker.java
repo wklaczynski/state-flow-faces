@@ -6,13 +6,14 @@ package org.ssoft.faces.state.invokers;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.application.Application;
 import javax.faces.application.ConfigurableNavigationHandler;
 import javax.faces.application.NavigationCase;
@@ -41,6 +42,7 @@ import javax.faces.state.model.State;
 import javax.faces.state.model.TransitionTarget;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
+import org.ssoft.faces.state.jsf.StateFlowNavigationHandler;
 import org.ssoft.faces.state.utils.AsyncTrigger;
 import org.ssoft.faces.state.utils.SharedUtils;
 
@@ -49,6 +51,8 @@ import org.ssoft.faces.state.utils.SharedUtils;
  * @author Waldemar Kłaczyński
  */
 public class ViewInvoker implements Invoker, Serializable, PathResolverHolder, NamespacePrefixesHolder {
+
+    private final static Logger logger = Logger.getLogger(StateFlowNavigationHandler.class.getName());
 
     public static final String OUTCOME_EVENT_PREFIX = "faces.outcome.";
     public static final String VIEW_PARAMS_MAP = "___@@@ParamsMap____";
@@ -91,7 +95,13 @@ public class ViewInvoker implements Invoker, Serializable, PathResolverHolder, N
             getViewParamsContext(fc).putAll(params);
 
             NavigationCase navCase = findNavigationCase(fc, source);
-            viewId = navCase.getToViewId(fc);
+            try {
+                viewId = navCase.getToViewId(fc);
+            } catch (NullPointerException th) {
+                throw new IOException(String.format("Invoke source \"%s\" not found", source));
+            } catch (Throwable th) {
+                throw new IOException(String.format("Invoke source \"%s\" not found", source), th);
+            }
             viewId = vh.deriveLogicalViewId(fc, viewId);
 
             Map<String, Object> options = new HashMap();
@@ -240,9 +250,8 @@ public class ViewInvoker implements Invoker, Serializable, PathResolverHolder, N
                 fc.setViewRoot(viewRoot);
                 fc.renderResponse();
             }
-        } catch (MalformedURLException ex) {
-            throw new InvokerException(ex);
         } catch (IOException ex) {
+            logger.log(Level.SEVERE, "Invoke failed", ex);
             throw new InvokerException(ex);
         } finally {
             fc.setProcessingEvents(oldProcessingEvents);

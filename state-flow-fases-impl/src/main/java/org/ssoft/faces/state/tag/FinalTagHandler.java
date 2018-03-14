@@ -36,6 +36,7 @@ public class FinalTagHandler extends AbstractFlowTagHandler<Final> {
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
 
         Final state = new Final();
+        decorate(ctx, parent, state);
 
         state.setId(id.getValue(ctx));
 

@@ -13,6 +13,7 @@ import javax.faces.application.NavigationCase;
 import javax.faces.application.NavigationHandler;
 import javax.faces.context.FacesContext;
 import javax.faces.state.FlowTriggerEvent;
+import javax.faces.state.ModelException;
 import javax.faces.state.StateFlowExecutor;
 import javax.faces.state.StateFlowHandler;
 import org.ssoft.faces.state.invokers.ViewInvoker;
@@ -56,7 +57,7 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
                 StateFlowExecutor executor = handler.getRootExecutor(context);
                 try {
                     executor.triggerEvent(new FlowTriggerEvent(ViewInvoker.OUTCOME_EVENT_PREFIX + outcome, FlowTriggerEvent.SIGNAL_EVENT));
-                } catch (Throwable ex) {
+                } catch (ModelException ex) {
                     logger.log(Level.SEVERE, ex.getMessage(), ex);
                 }
                 executor = handler.getRootExecutor(context);

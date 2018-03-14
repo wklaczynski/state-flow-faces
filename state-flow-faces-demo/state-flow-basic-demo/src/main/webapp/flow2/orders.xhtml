@@ -26,7 +26,8 @@
         <x:state id="main">
             <x:invoke type="view" src="Main.xhtml"/>
 
-            <x:transition event="show.view.show" target="show-order"/>
+            <x:transition event="main.view.test" target="test-order"/>
+            <x:transition event="main.view.show" target="show-order"/>
             <!--x:transition event="main.view.insert" target="insert-order"/>
             <x:transition event="main.view.edit" target="insert-order"/>
             <x:transition event="main.view.remove" target="insert-order"/-->
@@ -43,6 +44,17 @@
             </x:transition>
         </x:state>      
 
+        <x:state id="test-order">
+            <x:onentry>
+                <x:if cond="#{orders.test()}">
+                    <x:raise event="test-order.prepare.success"/>
+                    <x:else/>
+                    <x:raise event="test-order.prepare.failed"/>
+                </x:if>
+            </x:onentry>
+            <x:transition event="test-order.prepare.success" target="main"/>
+            <x:transition event="test-order.prepare.failed" target="main"/>
+        </x:state>
 
 
 

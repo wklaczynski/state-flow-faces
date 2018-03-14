@@ -37,6 +37,8 @@ public class InvokeTagHandler extends AbstractFlowTagHandler<Invoke> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         Invoke target = new Invoke();
+        decorate(ctx, parent, target);
+
         target.setTargettype(type.getValue());
         target.setSrc(src.getValue());
         

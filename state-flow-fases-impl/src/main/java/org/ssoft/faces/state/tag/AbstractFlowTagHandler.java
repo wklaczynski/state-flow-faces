@@ -16,6 +16,8 @@ import java.util.Stack;
 import java.util.logging.Logger;
 import javax.faces.application.ProjectStage;
 import javax.faces.component.UIComponent;
+import javax.faces.state.PathResolver;
+import javax.faces.state.PathResolverHolder;
 import javax.faces.state.model.*;
 import javax.faces.view.facelets.CompositeFaceletHandler;
 import javax.faces.view.facelets.FaceletContext;
@@ -33,7 +35,7 @@ import org.ssoft.faces.state.log.FlowLogger;
  */
 public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandler {
 
-    private static final Logger LOGGER = FlowLogger.TAGLIB.getLogger();
+    private static final Logger log = FlowLogger.TAGLIB.getLogger();
 
     public static final String CURRENT_FLOW_OBJECT = "facelets.flow.CURRENT_FLOW_OBJECT";
     public static final String ELEMENT_MAP = "facelets.flow.ELEMENT_MAP";
@@ -129,6 +131,14 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
 
     public abstract void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException;
 
+    protected void decorate(FaceletContext ctx, UIComponent parent, Object element) throws IOException {
+        if(element instanceof PathResolverHolder) {
+            PathResolver resolver = getElement(parent, PathResolver.class);
+            PathResolverHolder holder = (PathResolverHolder) element;
+            holder.setPathResolver(resolver);
+        }
+    }
+    
     @Override
     public void apply(FaceletContext ctx, UIComponent parent) throws IOException {
         StateChart chart = (StateChart) getElement(parent, StateChart.class);

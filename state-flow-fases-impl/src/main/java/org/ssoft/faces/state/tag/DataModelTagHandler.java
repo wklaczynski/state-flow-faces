@@ -36,6 +36,7 @@ public class DataModelTagHandler extends AbstractFlowTagHandler<Datamodel> {
         }
         
         Datamodel datamodel = new Datamodel();
+        decorate(ctx, parent, datamodel);
         
         applyNext(ctx, parent, datamodel);
         

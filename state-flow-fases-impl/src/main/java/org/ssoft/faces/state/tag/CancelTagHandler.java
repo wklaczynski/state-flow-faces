@@ -46,6 +46,8 @@ public class CancelTagHandler extends AbstractFlowTagHandler<Cancel> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         Cancel action = new Cancel();
+        decorate(ctx, parent, action);
+
         action.setSendid(sendid.getValue());
         
         applyNext(ctx, parent, action);

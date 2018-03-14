@@ -35,6 +35,8 @@ public class StateTagHandler extends AbstractFlowTagHandler<State> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         State state = new State();
+        decorate(ctx, parent, state);
+
         state.setId(id.getValue(ctx));
 
         applyNext(ctx, parent, state);

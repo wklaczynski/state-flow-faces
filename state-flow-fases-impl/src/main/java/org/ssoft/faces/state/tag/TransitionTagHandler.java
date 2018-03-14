@@ -64,6 +64,7 @@ public class TransitionTagHandler extends AbstractFlowTagHandler<Transition> {
         }
 
         Transition transition = new Transition();
+        decorate(ctx, parent, transition);
 
         if (type != null) {
             String tvalue = type.getValue();

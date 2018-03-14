@@ -57,7 +57,7 @@ public class Invoke implements NamespacePrefixesHolder, PathResolverHolder, Seri
      * The &lt;finalize&gt; child, may be null.
      */
     private Finalize finalize;
-
+    
     /**
      * {@link PathResolver} for resolving the "src" or "srcexpr" result.
      */

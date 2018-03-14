@@ -5,7 +5,7 @@
  */
 package javax.faces.state;
 
-import java.net.URL;
+import javax.faces.context.FacesContext;
 
 /**
  *
@@ -16,21 +16,19 @@ public interface PathResolver {
     /**
      * Resolve this context sensitive path to an absolute URL.
      *
+     * @param context
      * @param path Context sensitive path, can be a relative URL
      * @return Resolved path (an absolute URL) or <code>null</code>
      */
-    String resolvePath(String path);
+    String resolvePath(FacesContext context, String path);
 
     /**
      * Get a PathResolver rooted at this context sensitive path.
      *
+     * @param context
      * @param path Context sensitive path, can be a relative URL
      * @return Returns a new resolver rooted at ctxPath
      */
-    PathResolver getResolver(String path);
-
-    public URL resolveURL(String path);
-    
-    String resolvePath(URL url);
+    PathResolver getResolver(FacesContext context, String path);
 
 }

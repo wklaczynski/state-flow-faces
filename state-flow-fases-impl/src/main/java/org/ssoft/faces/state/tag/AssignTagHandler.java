@@ -49,6 +49,7 @@ public class AssignTagHandler extends AbstractFlowTagHandler<Assign> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         Assign action = new Assign();
+        decorate(ctx, parent, action);
 
         action.setLocation(location.getValue());
         action.setExpr(expr != null ? expr.getValue() : null);

@@ -56,6 +56,8 @@ public class SendTagHandler extends AbstractFlowTagHandler<Send> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         Send action = new Send();
+        decorate(ctx, parent, action);
+
         action.setEvent(event.getValue());
         action.setTarget(target != null ? target.getValue() : null);
         action.setTargettype(type != null ? type.getValue() : null);

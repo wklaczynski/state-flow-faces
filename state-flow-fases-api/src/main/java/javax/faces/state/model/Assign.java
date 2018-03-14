@@ -8,6 +8,7 @@ package javax.faces.state.model;
 import javax.faces.state.PathResolverHolder;
 import java.util.Collection;
 import java.util.logging.Level;
+import javax.faces.context.FacesContext;
 import javax.faces.state.FlowContext;
 import javax.faces.state.FlowErrorReporter;
 import javax.faces.state.FlowEvaluator;
@@ -172,6 +173,8 @@ public class Assign extends Action implements PathResolverHolder {
         FlowEvaluator eval = scInstance.getEvaluator();
         ctx.setLocal(getNamespacesKey(), getNamespaces());
         // "location" gets preference over "name"
+        
+        FacesContext fc = FacesContext.getCurrentInstance();
         if (!StateFlowHelper.isStringEmpty(location)) {
             Node oldNode = eval.evalLocation(ctx, location);
             if (oldNode != null) {
@@ -180,7 +183,7 @@ public class Assign extends Action implements PathResolverHolder {
                 Node newNode;
                 try {
                     if (src != null && src.trim().length() > 0) {
-                        newNode = getSrcNode();
+                        newNode = getSrcNode(fc);
                     } else {
                         newNode = eval.evalLocation(ctx, expr);
                     }
@@ -223,7 +226,7 @@ public class Assign extends Action implements PathResolverHolder {
                 @SuppressWarnings("UnusedAssignment")
                 Object varObj = null;
                 if (src != null && src.trim().length() > 0) {
-                    varObj = getSrcNode();
+                    varObj = getSrcNode(fc);
                 } else {
                     varObj = eval.eval(ctx, expr);
                 }
@@ -243,10 +246,10 @@ public class Assign extends Action implements PathResolverHolder {
      *
      * @return The node the "src" attribute points to.
      */
-    private Node getSrcNode() {
+    private Node getSrcNode(FacesContext fc) {
         String resolvedSrc = src;
         if (pathResolver != null) {
-            resolvedSrc = pathResolver.resolvePath(src);
+            resolvedSrc = pathResolver.resolvePath(fc, src);
         }
         Document doc = null;
         try {

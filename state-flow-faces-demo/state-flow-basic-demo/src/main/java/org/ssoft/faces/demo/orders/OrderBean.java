@@ -24,6 +24,10 @@ public class OrderBean implements Serializable {
         return true;
     }
 
+    public boolean test() {
+        return true;
+    }
+    
     public Order getSelected() {
         return selected;
     }

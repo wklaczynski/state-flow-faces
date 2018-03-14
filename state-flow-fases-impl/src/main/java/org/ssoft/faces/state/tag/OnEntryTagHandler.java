@@ -34,6 +34,8 @@ public class OnEntryTagHandler extends AbstractFlowTagHandler<OnEntry> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         TransitionTarget target = (TransitionTarget) parentElement;
+        decorate(ctx, parent, target);
+        
         if (target.getOnEntry() != null) {
             throw new TagException(this.tag, "already defined in this element!");
         }

@@ -9,12 +9,9 @@ import com.sun.faces.application.ApplicationAssociate;
 import com.sun.faces.facelets.impl.DefaultFaceletFactory;
 import com.sun.faces.util.RequestStateManager;
 import static com.sun.faces.util.RequestStateManager.FACELET_FACTORY;
-import java.io.File;
 import org.ssoft.faces.state.cdi.StateFlowCDIListener;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,7 +33,6 @@ import javax.faces.state.FlowContext;
 import javax.faces.state.FlowStatus;
 import javax.faces.state.FlowTriggerEvent;
 import javax.faces.state.ModelException;
-import javax.faces.state.PathResolver;
 import javax.faces.state.StateFlowExecutor;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.events.FlowOnFinalEvent;
@@ -411,82 +407,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return roots;
         }
 
-    }
-
-    private static class ServletContextResolver implements PathResolver {
-
-        private final ServletContext ctx;
-        private URL baseURL;
-
-        public ServletContextResolver(ServletContext ctx) {
-            this.ctx = ctx;
-            try {
-                this.baseURL = ctx.getResource("/");
-            } catch (IOException ex) {
-                throw new IllegalStateException(ex);
-            }
-        }
-
-        @Override
-        public String resolvePath(String path) {
-            try {
-                while (path.startsWith("/")) {
-                    path = path.substring(1);
-                }
-                URL combined = new URL(baseURL, path);
-                String escapedBaseURL = baseURL.getFile();
-                String result = '/' + combined.getFile().replaceFirst(escapedBaseURL, "");
-                return result;
-            } catch (MalformedURLException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-
-        @Override
-        public URL resolveURL(String path) {
-            try {
-                if (path.startsWith("/")) {
-                    path = resolvePath(path);
-                    while (path.startsWith("/")) {
-                        path = path.substring(1);
-                    }
-                    URL url = new URL(baseURL, path);
-                    if (url == null) {
-                        throw new IllegalStateException(path + " Not Found in ExternalContext as a Resource");
-                    }
-                    return url;
-                } else {
-                    return new URL(baseURL, path);
-                }
-            } catch (MalformedURLException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-
-        @Override
-        public String resolvePath(URL url) {
-            String escapedBaseURL = baseURL.getFile();
-            String result = '/' + url.getFile().replaceFirst(escapedBaseURL, "");
-            return result;
-        }
-
-        @Override
-        public PathResolver getResolver(String path) {
-            try {
-                URL url = resolveURL(path);
-                File file = new File(url.getPath());
-                if (file.isFile()) {
-                    String parent = file.getParent();
-                    if (!parent.endsWith("/")) {
-                        parent += "/";
-                    }
-                    url = new URL(url.getProtocol(), url.getHost(), url.getPort(), parent);
-                }
-                return new FacesURLResolver(this, url);
-            } catch (MalformedURLException e) {
-                throw new IllegalStateException(e);
-            }
-        }
     }
 
     private DefaultFaceletFactory faceletFactory;

@@ -35,6 +35,8 @@ public class HistoryTagHandler extends AbstractFlowTagHandler<History> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         History target = new History();
+        decorate(ctx, parent, target);
+
         target.setId(id.getValue());
         target.setType(type != null ? type.getValue() : null);
 

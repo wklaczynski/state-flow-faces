@@ -37,6 +37,7 @@ public class DataTagHandler extends AbstractFlowTagHandler<Data> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         Data data = new Data();
+        decorate(ctx, parent, data);
 
         data.setId(id.getValue());
         data.setSrc(src != null ? src.getValue() : null);

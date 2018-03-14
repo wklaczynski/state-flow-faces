@@ -48,6 +48,8 @@ public class LogTagHandler extends AbstractFlowTagHandler<Log> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         Log action = new Log();
+        decorate(ctx, parent, action);
+
         action.setLabel(label != null ? label.getValue() : null);
         action.setExpr(expr != null ? expr.getValue() : null);
         

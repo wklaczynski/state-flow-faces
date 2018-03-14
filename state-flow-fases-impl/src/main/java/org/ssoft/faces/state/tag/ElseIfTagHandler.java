@@ -33,6 +33,8 @@ public class ElseIfTagHandler extends AbstractFlowTagHandler<ElseIf> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         ElseIf action = new ElseIf();
+        decorate(ctx, parent, action);
+
         action.setCond(cond.getValue());
 
         applyNext(ctx, parent, action);

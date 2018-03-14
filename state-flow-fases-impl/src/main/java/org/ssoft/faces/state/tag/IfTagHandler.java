@@ -45,6 +45,8 @@ public class IfTagHandler extends AbstractFlowTagHandler<If> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         If action = new If();
+        decorate(ctx, parent, action);
+        
         action.setCond(cond.getValue());
 
         applyNext(ctx, parent, action);

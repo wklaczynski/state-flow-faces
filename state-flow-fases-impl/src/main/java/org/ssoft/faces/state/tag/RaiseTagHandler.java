@@ -46,6 +46,8 @@ public class RaiseTagHandler extends AbstractFlowTagHandler<Raise> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         Raise action = new Raise();
+        decorate(ctx, parent, action);
+
         action.setEvent(event.getValue());
 
         applyNext(ctx, parent, action);

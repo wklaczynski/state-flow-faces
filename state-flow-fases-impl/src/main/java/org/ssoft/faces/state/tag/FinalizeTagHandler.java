@@ -29,6 +29,8 @@ public class FinalizeTagHandler extends AbstractFlowTagHandler<Finalize> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         Invoke invoke = (Invoke) parentElement;
+        decorate(ctx, parent, invoke);
+
         if(invoke.getFinalize() != null) {
             throw new TagException(this.tag, "already defined in this element!");
         }

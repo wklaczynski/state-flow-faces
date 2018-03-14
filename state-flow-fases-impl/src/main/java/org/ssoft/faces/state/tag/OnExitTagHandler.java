@@ -34,6 +34,8 @@ public class OnExitTagHandler extends AbstractFlowTagHandler<OnExit> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         TransitionTarget target = (TransitionTarget) parentElement;
+        decorate(ctx, parent, target);
+
         if (target.getOnExit() != null) {
             throw new TagException(this.tag, "already defined in this element!");
         }

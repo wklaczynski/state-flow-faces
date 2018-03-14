@@ -709,6 +709,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
      */
     @Override
     public void initiateInvokes(final FlowStep step, final FlowErrorReporter errRep, final FlowInstance scInstance) {
+        FacesContext fc = FacesContext.getCurrentInstance();
         FlowEvaluator eval = scInstance.getEvaluator();
         Collection internalEvents = step.getAfterStatus().getEvents();
         for (State s : step.getAfterStatus().getStates()) {
@@ -732,12 +733,11 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                 String source = src;
                 PathResolver pr = i.getPathResolver();
                 if (pr != null) {
-                    source = i.getPathResolver().resolvePath(src);
+                    source = i.getPathResolver().resolvePath(fc, src);
                 }
                 String ttype = i.getTargettype();
                 Invoker inv = null;
                 try {
-                    FacesContext fc = FacesContext.getCurrentInstance();
                     inv = scInstance.newInvoker(ttype);
                     
                     if (pr != null) {

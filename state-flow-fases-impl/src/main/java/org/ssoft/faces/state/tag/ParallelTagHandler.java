@@ -29,6 +29,7 @@ public class ParallelTagHandler extends AbstractFlowTagHandler<Parallel> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         Parallel parallel = new Parallel();
+        decorate(ctx, parent, parallel);
 
         applyNext(ctx, parent, parallel);
         
