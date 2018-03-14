@@ -30,28 +30,10 @@ import org.ssoft.faces.state.log.FlowLogger;
  */
 public class ScxmlFileViewHandlingStrategy extends ViewDeclarationLanguage {
 
-    private static final String LOCK = "org.apache.faces.state.ScxmlFileViewHandlingStrategy:Lock";
-
     private static final Logger LOGGER = FlowLogger.FACES.getLogger();
 
     public ScxmlFileViewHandlingStrategy() {
         super();
-    }
-
-    private boolean isLocked(FacesContext context) {
-        if (context.getAttributes().containsKey(LOCK)) {
-            return (Boolean) context.getAttributes().get(LOCK);
-        } else {
-            return false;
-        }
-    }
-
-    private void lock(FacesContext context) {
-        context.getAttributes().put(LOCK, true);
-    }
-
-    private void unlock(FacesContext context) {
-        context.getAttributes().remove(LOCK);
     }
 
     @Override
@@ -100,7 +82,7 @@ public class ScxmlFileViewHandlingStrategy extends ViewDeclarationLanguage {
 
     @Override
     public ViewMetadata getViewMetadata(FacesContext context, String viewId) {
-        return new ScxmlViewMetadataImpl(viewId);
+        return new OryginalViewMetadataImpl(viewId);
     }
 
     @Override

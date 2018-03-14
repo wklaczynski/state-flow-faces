@@ -10,6 +10,9 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewDeclarationLanguageWrapper;
 import javax.faces.view.ViewMetadata;
+import static org.ssoft.faces.state.FlowConstants.ORYGINAL_SCXML_DEFAULT_SUFIX;
+import static org.ssoft.faces.state.FlowConstants.ORYGINAL_SCXML_SUFIX;
+import org.ssoft.faces.state.config.StateWebConfiguration;
 
 /**
  *
@@ -18,22 +21,52 @@ import javax.faces.view.ViewMetadata;
 public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWrapper {
 
     public final ViewDeclarationLanguage wrapped;
-    private String sufix;
-    boolean lock;
-    
+    private final StateWebConfiguration webConfig;
+
     public StateFlowViewDeclarationLanguage(ViewDeclarationLanguage wrapped) {
         super();
         this.wrapped = wrapped;
+        webConfig = StateWebConfiguration.getInstance();
     }
 
     @Override
     public ViewDeclarationLanguage getWrapped() {
         return wrapped;
     }
-    
+
     @Override
     public ViewMetadata getViewMetadata(FacesContext context, String viewId) {
-        return new ViewMetadataImpl(wrapped.getViewMetadata(context, viewId));
+        if (handlesByOryginal(viewId)) {
+            return new OryginalViewMetadataImpl(viewId);
+        } else {
+            return new BasicViewMetadataImpl(wrapped.getViewMetadata(context, viewId));
+        }
+    }
+
+    private boolean handlesByOryginal(String viewId) {
+        return isMatchedWithOryginalSuffix(viewId) ? true : viewId.endsWith(ORYGINAL_SCXML_DEFAULT_SUFIX);
+    }
+
+    private boolean isMatchedWithOryginalSuffix(String viewId) {
+        String[] defaultsuffixes = webConfig.getOptionValues(ORYGINAL_SCXML_SUFIX, " ");
+        for (String suffix : defaultsuffixes) {
+            if (viewId.endsWith(suffix)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private String getMatchedWithOryginalSuffix(String viewId) {
+        String[] defaultsuffixes = webConfig.getOptionValues(ORYGINAL_SCXML_SUFIX, " ");
+        for (String suffix : defaultsuffixes) {
+            if (viewId.endsWith(suffix)) {
+                return suffix;
+            }
+        }
+
+        return null;
     }
 
     @Override

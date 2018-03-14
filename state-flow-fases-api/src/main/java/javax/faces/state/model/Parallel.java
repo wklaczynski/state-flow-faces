@@ -17,7 +17,7 @@ public class Parallel extends TransitionTarget {
     /**
      * The set of parallel state machines contained in this &lt;parallel&gt;.
      */
-    private final Set children;
+    private final Set<TransitionTarget> children;
 
     /**
      * Constructor.
@@ -31,7 +31,7 @@ public class Parallel extends TransitionTarget {
      *
      * @return Set Returns the children.
      */
-    public final Set getChildren() {
+    public final Set<TransitionTarget> getChildren() {
         return children;
     }
 

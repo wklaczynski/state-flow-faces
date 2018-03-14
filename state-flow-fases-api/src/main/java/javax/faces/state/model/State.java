@@ -17,7 +17,7 @@ public class State extends TransitionTarget {
      * The Map containing immediate children of this State, keyed by
      * their IDs. Incompatible with the parallel or invoke property.
      */
-    private final Map children;
+    private final Map<String, TransitionTarget> children;
 
     /**
      * The Parallel child, which defines a set of parallel substates.
@@ -164,7 +164,7 @@ public class State extends TransitionTarget {
      *
      * @return Map Returns the children.
      */
-    public final Map getChildren() {
+    public final Map<String, TransitionTarget> getChildren() {
         return children;
     }
 

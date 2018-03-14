@@ -12,6 +12,12 @@ package org.ssoft.faces.state;
  */
 public class FlowConstants {
     
+    public final static String MAP_SCXML_SUFIX = "javax.faces.MAP_SCXML_SUFIX";
+
+    public final static String ORYGINAL_SCXML_SUFIX = "javax.faces.ORYGINAL_SCXML_SUFIX";
+    
+    public final static String ORYGINAL_SCXML_DEFAULT_SUFIX = ".scxml";
+    
     public final static String STATE_FLOW_PREFIX = "org.apache.faces.state.";
 
     public static final String ANNOTATED_CLASSES = STATE_FLOW_PREFIX + "AnnotatedClasses";
@@ -28,6 +34,6 @@ public class FlowConstants {
     
     public static final String STATEFLOW_REFRESH_PERIOD_PARAM_NAME =  "javax.faces.state.STATEFLOW_REFRESH_PERIOD";
     
-    
+    public static final String SKIP_START_STATE_MACHINE_HINT = "javax.faces.flow.SKIP_START_STATE_MACHINE_HINT";
     
 }

@@ -5,6 +5,7 @@
  */
 package org.ssoft.faces.state.utils;
 
+import com.sun.faces.util.LRUMap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -306,6 +307,29 @@ public class Util {
         }
 
         return (ext == null) ? "xhtml" : ext;
+    }
+
+    public synchronized static String[] split(Map<String, Object> appMap, String toSplit, String regex) {
+        Map<String, Pattern> patternCache = getPatternCache(appMap);
+        Pattern pattern = patternCache.get(regex);
+        if (pattern == null) {
+            pattern = Pattern.compile(regex);
+            patternCache.put(regex, pattern);
+        }
+        return pattern.split(toSplit, 0);
+    }
+
+    private static final String patternCacheKey = FlowConstants.STATE_FLOW_PREFIX + "patternCache";
+    
+    private static Map<String, Pattern> getPatternCache(Map<String, Object> appMap) {
+        @SuppressWarnings("unchecked")
+        Map<String, Pattern> result = (Map<String, Pattern>) appMap.get(patternCacheKey);
+        if (result == null) {
+            result = new LRUMap<>(15);
+            appMap.put(patternCacheKey, result);
+        }
+
+        return result;
     }
 
 }

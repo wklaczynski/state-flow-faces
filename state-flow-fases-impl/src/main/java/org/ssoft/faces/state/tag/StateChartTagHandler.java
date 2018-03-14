@@ -18,7 +18,7 @@ import javax.faces.component.UIPanel;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.state.PathResolver;
-import javax.faces.state.component.StateChartFlow;
+import javax.faces.state.component.UIStateChartRoot;
 import javax.faces.state.model.StateChart;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.Tag;
@@ -80,7 +80,7 @@ public class StateChartTagHandler extends TagHandler {
             facetComponent = root.getFacets().get(StateChart.STATECHART_FACET_NAME);
         }
 
-        StateChartFlow uichart = null;
+        UIStateChartRoot uichart = null;
 
         String chartId = "main";
         if (id != null) {
@@ -88,7 +88,7 @@ public class StateChartTagHandler extends TagHandler {
         }
 
         if (facetComponent != null) {
-            uichart = (StateChartFlow) facetComponent.findComponent(chartId);
+            uichart = (UIStateChartRoot) facetComponent.findComponent(chartId);
         }
 
         if (uichart != null && uichart.getStateChart() != null) {
@@ -117,7 +117,7 @@ public class StateChartTagHandler extends TagHandler {
         }
 
         if (uichart == null) {
-            uichart = (StateChartFlow) app.createComponent(StateChartFlow.COMPONENT_TYPE);
+            uichart = (UIStateChartRoot) app.createComponent(UIStateChartRoot.COMPONENT_TYPE);
             uichart.setId(chartId);
             facetComponent.getChildren().add(uichart);
         }

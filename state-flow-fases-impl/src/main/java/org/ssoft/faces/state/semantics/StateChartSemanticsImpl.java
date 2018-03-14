@@ -497,7 +497,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
     public void determineTargetStates(final Set states,
             final FlowErrorReporter errRep, final FlowInstance scInstance)
             throws ModelException {
-        LinkedList wrkSet = new LinkedList(states);
+        LinkedList<TransitionTarget> wrkSet = new LinkedList(states);
         // clear the seed-set - will be populated by leaf states
         states.clear();
         while (!wrkSet.isEmpty()) {
@@ -513,12 +513,12 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                     wrkSet.addLast(st.getParallel()); //parallel
                 } else {
                     // composite state
-                    List initialStates = st.getInitial().getTransition().getTargets();
+                    List<TransitionTarget> initialStates = st.getInitial().getTransition().getTargets();
                     wrkSet.addAll(initialStates);
                 }
             } else if (tt instanceof Parallel) {
                 Parallel prl = (Parallel) tt;
-                for (Iterator i = prl.getChildren().iterator(); i.hasNext();) {
+                for (Iterator<TransitionTarget> i = prl.getChildren().iterator(); i.hasNext();) {
                     //fork
                     wrkSet.addLast(i.next());
                 }

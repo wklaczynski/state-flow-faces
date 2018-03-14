@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.ssoft.faces.state;
+package org.ssoft.faces.state.impl;
 
 import com.sun.faces.application.ApplicationAssociate;
 import com.sun.faces.facelets.impl.DefaultFaceletFactory;
@@ -50,7 +50,8 @@ import org.ssoft.faces.state.utils.AsyncTrigger;
 import org.ssoft.faces.state.utils.Util;
 import javax.faces.state.annotation.FlowAction;
 import javax.faces.state.annotation.FlowInvoker;
-import javax.faces.state.component.StateChartFlow;
+import javax.faces.state.component.UIStateChartRoot;
+import org.ssoft.faces.state.StateFlowExecutorImpl;
 
 /**
  *
@@ -433,7 +434,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 
                 UIComponent facet = view.getFacet(StateChart.STATECHART_FACET_NAME);
                 if(facet != null) {
-                    StateChartFlow uichart = (StateChartFlow) facet.findComponent("main");
+                    UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent("main");
                     if(uichart != null) {
                         stateChart = uichart.getStateChart();                   
                     }

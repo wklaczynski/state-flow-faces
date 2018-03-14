@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.faces.FactoryFinder;
 import javax.faces.state.invoke.Invoker;
 import javax.faces.state.invoke.InvokerException;
 import javax.faces.state.model.Datamodel;
@@ -34,31 +33,31 @@ public class FlowInstance {
      * The <code>Map</code> of <code>Context</code>s per
      * <code>TransitionTarget</code>.
      */
-    private final Map contexts;
+    private final Map<TransitionTarget, FlowContext> contexts;
 
     /**
      * The <code>Map</code> of last known configurations per
      * <code>History</code>.
      */
-    private final Map histories;
+    private final Map<History, Set<TransitionTarget>> histories;
 
     /**
      * <code>Map</code> for recording the run to completion status of
      * composite states.
      */
-    private final Map completions;
+    private final Map<TransitionTarget, Boolean> completions;
 
     /**
      * The <code>Invoker</code> classes <code>Map</code>, keyed by
      * &lt;invoke&gt; target types (specified using "targettype" attribute).
      */
-    private final Map invokerClasses;
+    private final Map<String, Class> invokerClasses;
 
     /**
      * The <code>Map</code> of active <code>Invoker</code>s, keyed by
      * (leaf) <code>State</code>s.
      */
-    private final Map invokers;
+    private final Map<TransitionTarget, Invoker> invokers;
 
     /**
      * The evaluator for expressions.
@@ -157,7 +156,7 @@ public class FlowInstance {
      * @return The Context.
      */
     public FlowContext getContext(final TransitionTarget transitionTarget) {
-        FlowContext context = (FlowContext) contexts.get(transitionTarget);
+        FlowContext context = contexts.get(transitionTarget);
         if (context == null) {
             TransitionTarget parent = transitionTarget.getParent();
             if (parent == null) {
@@ -190,8 +189,7 @@ public class FlowInstance {
      * @param transitionTarget The TransitionTarget.
      * @param context The Context.
      */
-    void setContext(final TransitionTarget transitionTarget,
-            final FlowContext context) {
+    void setContext(final TransitionTarget transitionTarget, final FlowContext context) {
         contexts.put(transitionTarget, context);
     }
 
@@ -201,8 +199,8 @@ public class FlowInstance {
      * @param history The history.
      * @return Returns the lastConfiguration.
      */
-    public Set getLastConfiguration(final History history) {
-        Set lastConfiguration = (Set) histories.get(history);
+    public Set<TransitionTarget> getLastConfiguration(final History history) {
+        Set<TransitionTarget> lastConfiguration = (Set) histories.get(history);
         if (lastConfiguration == null) {
             lastConfiguration = new HashSet();
             histories.put(history, lastConfiguration);
@@ -216,9 +214,8 @@ public class FlowInstance {
      * @param history The history.
      * @param lc The lastConfiguration to set.
      */
-    public void setLastConfiguration(final History history,
-            final Set lc) {
-        Set lastConfiguration = getLastConfiguration(history);
+    public void setLastConfiguration(final History history, final Set lc) {
+        Set<TransitionTarget> lastConfiguration = getLastConfiguration(history);
         lastConfiguration.clear();
         lastConfiguration.addAll(lc);
     }
@@ -230,11 +227,8 @@ public class FlowInstance {
      * @return Whether we have a non-empty last configuration
      */
     public boolean isEmpty(final History history) {
-        Set lastConfiguration = (Set) histories.get(history);
-        if (lastConfiguration == null || lastConfiguration.isEmpty()) {
-            return true;
-        }
-        return false;
+        Set<TransitionTarget> lastConfiguration = (Set) histories.get(history);
+        return lastConfiguration == null || lastConfiguration.isEmpty();
     }
 
     /**
@@ -267,8 +261,7 @@ public class FlowInstance {
      *                   attribute of &lt;invoke&gt; tag).
      * @param invokerClass The <code>Invoker</code> <code>Class</code>.
      */
-    void registerInvokerClass(final String targettype,
-            final Class invokerClass) {
+    void registerInvokerClass(final String targettype, final Class invokerClass) {
         invokerClasses.put(targettype, invokerClass);
     }
 
@@ -331,8 +324,7 @@ public class FlowInstance {
      * @param transitionTarget The TransitionTarget.
      * @param invoker The Invoker.
      */
-    public void setInvoker(final TransitionTarget transitionTarget,
-            final Invoker invoker) {
+    public void setInvoker(final TransitionTarget transitionTarget, final Invoker invoker) {
         invokers.put(transitionTarget, invoker);
     }
 
@@ -341,7 +333,7 @@ public class FlowInstance {
      *
      * @return The map of invokers.
      */
-    public Map getInvokers() {
+    public Map<TransitionTarget, Invoker> getInvokers() {
         return invokers;
     }
 
@@ -355,11 +347,11 @@ public class FlowInstance {
      * @since 0.7
      */
     public boolean isDone(final TransitionTarget transitionTarget) {
-        Boolean done = (Boolean) completions.get(transitionTarget);
+        Boolean done = completions.get(transitionTarget);
         if (done == null) {
             return false;
         } else {
-            return done.booleanValue();
+            return done;
         }
     }
 
@@ -372,8 +364,7 @@ public class FlowInstance {
      *
      * @since 0.7
      */
-    public void setDone(final TransitionTarget transitionTarget,
-            final boolean done) {
+    public void setDone(final TransitionTarget transitionTarget, final boolean done) {
         completions.put(transitionTarget, done ? Boolean.TRUE : Boolean.FALSE);
     }
 

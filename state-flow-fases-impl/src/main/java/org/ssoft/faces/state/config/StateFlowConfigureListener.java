@@ -11,7 +11,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
-import org.ssoft.faces.state.StateFlowHandlerImpl;
+import org.ssoft.faces.state.impl.StateFlowHandlerImpl;
 import org.ssoft.faces.state.cdi.ParallelScopeCDIContext;
 import org.ssoft.faces.state.cdi.StateChartScopeCDIContex;
 import org.ssoft.faces.state.cdi.StateScopeCDIContex;

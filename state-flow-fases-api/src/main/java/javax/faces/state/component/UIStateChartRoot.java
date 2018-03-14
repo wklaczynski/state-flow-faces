@@ -14,16 +14,16 @@ import javax.faces.state.model.StateChart;
  *
  * @author Waldemar Kłaczyński
  */
-public class StateChartFlow extends UIStateFlow {
+public class UIStateChartRoot extends UIStateFlow {
 
-    public static final String COMPONENT_TYPE = "javax.faces.StateChartFlow";
+    public static final String COMPONENT_TYPE = "javax.faces.UIStateChartRoot";
 
     enum PropertyKeys {
         stateChart
     }
 
     @SuppressWarnings("OverridableMethodCallInConstructor")
-    public StateChartFlow() {
+    public UIStateChartRoot() {
         super();
         setRendererType(null);
         setRendered(false);

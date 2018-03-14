@@ -37,7 +37,7 @@ public class Transition extends Executable implements NamespacePrefixesHolder {
      * If multiple state(s) are specified, they must belong to the regions
      * of the same parallel.
      */
-    private final List targets;
+    private final List<TransitionTarget> targets;
 
     /**
      * The transition target ID (used by XML Digester only).
@@ -49,7 +49,7 @@ public class Transition extends Executable implements NamespacePrefixesHolder {
      * as <code>targets</code>.
      * @see Path
      */
-    private final List paths;
+    private final List<Path> paths;
 
     /**
      * The current XML namespaces in the document for this action node,
@@ -139,7 +139,7 @@ public class Transition extends Executable implements NamespacePrefixesHolder {
      * <p>Remarks: Is <code>empty</code> for &quot;stay&quot; transitions.
      * Contains parent (the source node) for &quot;self&quot; transitions.</p>
      */
-    public final List getTargets() {
+    public final List<TransitionTarget> getTargets() {
         return targets;
     }
 
@@ -152,7 +152,7 @@ public class Transition extends Executable implements NamespacePrefixesHolder {
      * transitions it returns parent (the source node). This method should
      * never return an empty list or <code>null</code>.</p>
      */
-    public final List getRuntimeTargets() {
+    public final List<TransitionTarget> getRuntimeTargets() {
         if (targets.isEmpty()) {
             List runtimeTargets = new ArrayList();
             runtimeTargets.add(getParent());
@@ -188,7 +188,7 @@ public class Transition extends Executable implements NamespacePrefixesHolder {
      * @see Path
      * @return List returns the list of transition path(s)
      */
-    public final List getPaths() {
+    public final List<Path> getPaths() {
         if (paths.isEmpty()) {
             if (targets.size() > 0) {
                 for (int i = 0; i < targets.size(); i++) {

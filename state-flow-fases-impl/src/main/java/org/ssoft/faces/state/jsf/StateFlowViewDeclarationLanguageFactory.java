@@ -5,10 +5,8 @@
  */
 package org.ssoft.faces.state.jsf;
 
-import java.util.logging.Logger;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewDeclarationLanguageFactory;
-import org.ssoft.faces.state.log.FlowLogger;
 
 /**
  *
@@ -16,7 +14,6 @@ import org.ssoft.faces.state.log.FlowLogger;
  */
 public class StateFlowViewDeclarationLanguageFactory extends ViewDeclarationLanguageFactory {
 
-    private static final Logger LOGGER = FlowLogger.FACES.getLogger();
     private final ViewDeclarationLanguageFactory wrapped;
 
     public StateFlowViewDeclarationLanguageFactory(ViewDeclarationLanguageFactory wrapped) {
@@ -30,9 +27,6 @@ public class StateFlowViewDeclarationLanguageFactory extends ViewDeclarationLang
     
     @Override
     public ViewDeclarationLanguage getViewDeclarationLanguage(String viewId) {
-        if (viewId.endsWith(".scxml")) {
-            return new ScxmlFileViewHandlingStrategy();
-        }
         return new StateFlowViewDeclarationLanguage(getWrapped().getViewDeclarationLanguage(viewId));
     }
 

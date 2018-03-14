@@ -13,7 +13,6 @@ import javax.el.PropertyNotFoundException;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import org.ssoft.faces.state.invokers.ViewParamsContext;
-import org.ssoft.faces.state.invokers.ViewParamsContext;
 
 /**
  *

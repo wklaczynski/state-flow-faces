@@ -395,8 +395,7 @@ public class StateFlowExecutor implements Serializable {
      */
     public void removeListener(final TransitionTarget transitionTarget, final StateFlowListener listener) {
         Object observable = transitionTarget;
-        flowInstance.getNotificationRegistry().removeListener(observable,
-                listener);
+        flowInstance.getNotificationRegistry().removeListener(observable, listener);
     }
 
     /**
@@ -476,10 +475,8 @@ public class StateFlowExecutor implements Serializable {
      */
     private void updateStatus(final FlowStep step) {
         currentStatus = step.getAfterStatus();
-        flowInstance.getRootContext().setLocal("_ALL_STATES",
-                StateFlowHelper.getAncestorClosure(currentStatus.getStates(), null));
-        setEventData((FlowTriggerEvent[]) currentStatus.getEvents().
-                toArray(new FlowTriggerEvent[0]));
+        flowInstance.getRootContext().setLocal("_ALL_STATES", StateFlowHelper.getAncestorClosure(currentStatus.getStates(), null));
+        setEventData((FlowTriggerEvent[]) currentStatus.getEvents().toArray(new FlowTriggerEvent[0]));
     }
 
     /**
@@ -488,8 +485,7 @@ public class StateFlowExecutor implements Serializable {
      */
     private Object[] setEventData(final FlowTriggerEvent[] evts) {
         FlowContext rootCtx = flowInstance.getRootContext();
-        Object[] oldData = {rootCtx.get(EVENT_DATA),
-            rootCtx.get(EVENT_DATA_MAP)};
+        Object[] oldData = {rootCtx.get(EVENT_DATA), rootCtx.get(EVENT_DATA_MAP)};
         int len = evts.length;
         if (len > 0) { // 0 has retry semantics (eg: see usage in reset())
             Object eventData = null;
