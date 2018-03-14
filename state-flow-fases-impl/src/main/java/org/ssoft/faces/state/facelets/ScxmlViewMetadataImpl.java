@@ -5,11 +5,13 @@
  */
 package org.ssoft.faces.state.facelets;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
@@ -17,6 +19,7 @@ import javax.faces.context.Flash;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.component.UIStateChartRoot;
 import javax.faces.state.model.StateChart;
+import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
 import static org.ssoft.faces.state.FlowConstants.SKIP_START_STATE_MACHINE_HINT;
 
@@ -24,14 +27,14 @@ import static org.ssoft.faces.state.FlowConstants.SKIP_START_STATE_MACHINE_HINT;
  *
  * @author Waldemar Kłaczyński
  */
-public class BasicViewMetadataImpl extends ViewMetadata {
+public class ScxmlViewMetadataImpl extends ViewMetadata {
 
-    private final ViewMetadata wrapped;
+    private final ViewDeclarationLanguage vdl;
     private final String viewId;
 
-    public BasicViewMetadataImpl(ViewMetadata wrapped) {
-        this.wrapped = wrapped;
-        this.viewId = wrapped.getViewId();
+    public ScxmlViewMetadataImpl(ViewDeclarationLanguage vdl, String viewId) {
+        this.viewId = viewId;
+        this.vdl = vdl;
     }
 
     @Override
@@ -39,30 +42,40 @@ public class BasicViewMetadataImpl extends ViewMetadata {
         return viewId;
     }
 
+    protected UIViewRoot createView(FacesContext context) throws IOException {
+        UIViewRoot viewRoot = vdl.createView(context, viewId);
+        vdl.buildView(context, viewRoot);
+        return viewRoot;
+    }
+
     @Override
     public UIViewRoot createMetadataView(FacesContext context) {
-        UIViewRoot viewRoot = wrapped.createMetadataView(context);
+        try {
+            UIViewRoot viewRoot = createView(context);
 
-        Boolean skip = (Boolean) context.getAttributes().get(SKIP_START_STATE_MACHINE_HINT);
-        if (skip != null && skip) {
-            return viewRoot;
-        }
-
-        StateChart stateChart = null;
-
-        UIComponent facet = viewRoot.getFacet(StateChart.STATECHART_FACET_NAME);
-        if (facet != null) {
-            UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent("main");
-            if (uichart != null) {
-                stateChart = uichart.getStateChart();
+            Boolean skip = (Boolean) context.getAttributes().get(SKIP_START_STATE_MACHINE_HINT);
+            if (skip != null && skip) {
+                return viewRoot;
             }
-        }
 
-        if (stateChart != null) {
-            viewRoot = startStateMachine(context, viewId, stateChart);
-        }
+            StateChart stateChart = null;
 
-        return viewRoot;
+            UIComponent facet = viewRoot.getFacet(StateChart.STATECHART_FACET_NAME);
+            if (facet != null) {
+                UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent("main");
+                if (uichart != null) {
+                    stateChart = uichart.getStateChart();
+                }
+            }
+
+            if (stateChart != null) {
+                viewRoot = startStateMachine(context, viewId, stateChart);
+            }
+
+            return viewRoot;
+        } catch (IOException e) {
+            throw new FacesException(e);
+        }
     }
 
     public UIViewRoot startStateMachine(FacesContext context, String viewId, StateChart stateFlow) {

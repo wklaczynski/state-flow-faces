@@ -37,9 +37,9 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
     @Override
     public ViewMetadata getViewMetadata(FacesContext context, String viewId) {
         if (handlesByOryginal(viewId)) {
-            return new OryginalViewMetadataImpl(viewId);
+            return new ScxmlViewMetadataImpl(this, viewId);
         } else {
-            return new BasicViewMetadataImpl(wrapped.getViewMetadata(context, viewId));
+            return new FaceletViewMetadataImpl(this, wrapped.getViewMetadata(context, viewId));
         }
     }
 

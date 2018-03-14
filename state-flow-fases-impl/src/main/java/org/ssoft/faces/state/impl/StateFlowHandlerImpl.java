@@ -93,7 +93,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         if (path == null) {
             throw new NullPointerException("Parametr path can not be null!");
         }
-        //StateFlow stateFlow = getStateFlowFactory().getStateFlow(context, path);
         StateChart stateFlow = createStateFlow(context, path);
         return stateFlow;
     }
