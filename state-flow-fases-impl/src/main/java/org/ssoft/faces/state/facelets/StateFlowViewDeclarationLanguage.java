@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.ssoft.faces.state.jsf;
+package org.ssoft.faces.state.facelets;
 
 import java.io.IOException;
 import javax.faces.component.UIViewRoot;

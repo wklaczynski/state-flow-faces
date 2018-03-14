@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.ssoft.faces.state.jsf;
+package org.ssoft.faces.state.facelets;
 
 import java.beans.BeanInfo;
 import java.io.IOException;

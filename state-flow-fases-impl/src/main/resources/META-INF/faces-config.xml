@@ -13,14 +13,13 @@
     </ordering>    
     
     <application>
-        <el-resolver>org.ssoft.faces.state.jsf.ViewELResolver</el-resolver>
-        <el-resolver>org.ssoft.faces.state.jsf.StateFlowScopeELResolver</el-resolver>
-        <navigation-handler>org.ssoft.faces.state.jsf.StateFlowNavigationHandler</navigation-handler>
-        <view-handler>org.ssoft.faces.state.jsf.StateFlowViewHandler</view-handler>
+        <el-resolver>org.ssoft.faces.state.facelets.StateFlowELResolver</el-resolver>
+        <el-resolver>org.ssoft.faces.state.facelets.StateFlowScopesELResolver</el-resolver>
+        <navigation-handler>org.ssoft.faces.state.facelets.StateFlowNavigationHandler</navigation-handler>
     </application>
     
     <factory>
-        <view-declaration-language-factory>org.ssoft.faces.state.jsf.StateFlowViewDeclarationLanguageFactory</view-declaration-language-factory>
+        <view-declaration-language-factory>org.ssoft.faces.state.facelets.StateFlowViewDeclarationLanguageFactory</view-declaration-language-factory>
     </factory>
 
     <component>

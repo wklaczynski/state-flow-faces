@@ -1,4 +1,4 @@
-package org.ssoft.faces.state.jsf;
+package org.ssoft.faces.state.facelets;
 
 /*
  * SCXMLViewHandler.java

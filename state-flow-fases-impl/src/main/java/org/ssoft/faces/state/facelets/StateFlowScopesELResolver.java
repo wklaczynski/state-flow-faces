@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.ssoft.faces.state.jsf;
+package org.ssoft.faces.state.facelets;
 
 import java.beans.FeatureDescriptor;
 import java.io.Serializable;
@@ -20,7 +20,7 @@ import javax.faces.state.StateFlowHandler;
  *
  * @author waldek
  */
-public class StateFlowScopeELResolver extends ELResolver {
+public class StateFlowScopesELResolver extends ELResolver {
 
     public static final String DIALOG_SCOPE = "stateFlowScope";
     public static final String DIALOG_VARIABLE_NAME = "stateFlow";

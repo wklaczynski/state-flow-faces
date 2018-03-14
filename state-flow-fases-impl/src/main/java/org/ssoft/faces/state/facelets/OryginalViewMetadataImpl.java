@@ -3,35 +3,34 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.ssoft.faces.state.jsf;
+package org.ssoft.faces.state.facelets;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import javax.faces.component.UIComponent;
+import javax.faces.FacesException;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.context.Flash;
+import javax.faces.state.ModelException;
+import javax.faces.state.ModelFileNotFoundException;
 import javax.faces.state.StateFlowHandler;
-import javax.faces.state.component.UIStateChartRoot;
 import javax.faces.state.model.StateChart;
 import javax.faces.view.ViewMetadata;
-import static org.ssoft.faces.state.FlowConstants.SKIP_START_STATE_MACHINE_HINT;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class BasicViewMetadataImpl extends ViewMetadata {
-
-    private final ViewMetadata wrapped;
+public class OryginalViewMetadataImpl extends ViewMetadata {
+    
     private final String viewId;
 
-    public BasicViewMetadataImpl(ViewMetadata wrapped) {
-        this.wrapped = wrapped;
-        this.viewId = wrapped.getViewId();
+    public OryginalViewMetadataImpl(String viewId) {
+        this.viewId = viewId;
     }
 
     @Override
@@ -41,38 +40,13 @@ public class BasicViewMetadataImpl extends ViewMetadata {
 
     @Override
     public UIViewRoot createMetadataView(FacesContext context) {
-        UIViewRoot viewRoot = wrapped.createMetadataView(context);
-
-        Boolean skip = (Boolean) context.getAttributes().get(SKIP_START_STATE_MACHINE_HINT);
-        if (skip != null && skip) {
-            return viewRoot;
-        }
-
-        StateChart stateChart = null;
-
-        UIComponent facet = viewRoot.getFacet(StateChart.STATECHART_FACET_NAME);
-        if (facet != null) {
-            UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent("main");
-            if (uichart != null) {
-                stateChart = uichart.getStateChart();
-            }
-        }
-
-        if (stateChart != null) {
-            viewRoot = startStateMachine(context, viewId, stateChart);
-        }
-
-        return viewRoot;
-    }
-
-    public UIViewRoot startStateMachine(FacesContext context, String viewId, StateChart stateFlow) {
         UIViewRoot result = null;
         UIViewRoot currentViewRoot = context.getViewRoot();
         Map<String, Object> currentViewMapShallowCopy = Collections.emptyMap();
-
+        
         try {
             context.setProcessingEvents(false);
-
+            
             StateFlowHandler flowHandler = StateFlowHandler.getInstance();
 
             Flash flash = context.getExternalContext().getFlash();
@@ -94,6 +68,8 @@ public class BasicViewMetadataImpl extends ViewMetadata {
                     context.setViewRoot(scxmlRoot);
                 }
 
+                StateChart stateFlow = flowHandler.createStateMachine(context, viewId);
+
                 flowHandler.startExecutor(context, stateFlow, params, false);
             } finally {
                 if (oldRoot != null) {
@@ -101,7 +77,7 @@ public class BasicViewMetadataImpl extends ViewMetadata {
                 }
             }
             result = context.getViewRoot();
-
+            
             if (null != currentViewRoot) {
                 Map<String, Object> currentViewMap = currentViewRoot.getViewMap(false);
 
@@ -111,7 +87,7 @@ public class BasicViewMetadataImpl extends ViewMetadata {
                     resultViewMap.putAll(currentViewMapShallowCopy);
                 }
             }
-
+            
             // Only replace the current context's UIViewRoot if there is 
             // one to replace.
             if (null != currentViewRoot) {
@@ -119,7 +95,16 @@ public class BasicViewMetadataImpl extends ViewMetadata {
                 // setting the argument as the new UIViewRoot.
                 context.setViewRoot(result);
             }
-
+            
+            
+        
+        } catch (ModelFileNotFoundException ffnfe) {
+            try {
+                context.getExternalContext().responseSendError(404, ffnfe.getMessage());
+            } catch(IOException ioe) {}
+            context.responseComplete();
+        } catch (ModelException ioe) {
+            throw new FacesException(ioe);
         } finally {
             context.setProcessingEvents(true);
             if (null != currentViewRoot) {
@@ -129,10 +114,10 @@ public class BasicViewMetadataImpl extends ViewMetadata {
                     currentViewMapShallowCopy.clear();
                 }
             }
-
+            
         }
-
+        
         return result;
     }
-
+    
 }

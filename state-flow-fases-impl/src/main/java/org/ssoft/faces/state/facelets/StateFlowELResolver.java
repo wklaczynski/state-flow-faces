@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.ssoft.faces.state.jsf;
+package org.ssoft.faces.state.facelets;
 
 import java.beans.FeatureDescriptor;
 import java.io.Serializable;
@@ -18,7 +18,7 @@ import org.ssoft.faces.state.invokers.ViewParamsContext;
  *
  * @author Waldemar Kłaczyński
  */
-public class ViewELResolver extends ELResolver implements Serializable {
+public class StateFlowELResolver extends ELResolver implements Serializable {
 
     @Override
     public Object getValue(ELContext context, Object base, Object property) {

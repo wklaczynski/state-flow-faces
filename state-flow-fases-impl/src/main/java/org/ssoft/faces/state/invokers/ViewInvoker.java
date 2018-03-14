@@ -42,7 +42,7 @@ import javax.faces.state.model.State;
 import javax.faces.state.model.TransitionTarget;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
-import org.ssoft.faces.state.jsf.StateFlowNavigationHandler;
+import org.ssoft.faces.state.facelets.StateFlowNavigationHandler;
 import org.ssoft.faces.state.utils.AsyncTrigger;
 import org.ssoft.faces.state.utils.SharedUtils;
 
