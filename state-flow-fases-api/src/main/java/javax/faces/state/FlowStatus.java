@@ -148,19 +148,6 @@ public class FlowStatus implements Serializable {
         return state;
     }
 
-    private Object saveStatesState(FacesContext context) {
-        Object state = null;
-        if (null != states && states.size() > 0) {
-            Object[] attached = new Object[states.size()];
-            int i = 0;
-            for (State fstate : states) {
-                attached[i++] = fstate.getClientId();
-            }
-            state = attached;
-        }
-        return state;
-    }
-
     private Collection<FlowTriggerEvent> restoreEventsState(FacesContext context, Object state) {
         if (null != state) {
             Object[] values = (Object[]) state;
@@ -173,6 +160,19 @@ public class FlowStatus implements Serializable {
             return result;
         }
         return null;
+    }
+
+    private Object saveStatesState(FacesContext context) {
+        Object state = null;
+        if (null != states && states.size() > 0) {
+            Object[] attached = new Object[states.size()];
+            int i = 0;
+            for (State fstate : states) {
+                attached[i++] = fstate.getClientId();
+            }
+            state = attached;
+        }
+        return state;
     }
 
     private Collection<State> restoreStatesState(FacesContext context, Object state) {
