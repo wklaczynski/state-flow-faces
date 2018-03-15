@@ -22,11 +22,15 @@ package org.ssoft.faces.state;
  */
 public class FlowConstants {
     
-    public final static String MAP_SCXML_SUFIX = "javax.faces.MAP_SCXML_SUFIX";
+    public final static String MAP_SCXML_SUFIX = "javax.faces.flow.MAP_SCXML_SUFIX";
 
-    public final static String ORYGINAL_SCXML_SUFIX = "javax.faces.ORYGINAL_SCXML_SUFIX";
-    
+    public final static String ORYGINAL_SCXML_SUFIX = "javax.faces.flow.ORYGINAL_SCXML_SUFIX";
+
+    public final static String STATE_CHART_REQUEST_PARAM_NAME = "javax.faces.flow.STATE_CHART_REQUEST_PARAM_NAME";
+
     public final static String ORYGINAL_SCXML_DEFAULT_SUFIX = ".scxml";
+
+    public final static String STATE_CHART_DEFAULT_PARAM_NAME = "flow";
     
     public final static String STATE_FLOW_PREFIX = "org.apache.faces.state.";
 
@@ -43,7 +47,5 @@ public class FlowConstants {
     public static final String STATE_FLOW_MAP = STATE_FLOW_PREFIX + "flow.MAP";
     
     public static final String STATEFLOW_REFRESH_PERIOD_PARAM_NAME =  "javax.faces.state.STATEFLOW_REFRESH_PERIOD";
-    
-    public static final String SKIP_START_STATE_MACHINE_HINT = "javax.faces.flow.SKIP_START_STATE_MACHINE_HINT";
     
 }

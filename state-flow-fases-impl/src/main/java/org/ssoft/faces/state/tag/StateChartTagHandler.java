@@ -28,6 +28,8 @@ import javax.faces.component.UIPanel;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.state.PathResolver;
+import static javax.faces.state.StateFlowHandler.BUILD_STATE_MACHINE_HINT;
+import static javax.faces.state.StateFlowHandler.DEFAULT_STATECHART_NAME;
 import javax.faces.state.component.UIStateChartRoot;
 import javax.faces.state.model.StateChart;
 import javax.faces.view.facelets.FaceletContext;
@@ -92,11 +94,16 @@ public class StateChartTagHandler extends TagHandler {
 
         UIStateChartRoot uichart = null;
 
-        String chartId = "main";
+        String chartId = DEFAULT_STATECHART_NAME;
         if (id != null) {
             chartId = id.getValue();
         }
 
+        String buildId = (String) ctx.getFacesContext().getAttributes().get(BUILD_STATE_MACHINE_HINT);
+        if(buildId != null && !buildId.equals(chartId)){
+            return;
+        } 
+        
         if (facetComponent != null) {
             uichart = (UIStateChartRoot) facetComponent.findComponent(chartId);
         }

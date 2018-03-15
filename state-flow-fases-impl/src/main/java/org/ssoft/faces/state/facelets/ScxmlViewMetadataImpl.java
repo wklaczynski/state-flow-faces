@@ -27,11 +27,15 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.context.Flash;
 import javax.faces.state.StateFlowHandler;
+import static javax.faces.state.StateFlowHandler.DEFAULT_STATECHART_NAME;
+import static javax.faces.state.StateFlowHandler.SKIP_START_STATE_MACHINE_HINT;
 import javax.faces.state.component.UIStateChartRoot;
 import javax.faces.state.model.StateChart;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
-import static org.ssoft.faces.state.FlowConstants.SKIP_START_STATE_MACHINE_HINT;
+import static org.ssoft.faces.state.FlowConstants.STATE_CHART_DEFAULT_PARAM_NAME;
+import static org.ssoft.faces.state.FlowConstants.STATE_CHART_REQUEST_PARAM_NAME;
+import org.ssoft.faces.state.config.StateWebConfiguration;
 
 /**
  *
@@ -68,18 +72,32 @@ public class ScxmlViewMetadataImpl extends ViewMetadata {
                 return viewRoot;
             }
 
-            StateChart stateChart = null;
-
             UIComponent facet = viewRoot.getFacet(StateChart.STATECHART_FACET_NAME);
             if (facet != null) {
-                UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent("main");
+                StateChart stateChart = null;
+
+                
+                StateWebConfiguration wcfg = StateWebConfiguration.getInstance();
+                
+                String pname = wcfg.getOptionValue(STATE_CHART_REQUEST_PARAM_NAME, STATE_CHART_DEFAULT_PARAM_NAME);
+                
+                String flowId = null;
+
+                if (flowId == null) {
+                    flowId = context.getExternalContext().getRequestParameterMap().get(pname);
+                }
+                if (flowId == null) {
+                    flowId = DEFAULT_STATECHART_NAME;
+                }
+
+                UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent(flowId);
                 if (uichart != null) {
                     stateChart = uichart.getStateChart();
                 }
-            }
-
-            if (stateChart != null) {
-                viewRoot = startStateMachine(context, viewId, stateChart);
+                
+                if (stateChart != null) {
+                    viewRoot = startStateMachine(context, viewId, stateChart);
+                }
             }
 
             return viewRoot;

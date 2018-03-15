@@ -26,6 +26,12 @@ import javax.faces.state.model.StateChart;
 public abstract class StateFlowHandler {
     
     public static final String STATEFLOW_COMPONENT_NAME = "javax_faces_stateflow";
+
+    public static final String DEFAULT_STATECHART_NAME = "main";
+    
+    public static final String SKIP_START_STATE_MACHINE_HINT = "javax.faces.flow.SKIP_START_STATE_MACHINE_HINT";
+
+    public static final String BUILD_STATE_MACHINE_HINT = "javax.faces.flow.BUILD_STATE_MACHINE_HINT";
     
     public static final String KEY = "javax.faces.state.StateFlowHandler";
     
@@ -53,7 +59,10 @@ public abstract class StateFlowHandler {
 
     public abstract void stopExecutor(FacesContext context, StateFlowExecutor to);
     
+    public StateChart createStateMachine(FacesContext context, String path) throws ModelException {
+        return createStateMachine(context, path, DEFAULT_STATECHART_NAME); 
+    }
     
-    public abstract StateChart createStateMachine(FacesContext context, String path) throws ModelException;
+    public abstract StateChart createStateMachine(FacesContext context, String path, String id) throws ModelException;
     
 }

@@ -15,12 +15,8 @@
  */
 package org.ssoft.faces.state.impl;
 
-import com.sun.faces.application.ApplicationAssociate;
 import com.sun.faces.facelets.impl.DefaultFaceletFactory;
-import com.sun.faces.util.RequestStateManager;
-import static com.sun.faces.util.RequestStateManager.FACELET_FACTORY;
 import org.ssoft.faces.state.cdi.StateFlowCDIListener;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,7 +29,7 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.inject.spi.BeanManager;
-import static javax.faces.application.StateManager.IS_BUILDING_INITIAL_STATE;
+import javax.faces.application.ViewHandler;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
@@ -50,7 +46,6 @@ import javax.faces.state.invoke.Invoker;
 import javax.faces.state.model.CustomAction;
 import javax.faces.state.model.State;
 import javax.faces.state.model.StateChart;
-import javax.faces.view.facelets.Facelet;
 import javax.servlet.ServletContext;
 import static org.ssoft.faces.state.FlowConstants.ANNOTATED_CLASSES;
 import org.ssoft.faces.state.cdi.StateChartScopeCDIContex;
@@ -61,6 +56,8 @@ import org.ssoft.faces.state.utils.Util;
 import javax.faces.state.annotation.FlowAction;
 import javax.faces.state.annotation.FlowInvoker;
 import javax.faces.state.component.UIStateChartRoot;
+import javax.faces.view.ViewDeclarationLanguage;
+import javax.faces.view.ViewMetadata;
 import org.ssoft.faces.state.StateFlowExecutorImpl;
 
 /**
@@ -99,25 +96,48 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public StateChart createStateMachine(FacesContext context, String path) throws ModelException {
+    public StateChart createStateMachine(FacesContext context, String path, String id) throws ModelException {
         if (path == null) {
             throw new NullPointerException("Parametr path can not be null!");
         }
-        StateChart stateFlow = createStateFlow(context, path);
+        StateChart stateFlow = createStateFlow(context, path, id);
         return stateFlow;
     }
 
-    private StateChart createStateFlow(FacesContext context, String path) throws ModelException {
+    private StateChart createStateFlow(FacesContext context, String viewId, String id) throws ModelException {
         if (log.isLoggable(Level.FINE)) {
-            log.log(Level.FINE, "Creating StateFlow for: {0}", path);
+            log.log(Level.FINE, "Creating StateFlow for: {0}", viewId);
         }
-        StateChart stateFlow = null;
-        if (path.endsWith(".scxml")) {
-            stateFlow = createStateMachineFromScxml(context, path);
-        } else {
-            throw new ModelException(String.format("Unknow state machine format %s.", path));
+
+        UIViewRoot currnetViewRoot = context.getViewRoot();
+        try {
+            context.getAttributes().put(SKIP_START_STATE_MACHINE_HINT, true);
+            context.getAttributes().put(BUILD_STATE_MACHINE_HINT, id);
+
+            StateChart stateChart = null;
+
+            ViewHandler vh = context.getApplication().getViewHandler();
+            ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(context, viewId);
+
+            ViewMetadata viewMetadata = vdl.getViewMetadata(context, viewId);
+
+            UIViewRoot view = viewMetadata.createMetadataView(context);
+
+            UIComponent facet = view.getFacet(StateChart.STATECHART_FACET_NAME);
+            if (facet != null) {
+                UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent(id);
+                if (uichart != null) {
+                    stateChart = uichart.getStateChart();
+                }
+            }
+
+            return stateChart;
+        } finally {
+            context.getAttributes().remove(BUILD_STATE_MACHINE_HINT);
+            context.getAttributes().remove(SKIP_START_STATE_MACHINE_HINT);
+
+            context.setViewRoot(currnetViewRoot);
         }
-        return stateFlow;
 
     }
 
@@ -420,43 +440,5 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     private DefaultFaceletFactory faceletFactory;
-
-    private StateChart createStateMachineFromScxml(FacesContext ctx, String path) throws ModelException {
-        try {
-            StateChart stateChart = null;
-
-            UIViewRoot view = new UIViewRoot();
-            view.setViewId(path);
-            
-            if (faceletFactory == null) {
-                ApplicationAssociate associate = ApplicationAssociate.getInstance(ctx.getExternalContext());
-                faceletFactory = associate.getFaceletFactory();
-                assert (faceletFactory != null);
-            }
-            RequestStateManager.set(ctx, FACELET_FACTORY, faceletFactory);
-            Facelet facelet = faceletFactory.getFacelet(ctx, view.getViewId());
-
-            // populate UIViewRoot
-            try {
-                ctx.getAttributes().put(IS_BUILDING_INITIAL_STATE, Boolean.TRUE);
-                facelet.apply(ctx, view);
-                
-                UIComponent facet = view.getFacet(StateChart.STATECHART_FACET_NAME);
-                if(facet != null) {
-                    UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent("main");
-                    if(uichart != null) {
-                        stateChart = uichart.getStateChart();                   
-                    }
-                }
-            } finally {
-                ctx.getAttributes().remove(IS_BUILDING_INITIAL_STATE);
-            }
-
-            return stateChart;
-        } catch (IOException ex) {
-            throw new ModelException(ex);
-        }
-
-    }
 
 }
