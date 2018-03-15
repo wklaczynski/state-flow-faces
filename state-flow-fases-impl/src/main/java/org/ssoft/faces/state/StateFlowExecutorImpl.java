@@ -8,7 +8,6 @@ package org.ssoft.faces.state;
 import javax.faces.state.FlowErrorReporter;
 import javax.faces.state.FlowEvaluator;
 import javax.faces.state.FlowEventDispatcher;
-import javax.faces.state.FlowInstance;
 import javax.faces.state.FlowStatus;
 import javax.faces.state.StateFlowExecutor;
 import org.ssoft.faces.state.el.FlowEvaluatorImpl;
@@ -56,7 +55,7 @@ public class StateFlowExecutorImpl extends StateFlowExecutor {
         this.errorReporter = errRep;
         this.currentStatus = new FlowStatus();
         this.stateMachine = null;
-        this.flowInstance = new FlowInstance(this);
+        this.flowInstance = new FlowInstanceImpl(this);
         this.semantics = semantics;
         init(expEvaluator);
     }

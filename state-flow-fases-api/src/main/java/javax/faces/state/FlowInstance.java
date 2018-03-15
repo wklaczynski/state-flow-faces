@@ -5,6 +5,8 @@
  */
 package javax.faces.state;
 
+import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,7 +24,7 @@ import javax.faces.state.utils.StateFlowHelper;
  *
  * @author Waldemar Kłaczyński
  */
-public class FlowInstance {
+public abstract class FlowInstance {
 
     /**
      * The notification registry.
@@ -52,6 +54,12 @@ public class FlowInstance {
      * &lt;invoke&gt; target types (specified using "targettype" attribute).
      */
     private final Map<String, Class> invokerClasses;
+
+    /**
+     * The <code>Invoker</code> classes <code>Map</code>, keyed by
+     * &lt;invoke&gt; target types (specified using "targettype" attribute).
+     */
+    private final Map<Invoker, String> invokerTypes;
 
     /**
      * The <code>Map</code> of active <code>Invoker</code>s, keyed by (leaf)
@@ -84,6 +92,7 @@ public class FlowInstance {
         this.contexts = Collections.synchronizedMap(new HashMap());
         this.histories = Collections.synchronizedMap(new HashMap());
         this.invokerClasses = Collections.synchronizedMap(new HashMap());
+        this.invokerTypes = Collections.synchronizedMap(new HashMap());
         this.invokers = Collections.synchronizedMap(new HashMap());
         this.completions = Collections.synchronizedMap(new HashMap());
         this.evaluator = null;
@@ -288,8 +297,7 @@ public class FlowInstance {
      * @throws InvokerException When a suitable {@link Invoker} cannot be
      * instantiated.
      */
-    public Invoker newInvoker(final String targettype)
-            throws InvokerException {
+    public Invoker newInvoker(final String targettype) throws InvokerException {
         Class invokerClass = (Class) invokerClasses.get(targettype);
         if (invokerClass == null) {
             throw new InvokerException("No Invoker registered for "
@@ -298,12 +306,16 @@ public class FlowInstance {
         Invoker invoker = null;
         try {
             invoker = (Invoker) invokerClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException ie) {
+            decorateInvoker(invoker);
+        } catch (InstantiationException | IllegalAccessException | IOException ie) {
             throw new InvokerException(ie.getMessage(), ie.getCause());
         }
         return invoker;
     }
 
+    protected abstract void decorateInvoker(final Invoker invoker) throws IOException;
+    
+    
     /**
      * Get the {@link Invoker} for this {@link TransitionTarget}. May return
      * <code>null</code>. A non-null {@link Invoker} will be returned if and
@@ -320,11 +332,13 @@ public class FlowInstance {
     /**
      * Set the {@link Invoker} for this {@link TransitionTarget}.
      *
+     * @param type
      * @param transitionTarget The TransitionTarget.
      * @param invoker The Invoker.
      */
-    public void setInvoker(final TransitionTarget transitionTarget, final Invoker invoker) {
+    public void setInvoker(final String type, final TransitionTarget transitionTarget, final Invoker invoker) {
         invokers.put(transitionTarget, invoker);
+        invokerTypes.put(invoker, type);
     }
 
     /**
@@ -370,15 +384,17 @@ public class FlowInstance {
             throw new NullPointerException();
         }
 
-        Object values[] = new Object[2];
+        Object values[] = new Object[5];
 
         if (rootContext != null) {
             values[0] = rootContext.saveState(context);
         }
 
         values[1] = saveContextsState(context);
-        
-        
+        values[2] = saveHistoriesState(context);
+        values[3] = saveCompletionsState(context);
+        values[4] = saveInvokersState(context);
+
         return values;
     }
 
@@ -393,26 +409,6 @@ public class FlowInstance {
 
         Object[] values = (Object[]) state;
 
-
-    }
-
-    private Object saveCompletionsState(FacesContext context) {
-        Object state = null;
-        if (null != completions && completions.size() > 0) {
-            boolean stateWritten = false;
-            Object[] attachedKeys = new Object[completions.size()];
-            Object[] attachedVales = new Object[completions.size()];
-            int i = 0;
-            for (Map.Entry<TransitionTarget, Boolean> entry : completions.entrySet()) {
-                attachedKeys[i] = entry.getKey();
-                attachedVales[i] = entry.getValue();
-                i++;
-            }
-            if (stateWritten) {
-                state = new Object[]{attachedKeys, attachedVales};
-            }
-        }
-        return state;
     }
 
     private Object saveContextsState(FacesContext context) {
@@ -431,4 +427,68 @@ public class FlowInstance {
         return state;
     }
 
+    private Object saveHistoriesState(FacesContext context) {
+        Object state = null;
+        if (null != histories && histories.size() > 0) {
+            Object[] attached = new Object[histories.size()];
+            int i = 0;
+            for (Map.Entry<History, Set<TransitionTarget>> entry : histories.entrySet()) {
+                Object values[] = new Object[2];
+                values[0] = entry.getKey().getClientId();
+                values[1] = saveTargetsState(context, entry.getValue());
+                attached[i++] = values;
+            }
+            state = attached;
+        }
+        return state;
+    }
+
+    private Object saveTargetsState(FacesContext context, Collection<TransitionTarget> tatgets) {
+        Object state = null;
+        if (null != tatgets && tatgets.size() > 0) {
+            Object[] attached = new Object[tatgets.size()];
+            int i = 0;
+            for (TransitionTarget ratget : tatgets) {
+                attached[i++] = ratget.getClientId();
+            }
+            state = attached;
+        }
+        return state;
+    }
+
+    private Object saveCompletionsState(FacesContext context) {
+        Object state = null;
+        if (null != completions && completions.size() > 0) {
+            Object[] attached = new Object[completions.size()];
+            int i = 0;
+            for (Map.Entry<TransitionTarget, Boolean> entry : completions.entrySet()) {
+                Object values[] = new Object[2];
+                values[0] = entry.getKey().getClientId();
+                values[1] = entry.getValue();
+                attached[i++] = values;
+            }
+            state = attached;
+        }
+        return state;
+    }
+
+    private Object saveInvokersState(FacesContext context) {
+        Object state = null;
+        if (null != invokers && invokers.size() > 0) {
+            Object[] attached = new Object[invokers.size()];
+            int i = 0;
+            for (Map.Entry<TransitionTarget, Invoker> entry : invokers.entrySet()) {
+                Object values[] = new Object[3];
+                Invoker invoker = entry.getValue();
+                values[0] = entry.getKey().getClientId();
+                values[1] = invokerTypes.get(invoker);
+                values[2] = invoker.saveState(context);
+                attached[i++] = values;
+            }
+            state = attached;
+        }
+        return state;
+    }
+    
+    
 }

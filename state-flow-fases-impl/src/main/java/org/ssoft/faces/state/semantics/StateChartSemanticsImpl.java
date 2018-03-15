@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.enterprise.inject.spi.BeanManager;
+import javafx.event.EventDispatcher;
 import javax.faces.context.FacesContext;
 import javax.faces.state.ModelException;
 import javax.faces.state.FlowInstance;
@@ -52,7 +52,6 @@ import javax.faces.state.FlowNotificationRegistry;
 import javax.faces.state.PathResolver;
 import javax.faces.state.model.Param;
 import javax.faces.state.PathResolverHolder;
-import org.ssoft.faces.state.cdi.CdiUtil;
 import org.ssoft.faces.state.utils.Util;
 import javax.faces.state.semantics.StateChartSemantics;
 import org.ssoft.faces.state.log.FlowLogger;
@@ -741,16 +740,12 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                 String ttype = i.getTargettype();
                 Invoker inv = null;
                 try {
-                    inv = scInstance.newInvoker(ttype);
-
                     if (pr != null) {
                         StateChartSemantics.pushToEL(PathResolver.class, pr);
                     }
 
-                    if (Util.isCdiAvailable(fc)) {
-                        BeanManager bm = Util.getCdiBeanManager(fc);
-                        CdiUtil.injectFields(bm, inv);
-                    }
+                    inv = scInstance.newInvoker(ttype);
+
                     inv.setParentStateId(s.getId());
                     inv.setInstance(scInstance);
                     List params = i.params();
@@ -803,13 +798,11 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                     internalEvents.add(te);
                     continue;
                 } finally {
-                    if (inv != null) {
-                        if (pr != null) {
-                            StateChartSemantics.popFromEL(PathResolver.class, pr);
-                        }
+                    if (pr != null) {
+                        StateChartSemantics.popFromEL(PathResolver.class, pr);
                     }
                 }
-                scInstance.setInvoker(s, inv);
+                scInstance.setInvoker(ttype, s, inv);
             }
         }
     }

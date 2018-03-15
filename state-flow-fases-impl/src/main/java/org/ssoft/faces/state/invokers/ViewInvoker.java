@@ -5,7 +5,6 @@
 package org.ssoft.faces.state.invokers;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,15 +28,12 @@ import javax.faces.context.PartialViewContext;
 import javax.faces.render.RenderKit;
 import javax.faces.render.ResponseStateManager;
 import javax.faces.state.FlowContext;
-import javax.faces.state.FlowInstance;
 import javax.faces.state.FlowTriggerEvent;
-import javax.faces.state.PathResolver;
 import javax.faces.state.StateFlowExecutor;
 import javax.faces.state.invoke.Invoker;
 import javax.faces.state.invoke.InvokerException;
-import javax.faces.state.NamespacePrefixesHolder;
 import javax.faces.state.model.Parallel;
-import javax.faces.state.PathResolverHolder;
+import javax.faces.state.invoke.AbstractInvoker;
 import javax.faces.state.model.State;
 import javax.faces.state.model.TransitionTarget;
 import javax.faces.view.ViewDeclarationLanguage;
@@ -50,7 +46,7 @@ import org.ssoft.faces.state.utils.SharedUtils;
  *
  * @author Waldemar Kłaczyński
  */
-public class ViewInvoker implements Invoker, Serializable, PathResolverHolder, NamespacePrefixesHolder {
+public class ViewInvoker extends AbstractInvoker implements Invoker {
 
     private final static Logger logger = Logger.getLogger(StateFlowNavigationHandler.class.getName());
 
@@ -58,29 +54,20 @@ public class ViewInvoker implements Invoker, Serializable, PathResolverHolder, N
     public static final String VIEW_PARAMS_MAP = "___@@@ParamsMap____";
     public static final String FACES_VIEW_STATE = "com.sun.faces.FACES_VIEW_STATE";
 
-    private String parentStateId;
     private String eventPrefix;
     private String statePrefix;
     private boolean cancelled;
-    private FlowInstance parentnstance;
     private static final String invokePrefix = ".view.";
-    private PathResolver pathResolver;
     private String stateStore;
     private String control;
     private String viewId;
-    private Map namespaces;
 
     @Override
     public void setParentStateId(String parentStateId) {
-        this.parentStateId = parentStateId;
+        super.setParentStateId(parentStateId);
         this.eventPrefix = this.parentStateId + invokePrefix;
         this.statePrefix = this.parentStateId + "view.state.";
         this.cancelled = false;
-    }
-
-    @Override
-    public void setInstance(FlowInstance instance) {
-        this.parentnstance = instance;
     }
 
     @Override
@@ -140,7 +127,7 @@ public class ViewInvoker implements Invoker, Serializable, PathResolverHolder, N
 
             Object viewState = null;
             if (control.equals("statefull")) {
-                StateFlowExecutor executor = parentnstance.getExecutor();
+                StateFlowExecutor executor = instance.getExecutor();
                 Iterator iterator = executor.getCurrentStatus().getStates().iterator();
                 State state = ((State) iterator.next());
                 String stateKey = "";
@@ -149,7 +136,7 @@ public class ViewInvoker implements Invoker, Serializable, PathResolverHolder, N
                     stateKey = target.getId() + ":" + stateKey;
                     target = state.getParent();
                 }
-                FlowContext stateContext = parentnstance.getContext(state);
+                FlowContext stateContext = instance.getContext(state);
                 if (!stateKey.endsWith(":")) {
                     stateKey += ":";
                 }
@@ -310,10 +297,10 @@ public class ViewInvoker implements Invoker, Serializable, PathResolverHolder, N
                 FlowTriggerEvent te = new FlowTriggerEvent(eventPrefix + outcome, FlowTriggerEvent.SIGNAL_EVENT);
                 ExternalContext ec = context.getExternalContext();
 
-                StateFlowExecutor executor = parentnstance.getExecutor();
+                StateFlowExecutor executor = instance.getExecutor();
                 Iterator iterator = executor.getCurrentStatus().getStates().iterator();
                 State state = ((State) iterator.next());
-                FlowContext stateContext = parentnstance.getContext(state);
+                FlowContext stateContext = instance.getContext(state);
 
                 Map<String, String> parameterMap = ec.getRequestParameterMap();
                 for (Map.Entry<String, String> entry : parameterMap.entrySet()) {
@@ -343,10 +330,10 @@ public class ViewInvoker implements Invoker, Serializable, PathResolverHolder, N
                             }
                             target = state.getParent();
                         }
-                        FlowContext storeContext = parentnstance.getRootContext();
+                        FlowContext storeContext = instance.getRootContext();
 
                         if (storeTarget != null) {
-                            storeContext = parentnstance.getContext(storeTarget);
+                            storeContext = instance.getContext(storeTarget);
                         }
                         if (!stateKey.endsWith(":")) {
                             stateKey += ":";
@@ -370,29 +357,10 @@ public class ViewInvoker implements Invoker, Serializable, PathResolverHolder, N
         cancelled = true;
     }
 
-    @Override
-    public void setPathResolver(PathResolver pathResolver) {
-        this.pathResolver = pathResolver;
-    }
-
-    @Override
-    public PathResolver getPathResolver() {
-        return pathResolver;
-    }
-
     protected NavigationCase findNavigationCase(FacesContext context, String outcome) {
         ConfigurableNavigationHandler navigationHandler = (ConfigurableNavigationHandler) context.getApplication().getNavigationHandler();
         return navigationHandler.getNavigationCase(context, null, outcome);
     }
 
-    @Override
-    public void setNamespaces(Map namespaces) {
-        this.namespaces = namespaces;
-    }
-
-    @Override
-    public Map getNamespaces() {
-        return namespaces;
-    }
 
 }

@@ -13,6 +13,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
 import javax.faces.state.FlowContext;
+import javax.faces.state.model.StateChart;
+import static javax.faces.state.model.StateChart.STATE_MACHINE_HINT;
 import javax.faces.state.model.TransitionTarget;
 import org.ssoft.faces.state.log.FlowLogger;
 
@@ -23,7 +25,7 @@ import org.ssoft.faces.state.log.FlowLogger;
 public class FlowContextImpl implements FlowContext, Serializable {
 
     public static final Logger log = FlowLogger.FLOW.getLogger();
-    private final TransitionTarget target;
+    private TransitionTarget target;
     /**
      * The parent Context to this Context.
      */
@@ -81,13 +83,14 @@ public class FlowContextImpl implements FlowContext, Serializable {
 
     /**
      * Get target opwner reference this Context.
+     *
      * @return TransitionTarget
      */
     @Override
     public TransitionTarget getTarget() {
         return target;
     }
-    
+
     /**
      * Assigns a new value to an existing variable or creates a new one. The
      * method searches the chain of parent Contexts for variable existence.
@@ -206,8 +209,10 @@ public class FlowContextImpl implements FlowContext, Serializable {
         }
 
         Object values[] = new Object[2];
+        if (target != null) {
+            values[0] = target.getClientId();
+        }
         values[1] = saveVarsState(context);
-        values[0] = saveVarsState(context);
 
         return values;
     }
@@ -221,10 +226,21 @@ public class FlowContextImpl implements FlowContext, Serializable {
         if (state == null) {
             return;
         }
+        StateChart chart = (StateChart) context.getAttributes().get(STATE_MACHINE_HINT);
 
         Object[] values = (Object[]) state;
 
         if (values[0] != null) {
+            String stid = (String) values[0];
+            Object found = chart.findElement(stid);
+            if (found != null) {
+                target = (TransitionTarget) found;
+            } else {
+                throw new IllegalStateException(String.format("Restored element %s not found.", stid));
+            }
+        }
+
+        if (values[1] != null) {
             vars.clear();
             vars.putAll(restoreVarsState(context, values[0]));
         }

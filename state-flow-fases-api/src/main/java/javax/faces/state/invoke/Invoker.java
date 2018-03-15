@@ -6,6 +6,7 @@
 package javax.faces.state.invoke;
 
 import java.util.Map;
+import javax.faces.context.FacesContext;
 import javax.faces.state.FlowInstance;
 import javax.faces.state.FlowTriggerEvent;
 
@@ -15,6 +16,13 @@ import javax.faces.state.FlowTriggerEvent;
  */
 public interface Invoker {
 
+    /**
+     * Set the invoker type of the owning state for the &lt;invoke&gt;.
+     *
+     * @param type The type of the parent state.
+     */
+    void setType(String type);
+    
     /**
      * Set the state ID of the owning state for the &lt;invoke&gt;.
      * Implementations must use this ID for constructing the event name for
@@ -63,8 +71,22 @@ public interface Invoker {
      * @throws InvokerException In case there is a fatal problem with
      *                          canceling this invoke.
      */
-    void cancel()
-    throws InvokerException;
+    void cancel() throws InvokerException;
 
+    /**
+     * Save state this Context.
+     * @param context The FacesContext
+     * @return The saved state
+     */
+    Object saveState(FacesContext context);
+    
+    
+    /**
+     * Save state this Context.
+     * @param context The FacesContext
+     * @param state State object
+     */
+    void restoreState(FacesContext context, Object state);
+    
 }
 

@@ -4,19 +4,18 @@
  */
 package org.ssoft.faces.state.invokers;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.state.FlowContext;
-import javax.faces.state.FlowInstance;
 import javax.faces.state.FlowStatus;
 import javax.faces.state.FlowTriggerEvent;
 import javax.faces.state.ModelException;
 import javax.faces.state.StateFlowExecutor;
 import javax.faces.state.StateFlowHandler;
+import javax.faces.state.invoke.AbstractInvoker;
 import javax.faces.state.invoke.Invoker;
 import javax.faces.state.invoke.InvokerException;
 import javax.faces.state.model.State;
@@ -27,25 +26,13 @@ import org.ssoft.faces.state.utils.AsyncTrigger;
  *
  * @author Waldemar Kłaczyński
  */
-public class SubInvoker implements Invoker, Serializable {
+public class SubInvoker extends AbstractInvoker implements Invoker {
 
-    /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 1L;
-    /**
-     * Parent state ID.
-     */
-    private String parentStateId;
     /**
      * Event prefix, all events sent to the parent executor must begin with this
      * prefix.
      */
     private String eventPrefix;
-    /**
-     * Invoking document's FlowInstance.
-     */
-    private FlowInstance parentInstance;
     /**
      * Cancellation status.
      */
@@ -58,32 +45,17 @@ public class SubInvoker implements Invoker, Serializable {
     /**
      * Suffix for invoke done event.
      */
-    private static final String invokeDone = "done";
-    /**
-     * Suffix for invoke cancel response event.
-     */
     private static final String invokeCancelResponse = "cancel.response";
 
     public SubInvoker() {
         super();
     }
 
-    /**
-     * {@inheritDoc}.
-     */
     @Override
     public void setParentStateId(final String parentStateId) {
-        this.parentStateId = parentStateId;
+        super.setParentStateId(parentStateId);
         this.eventPrefix = this.parentStateId + invokePrefix;
         this.cancelled = false;
-    }
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Override
-    public void setInstance(final FlowInstance instance) {
-        this.parentInstance = instance;
     }
 
     /**
@@ -133,7 +105,7 @@ public class SubInvoker implements Invoker, Serializable {
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
-        StateFlowExecutor executor = handler.getExecutor(fc, parentInstance.getExecutor());
+        StateFlowExecutor executor = handler.getExecutor(fc, instance.getExecutor());
         boolean doneBefore = executor.getCurrentStatus().isFinal();
         try {
             executor.triggerEvents(evts);
@@ -144,12 +116,12 @@ public class SubInvoker implements Invoker, Serializable {
             FlowContext ctx = executor.getRootContext();
             if (ctx.has("__@result@__")) {
                 FlowContext result = (FlowContext) ctx.get("__@result@__");
-                FlowStatus pstatus = parentInstance.getExecutor().getCurrentStatus();
+                FlowStatus pstatus = instance.getExecutor().getCurrentStatus();
                 State pstate = (State) pstatus.getStates().iterator().next();
-                FlowContext pcontext = parentInstance.getContext(pstate);
+                FlowContext pcontext = instance.getContext(pstate);
                 pcontext.setLocal("__@result@__", result);
             }
-            handler.stopExecutor(fc, parentInstance.getExecutor());
+            handler.stopExecutor(fc, instance.getExecutor());
         }
     }
 
@@ -160,6 +132,7 @@ public class SubInvoker implements Invoker, Serializable {
     public void cancel() throws InvokerException {
         cancelled = true;
         FlowTriggerEvent te = new FlowTriggerEvent(eventPrefix + invokeCancelResponse, FlowTriggerEvent.SIGNAL_EVENT);
-        new AsyncTrigger(parentInstance.getExecutor(), te).start();
+        new AsyncTrigger(instance.getExecutor(), te).start();
     }
+
 }
