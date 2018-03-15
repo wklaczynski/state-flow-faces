@@ -3,6 +3,78 @@ This project integrate Java Server Faces witch State Chat Flow. It uses scxml no
 
 https://www.w3.org/TR/scxml/
 
+## Code Example
+
+Show what the library does as concisely as possible, developers should be able to figure out **how** your project solves their problem by looking at the code example. Make sure the API you are showing off is obvious, and that your code is short and concise.
+
+```
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<f:metadata
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:x="http://xmlns.ssoft.org/flow/scxml"
+    xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+    >
+    <x:scxml initial="start">
+
+        <x:state id="start">
+            <x:onentry>
+                <x:if cond="#{orders.prepare()}">
+                    <x:raise event="main.prepare.success"/>
+                    <x:else/>
+                    <x:raise event="main.prepare.failed"/>
+                </x:if>
+            </x:onentry>
+            <x:transition event="main.prepare.success" target="main"/>
+            <x:transition event="main.prepare.failed" target="exit"/>
+        </x:state>
+
+        <x:state id="main">
+            <x:invoke type="view" src="Main.xhtml"/>
+            <x:transition event="main.view.test" target="test-order"/>
+            <x:transition event="main.view.show" target="show-order"/>
+        </x:state> 
+
+        <x:state id="show-order"> 
+            <x:invoke type="view" src="show-order.xhtml">
+                <x:param name="id"  expr="#{orders.selected}"/>
+                <x:param name="name" expr="#{orders.selected.name}"/>
+            </x:invoke>
+            <x:transition event="show-order.invoke.cancel" target="main"/>
+            <x:transition event="show-order.invoke.success" target="main">
+                <x:send event="update" target="#{orders.dispatchSend}"/>
+            </x:transition>
+        </x:state>      
+
+        <x:state id="test-order">
+            <x:onentry>
+                <x:if cond="#{orders.test()}">
+                    <x:raise event="test-order.prepare.success"/>
+                    <x:else/>
+                    <x:raise event="test-order.prepare.failed"/>
+                </x:if>
+            </x:onentry>
+            <x:transition event="test-order.prepare.success" target="main"/>
+            <x:transition event="test-order.prepare.failed" target="main"/>
+        </x:state>
+
+        <x:state id="error"> 
+            <x:invoke type="scxml" src="/common/error.scxml">
+                <x:finalize/>
+            </x:invoke>
+            <x:transition event="error.invoke.done" target="exit"/>
+        </x:state>      
+
+        <x:final id="exit">
+            <x:onexit>
+
+            </x:onexit>
+        </x:final>
+
+    </x:scxml>    
+
+</f:metadata>
+```
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
