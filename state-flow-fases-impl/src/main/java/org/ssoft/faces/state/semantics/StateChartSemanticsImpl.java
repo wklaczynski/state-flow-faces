@@ -51,8 +51,6 @@ import javax.faces.state.FlowExpressionException;
 import javax.faces.state.FlowNotificationRegistry;
 import javax.faces.state.PathResolver;
 import javax.faces.state.model.Param;
-import javax.faces.state.PathResolverHolder;
-import org.ssoft.faces.state.utils.Util;
 import javax.faces.state.semantics.StateChartSemantics;
 import org.ssoft.faces.state.log.FlowLogger;
 
@@ -151,10 +149,9 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
             throws ModelException {
         FlowNotificationRegistry nr = scInstance.getNotificationRegistry();
         Collection internalEvents = step.getAfterStatus().getEvents();
-        Map invokers = scInstance.getInvokers();
+        Map<TransitionTarget, Invoker> invokers = scInstance.getInvokers();
         // ExecutePhaseActions / OnExit
-        for (Iterator i = step.getExitList().iterator(); i.hasNext();) {
-            TransitionTarget tt = (TransitionTarget) i.next();
+        for (TransitionTarget tt : step.getExitList()) {
             OnExit oe = tt.getOnExit();
             if (oe != null) {
                 try {
@@ -170,7 +167,10 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
             if (invokers.containsKey(tt)) {
                 Invoker toCancel = (Invoker) invokers.get(tt);
                 try {
-                    toCancel.cancel();
+                    scInstance.process((State) tt, toCancel, () -> {
+                        toCancel.cancel();
+                        return null;
+                    });
                 } catch (InvokerException ie) {
                     FlowTriggerEvent te = new FlowTriggerEvent(tt.getId()
                             + ".invoke.cancel.failed", FlowTriggerEvent.ERROR_EVENT);
@@ -186,8 +186,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
             internalEvents.add(te);
         }
         // ExecutePhaseActions / Transitions
-        for (Iterator i = step.getTransitList().iterator(); i.hasNext();) {
-            Transition t = (Transition) i.next();
+        for (Transition t : step.getTransitList()) {
             try {
                 for (Iterator transitIter = t.getActions().iterator(); transitIter.hasNext();) {
                     ((Action) transitIter.next()).execute(evtDispatcher, errRep, scInstance, internalEvents);
@@ -203,8 +202,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
             }
         }
         // ExecutePhaseActions / OnEntry
-        for (Iterator i = step.getEntryList().iterator(); i.hasNext();) {
-            TransitionTarget tt = (TransitionTarget) i.next();
+        for (TransitionTarget tt : step.getEntryList()) {
             OnEntry oe = tt.getOnEntry();
             if (oe != null) {
                 try {
@@ -354,9 +352,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
         //remove list (filtered-out list)
         List removeList = new LinkedList();
         //iterate over non-filtered transition set
-        for (Iterator iter = step.getTransitList().iterator();
-                iter.hasNext();) {
-            Transition t = (Transition) iter.next();
+        for (Transition t : step.getTransitList()) {
             // event check
             String event = t.getEvent();
             if (!eventMatch(event, allEvents)) {
@@ -453,12 +449,11 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
      * @param errRep ErrorReporter callback [inout]
      * @return Set The target set
      */
-    public Set seedTargetSet(final Set residual, final List transitList,
+    public Set seedTargetSet(final Set<State> residual, final List<Transition> transitList,
             final FlowErrorReporter errRep) {
-        Set seedSet = new HashSet();
-        Set regions = new HashSet();
-        for (Iterator i = transitList.iterator(); i.hasNext();) {
-            Transition t = (Transition) i.next();
+        Set<TransitionTarget> seedSet = new HashSet();
+        Set<TransitionTarget> regions = new HashSet();
+        for (Transition t : transitList) {
             //iterate over transitions and add target states
             if (t.getTargets().size() > 0) {
                 seedSet.addAll(t.getTargets());
@@ -478,7 +473,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
             }
         }
         //check whether all active regions have their siblings active too
-        Set allStates = new HashSet(residual);
+        Set<TransitionTarget> allStates = new HashSet(residual);
         allStates.addAll(seedSet);
         allStates = StateFlowHelper.getAncestorClosure(allStates, null);
         regions.removeAll(allStates);
@@ -606,17 +601,16 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
     public void followTransitions(final FlowStep step,
             final FlowErrorReporter errorReporter, final FlowInstance scInstance)
             throws ModelException {
-        Set currentStates = step.getBeforeStatus().getStates();
-        List transitions = step.getTransitList();
+        Set<State> currentStates = step.getBeforeStatus().getStates();
+        List<Transition> transitions = step.getTransitList();
         // DetermineExitedStates (currentStates, transitList) -> exitedStates
-        Set exitedStates = new HashSet();
-        for (Iterator i = transitions.iterator(); i.hasNext();) {
-            Transition t = (Transition) i.next();
+        Set<State> exitedStates = new HashSet();
+        for (Transition t : transitions) {
             Set ext = StateFlowHelper.getStatesExited(t, currentStates);
             exitedStates.addAll(ext);
         }
         // compute residual states - these are preserved from the previous step
-        Set residual = new HashSet(currentStates);
+        Set<State> residual = new HashSet<>(currentStates);
         residual.removeAll(exitedStates);
         // SeedTargetSet (residual, transitList) -> seedSet
         Set seedSet = seedTargetSet(residual, transitions, errorReporter);
@@ -627,8 +621,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
         // BuildOnEntryList (targetSet, seedSet) -> entryList
         Set entered = StateFlowHelper.getAncestorClosure(targetSet, seedSet);
         seedSet.clear();
-        for (Iterator i = transitions.iterator(); i.hasNext();) {
-            Transition t = (Transition) i.next();
+        for (Transition t : transitions) {
             List paths = t.getPaths();
             for (int j = 0; j < paths.size(); j++) {
                 Path p = (Path) paths.get(j);
@@ -650,7 +643,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
             throw new ModelException("Illegal state machine configuration!");
         }
         // sort onEntry and onExit according state hierarchy
-        Object[] oex = exitedStates.toArray();
+        State[] oex = exitedStates.toArray(new State[exitedStates.size()]);
         exitedStates.clear();
         Object[] oen = entered.toArray();
         entered.clear();
@@ -687,12 +680,16 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
 
         Set allEvents = new HashSet();
         allEvents.addAll(Arrays.asList(events));
-        for (Map.Entry iEntry : scInstance.getInvokers().entrySet()) {
-            String parentId = ((TransitionTarget) iEntry.getKey()).getId();
+        for (Map.Entry<TransitionTarget, Invoker> iEntry : scInstance.getInvokers().entrySet()) {
+            TransitionTarget tt = iEntry.getKey();
+            String parentId = tt.getId();
             if (!finalizeMatch(parentId, allEvents)) { // prevent cycles
                 Invoker inv = (Invoker) iEntry.getValue();
                 try {
-                    inv.parentEvents(events);
+                    scInstance.process((State) tt, inv, () -> {
+                        inv.parentEvents(events);
+                        return null;
+                    });
                 } catch (InvokerException ie) {
                     log.log(Level.SEVERE, ie.getMessage(), ie);
                     throw new ModelException(ie.getMessage(), ie.getCause());
@@ -714,95 +711,86 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
         FacesContext fc = FacesContext.getCurrentInstance();
         FlowEvaluator eval = scInstance.getEvaluator();
         Collection internalEvents = step.getAfterStatus().getEvents();
-        for (State s : step.getAfterStatus().getStates()) {
-            FlowContext ctx = scInstance.getContext(s);
-            Invoke i = s.getInvoke();
-            if (i != null && scInstance.getInvoker(s) == null) {
-                String src = i.getSrc();
-                if (src == null) {
-                    String srcexpr = i.getSrcexpr();
-                    Object srcObj;
-                    try {
-                        ctx.setLocal(NAMESPACES_KEY, i.getNamespaces());
-                        srcObj = eval.eval(ctx, srcexpr);
-                        ctx.setLocal(NAMESPACES_KEY, null);
-                        src = String.valueOf(srcObj);
-                    } catch (FlowExpressionException see) {
-                        errRep.onError(ErrorConstants.EXPRESSION_ERROR,
-                                see.getMessage(), i);
-                    }
-                }
-                String source = src;
-                PathResolver pr = i.getPathResolver();
-                if (pr != null) {
-                    source = i.getPathResolver().resolvePath(fc, src);
-                }
-                String ttype = i.getTargettype();
-                Invoker inv = null;
+        for (State state : step.getAfterStatus().getStates()) {
+            FlowContext ctx = scInstance.getContext(state);
+            Invoke invoke = state.getInvoke();
+
+            if (invoke != null && scInstance.getInvoker(state) == null) {
                 try {
-                    if (pr != null) {
-                        StateChartSemantics.pushToEL(PathResolver.class, pr);
-                    }
+                    final Invoker inv = scInstance.newInvoker(invoke, state);
 
-                    inv = scInstance.newInvoker(ttype);
+                    scInstance.process(state, inv, () -> {
 
-                    inv.setParentStateId(s.getId());
-                    inv.setInstance(scInstance);
-                    List params = i.params();
-                    Map args = new HashMap();
+                        String src = invoke.getSrc();
+                        if (src == null) {
 
-                    if (inv instanceof PathResolverHolder) {
-                        PathResolverHolder ph = (PathResolverHolder) inv;
-                        ph.setPathResolver(pr);
-                    }
-
-                    for (Iterator pIter = params.iterator(); pIter.hasNext();) {
-                        Param p = (Param) pIter.next();
-                        String argExpr = p.getExpr();
-                        Object argValue = null;
-                        ctx.setLocal(NAMESPACES_KEY, p.getNamespaces());
-                        // Do we have an "expr" attribute?
-                        if (argExpr != null && argExpr.trim().length() > 0) {
-                            // Yes, evaluate and store as parameter value
+                            String srcexpr = invoke.getSrcexpr();
+                            Object srcObj;
                             try {
-                                argValue = eval.eval(ctx, argExpr);
+                                ctx.setLocal(NAMESPACES_KEY, invoke.getNamespaces());
+                                srcObj = eval.eval(ctx, srcexpr);
+                                ctx.setLocal(NAMESPACES_KEY, null);
+                                src = String.valueOf(srcObj);
                             } catch (FlowExpressionException see) {
                                 errRep.onError(ErrorConstants.EXPRESSION_ERROR,
-                                        see.getMessage(), i);
-                            }
-                        } else {
-                            // No. Does value of "name" attribute refer to a valid
-                            // location in the data model?
-                            try {
-                                argValue = eval.evalLocation(ctx, p.getName());
-                                if (argValue == null) {
-                                    // Generate error, 4.3.1 in WD-scxml-20080516
-                                    FlowTriggerEvent te = new FlowTriggerEvent(s.getId()
-                                            + ERR_ILLEGAL_ALLOC,
-                                            FlowTriggerEvent.ERROR_EVENT);
-                                    internalEvents.add(te);
-                                }
-                            } catch (FlowExpressionException see) {
-                                errRep.onError(ErrorConstants.EXPRESSION_ERROR,
-                                        see.getMessage(), i);
+                                        see.getMessage(), invoke);
                             }
                         }
-                        ctx.setLocal(NAMESPACES_KEY, null);
-                        args.put(p.getName(), argValue);
-                    }
-                    Util.postConstruct(inv);
+                        String source = src;
 
-                    inv.invoke(source, args);
+                        PathResolver pr = invoke.getPathResolver();
+                        if (pr != null) {
+                            source = invoke.getPathResolver().resolvePath(fc, src);
+                        }
+
+                        List params = invoke.params();
+                        Map args = new HashMap();
+
+                        for (Iterator pIter = params.iterator(); pIter.hasNext();) {
+                            Param p = (Param) pIter.next();
+                            String argExpr = p.getExpr();
+                            Object argValue = null;
+                            ctx.setLocal(NAMESPACES_KEY, p.getNamespaces());
+                            // Do we have an "expr" attribute?
+                            if (argExpr != null && argExpr.trim().length() > 0) {
+                                // Yes, evaluate and store as parameter value
+                                try {
+                                    argValue = eval.eval(ctx, argExpr);
+                                } catch (FlowExpressionException see) {
+                                    errRep.onError(ErrorConstants.EXPRESSION_ERROR,
+                                            see.getMessage(), invoke);
+                                }
+                            } else {
+                                // No. Does value of "name" attribute refer to a valid
+                                // location in the data model?
+                                try {
+                                    argValue = eval.evalLocation(ctx, p.getName());
+                                    if (argValue == null) {
+                                        // Generate error, 4.3.1 in WD-scxml-20080516
+                                        FlowTriggerEvent te = new FlowTriggerEvent(state.getId()
+                                                + ERR_ILLEGAL_ALLOC,
+                                                FlowTriggerEvent.ERROR_EVENT);
+                                        internalEvents.add(te);
+                                    }
+                                } catch (FlowExpressionException see) {
+                                    errRep.onError(ErrorConstants.EXPRESSION_ERROR,
+                                            see.getMessage(), invoke);
+                                }
+                            }
+                            ctx.setLocal(NAMESPACES_KEY, null);
+                            args.put(p.getName(), argValue);
+                        }
+
+                        inv.invoke(source, args);
+
+                        return null;
+                    });
+
+                    scInstance.setInvoker(state, invoke, inv);
                 } catch (InvokerException ie) {
-                    FlowTriggerEvent te = new FlowTriggerEvent(s.getId() + ".invoke.failed", FlowTriggerEvent.ERROR_EVENT);
+                    FlowTriggerEvent te = new FlowTriggerEvent(state.getId() + ".invoke.failed", FlowTriggerEvent.ERROR_EVENT);
                     internalEvents.add(te);
-                    continue;
-                } finally {
-                    if (pr != null) {
-                        StateChartSemantics.popFromEL(PathResolver.class, pr);
-                    }
                 }
-                scInstance.setInvoker(ttype, s, inv);
             }
         }
     }

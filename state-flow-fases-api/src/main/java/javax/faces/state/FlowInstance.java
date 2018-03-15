@@ -6,17 +6,23 @@
 package javax.faces.state;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import javax.faces.context.FacesContext;
 import javax.faces.state.invoke.Invoker;
 import javax.faces.state.invoke.InvokerException;
 import javax.faces.state.model.Datamodel;
 import javax.faces.state.model.History;
+import javax.faces.state.model.Invoke;
+import javax.faces.state.model.State;
+import javax.faces.state.model.StateChart;
+import static javax.faces.state.model.StateChart.STATE_MACHINE_HINT;
 import javax.faces.state.model.TransitionTarget;
 import javax.faces.state.utils.StateFlowHelper;
 
@@ -25,6 +31,8 @@ import javax.faces.state.utils.StateFlowHelper;
  * @author Waldemar Kłaczyński
  */
 public abstract class FlowInstance {
+
+    static final String CURRENT_STACK_KEY = "javax.faces.state.CURRENT_STACK";
 
     /**
      * The notification registry.
@@ -44,8 +52,8 @@ public abstract class FlowInstance {
     private final Map<History, Set<TransitionTarget>> histories;
 
     /**
-     * <code>Map</code> for recording the run to completion status of composite
-     * states.
+     * <code>Map</code> for recording the processInvoke to completion status of
+     * composite states.
      */
     private final Map<TransitionTarget, Boolean> completions;
 
@@ -54,12 +62,6 @@ public abstract class FlowInstance {
      * &lt;invoke&gt; target types (specified using "targettype" attribute).
      */
     private final Map<String, Class> invokerClasses;
-
-    /**
-     * The <code>Invoker</code> classes <code>Map</code>, keyed by
-     * &lt;invoke&gt; target types (specified using "targettype" attribute).
-     */
-    private final Map<Invoker, String> invokerTypes;
 
     /**
      * The <code>Map</code> of active <code>Invoker</code>s, keyed by (leaf)
@@ -92,7 +94,6 @@ public abstract class FlowInstance {
         this.contexts = Collections.synchronizedMap(new HashMap());
         this.histories = Collections.synchronizedMap(new HashMap());
         this.invokerClasses = Collections.synchronizedMap(new HashMap());
-        this.invokerTypes = Collections.synchronizedMap(new HashMap());
         this.invokers = Collections.synchronizedMap(new HashMap());
         this.completions = Collections.synchronizedMap(new HashMap());
         this.evaluator = null;
@@ -291,13 +292,16 @@ public abstract class FlowInstance {
      * and only if the <code>TransitionTarget</code> is currently active and
      * contains an &lt;invoke&gt; child.
      *
-     * @param targettype The type of the target being invoked.
+     * @param invoke
+     * @param target
      * @return An {@link Invoker} for the specified type, if an invoker class is
      * registered against that type, <code>null</code> otherwise.
      * @throws InvokerException When a suitable {@link Invoker} cannot be
      * instantiated.
      */
-    public Invoker newInvoker(final String targettype) throws InvokerException {
+    public Invoker newInvoker(final Invoke invoke, TransitionTarget target) throws InvokerException {
+        String targettype = invoke.getTargettype();
+
         Class invokerClass = (Class) invokerClasses.get(targettype);
         if (invokerClass == null) {
             throw new InvokerException("No Invoker registered for "
@@ -306,16 +310,37 @@ public abstract class FlowInstance {
         Invoker invoker = null;
         try {
             invoker = (Invoker) invokerClass.newInstance();
-            decorateInvoker(invoker);
+
+            invoker.setParentStateId(target.getId());
+            invoker.setInstance(this);
+
+            if (invoker instanceof PathResolverHolder) {
+                PathResolver pr = current(PathResolver.class);
+                PathResolverHolder ph = (PathResolverHolder) invoker;
+                ph.setPathResolver(pr);
+            }
+
+            postNewInvoker(invoke, invoker);
+
         } catch (InstantiationException | IllegalAccessException | IOException ie) {
             throw new InvokerException(ie.getMessage(), ie.getCause());
         }
         return invoker;
     }
 
-    protected abstract void decorateInvoker(final Invoker invoker) throws IOException;
-    
-    
+    public <V> V process(final State target, final Invoker invoker, final Callable<V> fn) throws InvokerException {
+        Invoke invoke = target.getInvoke();
+        try {
+            return processInvoke(target, invoke, invoker, fn);
+        } catch (Throwable th) {
+            throw new InvokerException(th);
+        }
+    }
+
+    protected abstract <V> V processInvoke(final State target, final Invoke invoke, final Invoker invoker, final Callable<V> fn) throws Exception;
+
+    protected abstract void postNewInvoker(final Invoke invoke, final Invoker invoker) throws IOException;
+
     /**
      * Get the {@link Invoker} for this {@link TransitionTarget}. May return
      * <code>null</code>. A non-null {@link Invoker} will be returned if and
@@ -332,13 +357,12 @@ public abstract class FlowInstance {
     /**
      * Set the {@link Invoker} for this {@link TransitionTarget}.
      *
-     * @param type
+     * @param invoke
      * @param transitionTarget The TransitionTarget.
      * @param invoker The Invoker.
      */
-    public void setInvoker(final String type, final TransitionTarget transitionTarget, final Invoker invoker) {
+    public void setInvoker(final TransitionTarget transitionTarget, final Invoke invoke, final Invoker invoker) {
         invokers.put(transitionTarget, invoker);
-        invokerTypes.put(invoker, type);
     }
 
     /**
@@ -409,6 +433,14 @@ public abstract class FlowInstance {
 
         Object[] values = (Object[]) state;
 
+        FlowContext rctx = getRootContext();
+        rctx.restoreState(context, values[0]);
+
+        restoreContextsState(context, values[1]);
+        restoreHistoriesState(context, values[2]);
+        restoreCompletionsState(context, values[3]);
+        restoreInvokersState(context, values[4]);
+
     }
 
     private Object saveContextsState(FacesContext context) {
@@ -427,6 +459,29 @@ public abstract class FlowInstance {
         return state;
     }
 
+    private void restoreContextsState(FacesContext context, Object state) {
+        StateChart chart = (StateChart) context.getAttributes().get(STATE_MACHINE_HINT);
+        contexts.clear();
+
+        if (null != state) {
+            Object[] values = (Object[]) state;
+            for (Object value : values) {
+                Object[] entry = (Object[]) value;
+
+                String ttid = (String) entry[0];
+                Object found = chart.findElement(ttid);
+                if (found == null) {
+                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
+                }
+
+                TransitionTarget target = (TransitionTarget) found;
+                FlowContext tctx = getContext(target);
+                tctx.restoreState(context, entry[1]);
+
+            }
+        }
+    }
+
     private Object saveHistoriesState(FacesContext context) {
         Object state = null;
         if (null != histories && histories.size() > 0) {
@@ -443,6 +498,34 @@ public abstract class FlowInstance {
         return state;
     }
 
+    private void restoreHistoriesState(FacesContext context, Object state) {
+        StateChart chart = (StateChart) context.getAttributes().get(STATE_MACHINE_HINT);
+        histories.clear();
+
+        if (null != state) {
+            Object[] values = (Object[]) state;
+            for (Object value : values) {
+                Object[] entry = (Object[]) value;
+
+                String ttid = (String) entry[0];
+                Object found = chart.findElement(ttid);
+
+                if (found == null) {
+                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
+                }
+
+                History history = (History) found;
+
+                Set<TransitionTarget> last = (Set) histories.get(history);
+                if (last == null) {
+                    last = new HashSet();
+                    histories.put(history, last);
+                }
+                restoreTargetsState(context, chart, last, entry[1]);
+            }
+        }
+    }
+
     private Object saveTargetsState(FacesContext context, Collection<TransitionTarget> tatgets) {
         Object state = null;
         if (null != tatgets && tatgets.size() > 0) {
@@ -454,6 +537,23 @@ public abstract class FlowInstance {
             state = attached;
         }
         return state;
+    }
+
+    private void restoreTargetsState(FacesContext context, StateChart chart, Set<TransitionTarget> targets, Object state) {
+        targets.clear();
+        if (null != state) {
+            Object[] values = (Object[]) state;
+            for (Object value : values) {
+                String ttid = (String) value;
+                Object found = chart.findElement(ttid);
+                if (found == null) {
+                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
+                }
+
+                TransitionTarget tt = (TransitionTarget) found;
+                targets.add(tt);
+            }
+        }
     }
 
     private Object saveCompletionsState(FacesContext context) {
@@ -472,6 +572,27 @@ public abstract class FlowInstance {
         return state;
     }
 
+    private void restoreCompletionsState(FacesContext context, Object state) {
+        StateChart chart = (StateChart) context.getAttributes().get(STATE_MACHINE_HINT);
+        completions.clear();
+
+        if (null != state) {
+            Object[] values = (Object[]) state;
+            for (Object value : values) {
+                Object[] entry = (Object[]) value;
+
+                String ttid = (String) entry[0];
+                Object found = chart.findElement(ttid);
+                if (found == null) {
+                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
+                }
+
+                TransitionTarget tt = (TransitionTarget) found;
+                completions.put(tt, (Boolean) entry[1]);
+            }
+        }
+    }
+
     private Object saveInvokersState(FacesContext context) {
         Object state = null;
         if (null != invokers && invokers.size() > 0) {
@@ -480,8 +601,10 @@ public abstract class FlowInstance {
             for (Map.Entry<TransitionTarget, Invoker> entry : invokers.entrySet()) {
                 Object values[] = new Object[3];
                 Invoker invoker = entry.getValue();
+                State tt = (State) entry.getKey();
+
                 values[0] = entry.getKey().getClientId();
-                values[1] = invokerTypes.get(invoker);
+                values[1] = tt.getInvoke().getTargettype();
                 values[2] = invoker.saveState(context);
                 attached[i++] = values;
             }
@@ -489,6 +612,87 @@ public abstract class FlowInstance {
         }
         return state;
     }
-    
-    
+
+    private void restoreInvokersState(FacesContext context, Object state) {
+        StateChart chart = (StateChart) context.getAttributes().get(STATE_MACHINE_HINT);
+        invokers.clear();
+
+        if (null != state) {
+            Object[] values = (Object[]) state;
+            for (Object value : values) {
+                Object[] entry = (Object[]) value;
+
+                String ttid = (String) entry[0];
+                Object found = chart.findElement(ttid);
+                if (found == null) {
+                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
+                }
+
+                TransitionTarget tt = (TransitionTarget) found;
+                String type = (String) values[1];
+
+                State stt = (State) tt;
+                Invoke invoke = stt.getInvoke();
+                if (!invoke.getTargettype().equals(type)) {
+                    throw new IllegalStateException(String.format("Bad invoker type %s in failed.", type, ttid));
+                }
+
+                Invoker invoker = null;
+                try {
+
+                    PathResolver pr = invoke.getPathResolver();
+
+                    invoker = newInvoker(invoke, tt);
+                } catch (InvokerException ex) {
+                    throw new IllegalStateException(String.format("Restored invoker %s failed.", ttid), ex);
+                } finally {
+
+                }
+
+                invokers.put(tt, invoker);
+            }
+        }
+    }
+
+    public static FlowInstance current() {
+        return current(FlowInstance.class);
+    }
+
+    public static <T> T current(Class<T> type) {
+        FacesContext context = FacesContext.getCurrentInstance();
+        Map<Object, Object> contextAttributes = context.getAttributes();
+        ArrayDeque<T> elStack = getObjectStack(type, contextAttributes);
+        return elStack.peek();
+    }
+
+    public static <T> void push(Class<T> type, T component) {
+        FacesContext context = FacesContext.getCurrentInstance();
+        Map<Object, Object> contextAttributes = context.getAttributes();
+        ArrayDeque<T> elStack = getObjectStack(type, contextAttributes);
+        elStack.push(component);
+    }
+
+    public static <T> void pop(Class<T> type, T component) {
+        FacesContext context = FacesContext.getCurrentInstance();
+        Map<Object, Object> contextAttributes = context.getAttributes();
+        ArrayDeque<T> elStack = getObjectStack(type, contextAttributes);
+
+        for (T topComponent = elStack.peek(); topComponent != component; topComponent = elStack.peek()) {
+            pop(type, topComponent);
+        }
+
+        elStack.pop();
+    }
+
+    private static <T> ArrayDeque<T> getObjectStack(Class<T> type, Map<Object, Object> contextAttributes) {
+        String keyName = CURRENT_STACK_KEY + ":" + type.getName();
+        ArrayDeque<T> elStack = (ArrayDeque<T>) contextAttributes.get(keyName);
+
+        if (elStack == null) {
+            elStack = new ArrayDeque<>();
+            contextAttributes.put(keyName, elStack);
+        }
+        return elStack;
+    }
+
 }

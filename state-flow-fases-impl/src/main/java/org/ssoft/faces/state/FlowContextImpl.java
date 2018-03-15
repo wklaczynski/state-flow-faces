@@ -7,7 +7,6 @@ package org.ssoft.faces.state;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -231,20 +230,16 @@ public class FlowContextImpl implements FlowContext, Serializable {
         Object[] values = (Object[]) state;
 
         if (values[0] != null) {
-            String stid = (String) values[0];
-            Object found = chart.findElement(stid);
-            if (found != null) {
-                target = (TransitionTarget) found;
-            } else {
-                throw new IllegalStateException(String.format("Restored element %s not found.", stid));
+            String ttid = (String) values[0];
+            Object found = chart.findElement(ttid);
+            if (found == null) {
+                throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
             }
+            
+            target = (TransitionTarget) found;
         }
 
-        if (values[1] != null) {
-            vars.clear();
-            vars.putAll(restoreVarsState(context, values[0]));
-        }
-
+        restoreVarsState(context, values[1]);
     }
 
     private Object saveVarsState(FacesContext context) {
@@ -260,17 +255,15 @@ public class FlowContextImpl implements FlowContext, Serializable {
         return state;
     }
 
-    private Map<String, Object> restoreVarsState(FacesContext context, Object state) {
+    private void restoreVarsState(FacesContext context, Object state) {
+        vars.clear();
         if (null != state) {
             Object[] values = (Object[]) state;
-            Map<String, Object> result = new LinkedHashMap<>(values.length);
             for (Object value : values) {
                 Object[] entry = (Object[]) value;
-                result.put((String) entry[0], entry[1]);
+                vars.put((String) entry[0], entry[1]);
             }
-            return result;
         }
-        return null;
     }
 
 }

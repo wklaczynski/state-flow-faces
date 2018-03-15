@@ -5,9 +5,9 @@
  */
 package org.ssoft.faces.state.cdi;
 
+import javax.faces.state.FlowInstance;
 import javax.faces.state.PathResolver;
 import javax.faces.state.annotation.StateChartScoped;
-import javax.faces.state.semantics.StateChartSemantics;
 
 /**
  *
@@ -24,7 +24,7 @@ public class PathResolverProducer extends CdiProducer<PathResolver> {
         super.name("flowPathResolver")
              .scope(StateChartScoped.class)
              .beanClassAndType(PathResolver.class)   
-             .create(e -> StateChartSemantics.getCurrent(PathResolver.class));
+             .create(e -> FlowInstance.current(PathResolver.class));
     }
 
 }

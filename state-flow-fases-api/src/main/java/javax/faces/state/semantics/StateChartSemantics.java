@@ -5,11 +5,8 @@
  */
 package javax.faces.state.semantics;
 
-import java.util.ArrayDeque;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import javax.faces.context.FacesContext;
 import javax.faces.state.FlowErrorReporter;
 import javax.faces.state.FlowEventDispatcher;
 import javax.faces.state.FlowInstance;
@@ -23,8 +20,6 @@ import javax.faces.state.model.StateChart;
  * @author Waldemar Kłaczyński
  */
 public interface StateChartSemantics {
-
-    static final String CURRENT_SEMANTICS_STACK_KEY = "javax.faces.state.CURRENT_SEMANTICS_STACK";
 
     /**
      * Optional post processing immediately following Digester. May be used for
@@ -143,42 +138,5 @@ public interface StateChartSemantics {
     void initiateInvokes(final FlowStep step, final FlowErrorReporter errRep,
             final FlowInstance sfInstance);
 
-    public static <T> T getCurrent(Class<T> type) {
-        FacesContext context = FacesContext.getCurrentInstance();
-        Map<Object, Object> contextAttributes = context.getAttributes();
-        ArrayDeque<T> semanticsELStack = getSemanticsELStack(type, contextAttributes);
-        return semanticsELStack.peek();
-    }
-
-    public static <T> void pushToEL(Class<T> type, T component) {
-        FacesContext context = FacesContext.getCurrentInstance();
-
-        Map<Object, Object> contextAttributes = context.getAttributes();
-        ArrayDeque<T> semanticsELStack = getSemanticsELStack(type, contextAttributes);
-        semanticsELStack.push(component);
-    }
-
-    public static <T> void popFromEL(Class<T> type, T component) {
-        FacesContext context = FacesContext.getCurrentInstance();
-        Map<Object, Object> contextAttributes = context.getAttributes();
-        ArrayDeque<T> semanticsELStack = getSemanticsELStack(type, contextAttributes);
-
-        for (T topComponent = semanticsELStack.peek(); topComponent != component; topComponent = semanticsELStack.peek()) {
-            popFromEL(type, topComponent);
-        }
-
-        semanticsELStack.pop();
-    }
-
-    public static <T> ArrayDeque<T> getSemanticsELStack(Class<T> type, Map<Object, Object> contextAttributes) {
-        String keyName = CURRENT_SEMANTICS_STACK_KEY + ":" + type.getName();
-        ArrayDeque<T> elStack = (ArrayDeque<T>) contextAttributes.get(keyName);
-
-        if (elStack == null) {
-            elStack = new ArrayDeque<>();
-            contextAttributes.put(keyName, elStack);
-        }
-        return elStack;
-    }
 
 }

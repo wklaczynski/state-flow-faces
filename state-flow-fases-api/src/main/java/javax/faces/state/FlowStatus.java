@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import javax.faces.context.FacesContext;
 import javax.faces.state.model.State;
@@ -98,7 +97,7 @@ public class FlowStatus implements Serializable {
      * complex ancestors up to the root.
      */
     public Set<State> getAllStates() {
-        return StateFlowHelper.getAncestorClosure(states, null);
+        return StateFlowHelper.getAncestorClosure((Set) states, null);
     }
 
     public Object saveState(FacesContext context) {
@@ -107,7 +106,7 @@ public class FlowStatus implements Serializable {
         }
 
         Object values[] = new Object[2];
-        
+
         values[0] = saveEventsState(context);
         values[1] = saveStatesState(context);
 
@@ -124,15 +123,10 @@ public class FlowStatus implements Serializable {
         }
 
         Object[] values = (Object[]) state;
-        
-        if(values[0] != null) {
-            events.clear();
-            events.addAll(restoreEventsState(context, values[0]));
-        }
-        if(values[1] != null) {
-            states.clear();
-            states.addAll(restoreStatesState(context, values[1]));
-        }
+
+        restoreEventsState(context, values[0]);
+        restoreStatesState(context, values[1]);
+
     }
 
     private Object saveEventsState(FacesContext context) {
@@ -148,18 +142,16 @@ public class FlowStatus implements Serializable {
         return state;
     }
 
-    private Collection<FlowTriggerEvent> restoreEventsState(FacesContext context, Object state) {
+    private void restoreEventsState(FacesContext context, Object state) {
+        events.clear();
         if (null != state) {
             Object[] values = (Object[]) state;
-            List<FlowTriggerEvent> result = new ArrayList<>(values.length);
             for (Object value : values) {
                 FlowTriggerEvent event = new FlowTriggerEvent("", 0);
                 event.restoreState(context, value);
-                result.add(event);
+                events.add(event);
             }
-            return result;
         }
-        return null;
     }
 
     private Object saveStatesState(FacesContext context) {
@@ -175,25 +167,23 @@ public class FlowStatus implements Serializable {
         return state;
     }
 
-    private Collection<State> restoreStatesState(FacesContext context, Object state) {
+    private void restoreStatesState(FacesContext context, Object state) {
         StateChart chart = (StateChart) context.getAttributes().get(STATE_MACHINE_HINT);
-        
+        states.clear();
+
         if (null != state) {
             Object[] values = (Object[]) state;
-            List<State> result = new ArrayList<>(values.length);
             for (Object value : values) {
-                String stid = (String) value;
-                Object found = chart.findElement(stid);
-                if(found != null){
-                    State fstate = (State) found;
-                    result.add(fstate);
-                } else {
-                    throw new IllegalStateException(String.format("Restored element %s not found.", stid));
+                String ttid = (String) value;
+                Object found = chart.findElement(ttid);
+                if (found == null) {
+                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
                 }
+
+                State tt = (State) found;
+                states.add(tt);
             }
-            return result;
         }
-        return null;
     }
-    
+
 }

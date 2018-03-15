@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
@@ -327,7 +328,7 @@ public class StateFlowExecutor {
 
     /**
      * Use &quot;super-step&quot;, default is <code>true</code> (that is,
-     * run-to-completion is default).
+     * processInvoke-to-completion is default).
      *
      * @return Returns the superStep property.
      * @see #setSuperStep(boolean)
@@ -340,10 +341,10 @@ public class StateFlowExecutor {
      * Set the super step.
      *
      * @param superStep if true, the internal derived events are also processed
-     * (run-to-completion); if false, the internal derived events are stored in
-     * the CurrentStatus property and processed within the next triggerEvents()
-     * invocation, also the immediate (empty event) transitions are deferred
-     * until the next step
+     * (processInvoke-to-completion); if false, the internal derived events are
+     * stored in the CurrentStatus property and processed within the next
+     * triggerEvents() invocation, also the immediate (empty event) transitions
+     * are deferred until the next step
      */
     public void setSuperStep(final boolean superStep) {
         this.superStep = superStep;
@@ -471,7 +472,7 @@ public class StateFlowExecutor {
      */
     private void updateStatus(final FlowStep step) {
         currentStatus = step.getAfterStatus();
-        flowInstance.getRootContext().setLocal("_ALL_STATES", StateFlowHelper.getAncestorClosure(currentStatus.getStates(), null));
+        flowInstance.getRootContext().setLocal("_ALL_STATES", StateFlowHelper.getAncestorClosure((Set) currentStatus.getStates(), null));
         setEventData((FlowTriggerEvent[]) currentStatus.getEvents().toArray(new FlowTriggerEvent[0]));
     }
 
@@ -534,7 +535,7 @@ public class StateFlowExecutor {
         }
 
         Object[] values = (Object[]) state;
-        
+
         if (values[0] != null) {
             superStep = (boolean) values[0];
         }

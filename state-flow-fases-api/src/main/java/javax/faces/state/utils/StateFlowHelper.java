@@ -136,11 +136,11 @@ public class StateFlowHelper {
      * @param upperBounds The Set of upper bound States
      * @return transitive closure of a given state set
      */
-    public static Set getAncestorClosure(final Set states,
-            final Set upperBounds) {
+    public static Set<TransitionTarget> getAncestorClosure(
+            final Set<TransitionTarget> states, final Set<TransitionTarget> upperBounds) {
+        
         Set closure = new HashSet(states.size() * 2);
-        for (Iterator i = states.iterator(); i.hasNext();) {
-            TransitionTarget tt = (TransitionTarget) i.next();
+        for (TransitionTarget tt : states) {
             while (tt != null) {
                 if (!closure.add(tt)) {
                     //tt is already a part of the closure

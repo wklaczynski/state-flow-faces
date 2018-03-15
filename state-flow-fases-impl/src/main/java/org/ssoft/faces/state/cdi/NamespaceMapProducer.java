@@ -7,9 +7,9 @@ package org.ssoft.faces.state.cdi;
 
 import java.lang.reflect.Type;
 import java.util.Map;
+import javax.faces.state.FlowInstance;
 import javax.faces.state.NamespacePrefixesHolder;
 import javax.faces.state.annotation.StateChartScoped;
-import javax.faces.state.semantics.StateChartSemantics;
 
 /**
  *
@@ -31,7 +31,7 @@ public class NamespaceMapProducer extends CdiProducer<Map<String, String>> {
                  Map.class,
                  Object.class)
              .beanClass(Map.class)
-             .create(e -> StateChartSemantics.getCurrent(NamespacePrefixesHolder.class).getNamespaces());
+             .create(e -> FlowInstance.current(NamespacePrefixesHolder.class).getNamespaces());
     }
     
     
