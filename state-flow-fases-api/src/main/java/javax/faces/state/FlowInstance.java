@@ -24,7 +24,6 @@ import javax.faces.state.utils.StateFlowHelper;
  */
 public class FlowInstance {
 
-
     /**
      * The notification registry.
      */
@@ -43,8 +42,8 @@ public class FlowInstance {
     private final Map<History, Set<TransitionTarget>> histories;
 
     /**
-     * <code>Map</code> for recording the run to completion status of
-     * composite states.
+     * <code>Map</code> for recording the run to completion status of composite
+     * states.
      */
     private final Map<TransitionTarget, Boolean> completions;
 
@@ -55,8 +54,8 @@ public class FlowInstance {
     private final Map<String, Class> invokerClasses;
 
     /**
-     * The <code>Map</code> of active <code>Invoker</code>s, keyed by
-     * (leaf) <code>State</code>s.
+     * The <code>Map</code> of active <code>Invoker</code>s, keyed by (leaf)
+     * <code>State</code>s.
      */
     private final Map<TransitionTarget, Invoker> invokers;
 
@@ -150,8 +149,8 @@ public class FlowInstance {
     }
 
     /**
-     * Get the <code>Context</code> for this <code>TransitionTarget</code>.
-     * If one is not available it is created.
+     * Get the <code>Context</code> for this <code>TransitionTarget</code>. If
+     * one is not available it is created.
      *
      * @param transitionTarget The TransitionTarget.
      * @return The Context.
@@ -174,8 +173,8 @@ public class FlowInstance {
     }
 
     /**
-     * Get the <code>Context</code> for this <code>TransitionTarget</code>.
-     * May return <code>null</code>.
+     * Get the <code>Context</code> for this <code>TransitionTarget</code>. May
+     * return <code>null</code>.
      *
      * @param transitionTarget The <code>TransitionTarget</code>.
      * @return The Context.
@@ -258,8 +257,8 @@ public class FlowInstance {
     /**
      * Register an {@link Invoker} class for this target type.
      *
-     * @param targettype The target type (specified by "targettype"
-     *                   attribute of &lt;invoke&gt; tag).
+     * @param targettype The target type (specified by "targettype" attribute of
+     * &lt;invoke&gt; tag).
      * @param invokerClass The <code>Invoker</code> <code>Class</code>.
      */
     void registerInvokerClass(final String targettype, final Class invokerClass) {
@@ -267,35 +266,34 @@ public class FlowInstance {
     }
 
     /**
-     * Remove the {@link Invoker} class registered for this target
-     * type (if there is one registered).
+     * Remove the {@link Invoker} class registered for this target type (if
+     * there is one registered).
      *
-     * @param targettype The target type (specified by "targettype"
-     *                   attribute of &lt;invoke&gt; tag).
+     * @param targettype The target type (specified by "targettype" attribute of
+     * &lt;invoke&gt; tag).
      */
     void unregisterInvokerClass(final String targettype) {
         invokerClasses.remove(targettype);
     }
 
     /**
-     * Get the {@link Invoker} for this {@link TransitionTarget}.
-     * May return <code>null</code>. A non-null <code>Invoker</code> will be
-     * returned if and only if the <code>TransitionTarget</code> is
-     * currently active and contains an &lt;invoke&gt; child.
+     * Get the {@link Invoker} for this {@link TransitionTarget}. May return
+     * <code>null</code>. A non-null <code>Invoker</code> will be returned if
+     * and only if the <code>TransitionTarget</code> is currently active and
+     * contains an &lt;invoke&gt; child.
      *
      * @param targettype The type of the target being invoked.
-     * @return An {@link Invoker} for the specified type, if an
-     *         invoker class is registered against that type,
-     *         <code>null</code> otherwise.
-     * @throws InvokerException When a suitable {@link Invoker} cannot
-     *                          be instantiated.
+     * @return An {@link Invoker} for the specified type, if an invoker class is
+     * registered against that type, <code>null</code> otherwise.
+     * @throws InvokerException When a suitable {@link Invoker} cannot be
+     * instantiated.
      */
     public Invoker newInvoker(final String targettype)
-    throws InvokerException {
+            throws InvokerException {
         Class invokerClass = (Class) invokerClasses.get(targettype);
         if (invokerClass == null) {
             throw new InvokerException("No Invoker registered for "
-                + "targettype \"" + targettype + "\"");
+                    + "targettype \"" + targettype + "\"");
         }
         Invoker invoker = null;
         try {
@@ -307,10 +305,10 @@ public class FlowInstance {
     }
 
     /**
-    * Get the {@link Invoker} for this {@link TransitionTarget}.
-     * May return <code>null</code>. A non-null {@link Invoker} will be
-     * returned if and only if the {@link TransitionTarget} is
-     * currently active and contains an &lt;invoke&gt; child.
+     * Get the {@link Invoker} for this {@link TransitionTarget}. May return
+     * <code>null</code>. A non-null {@link Invoker} will be returned if and
+     * only if the {@link TransitionTarget} is currently active and contains an
+     * &lt;invoke&gt; child.
      *
      * @param transitionTarget The <code>TransitionTarget</code>.
      * @return The Invoker.
@@ -339,8 +337,7 @@ public class FlowInstance {
     }
 
     /**
-     * Get the completion status for this composite
-     * {@link TransitionTarget}.
+     * Get the completion status for this composite {@link TransitionTarget}.
      *
      * @param transitionTarget The <code>TransitionTarget</code>.
      * @return The completion status.
@@ -357,8 +354,7 @@ public class FlowInstance {
     }
 
     /**
-     * Set the completion status for this composite
-     * {@link TransitionTarget}.
+     * Set the completion status for this composite {@link TransitionTarget}.
      *
      * @param transitionTarget The TransitionTarget.
      * @param done The completion status.
@@ -369,23 +365,20 @@ public class FlowInstance {
         completions.put(transitionTarget, done ? Boolean.TRUE : Boolean.FALSE);
     }
 
-    
-    
-    
     public Object saveState(FacesContext context) {
         if (context == null) {
             throw new NullPointerException();
         }
- 
+
         Object values[] = new Object[2];
+
+        if (rootContext != null) {
+            values[0] = rootContext.saveState(context);
+        }
+
+        values[1] = saveContextsState(context);
         
-
-
-
-
-
-
-
+        
         return values;
     }
 
@@ -397,13 +390,15 @@ public class FlowInstance {
         if (state == null) {
             return;
         }
-        
+
         Object[] values = (Object[]) state;
+
+
     }
-    
-    private Object saveCompletionsState(FacesContext context){
+
+    private Object saveCompletionsState(FacesContext context) {
         Object state = null;
-        if (null != completions && completions.size() >0){
+        if (null != completions && completions.size() > 0) {
             boolean stateWritten = false;
             Object[] attachedKeys = new Object[completions.size()];
             Object[] attachedVales = new Object[completions.size()];
@@ -414,11 +409,26 @@ public class FlowInstance {
                 i++;
             }
             if (stateWritten) {
-                state = new Object[]{attachedKeys,attachedVales};
+                state = new Object[]{attachedKeys, attachedVales};
             }
         }
         return state;
     }
-    
-    
+
+    private Object saveContextsState(FacesContext context) {
+        Object state = null;
+        if (null != contexts && contexts.size() > 0) {
+            Object[] attached = new Object[contexts.size()];
+            int i = 0;
+            for (Map.Entry<TransitionTarget, FlowContext> entry : contexts.entrySet()) {
+                Object values[] = new Object[2];
+                values[0] = entry.getKey().getClientId();
+                values[1] = entry.getValue().saveState(context);
+                attached[i++] = values;
+            }
+            state = attached;
+        }
+        return state;
+    }
+
 }
