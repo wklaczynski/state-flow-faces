@@ -37,16 +37,17 @@ import javax.faces.view.facelets.TagException;
 public class ModelUpdater {
 
     private final Map<Object, Tag> tags;
-    
+
     /**
      * Discourage instantiation since this is a utility class.
+     *
      * @param tags
      */
     public ModelUpdater(Map<Object, Tag> tags) {
         super();
         this.tags = tags;
     }
-    
+
     /*
      * Post-processing methods to make the SCXML object SCXMLExecutor ready.
      */
@@ -70,6 +71,7 @@ public class ModelUpdater {
             logAndThrowModelError(scxml, ERR_SCXML_NO_INIT, new Object[]{initial});
         }
         scxml.setInitialTarget(initialTarget);
+        
         Map targets = scxml.getTargets();
         Map children = scxml.getChildren();
         Iterator i = children.keySet().iterator();
@@ -93,10 +95,10 @@ public class ModelUpdater {
      */
     private void updateState(final State state, final Map targets) throws IOException {
         //initialize next / inital
-        if(state.getOnEntry() == null) {
+        if (state.getOnEntry() == null) {
             state.setOnEntry(new OnEntry());
         }
-        if(state.getOnExit() == null) {
+        if (state.getOnExit() == null) {
             state.setOnExit(new OnExit());
         }
         Initial initial = state.getInitial();
@@ -104,27 +106,27 @@ public class ModelUpdater {
         List initialStates = null;
         if (!children.isEmpty()) {
             if (initial == null) {
-                logAndThrowModelError(state, ERR_STATE_NO_INIT, 
+                logAndThrowModelError(state, ERR_STATE_NO_INIT,
                         new Object[]{getStateName(state)});
             }
             Transition initialTransition = initial.getTransition();
-            if(initialTransition == null) {
-                logAndThrowModelError(initial, ERR_STATE_BAD_INIT_NULL, 
+            if (initialTransition == null) {
+                logAndThrowModelError(initial, ERR_STATE_BAD_INIT_NULL,
                         new Object[]{getStateName(state)});
             }
-            
+
             updateTransition(initialTransition, targets);
             initialStates = initialTransition.getTargets();
             // we have to allow for an indirect descendant initial (targets)
             //check that initialState is a descendant of s
             if (initialStates.isEmpty()) {
-                logAndThrowModelError(state, ERR_STATE_BAD_INIT_NULL, 
+                logAndThrowModelError(state, ERR_STATE_BAD_INIT_NULL,
                         new Object[]{getStateName(state)});
             } else {
                 for (int i = 0; i < initialStates.size(); i++) {
                     TransitionTarget initialState = (TransitionTarget) initialStates.get(i);
                     if (!StateFlowHelper.isDescendant(initialState, state)) {
-                        logAndThrowModelError(state, ERR_STATE_BAD_INIT_DES, 
+                        logAndThrowModelError(state, ERR_STATE_BAD_INIT_DES,
                                 new Object[]{getStateName(state)});
                     }
                 }
@@ -134,7 +136,7 @@ public class ModelUpdater {
         Iterator histIter = histories.iterator();
         while (histIter.hasNext()) {
             if (state.isSimple()) {
-                logAndThrowModelError(state, ERR_HISTORY_SIMPLE_STATE, 
+                logAndThrowModelError(state, ERR_HISTORY_SIMPLE_STATE,
                         new Object[]{getStateName(state)});
             }
             History h = (History) histIter.next();
@@ -234,15 +236,20 @@ public class ModelUpdater {
      * @throws ModelException If the object model is flawed
      */
     private void updateParallel(final Parallel parallel, final Map targets) throws IOException {
-        if(parallel.getOnEntry() == null) {
+        if (parallel.getOnEntry() == null) {
             parallel.setOnEntry(new OnEntry());
         }
-        if(parallel.getOnExit() == null) {
+        if (parallel.getOnExit() == null) {
             parallel.setOnExit(new OnExit());
         }
-        Iterator i = parallel.getChildren().iterator();
-        while (i.hasNext()) {
-            updateState((State) i.next(), targets);
+        Map<String, TransitionTarget> children = parallel.getChildren();
+        for (Map.Entry<String, TransitionTarget> entry : children.entrySet()) {
+            TransitionTarget tt = entry.getValue();
+            if (tt instanceof State) {
+                updateState((State) tt, targets);
+            } else if (tt instanceof Parallel) {
+                updateParallel((Parallel) tt, targets);
+            }
         }
         Iterator j = parallel.getTransitionsList().iterator();
         while (j.hasNext()) {
@@ -296,7 +303,7 @@ public class ModelUpdater {
     private void logAndThrowModelError(Object element, final String errType, final Object[] msgArgs) throws IOException {
         MessageFormat msgFormat = new MessageFormat(errType);
         String errMsg = msgFormat.format(msgArgs);
-        
+
         Tag tag = tags.get(element);
         throw new TagException(tag, errMsg);
     }
@@ -311,14 +318,13 @@ public class ModelUpdater {
     private void logAndThrowModelError(Object element, String parametr, final String errType, final Object[] msgArgs) throws IOException {
         MessageFormat msgFormat = new MessageFormat(errType);
         String errMsg = msgFormat.format(msgArgs);
-        
+
         Tag tag = tags.get(element);
         TagAttribute attribute = tag.getAttributes().get(parametr);
-        
+
         throw new TagAttributeException(attribute, errMsg);
     }
-    
-    
+
     /**
      * Get state identifier for error message. This method is only called to
      * produce an appropriate log message in some error conditions.
@@ -366,7 +372,6 @@ public class ModelUpdater {
         }
         return regions.size() == p.getChildren().size();
     }
-
 
     //// Error messages
     /**

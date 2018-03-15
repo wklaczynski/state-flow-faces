@@ -157,13 +157,15 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
         for (Iterator i = step.getExitList().iterator(); i.hasNext();) {
             TransitionTarget tt = (TransitionTarget) i.next();
             OnExit oe = tt.getOnExit();
-            try {
-                for (Iterator onExitIter = oe.getActions().iterator(); onExitIter.hasNext();) {
-                    ((Action) onExitIter.next()).execute(evtDispatcher, errRep, scInstance, internalEvents);
+            if (oe != null) {
+                try {
+                    for (Iterator onExitIter = oe.getActions().iterator(); onExitIter.hasNext();) {
+                        ((Action) onExitIter.next()).execute(evtDispatcher, errRep, scInstance, internalEvents);
+                    }
+                } catch (FlowExpressionException e) {
+                    errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(),
+                            oe);
                 }
-            } catch (FlowExpressionException e) {
-                errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(),
-                        oe);
             }
             // check if invoke is active in this state
             if (invokers.containsKey(tt)) {
@@ -205,12 +207,14 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
         for (Iterator i = step.getEntryList().iterator(); i.hasNext();) {
             TransitionTarget tt = (TransitionTarget) i.next();
             OnEntry oe = tt.getOnEntry();
-            try {
-                for (Iterator onEntryIter = oe.getActions().iterator(); onEntryIter.hasNext();) {
-                    ((Action) onEntryIter.next()).execute(evtDispatcher, errRep, scInstance, internalEvents);
+            if (oe != null) {
+                try {
+                    for (Iterator onEntryIter = oe.getActions().iterator(); onEntryIter.hasNext();) {
+                        ((Action) onEntryIter.next()).execute(evtDispatcher, errRep, scInstance, internalEvents);
+                    }
+                } catch (FlowExpressionException e) {
+                    errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), oe);
                 }
-            } catch (FlowExpressionException e) {
-                errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), oe);
             }
             nr.fireOnEntry(tt, tt);
             nr.fireOnEntry(stateMachine, tt);
@@ -249,8 +253,8 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                         Parallel p = (Parallel) parent.getParent();
                         int finCount = 0;
                         int pCount = p.getChildren().size();
-                        for (Iterator regions = p.getChildren().iterator(); regions.hasNext();) {
-                            State reg = (State) regions.next();
+                        for (Map.Entry<String, TransitionTarget> entry : p.getChildren().entrySet()) {
+                            State reg = (State) entry.getValue();
                             if (scInstance.isDone(reg)) {
                                 finCount++;
                             }
@@ -469,7 +473,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                     for (Iterator k = regs.iterator(); k.hasNext();) {
                         State region = (State) k.next();
                         regions.addAll(((Parallel) region.getParent()).
-                                getChildren());
+                                getChildren().values());
                     }
                 }
             }
@@ -518,9 +522,9 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                 }
             } else if (tt instanceof Parallel) {
                 Parallel prl = (Parallel) tt;
-                for (Iterator<TransitionTarget> i = prl.getChildren().iterator(); i.hasNext();) {
+                for (Map.Entry<String, TransitionTarget> entry : prl.getChildren().entrySet()) {
                     //fork
-                    wrkSet.addLast(i.next());
+                    wrkSet.addLast(entry.getValue());
                 }
             } else if (tt instanceof History) {
                 History h = (History) tt;
@@ -684,8 +688,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
 
         Set allEvents = new HashSet();
         allEvents.addAll(Arrays.asList(events));
-        for (Iterator invokeIter = scInstance.getInvokers().entrySet().iterator(); invokeIter.hasNext();) {
-            Map.Entry iEntry = (Map.Entry) invokeIter.next();
+        for (Map.Entry iEntry : scInstance.getInvokers().entrySet()) {
             String parentId = ((TransitionTarget) iEntry.getKey()).getId();
             if (!finalizeMatch(parentId, allEvents)) { // prevent cycles
                 Invoker inv = (Invoker) iEntry.getValue();
@@ -739,7 +742,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                 Invoker inv = null;
                 try {
                     inv = scInstance.newInvoker(ttype);
-                    
+
                     if (pr != null) {
                         StateChartSemantics.pushToEL(PathResolver.class, pr);
                     }
@@ -793,7 +796,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                         args.put(p.getName(), argValue);
                     }
                     Util.postConstruct(inv);
-                    
+
                     inv.invoke(source, args);
                 } catch (InvokerException ie) {
                     FlowTriggerEvent te = new FlowTriggerEvent(s.getId() + ".invoke.failed", FlowTriggerEvent.ERROR_EVENT);

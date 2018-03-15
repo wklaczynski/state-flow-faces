@@ -7,7 +7,9 @@ package javax.faces.state.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -50,24 +52,39 @@ public abstract class TransitionTarget implements Serializable {
     private final List<Transition> transitions;
 
     /**
+     * <p>
+     * The assigned client identifier for this state.</p>
+     */
+    private String clientId = null;
+
+    /**
      * List of history states owned by a given state (applies to non-leaf
      * states).
      */
     private final List<History> history;
 
     /**
-     * Constructor.
+     * The Map containing immediate children of this State, keyed by
+     * their IDs. Incompatible with the parallel or invoke property.
      */
-    @SuppressWarnings("LeakingThisInConstructor")
+    private final Map<String, TransitionTarget> children;
+
     public TransitionTarget() {
+        this(null);
+    }
+    
+    
+    /**
+     * Constructor.
+     * @param id
+     */
+    public TransitionTarget(String id) {
         super();
-//        onEntry = new OnEntry(); //empty defaults
-//        onEntry.setParent(this);
-//        onExit = new OnExit();   //empty defaults
-//        onExit.setParent(this);
-        parent = null;
-        transitions = new ArrayList<>();
-        history = new ArrayList<>();
+        this.id = id;
+        this.parent = null;
+        this.transitions = new ArrayList<>();
+        this.history = new ArrayList<>();
+        this.children = new LinkedHashMap();
     }
 
     /**
@@ -75,7 +92,7 @@ public abstract class TransitionTarget implements Serializable {
      *
      * @return Returns the id.
      */
-    public final String getId() {
+    public String getId() {
         return id;
     }
 
@@ -84,7 +101,7 @@ public abstract class TransitionTarget implements Serializable {
      *
      * @param id The id to set.
      */
-    public final void setId(final String id) {
+    public void setId(final String id) {
         this.id = id;
     }
 
@@ -93,7 +110,7 @@ public abstract class TransitionTarget implements Serializable {
      *
      * @return Returns the onEntry.
      */
-    public final OnEntry getOnEntry() {
+    public OnEntry getOnEntry() {
         return onEntry;
     }
 
@@ -102,7 +119,7 @@ public abstract class TransitionTarget implements Serializable {
      *
      * @param onEntry The onEntry to set.
      */
-    public final void setOnEntry(final OnEntry onEntry) {
+    public void setOnEntry(final OnEntry onEntry) {
         this.onEntry = onEntry;
         this.onEntry.setParent(this);
     }
@@ -112,7 +129,7 @@ public abstract class TransitionTarget implements Serializable {
      *
      * @return Returns the onExit.
      */
-    public final OnExit getOnExit() {
+    public OnExit getOnExit() {
         return onExit;
     }
 
@@ -121,7 +138,7 @@ public abstract class TransitionTarget implements Serializable {
      *
      * @param onExit The onExit to set.
      */
-    public final void setOnExit(final OnExit onExit) {
+    public void setOnExit(final OnExit onExit) {
         this.onExit = onExit;
         this.onExit.setParent(this);
     }
@@ -131,7 +148,7 @@ public abstract class TransitionTarget implements Serializable {
      *
      * @return Returns the data model.
      */
-    public final Datamodel getDatamodel() {
+    public Datamodel getDatamodel() {
         return datamodel;
     }
 
@@ -140,7 +157,7 @@ public abstract class TransitionTarget implements Serializable {
      *
      * @param datamodel The Datamodel to set.
      */
-    public final void setDatamodel(final Datamodel datamodel) {
+    public void setDatamodel(final Datamodel datamodel) {
         this.datamodel = datamodel;
     }
 
@@ -150,7 +167,7 @@ public abstract class TransitionTarget implements Serializable {
      * @return Returns the parent state (null if parent is &lt;scxml&gt;
      * element)
      */
-    public final TransitionTarget getParent() {
+    public TransitionTarget getParent() {
         return parent;
     }
 
@@ -159,9 +176,30 @@ public abstract class TransitionTarget implements Serializable {
      *
      * @param parent The parent state to set
      */
-    public final void setParent(final TransitionTarget parent) {
+    public void setParent(final TransitionTarget parent) {
         this.parent = parent;
     }
+    
+    /**
+     * Get the map of child states (may be empty).
+     *
+     * @return Map Returns the children.
+     */
+    public Map<String, TransitionTarget> getChildren() {
+        return children;
+    }
+
+    /**
+     * Add a child transition target.
+     *
+     * @param tt
+     *            a child transition target
+     */
+    public void addChild(final TransitionTarget tt) {
+        this.children.put(tt.getId(), tt);
+        tt.setParent(this);
+    }
+    
 
     /**
      * Get the list of all outgoing transitions from this target, that will be
@@ -234,6 +272,79 @@ public abstract class TransitionTarget implements Serializable {
      */
     public final List<History> getHistory() {
         return history;
+    }
+
+    protected String createUniqueId(Object element) {
+        if (element instanceof TransitionTarget) {
+            TransitionTarget target = (TransitionTarget) element;
+            if (!children.containsValue(target)) {
+                throw new IllegalArgumentException("Parallel element no constain "
+                        + "child element: " + element);
+            }
+
+            String result = "state_????";
+            int i = 1;
+            for (Map.Entry<String, TransitionTarget> entry : children.entrySet()) {
+                if (entry.getValue().equals(element)) {
+                    result = entry.getKey();
+                    break;
+                }
+            }
+            return result;
+        } else {
+            throw new IllegalArgumentException("Parallel element no support child "
+                    + "element type: " + element.getClass().getName());
+        }
+    }
+
+    public String getClientId() {
+        if (this.clientId == null) {
+            String parentId = null;
+
+            if (this.parent != null) {
+                parentId = this.parent.getClientId();
+            }
+
+            this.clientId = getId();
+            if (this.clientId == null) {
+                String generatedId = createUniqueId(parent);
+                setId(generatedId);
+                this.clientId = getId();
+            }
+            if (parentId != null) {
+                StringBuilder idBuilder
+                        = new StringBuilder(parentId.length() + 
+                                1 + this.clientId.length());
+                
+                this.clientId = idBuilder
+                        .append(parentId)
+                        .append(":")
+                        .append(getId()).toString();
+            }
+        }
+        return clientId;
+    }
+
+    public Object findElement(String expr) {
+        if (expr == null) {
+            throw new NullPointerException();
+        }
+        if (expr.length() == 0) {
+            throw new IllegalArgumentException("\"\"");
+        }
+
+        Object result = null;
+        for (String cid : children.keySet()) {
+            if (cid.equals(expr)) {
+                result = children.get(cid);
+                break;
+            }
+            if (expr.startsWith(cid)) {
+                result = children.get(cid).findElement(expr);
+                break;
+            }
+        }
+        return (result);
     }
 
 }

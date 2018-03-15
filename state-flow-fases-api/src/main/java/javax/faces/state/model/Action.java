@@ -119,7 +119,7 @@ public abstract class Action implements Serializable, NamespacePrefixesHolder, F
         if (tt instanceof State) {
             return tt;
         } else if (tt instanceof Initial) {
-            return tt.getParent();
+            return (TransitionTarget) tt.getParent();
         } else {
             throw new ModelException("Unknown TransitionTarget subclass:"
                     + tt.getClass().getName());

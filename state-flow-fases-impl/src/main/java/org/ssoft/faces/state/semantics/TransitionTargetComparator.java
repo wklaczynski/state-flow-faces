@@ -7,7 +7,7 @@ package org.ssoft.faces.state.semantics;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.Iterator;
+import java.util.Map;
 import javax.faces.state.model.Parallel;
 import javax.faces.state.model.State;
 import javax.faces.state.model.TransitionTarget;
@@ -32,12 +32,13 @@ public class TransitionTargetComparator implements Comparator, Serializable {
     }
 
     /**
-     * Compares two instances of TransitionTarget in terms of the
-     * SCXML tree hierarchy.
-     * <p>Important Remarks:</p> does not fullfill the Comparator contract,
-     * since it returns 0 if o1 == o2 and also if they are not related to each
-     * other and at the same time the chain-to-parent length for o1 is the
-     * same length as for o2 (that is, they are equally deeply nested)
+     * Compares two instances of TransitionTarget in terms of the SCXML tree
+     * hierarchy.
+     * <p>
+     * Important Remarks:</p> does not fullfill the Comparator contract, since
+     * it returns 0 if o1 == o2 and also if they are not related to each other
+     * and at the same time the chain-to-parent length for o1 is the same length
+     * as for o2 (that is, they are equally deeply nested)
      *
      * @param o1 The first TransitionTarget object
      * @param o2 The second TransitionTarget object
@@ -73,9 +74,8 @@ public class TransitionTargetComparator implements Comparator, Serializable {
                 while (parent2.getParent() != lca) {
                     parent2 = parent2.getParent();
                 }
-                for (Iterator iter = lca.getChildren().iterator();
-                        iter.hasNext();) {
-                    State s = (State) iter.next();
+                for (Map.Entry<String, TransitionTarget> entry : lca.getChildren().entrySet()) {
+                    State s = (State) entry.getValue();
                     if (s == parent1) {
                         return 1;
                     } else if (s == parent2) {
@@ -89,8 +89,8 @@ public class TransitionTargetComparator implements Comparator, Serializable {
     }
 
     /**
-     * The &quot;depth&quot; at which this TransitionTarget exists in the
-     * SCXML object model.
+     * The &quot;depth&quot; at which this TransitionTarget exists in the SCXML
+     * object model.
      *
      * @param tt The TransitionTarget
      * @return int The &quot;depth&quot;
@@ -105,4 +105,3 @@ public class TransitionTargetComparator implements Comparator, Serializable {
         return count;
     }
 }
-

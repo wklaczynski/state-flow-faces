@@ -17,7 +17,7 @@ public class FlowStep {
 
     /**
      * Constructor.
-      */
+     */
     public FlowStep() {
         this.externalEvents = new ArrayList();
         this.beforeStatus = new FlowStatus();
@@ -28,8 +28,8 @@ public class FlowStep {
     }
 
     /**
-     * @param externalEvents The external events received in this
-     *     unit of progression
+     * @param externalEvents The external events received in this unit of
+     * progression
      * @param beforeStatus The before status
      */
     public FlowStep(final Collection externalEvents, final FlowStatus beforeStatus) {
@@ -136,4 +136,3 @@ public class FlowStep {
     }
 
 }
-

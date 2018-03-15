@@ -6,12 +6,20 @@
 package javax.faces.state;
 
 import java.util.Map;
+import javax.faces.context.FacesContext;
+import javax.faces.state.model.TransitionTarget;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
 public interface FlowContext {
+    
+    /**
+     * Get target opwner reference this Context.
+     * @return TransitionTarget
+     */
+    TransitionTarget getTarget();    
     
     /**
      * Assigns a new value to an existing variable or creates a new one.
@@ -70,4 +78,20 @@ public interface FlowContext {
      */
     FlowContext getParent();
 
+    /**
+     * Save state this Context.
+     * @param context The FacesContext
+     * @return The saved state
+     */
+    public Object saveState(FacesContext context);
+    
+    
+    /**
+     * Save state this Context.
+     * @param context The FacesContext
+     * @param state State object
+     */
+    public void restoreState(FacesContext context, Object state);
+    
+    
 }

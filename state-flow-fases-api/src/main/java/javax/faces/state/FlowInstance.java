@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.faces.context.FacesContext;
 import javax.faces.state.invoke.Invoker;
 import javax.faces.state.invoke.InvokerException;
 import javax.faces.state.model.Datamodel;
@@ -116,7 +117,7 @@ public class FlowInstance {
      */
     public FlowContext getRootContext() {
         if (rootContext == null && evaluator != null) {
-            rootContext = evaluator.newContext(null);
+            rootContext = evaluator.newContext(null, null);
         }
         return rootContext;
     }
@@ -161,9 +162,9 @@ public class FlowInstance {
             TransitionTarget parent = transitionTarget.getParent();
             if (parent == null) {
                 // docroot
-                context = evaluator.newContext(getRootContext());
+                context = evaluator.newContext(transitionTarget, getRootContext());
             } else {
-                context = evaluator.newContext(getContext(parent));
+                context = evaluator.newContext(transitionTarget, getContext(parent));
             }
             Datamodel datamodel = transitionTarget.getDatamodel();
             StateFlowHelper.cloneDatamodel(datamodel, context, evaluator);
@@ -368,4 +369,56 @@ public class FlowInstance {
         completions.put(transitionTarget, done ? Boolean.TRUE : Boolean.FALSE);
     }
 
+    
+    
+    
+    public Object saveState(FacesContext context) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+ 
+        Object values[] = new Object[2];
+        
+
+
+
+
+
+
+
+        return values;
+    }
+
+    public void restoreState(FacesContext context, Object state) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        if (state == null) {
+            return;
+        }
+        
+        Object[] values = (Object[]) state;
+    }
+    
+    private Object saveCompletionsState(FacesContext context){
+        Object state = null;
+        if (null != completions && completions.size() >0){
+            boolean stateWritten = false;
+            Object[] attachedKeys = new Object[completions.size()];
+            Object[] attachedVales = new Object[completions.size()];
+            int i = 0;
+            for (Map.Entry<TransitionTarget, Boolean> entry : completions.entrySet()) {
+                attachedKeys[i] = entry.getKey();
+                attachedVales[i] = entry.getValue();
+                i++;
+            }
+            if (stateWritten) {
+                state = new Object[]{attachedKeys,attachedVales};
+            }
+        }
+        return state;
+    }
+    
+    
 }

@@ -7,10 +7,13 @@ package org.ssoft.faces.state;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.context.FacesContext;
 import javax.faces.state.FlowContext;
+import javax.faces.state.model.TransitionTarget;
 import org.ssoft.faces.state.log.FlowLogger;
 
 /**
@@ -20,43 +23,54 @@ import org.ssoft.faces.state.log.FlowLogger;
 public class FlowContextImpl implements FlowContext, Serializable {
 
     public static final Logger log = FlowLogger.FLOW.getLogger();
-    /** The parent Context to this Context. */
+    private final TransitionTarget target;
+    /**
+     * The parent Context to this Context.
+     */
     private FlowContext parent;
-    /** The Map of variables and their values in this Context. */
-    private Map vars;
+    /**
+     * The Map of variables and their values in this Context.
+     */
+    private Map<String, Object> vars;
 
     /**
      * Constructor.
      *
+     * @param target
      */
-    public FlowContextImpl() {
-        this(null, null);
+    public FlowContextImpl(TransitionTarget target) {
+        this(target, null, null);
     }
 
     /**
      * Constructor.
      *
+     * @param target
      * @param parent A parent Context, can be null
      */
-    public FlowContextImpl(final FlowContext parent) {
-        this(parent, null);
-    }
-    /**
-     * Constructor.
-     *
-     * @param initialVars A pre-populated initial variables map
-     */
-    public FlowContextImpl(final Map initialVars) {
-        this(null, initialVars);
+    public FlowContextImpl(TransitionTarget target, final FlowContext parent) {
+        this(target, parent, null);
     }
 
     /**
      * Constructor.
      *
+     * @param target
+     * @param initialVars A pre-populated initial variables map
+     */
+    public FlowContextImpl(TransitionTarget target, final Map initialVars) {
+        this(target, null, initialVars);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param target
      * @param parent A parent Context, can be null
      * @param initialVars A pre-populated initial variables map
      */
-    public FlowContextImpl(final FlowContext parent, final Map initialVars) {
+    public FlowContextImpl(TransitionTarget target, final FlowContext parent, final Map initialVars) {
+        this.target = target;
         this.parent = parent;
         if (initialVars == null) {
             this.vars = new HashMap();
@@ -66,9 +80,17 @@ public class FlowContextImpl implements FlowContext, Serializable {
     }
 
     /**
-     * Assigns a new value to an existing variable or creates a new one.
-     * The method searches the chain of parent Contexts for variable
-     * existence.
+     * Get target opwner reference this Context.
+     * @return TransitionTarget
+     */
+    @Override
+    public TransitionTarget getTarget() {
+        return target;
+    }
+    
+    /**
+     * Assigns a new value to an existing variable or creates a new one. The
+     * method searches the chain of parent Contexts for variable existence.
      *
      * @param name The variable name
      * @param value The variable value
@@ -142,9 +164,9 @@ public class FlowContextImpl implements FlowContext, Serializable {
     }
 
     /**
-     * Assigns a new value to an existing variable or creates a new one.
-     * The method allows to shaddow a variable of the same name up the
-     * Context chain.
+     * Assigns a new value to an existing variable or creates a new one. The
+     * method allows to shaddow a variable of the same name up the Context
+     * chain.
      *
      * @param name The variable name
      * @param value The variable value
@@ -175,6 +197,64 @@ public class FlowContextImpl implements FlowContext, Serializable {
     @Override
     public Map getVars() {
         return vars;
+    }
+
+    @Override
+    public Object saveState(FacesContext context) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        Object values[] = new Object[2];
+        values[1] = saveVarsState(context);
+        values[0] = saveVarsState(context);
+
+        return values;
+    }
+
+    @Override
+    public void restoreState(FacesContext context, Object state) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        if (state == null) {
+            return;
+        }
+
+        Object[] values = (Object[]) state;
+
+        if (values[0] != null) {
+            vars.clear();
+            vars.putAll(restoreVarsState(context, values[0]));
+        }
+
+    }
+
+    private Object saveVarsState(FacesContext context) {
+        Object state = null;
+        if (null != vars && vars.size() > 0) {
+            Object[] attached = new Object[vars.size()];
+            int i = 0;
+            for (Map.Entry<String, Object> entry : vars.entrySet()) {
+                attached[i++] = new Object[]{entry.getKey(), entry.getValue()};
+            }
+            state = attached;
+        }
+        return state;
+    }
+
+    private Map<String, Object> restoreVarsState(FacesContext context, Object state) {
+        if (null != state) {
+            Object[] values = (Object[]) state;
+            Map<String, Object> result = new LinkedHashMap<>(values.length);
+            for (Object value : values) {
+                Object[] entry = (Object[]) value;
+                result.put((String) entry[0], entry[1]);
+            }
+            return result;
+        }
+        return null;
     }
 
 }

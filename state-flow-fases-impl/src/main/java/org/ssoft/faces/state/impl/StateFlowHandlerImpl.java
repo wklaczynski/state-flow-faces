@@ -232,7 +232,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             StateFlowExecutor executor;
 
             executor = new StateFlowExecutorImpl();
-            FlowContext rootCtx = executor.getEvaluator().newContext(null);
+            FlowContext rootCtx = executor.getEvaluator().newContext(null, null);
             if (params != null) {
                 for (Iterator iter = params.entrySet().iterator(); iter.hasNext();) {
                     Map.Entry entry = (Map.Entry) iter.next();

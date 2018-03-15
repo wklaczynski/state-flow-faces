@@ -67,9 +67,9 @@ public class StateFlowUtils {
         if (context == null) {
             TransitionTarget parent = transitionTarget.getParent();
             if (parent == null) {
-                context = executor.getEvaluator().newContext(executor.getRootContext());
+                context = executor.getEvaluator().newContext(transitionTarget, executor.getRootContext());
             } else {
-                context = executor.getEvaluator().newContext(getTransitionContext(fc, executor, parent));
+                context = executor.getEvaluator().newContext(transitionTarget, getTransitionContext(fc, executor, parent));
             }
             contexts.put(transitionTarget, context);
         }

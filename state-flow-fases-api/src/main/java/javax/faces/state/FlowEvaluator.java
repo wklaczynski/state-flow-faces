@@ -5,6 +5,7 @@
  */
 package javax.faces.state;
 
+import javax.faces.state.model.TransitionTarget;
 import org.w3c.dom.Node;
 
 /**
@@ -48,9 +49,11 @@ public interface FlowEvaluator {
     /**
      * Create a new child context.
      *
+     * @param target
      * @param parent parent context
      * @return new child context
      */
-    FlowContext newContext(FlowContext parent);
+    FlowContext newContext(TransitionTarget target, FlowContext parent);
+
     
 }

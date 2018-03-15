@@ -234,11 +234,9 @@ public class StateFlowHelper {
                 Parallel par = ((Parallel) ((State) regions.next()).
                         getParent());
                 //let's find affected states in sibling regions
-                for (Iterator siblings = par.getChildren().iterator();
-                        siblings.hasNext();) {
-                    State s = (State) siblings.next();
-                    for (Iterator act = currentStates.iterator();
-                            act.hasNext();) {
+                for (Map.Entry<String, TransitionTarget> entry : par.getChildren().entrySet()) {
+                    State s = (State) entry.getValue();
+                    for (Iterator act = currentStates.iterator(); act.hasNext();) {
                         TransitionTarget a = (TransitionTarget) act.next();
                         if (isDescendant(a, s)) {
                             //a is affected

@@ -5,19 +5,11 @@
  */
 package javax.faces.state.model;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
  *
  * @author Waldemar Kłaczyński
  */
 public class State extends TransitionTarget {
-    /**
-     * The Map containing immediate children of this State, keyed by
-     * their IDs. Incompatible with the parallel or invoke property.
-     */
-    private final Map<String, TransitionTarget> children;
 
     /**
      * The Parallel child, which defines a set of parallel substates.
@@ -52,7 +44,7 @@ public class State extends TransitionTarget {
      * Constructor.
      */
     public State() {
-        this.children = new LinkedHashMap();
+
     }
 
     /**
@@ -160,32 +152,12 @@ public class State extends TransitionTarget {
     }
 
     /**
-     * Get the map of child states (may be empty).
-     *
-     * @return Map Returns the children.
-     */
-    public final Map<String, TransitionTarget> getChildren() {
-        return children;
-    }
-
-    /**
-     * Add a child transition target.
-     *
-     * @param tt
-     *            a child transition target
-     */
-    public final void addChild(final TransitionTarget tt) {
-        this.children.put(tt.getId(), tt);
-        tt.setParent(this);
-    }
-
-    /**
      * Check whether this is a simple (leaf) state (UML terminology).
      *
      * @return true if this is a simple state, otherwise false
      */
     public final boolean isSimple() {
-        return parallel == null && children.isEmpty();
+        return parallel == null && getChildren().isEmpty();
     }
 
     /**
@@ -194,7 +166,7 @@ public class State extends TransitionTarget {
      * @return true if this is a composite state, otherwise false
      */
     public final boolean isComposite() {
-        return !(parallel == null && children.isEmpty());
+        return !(parallel == null && getChildren().isEmpty());
     }
 
     /**
@@ -218,5 +190,5 @@ public class State extends TransitionTarget {
     public final boolean isOrthogonal() {
         return parallel != null;
     }
-    
+
 }

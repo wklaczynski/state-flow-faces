@@ -132,13 +132,13 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
     public abstract void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException;
 
     protected void decorate(FaceletContext ctx, UIComponent parent, Object element) throws IOException {
-        if(element instanceof PathResolverHolder) {
+        if (element instanceof PathResolverHolder) {
             PathResolver resolver = getElement(parent, PathResolver.class);
             PathResolverHolder holder = (PathResolverHolder) element;
             holder.setPathResolver(resolver);
         }
     }
-    
+
     @Override
     public void apply(FaceletContext ctx, UIComponent parent) throws IOException {
         StateChart chart = (StateChart) getElement(parent, StateChart.class);
@@ -235,20 +235,39 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
         if (currentFlow instanceof StateChart) {
             StateChart chat = (StateChart) currentFlow;
+            if (chat.getChildren().containsKey(child.getId())) {
+                throw new TagException(this.tag, "transition target already defined!");
+            }
             chat.addChild(child);
-        } else if (currentFlow instanceof Parallel) {
-            Parallel parallel = (Parallel) currentFlow;
-            parallel.addChild(child);
-        } else if (currentFlow instanceof State) {
-            State state = (State) currentFlow;
-            state.addChild(child);
+        } else if (currentFlow instanceof TransitionTarget) {
+            TransitionTarget target = (TransitionTarget) currentFlow;
+            if (target.getChildren().containsKey(child.getId())) {
+                throw new TagException(this.tag, "transition target already defined!");
+            }
+            target.addChild(child);
         } else {
             throw new TagException(this.tag, "can not stored this element on parent element!");
         }
     }
 
+    protected String generateUniqueId(FaceletContext ctx, UIComponent parent, TransitionTarget child, String prefix) throws IOException {
+        Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
+        if (currentFlow instanceof StateChart) {
+            StateChart chat = (StateChart) currentFlow;
+            return prefix+chat.getChildren().size();
+        } else if (currentFlow instanceof TransitionTarget) {
+            TransitionTarget target = (TransitionTarget) currentFlow;
+            return prefix+target.getChildren().size();
+        } else {
+            throw new TagException(this.tag, "can not support generate unique id this element on parent element!");
+        }
+    }
+
     protected void addTransitionTarget(FaceletContext ctx, UIComponent parent, TransitionTarget target) throws IOException {
         StateChart chart = getElement(parent, StateChart.class);
+        if (chart.getTargets().containsKey(target.getId())) {
+            throw new TagException(this.tag, "transition target already defined!");
+        }
         chart.addTarget(target);
     }
 

@@ -26,6 +26,7 @@ import javax.faces.state.FlowContext;
 import javax.faces.state.FlowEvaluator;
 import javax.faces.state.StateFlowExecutor;
 import javax.faces.state.FlowExpressionException;
+import javax.faces.state.model.TransitionTarget;
 import org.ssoft.faces.state.FlowContextImpl;
 import org.w3c.dom.Node;
 
@@ -70,7 +71,7 @@ public class FlowEvaluatorImpl implements FlowEvaluator, Serializable {
         } catch (ELException e) {
             throw new FlowExpressionException("eval('" + expr + "'):" + e.getMessage(), e);
         } finally {
-            fcontext.putContext(FlowContext.class, newContext(null));
+            fcontext.putContext(FlowContext.class, newContext(null, null));
             messageHolder.processCompilationMessages(fc);
         }
     }
@@ -98,7 +99,7 @@ public class FlowEvaluatorImpl implements FlowEvaluator, Serializable {
         } catch (ELException e) {
             throw new FlowExpressionException("eval('" + expr + "'):" + e.getMessage(), e);
         } finally {
-            fcontext.putContext(FlowContext.class, newContext(null));
+            fcontext.putContext(FlowContext.class, newContext(null, null));
             messageHolder.processCompilationMessages(fc);
         }
     }
@@ -127,7 +128,7 @@ public class FlowEvaluatorImpl implements FlowEvaluator, Serializable {
         } catch (ELException e) {
             throw new FlowExpressionException("eval('" + expr + "'):" + e.getMessage(), e);
         } finally {
-            fcontext.putContext(FlowContext.class, newContext(null));
+            fcontext.putContext(FlowContext.class, newContext(null, null));
             messageHolder.processCompilationMessages(fc);
         }
     }
@@ -157,15 +158,15 @@ public class FlowEvaluatorImpl implements FlowEvaluator, Serializable {
         } catch (ELException e) {
             throw new FlowExpressionException("eval('" + expr + "'):" + e.getMessage(), e);
         } finally {
-            fcontext.putContext(FlowContext.class, newContext(null));
+            fcontext.putContext(FlowContext.class, newContext(null, null));
         }
     }
 
     @Override
-    public FlowContext newContext(FlowContext parent) {
-        return new FlowContextImpl(parent);
+    public FlowContext newContext(TransitionTarget target, FlowContext parent) {
+        return new FlowContextImpl(target, parent);
     }
-    
+
     public class ContextWrapper extends ELContext implements Serializable {
 
         private final ELContext context;

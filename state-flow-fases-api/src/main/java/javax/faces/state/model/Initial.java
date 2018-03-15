@@ -44,5 +44,15 @@ public class Initial extends TransitionTarget {
         this.transition.setParent(this);
     }
 
+    @Override
+    protected String createUniqueId(Object element) {
+        if(element instanceof Transition) {
+            return "start";
+        } else {
+            throw new IllegalArgumentException("Initial element no support child "
+                    + "element type: " + element.getClass().getName());
+        }
+    }
+
 }
 

@@ -6,6 +6,7 @@
 package javax.faces.state;
 
 import java.io.Serializable;
+import javax.faces.context.FacesContext;
 
 /**
  *
@@ -20,8 +21,7 @@ public class FlowTriggerEvent implements Serializable {
      * @param type The event type
      * @param payload The event payload, must be {@link Serializable}
      */
-    public FlowTriggerEvent(final String name, final int type,
-            final Object payload) {
+    public FlowTriggerEvent(final String name, final int type, final Object payload) {
         super();
         this.name = name;
         this.type = type;
@@ -150,5 +150,36 @@ public class FlowTriggerEvent implements Serializable {
         return String.valueOf(this).hashCode();
     }
 
+    public Object saveState(FacesContext context) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        Object values[] = new Object[3];
+        
+        values[0] = name;
+        values[1] = type;
+        values[2] = payload;
+
+        return values;
+    }
+
+    public void restoreState(FacesContext context, Object state) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        if (state == null) {
+            return;
+        }
+
+        Object[] values = (Object[]) state;
+
+        name = (String) values[0];
+        type = (int) values[1];
+        payload = values[2];
+    }
+    
+    
 }
 

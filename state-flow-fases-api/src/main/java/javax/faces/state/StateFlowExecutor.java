@@ -5,7 +5,6 @@
  */
 package javax.faces.state;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.context.FacesContext;
 import javax.faces.state.model.StateChart;
 import javax.faces.state.model.Datamodel;
 import javax.faces.state.model.History;
@@ -27,21 +27,19 @@ import javax.faces.state.semantics.StateChartSemantics;
  *
  * @author Waldemar Kłaczyński
  */
-public class StateFlowExecutor implements Serializable {
+public class StateFlowExecutor {
 
-    
     /**
      * The Logger for the StateFlowExecutor.
      */
     protected static final Logger log = Logger.getLogger(StateFlowExecutor.class.getName());
-    
 
     protected static final String EVENT_DATA = "_eventdata";
 
-    public final static StateFlowExecutor getIstance(){
-        return  new StateFlowExecutor();
+    public final static StateFlowExecutor getIstance() {
+        return new StateFlowExecutor();
     }
-    
+
     /**
      * The special variable for storing event data / payload, when multiple
      * events are triggered, keyed by event name.
@@ -87,7 +85,6 @@ public class StateFlowExecutor implements Serializable {
      * Run-to-completion.
      */
     protected boolean superStep = true;
-
 
     /**
      * The worker method. Re-evaluates current status whenever any events are
@@ -141,17 +138,16 @@ public class StateFlowExecutor implements Serializable {
     /**
      * Convenience method when only one event needs to be triggered.
      *
-     * @param evt
-     *            the external events which triggered during the last
-     *            time quantum
-     * @throws ModelException in case there is a fatal SCXML object
-     *            model problem.
+     * @param evt the external events which triggered during the last time
+     * quantum
+     * @throws ModelException in case there is a fatal SCXML object model
+     * problem.
      */
     public void triggerEvent(final FlowTriggerEvent evt)
             throws ModelException {
-        triggerEvents(new FlowTriggerEvent[] {evt});
+        triggerEvents(new FlowTriggerEvent[]{evt});
     }
-    
+
     /**
      * Clear all state and begin from &quot;initialstate&quot; indicated on root
      * flow element.
@@ -510,6 +506,45 @@ public class StateFlowExecutor implements Serializable {
     private void restoreEventData(final Object[] oldData) {
         flowInstance.getRootContext().setLocal(EVENT_DATA, oldData[0]);
         flowInstance.getRootContext().setLocal(EVENT_DATA_MAP, oldData[1]);
+    }
+
+    public Object saveState(FacesContext context) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        Object values[] = new Object[3];
+
+        values[0] = superStep;
+        values[1] = flowInstance.saveState(context);
+        if (currentStatus != null) {
+            values[2] = currentStatus.saveState(context);
+        }
+
+        return values;
+    }
+
+    public void restoreState(FacesContext context, Object state) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        if (state == null) {
+            return;
+        }
+
+        Object[] values = (Object[]) state;
+        
+        if (values[0] != null) {
+            superStep = (boolean) values[0];
+        }
+        if (values[1] != null) {
+            flowInstance.restoreState(context, values[1]);
+        }
+        currentStatus = new FlowStatus();
+        if (values[2] != null) {
+            currentStatus.restoreState(context, values[1]);
+        }
     }
 
 }

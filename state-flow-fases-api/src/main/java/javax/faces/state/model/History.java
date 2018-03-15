@@ -71,4 +71,14 @@ public class History extends TransitionTarget {
         //shallow is by default
     }
 
+    @Override
+    protected String createUniqueId(Object element) {
+        if(element instanceof Transition) {
+            return "start";
+        } else {
+            throw new IllegalArgumentException("Initial element no support child "
+                    + "element type: " + element.getClass().getName());
+        }
+    }
+    
 }

@@ -41,8 +41,7 @@ public interface Invoker {
      * @throws InvokerException In case there is a fatal problem with
      *                          invoking the source.
      */
-    void invoke(String source, Map params)
-    throws InvokerException;
+    void invoke(String source, Map params) throws InvokerException;
 
     /**
      * Forwards the events triggered on the parent state machine
@@ -56,8 +55,7 @@ public interface Invoker {
      *                          processing the events forwarded by the
      *                          parent state machine.
      */
-    void parentEvents(FlowTriggerEvent[] evts)
-    throws InvokerException;
+    void parentEvents(FlowTriggerEvent[] evts) throws InvokerException;
 
     /**
      * Cancel this invocation.

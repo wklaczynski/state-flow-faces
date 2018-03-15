@@ -95,7 +95,7 @@ public class StateChartTagHandler extends TagHandler {
             return;
         }
 
-        chart = new StateChart();
+        chart = new StateChart(chartId, root.getViewId());
         if (initial != null) {
             chart.setInitial(initial.getValue(ctx));
         }

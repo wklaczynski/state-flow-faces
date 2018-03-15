@@ -8,7 +8,6 @@ package org.ssoft.faces.state.tag;
 import java.io.IOException;
 import javax.faces.component.UIComponent;
 import javax.faces.state.model.Final;
-import javax.faces.state.model.Parallel;
 import javax.faces.state.model.State;
 import javax.faces.state.model.StateChart;
 import javax.faces.view.facelets.FaceletContext;
