@@ -48,4 +48,6 @@ public class FlowConstants {
     
     public static final String STATEFLOW_REFRESH_PERIOD_PARAM_NAME =  "javax.faces.state.STATEFLOW_REFRESH_PERIOD";
     
+    public static final String STATE_FLOW_STACK = STATE_FLOW_PREFIX + "FlowStack";
+    
 }

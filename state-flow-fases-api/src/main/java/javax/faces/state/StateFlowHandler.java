@@ -65,4 +65,6 @@ public abstract class StateFlowHandler {
     
     public abstract StateChart createStateMachine(FacesContext context, String path, String id) throws ModelException;
     
+    public abstract void writeState(FacesContext context);
+    
 }

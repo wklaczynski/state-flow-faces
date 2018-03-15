@@ -16,6 +16,7 @@
         <el-resolver>org.ssoft.faces.state.facelets.StateFlowELResolver</el-resolver>
         <el-resolver>org.ssoft.faces.state.facelets.StateFlowScopesELResolver</el-resolver>
         <navigation-handler>org.ssoft.faces.state.facelets.StateFlowNavigationHandler</navigation-handler>
+        <view-handler>org.ssoft.faces.state.facelets.StateFlowViewHandler</view-handler>
     </application>
     
     <factory>

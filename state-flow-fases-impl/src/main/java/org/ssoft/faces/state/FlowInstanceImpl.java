@@ -69,7 +69,7 @@ public class FlowInstanceImpl extends FlowInstance {
     }
 
     @Override
-    protected <V> V processInvoke(State target, Invoke invoke, Invoker invoker, Callable<V> fn) throws Exception {
+    protected <V> V processInvoker(State target, Invoke invoke, Invoker invoker, Callable<V> fn) throws Exception {
         FacesContext fc = FacesContext.getCurrentInstance();
 
         PathResolver pr = invoke.getPathResolver();

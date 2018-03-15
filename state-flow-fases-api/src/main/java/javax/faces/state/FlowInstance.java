@@ -62,7 +62,7 @@ public abstract class FlowInstance {
     private final Map<History, Set<TransitionTarget>> histories;
 
     /**
-     * <code>Map</code> for recording the processInvoke to completion status of
+     * <code>Map</code> for recording the processInvoker to completion status of
      * composite states.
      */
     private final Map<TransitionTarget, Boolean> completions;
@@ -341,13 +341,13 @@ public abstract class FlowInstance {
     public <V> V process(final State target, final Invoker invoker, final Callable<V> fn) throws InvokerException {
         Invoke invoke = target.getInvoke();
         try {
-            return processInvoke(target, invoke, invoker, fn);
+            return processInvoker(target, invoke, invoker, fn);
         } catch (Throwable th) {
             throw new InvokerException(th);
         }
     }
 
-    protected abstract <V> V processInvoke(final State target, final Invoke invoke, final Invoker invoker, final Callable<V> fn) throws Exception;
+    protected abstract <V> V processInvoker(final State target, final Invoke invoke, final Invoker invoker, final Callable<V> fn) throws Exception;
 
     protected abstract void postNewInvoker(final Invoke invoke, final Invoker invoker) throws IOException;
 
@@ -536,13 +536,13 @@ public abstract class FlowInstance {
         }
     }
 
-    private Object saveTargetsState(FacesContext context, Collection<TransitionTarget> tatgets) {
+    private Object saveTargetsState(FacesContext context, Collection<TransitionTarget> targets) {
         Object state = null;
-        if (null != tatgets && tatgets.size() > 0) {
-            Object[] attached = new Object[tatgets.size()];
+        if (null != targets && targets.size() > 0) {
+            Object[] attached = new Object[targets.size()];
             int i = 0;
-            for (TransitionTarget ratget : tatgets) {
-                attached[i++] = ratget.getClientId();
+            for (TransitionTarget target : targets) {
+                attached[i++] = target.getClientId();
             }
             state = attached;
         }

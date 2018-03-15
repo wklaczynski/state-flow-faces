@@ -32,6 +32,8 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.inject.spi.BeanManager;
+import javax.faces.FacesException;
+import javax.faces.application.StateManager;
 import javax.faces.context.FacesContext;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -341,5 +343,10 @@ public class Util {
 
         return result;
     }
+    
+    public static StateManager getStateManager(FacesContext context) throws FacesException {
+        return (context.getApplication().getStateManager());
+    }
+    
 
 }
