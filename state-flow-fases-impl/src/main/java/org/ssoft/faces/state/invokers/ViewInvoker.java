@@ -52,6 +52,7 @@ import javax.faces.view.ViewMetadata;
 import org.ssoft.faces.state.facelets.StateFlowNavigationHandler;
 import org.ssoft.faces.state.utils.AsyncTrigger;
 import org.ssoft.faces.state.utils.SharedUtils;
+import javax.faces.state.annotation.Statefull;
 
 /**
  *
@@ -69,8 +70,12 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
     private String statePrefix;
     private boolean cancelled;
     private static final String invokePrefix = ".view.";
+
+    @Statefull
     private String stateStore;
+    @Statefull
     private String control;
+    @Statefull
     private String viewId;
 
     @Override
@@ -372,6 +377,5 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
         ConfigurableNavigationHandler navigationHandler = (ConfigurableNavigationHandler) context.getApplication().getNavigationHandler();
         return navigationHandler.getNavigationCase(context, null, outcome);
     }
-
 
 }

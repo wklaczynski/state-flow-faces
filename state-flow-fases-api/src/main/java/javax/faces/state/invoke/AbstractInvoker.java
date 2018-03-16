@@ -15,9 +15,14 @@
  */
 package javax.faces.state.invoke;
 
+import java.lang.reflect.Field;
+import static javax.faces.component.UIComponentBase.restoreAttachedState;
+import static javax.faces.component.UIComponentBase.saveAttachedState;
 import javax.faces.context.FacesContext;
 import javax.faces.state.FlowInstance;
+import static javax.faces.state.FlowInstance.saveStatefullState;
 import javax.faces.state.FlowTriggerEvent;
+import javax.faces.state.annotation.Statefull;
 
 /**
  *
@@ -68,12 +73,33 @@ public abstract class AbstractInvoker implements Invoker {
 
     @Override
     public Object saveState(FacesContext context) {
-        return null;
+        if (context == null) {
+            throw new NullPointerException();
+        }
+        Object values[] = new Object[3];
+        values[0] = type;
+        values[1] = parentStateId;
+        values[2] = saveStatefullState(context, getClass(), this);
+
+        return values;
     }
 
     @Override
     public void restoreState(FacesContext context, Object state) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        if (state == null) {
+            return;
+        }
+
+        Object values[] = (Object[]) state;
+        type = (String) values[0];
+        parentStateId = (String) values[1];
+        FlowInstance.restoreStatefullState(context, values[2], getClass(), this);
 
     }
+
 
 }
