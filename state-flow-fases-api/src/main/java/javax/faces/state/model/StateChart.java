@@ -16,7 +16,6 @@
 package javax.faces.state.model;
 
 import javax.faces.state.NamespacePrefixesHolder;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,7 +25,7 @@ import javax.faces.state.utils.StateFlowHelper;
  *
  * @author Waldemar Kłaczyński
  */
-public class StateChart implements Serializable, NamespacePrefixesHolder {
+public class StateChart implements NamespacePrefixesHolder {
 
     public static final String STATECHART_FACET_NAME = "javax_stateflow_metadata";
 

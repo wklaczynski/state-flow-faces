@@ -15,7 +15,6 @@
  */
 package javax.faces.state.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,7 +24,7 @@ import java.util.Map;
  *
  * @author Waldemar Kłaczyński
  */
-public abstract class TransitionTarget implements Serializable {
+public abstract class TransitionTarget {
 
     /**
      * Identifier for this transition target. Other parts of the SCXML document

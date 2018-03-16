@@ -24,7 +24,7 @@ import javax.faces.state.model.StateChart;
  *
  * @author Waldemar Kłaczyński
  */
-public class UIStateChartRoot extends UIStateFlow {
+public class UIStateChartRoot extends UIFlowBase {
 
     public static final String COMPONENT_TYPE = "javax.faces.UIStateChartRoot";
 
@@ -35,7 +35,6 @@ public class UIStateChartRoot extends UIStateFlow {
     @SuppressWarnings("OverridableMethodCallInConstructor")
     public UIStateChartRoot() {
         super();
-        setRendererType(null);
         setRendered(false);
         setTransient(true);
 

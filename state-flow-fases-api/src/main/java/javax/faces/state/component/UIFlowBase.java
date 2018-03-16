@@ -21,14 +21,16 @@ import javax.faces.component.UIComponentBase;
  *
  * @author Waldemar Kłaczyński
  */
-public class UIStateFlow extends UIComponentBase {
+public class UIFlowBase extends UIComponentBase {
 
     public static final String COMPONENT_FAMILY = "javax.faces.StateFlow";
 
     @SuppressWarnings("OverridableMethodCallInConstructor")
-    public UIStateFlow() {
+    public UIFlowBase() {
         super();
+        setRendererType(null);
         setTransient(true);
+        setRendered(false);
     }
     
     @Override

@@ -17,7 +17,6 @@ package javax.faces.state.model;
 
 import javax.faces.state.NamespacePrefixesHolder;
 import javax.faces.state.ModelException;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -32,7 +31,7 @@ import javax.faces.state.FlowTriggerEvent;
  *
  * @author Waldemar Kłaczyński
  */
-public abstract class Action implements Serializable, NamespacePrefixesHolder {
+public abstract class Action implements NamespacePrefixesHolder {
 
     protected static final Logger log = Logger.getLogger("javax.faces.state");
 
