@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.el.FunctionMapper;
 import javax.el.VariableMapper;
 import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
@@ -116,9 +115,6 @@ public class StateChartTagHandler extends TagHandler {
         if (initial != null) {
             chart.setInitial(initial.getValue(ctx));
         }
-
-        FunctionMapper functionMapper = ctx.getFunctionMapper();
-        chart.setFunctionMapper(functionMapper);
 
         Application app = ctx.getFacesContext().getApplication();
         if (facetComponent == null && !(facetComponent instanceof UIPanel)) {

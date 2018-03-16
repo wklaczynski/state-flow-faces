@@ -21,19 +21,18 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Logger;
-import javax.el.FunctionMapper;
+import javax.enterprise.context.spi.Context;
 import javax.faces.state.FlowErrorReporter;
 import javax.faces.state.FlowEventDispatcher;
 import javax.faces.state.FlowExpressionException;
 import javax.faces.state.FlowInstance;
 import javax.faces.state.FlowTriggerEvent;
-import javax.faces.state.FunctionMapperHolder;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public abstract class Action implements Serializable, NamespacePrefixesHolder, FunctionMapperHolder {
+public abstract class Action implements Serializable, NamespacePrefixesHolder {
 
     protected static final Logger log = Logger.getLogger("javax.faces.state");
 
@@ -53,11 +52,6 @@ public abstract class Action implements Serializable, NamespacePrefixesHolder, F
      * preserved for deferred XPath evaluation.
      */
     private Map namespaces;
-    
-    /**
-     * The current FunctionMapper in the flow chart document for this action node,
-     */
-    private FunctionMapper functionMapper;
     
     /**
      * Constructor.
@@ -105,17 +99,6 @@ public abstract class Action implements Serializable, NamespacePrefixesHolder, F
     public final void setNamespaces(final Map namespaces) {
         this.namespaces = namespaces;
     }
-
-    @Override
-    public FunctionMapper getFunctionMapper() {
-        return functionMapper;
-    }
-    
-    @Override
-    public void setFunctionMapper(FunctionMapper functionMapper) {
-        this.functionMapper = functionMapper;
-    }
-    
 
     /**
      * Return the {@link TransitionTarget} whose {@link Context} this action

@@ -242,6 +242,7 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
     }
 
     protected void addChild(FaceletContext ctx, UIComponent parent, TransitionTarget child) throws IOException {
+        StateChart chart = getElement(parent, StateChart.class);
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
         if (currentFlow instanceof StateChart) {
             StateChart chat = (StateChart) currentFlow;
@@ -258,6 +259,9 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         } else {
             throw new TagException(this.tag, "can not stored this element on parent element!");
         }
+        
+        chart.getIdMap().put(child.getClientId(), child);
+        
     }
 
     protected String generateUniqueId(FaceletContext ctx, UIComponent parent, TransitionTarget child, String prefix) throws IOException {

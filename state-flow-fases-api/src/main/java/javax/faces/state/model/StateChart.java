@@ -20,15 +20,13 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.el.FunctionMapper;
-import javax.faces.state.FunctionMapperHolder;
 import javax.faces.state.utils.StateFlowHelper;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class StateChart implements Serializable, NamespacePrefixesHolder, FunctionMapperHolder {
+public class StateChart implements Serializable, NamespacePrefixesHolder {
 
     public static final String STATECHART_FACET_NAME = "javax_stateflow_metadata";
 
@@ -74,17 +72,17 @@ public class StateChart implements Serializable, NamespacePrefixesHolder, Functi
      */
     private final Map<String, TransitionTarget> targets;
 
+
+    /**
+     * The immediate child targets of this document root.
+     */
+    private final Map<String, Object> idMap;
+    
     /**
      * The XML namespaces defined on the document root node, preserved primarily
      * for serialization.
      */
     private Map namespaces;
-
-    /**
-     * The current FunctionMapper in the flow chart document for this action
-     * node,
-     */
-    private FunctionMapper functionMapper;
 
     /**
      * Constructor.
@@ -95,6 +93,7 @@ public class StateChart implements Serializable, NamespacePrefixesHolder, Functi
     public StateChart(String id, String viewId) {
         this.children = new LinkedHashMap();
         this.targets = new HashMap();
+        this.idMap = new HashMap<>();
         this.id = id;
         this.viewId = viewId;
     }
@@ -144,6 +143,15 @@ public class StateChart implements Serializable, NamespacePrefixesHolder, Functi
         return children;
     }
 
+    /**
+     * Get the immediate child targets of the root.
+     *
+     * @return Map Returns map of the child id map mapped by targets.
+     */
+    public Map<String, Object> getIdMap() {
+        return idMap;
+    }
+    
     /**
      * Get the data model placed at document root.
      *
@@ -239,16 +247,6 @@ public class StateChart implements Serializable, NamespacePrefixesHolder, Functi
         this.namespaces = namespaces;
     }
 
-    @Override
-    public FunctionMapper getFunctionMapper() {
-        return functionMapper;
-    }
-
-    @Override
-    public void setFunctionMapper(FunctionMapper functionMapper) {
-        this.functionMapper = functionMapper;
-    }
-
     public Object findElement(String expr) {
         if (expr == null) {
             throw new NullPointerException();
@@ -257,17 +255,7 @@ public class StateChart implements Serializable, NamespacePrefixesHolder, Functi
             throw new IllegalArgumentException("\"\"");
         }
 
-        Object result = null;
-        for (String cid : children.keySet()) {
-            if (cid.equals(expr)) {
-                result = children.get(cid);
-                break;
-            }
-            if (expr.startsWith(cid)) {
-                result = children.get(cid).findElement(expr);
-                break;
-            }
-        }
+        Object result = idMap.get(expr);
         return (result);
     }
 
