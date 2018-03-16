@@ -88,7 +88,7 @@ public class ContextualStorage implements Serializable {
             ContextualInstanceInfo<T> instanceInfo = new ContextualInstanceInfo<>();
 
             ConcurrentMap<Object, ContextualInstanceInfo<?>> concurrentMap
-                    = (ConcurrentHashMap<Object, ContextualInstanceInfo<?>>) contextualInstances;
+                    = (ConcurrentHashMap<Object, ContextualInstanceInfo<?>>) getStorage();
 
             ContextualInstanceInfo<T> oldInstanceInfo
                     = (ContextualInstanceInfo<T>) concurrentMap.putIfAbsent(beanKey, instanceInfo);
@@ -113,7 +113,7 @@ public class ContextualStorage implements Serializable {
             instanceInfo.setCreationalContext(creationalContext);
             instanceInfo.setContextualInstance(bean.create(creationalContext));
 
-            contextualInstances.put(beanKey, instanceInfo);
+            getStorage().put(beanKey, instanceInfo);
 
             return instanceInfo.getContextualInstance();
         }
