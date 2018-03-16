@@ -15,27 +15,33 @@
  */
 package org.ssoft.faces.state.facelets;
 
-import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
-import javax.faces.view.ViewDeclarationLanguage;
-import javax.faces.view.ViewMetadata;
+import javax.faces.event.PhaseEvent;
+import javax.faces.event.PhaseId;
+import javax.faces.event.PhaseListener;
+import javax.faces.state.StateFlowHandler;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class FaceletViewMetadataImpl extends ScxmlViewMetadataImpl {
+public class RenderFlowPhaseListener implements PhaseListener {
 
-    private final ViewMetadata wrapped;
+    @Override
+    public void afterPhase(PhaseEvent event) {
 
-    public FaceletViewMetadataImpl(ViewDeclarationLanguage vdl, ViewMetadata wrapped) {
-        super(vdl, wrapped.getViewId());
-        this.wrapped = wrapped;
     }
 
     @Override
-    protected  UIViewRoot createView(FacesContext context) {
-       return wrapped.createMetadataView(context);
+    public void beforePhase(PhaseEvent event) {
+        FacesContext context = event.getFacesContext();
+        StateFlowHandler.getInstance().writeState(context);
     }
+
+    @Override
+    public PhaseId getPhaseId() {
+        return PhaseId.RENDER_RESPONSE;
+    }
+
 
 }

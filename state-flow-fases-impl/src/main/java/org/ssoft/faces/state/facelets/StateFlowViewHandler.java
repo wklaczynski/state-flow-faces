@@ -39,7 +39,6 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
     @Override
     public void renderView(FacesContext context, UIViewRoot viewToRender) throws IOException, FacesException {
         super.renderView(context, viewToRender);
-        StateFlowHandler.getInstance().writeState(context);
     }
 
 

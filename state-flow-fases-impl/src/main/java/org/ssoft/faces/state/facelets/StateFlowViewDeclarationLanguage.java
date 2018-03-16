@@ -15,8 +15,6 @@
  */
 package org.ssoft.faces.state.facelets;
 
-import java.io.IOException;
-import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewDeclarationLanguageWrapper;
@@ -50,7 +48,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
         if (handlesByOryginal(viewId)) {
             return new ScxmlViewMetadataImpl(this, viewId);
         } else {
-            return new FaceletViewMetadataImpl(this, wrapped.getViewMetadata(context, viewId));
+            return wrapped.getViewMetadata(context, viewId);
         }
     }
 
@@ -76,29 +74,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
                 return suffix;
             }
         }
-
         return null;
-    }
-
-    @Override
-    public UIViewRoot createView(FacesContext context, String viewId) {
-        return wrapped.createView(context, viewId);
-    }
-
-    @Override
-    public UIViewRoot restoreView(FacesContext context, String viewId) {
-        return wrapped.restoreView(context, viewId);
-    }
-
-    @Override
-    public void buildView(FacesContext context, UIViewRoot root) throws IOException {
-        wrapped.buildView(context, root);
-
-    }
-
-    @Override
-    public void renderView(FacesContext context, UIViewRoot view) throws IOException {
-        wrapped.renderView(context, view);
     }
 
 }
