@@ -559,7 +559,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
 
             if (blocks[1] != null) {
-                Object[] entries = (Object[]) blocks[0];
+                Object[] entries = (Object[]) blocks[1];
                 for (Object entry : entries) {
                     result.getRoots().add((Integer) entry);
                 }

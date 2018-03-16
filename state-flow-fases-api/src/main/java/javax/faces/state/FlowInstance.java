@@ -639,7 +639,7 @@ public abstract class FlowInstance {
                 }
 
                 TransitionTarget tt = (TransitionTarget) found;
-                String type = (String) values[1];
+                String type = (String) entry[1];
 
                 State stt = (State) tt;
                 Invoke invoke = stt.getInvoke();
@@ -653,6 +653,8 @@ public abstract class FlowInstance {
                     PathResolver pr = invoke.getPathResolver();
 
                     invoker = newInvoker(invoke, tt);
+                    
+                    invoker.restoreState(context, entry[2]);
                 } catch (InvokerException ex) {
                     throw new IllegalStateException(String.format("Restored invoker %s failed.", ttid), ex);
                 } finally {

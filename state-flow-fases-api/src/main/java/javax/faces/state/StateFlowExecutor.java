@@ -554,7 +554,7 @@ public class StateFlowExecutor {
         }
         currentStatus = new FlowStatus();
         if (values[2] != null) {
-            currentStatus.restoreState(context, values[1]);
+            currentStatus.restoreState(context, values[2]);
         }
     }
 

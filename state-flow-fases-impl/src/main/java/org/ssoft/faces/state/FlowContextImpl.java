@@ -16,10 +16,15 @@
 package org.ssoft.faces.state;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static javax.faces.component.UIComponentBase.restoreAttachedState;
+import static javax.faces.component.UIComponentBase.saveAttachedState;
 import javax.faces.context.FacesContext;
 import javax.faces.state.FlowContext;
 import javax.faces.state.model.StateChart;
@@ -245,11 +250,11 @@ public class FlowContextImpl implements FlowContext, Serializable {
             if (found == null) {
                 throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
             }
-            
+
             target = (TransitionTarget) found;
         }
 
-        restoreVarsState(context, values[1]);
+        restoreVarsState(context, chart, values[1]);
     }
 
     private Object saveVarsState(FacesContext context) {
@@ -258,21 +263,77 @@ public class FlowContextImpl implements FlowContext, Serializable {
             Object[] attached = new Object[vars.size()];
             int i = 0;
             for (Map.Entry<String, Object> entry : vars.entrySet()) {
-                attached[i++] = new Object[]{entry.getKey(), entry.getValue()};
+                Object vstate = saveValueState(context, entry.getKey(), entry.getValue());
+                attached[i++] = new Object[]{entry.getKey(), vstate};
             }
             state = attached;
         }
         return state;
     }
 
-    private void restoreVarsState(FacesContext context, Object state) {
+    private void restoreVarsState(FacesContext context, StateChart chart, Object state) {
         vars.clear();
         if (null != state) {
             Object[] values = (Object[]) state;
             for (Object value : values) {
                 Object[] entry = (Object[]) value;
-                vars.put((String) entry[0], entry[1]);
+                String key = (String) entry[0];
+
+                Object vobj = restoreValueState(context, chart, key, entry[1]);
+                vars.put(key, vobj);
             }
+        }
+    }
+
+    private Object saveValueState(FacesContext context, String name, Object value) {
+        if ("_ALL_STATES".equals(name)) {
+            Set<TransitionTarget> states = (Set<TransitionTarget>) value;
+            value = saveTargetsState(context, states);
+        }
+
+        value = saveAttachedState(context, value);
+
+        return value;
+    }
+
+    private Object restoreValueState(FacesContext context, StateChart chart, String name, Object state) {
+        Object value = restoreAttachedState(context, state);
+        if ("_ALL_STATES".equals(name)) {
+            value = restoreTargetsState(context, chart, value);
+        }
+        return value;
+    }
+
+    private Object saveTargetsState(FacesContext context, Collection<TransitionTarget> targets) {
+        Object state = null;
+        if (null != targets && targets.size() > 0) {
+            Object[] attached = new Object[targets.size()];
+            int i = 0;
+            for (TransitionTarget ttarget : targets) {
+                attached[i++] = ttarget.getClientId();
+            }
+            state = attached;
+        }
+        return state;
+    }
+
+    private Set<TransitionTarget> restoreTargetsState(FacesContext context, StateChart chart, Object state) {
+        if (null != state) {
+            Object[] values = (Object[]) state;
+            Set<TransitionTarget> targets = new HashSet(2 * values.length);
+            for (Object value : values) {
+                String ttid = (String) value;
+                Object found = chart.findElement(ttid);
+                if (found == null) {
+                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
+                }
+
+                TransitionTarget tt = (TransitionTarget) found;
+                targets.add(tt);
+            }
+            return targets;
+        } else {
+            return new HashSet();
         }
     }
 
