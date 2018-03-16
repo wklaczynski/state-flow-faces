@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.ContextNotActiveException;
@@ -84,6 +85,7 @@ public class StateScopeCDIContex extends AbstractContext {
             synchronized (this) {
                 if (createIfNotExist) {
                     contextualStorage = new ContextualStorage(beanManager, true, true);
+                    
                     context.set(STORAGE_KEY, contextualStorage);
 
                     HttpSession session = (HttpSession) ec.getSession(true);
