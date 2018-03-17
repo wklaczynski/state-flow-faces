@@ -255,7 +255,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     private StateFlowExecutor newStateFlowExecutor(FacesContext context, StateChart stateMachine) {
 
-        StateFlowExecutor executor = new StateFlowExecutorImpl();
+        StateFlowExecutor executor = new StateFlowExecutorImpl(context);
         executor.setStateMachine(stateMachine);
         executor.addListener(stateMachine, new StateFlowCDIListener());
         for (Map.Entry<String, Class<?>> entry : customInvokers.entrySet()) {

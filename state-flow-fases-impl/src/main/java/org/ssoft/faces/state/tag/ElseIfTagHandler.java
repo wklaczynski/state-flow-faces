@@ -45,7 +45,7 @@ public class ElseIfTagHandler extends AbstractFlowTagHandler<ElseIf> {
         ElseIf action = new ElseIf();
         decorate(ctx, parent, action);
 
-        action.setCond(cond.getValue());
+        action.setValueExpression("cond" ,cond.getValueExpression(ctx, Boolean.class));
 
         applyNext(ctx, parent, action);
 

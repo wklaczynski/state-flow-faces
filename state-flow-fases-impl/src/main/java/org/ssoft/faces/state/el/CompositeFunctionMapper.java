@@ -22,7 +22,7 @@ import javax.el.FunctionMapper;
  *
  * @author Waldemar Kłaczyński
  */
-public class CompositeFunctionMapper extends FunctionMapper {
+public final class CompositeFunctionMapper extends FunctionMapper {
 
     private FunctionMapper[] mappers;
     private int size;
@@ -30,6 +30,14 @@ public class CompositeFunctionMapper extends FunctionMapper {
     public CompositeFunctionMapper() {
         this.size = 0;
         this.mappers = new FunctionMapper[16];
+    }
+
+    public CompositeFunctionMapper(FunctionMapper... mappers) {
+        this.size = 0;
+        this.mappers = new FunctionMapper[16];
+        for (FunctionMapper mapper : mappers) {
+            add(mapper);
+        }
     }
 
     public void add(FunctionMapper mapper) {

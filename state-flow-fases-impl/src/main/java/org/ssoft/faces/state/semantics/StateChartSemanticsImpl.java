@@ -166,7 +166,11 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
             if (oe != null) {
                 try {
                     for (Iterator onExitIter = oe.getActions().iterator(); onExitIter.hasNext();) {
-                        ((Action) onExitIter.next()).execute(evtDispatcher, errRep, scInstance, internalEvents);
+                        final Action action = (Action) onExitIter.next();
+                        scInstance.execute(action, () -> {
+                            action.execute(evtDispatcher, errRep, scInstance, step.getAfterStatus().getEvents());
+                            return null;
+                        });
                     }
                 } catch (FlowExpressionException e) {
                     errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(),
@@ -196,19 +200,23 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
             internalEvents.add(te);
         }
         // ExecutePhaseActions / Transitions
-        for (Transition t : step.getTransitList()) {
+        for (Transition transition : step.getTransitList()) {
             try {
-                for (Iterator transitIter = t.getActions().iterator(); transitIter.hasNext();) {
-                    ((Action) transitIter.next()).execute(evtDispatcher, errRep, scInstance, internalEvents);
+                for (Iterator transitIter = transition.getActions().iterator(); transitIter.hasNext();) {
+                    final Action action = (Action) transitIter.next();
+                    scInstance.execute(action, () -> {
+                        action.execute(evtDispatcher, errRep, scInstance, step.getAfterStatus().getEvents());
+                        return null;
+                    });
                 }
             } catch (FlowExpressionException e) {
-                errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), t);
+                errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), transition);
             }
-            List rtargets = t.getRuntimeTargets();
+            List rtargets = transition.getRuntimeTargets();
             for (int j = 0; j < rtargets.size(); j++) {
                 TransitionTarget tt = (TransitionTarget) rtargets.get(j);
-                nr.fireOnTransition(t, t.getParent(), tt, t);
-                nr.fireOnTransition(stateMachine, t.getParent(), tt, t);
+                nr.fireOnTransition(transition, transition.getParent(), tt, transition);
+                nr.fireOnTransition(stateMachine, transition.getParent(), tt, transition);
             }
         }
         // ExecutePhaseActions / OnEntry
@@ -217,7 +225,11 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
             if (oe != null) {
                 try {
                     for (Iterator onEntryIter = oe.getActions().iterator(); onEntryIter.hasNext();) {
-                        ((Action) onEntryIter.next()).execute(evtDispatcher, errRep, scInstance, internalEvents);
+                        final Action action = (Action) onEntryIter.next();
+                        scInstance.execute(action, () -> {
+                            action.execute(evtDispatcher, errRep, scInstance, step.getAfterStatus().getEvents());
+                            return null;
+                        });
                     }
                 } catch (FlowExpressionException e) {
                     errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), oe);
@@ -235,7 +247,11 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                 if (ts.isComposite() && ini != null) {
                     try {
                         for (Iterator iniIter = ini.getTransition().getActions().iterator(); iniIter.hasNext();) {
-                            ((Action) iniIter.next()).execute(evtDispatcher, errRep, scInstance, internalEvents);
+                            final Action action = (Action) iniIter.next();
+                            scInstance.execute(action, () -> {
+                                action.execute(evtDispatcher, errRep, scInstance, step.getAfterStatus().getEvents());
+                                return null;
+                            });
                         }
                     } catch (FlowExpressionException e) {
                         errRep.onError(ErrorConstants.EXPRESSION_ERROR,
@@ -348,10 +364,12 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                 Finalize fn = s.getInvoke().getFinalize();
                 if (fn != null) {
                     try {
-                        for (Iterator fnIter = fn.getActions().iterator();
-                                fnIter.hasNext();) {
-                            ((Action) fnIter.next()).execute(evtDispatcher, errRep, scInstance,
-                                    step.getAfterStatus().getEvents());
+                        for (Iterator fnIter = fn.getActions().iterator(); fnIter.hasNext();) {
+                            final Action action = (Action) fnIter.next();
+                            scInstance.execute(action, () -> {
+                                action.execute(evtDispatcher, errRep, scInstance, step.getAfterStatus().getEvents());
+                                return null;
+                            });
                         }
                     } catch (FlowExpressionException e) {
                         errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), fn);

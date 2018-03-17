@@ -57,7 +57,7 @@ public class IfTagHandler extends AbstractFlowTagHandler<If> {
         If action = new If();
         decorate(ctx, parent, action);
         
-        action.setCond(cond.getValue());
+        action.setValueExpression("cond" ,cond.getValueExpression(ctx, Boolean.class));
 
         applyNext(ctx, parent, action);
 

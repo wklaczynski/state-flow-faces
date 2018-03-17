@@ -15,6 +15,7 @@
  */
 package org.ssoft.faces.state;
 
+import javax.faces.context.FacesContext;
 import javax.faces.state.FlowErrorReporter;
 import javax.faces.state.FlowEvaluator;
 import javax.faces.state.FlowEventDispatcher;
@@ -31,43 +32,53 @@ import org.ssoft.faces.state.log.FlowErrorReporterImpl;
  */
 public class StateFlowExecutorImpl extends StateFlowExecutor {
 
+    private final FacesContext facesContext;
+
     /**
      * Constructor.
      *
+     * @param facesContext
      * @param expEvaluator The expression evaluator
      * @param evtDisp The event dispatcher
      * @param errRep The error reporter
      */
-    public StateFlowExecutorImpl(final FlowEvaluator expEvaluator,
+    public StateFlowExecutorImpl(
+            final FacesContext facesContext,
+            final FlowEvaluator expEvaluator,
             final FlowEventDispatcher evtDisp, final FlowErrorReporter errRep) {
-        this(expEvaluator, evtDisp, errRep, null);
+        this(facesContext, expEvaluator, evtDisp, errRep, null);
     }
 
     /**
      * Convenience constructor.
+     * @param facesContext
      */
-    public StateFlowExecutorImpl() {
-        this(null, null, null, null);
+    public StateFlowExecutorImpl(final FacesContext facesContext) {
+        this(facesContext, null, null, null, null);
     }
 
     /**
      * Constructor.
      *
+     * @param facesContext
      * @param expEvaluator The expression evaluator
      * @param evtDisp The event dispatcher
      * @param errRep The error reporter
      * @param semantics The SCXML semantics
      */
-    public StateFlowExecutorImpl(final FlowEvaluator expEvaluator,
+    public StateFlowExecutorImpl(
+            final FacesContext facesContext,
+            final FlowEvaluator expEvaluator,
             final FlowEventDispatcher evtDisp, final FlowErrorReporter errRep,
             final StateChartSemantics semantics) {
         this.eventdispatcher = evtDisp;
         this.errorReporter = errRep;
         this.currentStatus = new FlowStatus();
         this.stateMachine = null;
-        this.flowInstance = new FlowInstanceImpl(this);
+        this.flowInstance = new FlowInstanceImpl(this, facesContext);
         this.semantics = semantics;
         init(expEvaluator);
+        this.facesContext = facesContext;
     }
 
     private void init(FlowEvaluator expEvaluator) {

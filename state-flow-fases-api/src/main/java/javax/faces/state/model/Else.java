@@ -24,9 +24,10 @@ public class Else extends ElseIf {
     /**
      * &lt;else/&gt; is equivalent to &lt;elseif cond="true" /&gt;.
      */
+    @SuppressWarnings("OverridableMethodCallInConstructor")
     public Else() {
         super();
-        setCond("true");
+        getAttributes().put("cond", true);
     }
 
 }

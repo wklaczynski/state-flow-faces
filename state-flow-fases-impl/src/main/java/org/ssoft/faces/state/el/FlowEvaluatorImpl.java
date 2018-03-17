@@ -18,9 +18,7 @@ package org.ssoft.faces.state.el;
 import com.sun.faces.application.ApplicationAssociate;
 import com.sun.faces.facelets.compiler.CompilationMessageHolder;
 import com.sun.faces.facelets.compiler.CompilationMessageHolderImpl;
-import com.sun.faces.facelets.tag.TagLibrary;
 import java.io.Serializable;
-import java.util.Map;
 import java.util.regex.Pattern;
 import javax.el.CompositeELResolver;
 import javax.el.ELContext;
@@ -192,11 +190,11 @@ public class FlowEvaluatorImpl implements FlowEvaluator, Serializable {
 
             functionMapper.add(new BuiltinFunctionMapper());
             
-            com.sun.faces.facelets.compiler.Compiler compiler = associate.getCompiler();
-            TagLibrary tagLibrary = compiler.createTagLibrary(messageHolder);
-            Map namespaces = executor.getStateMachine().getNamespaces();
+//            com.sun.faces.facelets.compiler.Compiler compiler = associate.getCompiler();
+//            TagLibrary tagLibrary = compiler.createTagLibrary(messageHolder);
+//            Map namespaces = executor.getStateMachine().getNamespaces();
             
-            functionMapper.add(new TagsFunctionMapper(namespaces, tagLibrary));
+//            functionMapper.add(new TagsFunctionMapper(namespaces, tagLibrary));
             
             functionMapper.add(context.getFunctionMapper());
 

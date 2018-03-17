@@ -15,11 +15,15 @@
  */
 package org.ssoft.faces.state.tag;
 
+import com.sun.faces.el.ELContextImpl;
+import com.sun.faces.facelets.el.CompositeFunctionMapper;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.el.ELContext;
+import javax.el.FunctionMapper;
 import javax.el.VariableMapper;
 import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
@@ -37,6 +41,7 @@ import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
 import javax.faces.view.facelets.TagHandler;
+import org.ssoft.faces.state.el.BuiltinFunctionMapper;
 import org.ssoft.faces.state.impl.FacesURLResolver;
 import org.ssoft.faces.state.impl.VariableMapperWrapper;
 import org.ssoft.faces.state.log.FlowLogger;
@@ -145,13 +150,19 @@ public class StateChartTagHandler extends TagHandler {
 
         PathResolver resolver = baseResolver.getResolver(fc, root.getViewId());
 
+        FunctionMapper forig = ctx.getFunctionMapper();
+        ctx.setFunctionMapper(new CompositeFunctionMapper(new BuiltinFunctionMapper(), forig));
+
+        VariableMapper corig = ctx.getVariableMapper();
+        ctx.setVariableMapper(new VariableMapperWrapper(corig));
+
+        
         Map<Object, Tag> tags = new HashMap<>();
-        VariableMapper orig = ctx.getVariableMapper();
-        ctx.setVariableMapper(new VariableMapperWrapper(orig));
         try {
             build(ctx, uichart, chart, tags, resolver);
         } finally {
-            ctx.setVariableMapper(orig);
+            ctx.setVariableMapper(corig);
+            ctx.setFunctionMapper(forig);
         }
 
         ModelUpdater updater = new ModelUpdater(tags);
@@ -173,5 +184,12 @@ public class StateChartTagHandler extends TagHandler {
             popElement(parent, TAG_MAP);
         }
     }
+    
+   private void pushMapper(FacesContext ctx, FunctionMapper mapper) {
+        ELContext elContext = ctx.getELContext();
+        if (elContext instanceof ELContextImpl) {
+            ((ELContextImpl) elContext).setFunctionMapper(mapper);
+        }
+    }    
 
 }

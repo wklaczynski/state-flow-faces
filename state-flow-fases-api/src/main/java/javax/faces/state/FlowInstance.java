@@ -25,12 +25,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import javax.el.ELContext;
+import javax.el.FunctionMapper;
+import javax.el.VariableMapper;
 import static javax.faces.component.UIComponentBase.restoreAttachedState;
 import static javax.faces.component.UIComponentBase.saveAttachedState;
 import javax.faces.context.FacesContext;
 import javax.faces.state.annotation.Statefull;
 import javax.faces.state.invoke.Invoker;
 import javax.faces.state.invoke.InvokerException;
+import javax.faces.state.model.Action;
 import javax.faces.state.model.Datamodel;
 import javax.faces.state.model.History;
 import javax.faces.state.model.Invoke;
@@ -44,9 +48,10 @@ import javax.faces.state.utils.StateFlowHelper;
  *
  * @author Waldemar Kłaczyński
  */
-public abstract class FlowInstance {
+public abstract class FlowInstance extends ELContext {
 
-    static final String CURRENT_STACK_KEY = "javax.faces.state.CURRENT_STACK";
+    public static final String CURRENT_STACK_KEY = "javax.faces.state.CURRENT_STACK";
+    public static final String FLOW_CONTEXT_KEY = "javax.faces.FLOW_CONTEXT_KEY".intern();
 
     /**
      * The notification registry.
@@ -99,11 +104,17 @@ public abstract class FlowInstance {
     private final StateFlowExecutor executor;
 
     /**
+     * The root FacesContext.
+     */
+    private final FacesContext facesContext;
+
+    /**
      * Constructor.
      *
      * @param executor The executor that this instance is attached to.
+     * @param facesContext
      */
-    public FlowInstance(final StateFlowExecutor executor) {
+    public FlowInstance(final StateFlowExecutor executor, FacesContext facesContext) {
         this.notificationRegistry = new FlowNotificationRegistry();
         this.contexts = Collections.synchronizedMap(new HashMap());
         this.histories = Collections.synchronizedMap(new HashMap());
@@ -113,6 +124,16 @@ public abstract class FlowInstance {
         this.evaluator = null;
         this.rootContext = null;
         this.executor = executor;
+        this.facesContext = facesContext;
+    }
+
+    /**
+     * Get the <code>FacesContext</code>.
+     *
+     * @return The FacesContext.
+     */
+    public FacesContext getFacesContext() {
+        return facesContext;
     }
 
     /**
@@ -356,6 +377,18 @@ public abstract class FlowInstance {
 
     protected abstract void postNewInvoker(final Invoke invoke, final Invoker invoker) throws IOException;
 
+    public <V> V execute(Action action, final Callable<V> fn) throws ModelException, FlowExpressionException {
+        try {
+            return processExecute(action, fn);
+        } catch (ModelException | FlowExpressionException th) {
+            throw th;
+        } catch (Throwable th) {
+            throw new FlowExpressionException(th);
+        }
+    }
+
+    protected abstract <V> V processExecute(Action action, final Callable<V> fn) throws Exception;
+
     /**
      * Get the {@link Invoker} for this {@link TransitionTarget}. May return
      * <code>null</code>. A non-null {@link Invoker} will be returned if and
@@ -418,6 +451,15 @@ public abstract class FlowInstance {
         completions.put(transitionTarget, done ? Boolean.TRUE : Boolean.FALSE);
     }
 
+    public abstract void setVariableMapper(VariableMapper varMapper);
+
+    public abstract void setFunctionMapper(FunctionMapper fnMapper);
+    
+    public abstract Object getAttribute(String name);
+    
+    public abstract void setAttribute(String name, Object value);
+    
+    
     public Object saveState(FacesContext context) {
         if (context == null) {
             throw new NullPointerException();
@@ -658,7 +700,7 @@ public abstract class FlowInstance {
                     PathResolver pr = invoke.getPathResolver();
 
                     invoker = newInvoker(invoke, tt);
-                    
+
                     invoker.restoreState(context, entry[2]);
                 } catch (InvokerException ex) {
                     throw new IllegalStateException(String.format("Restored invoker %s failed.", ttid), ex);
@@ -712,7 +754,6 @@ public abstract class FlowInstance {
         return elStack;
     }
 
-    
     public static Object saveStatefullState(FacesContext context, Class<?> clazz, Object instance) {
         if (clazz == null) {
             return null;
@@ -793,11 +834,5 @@ public abstract class FlowInstance {
         Object value = restoreAttachedState(context, state);
         return value;
     }
-    
-    
-    
-    
-    
-    
-    
+
 }

@@ -13,7 +13,10 @@
 
         <x:state id="start">
             <x:onentry>
-                <x:if cond="#{orders.prepare()}">
+                <x:if 
+                    xmlns:fn="http://xmlns.jcp.org/jsp/jstl/functions"
+                    cond="#{fn:startsWith('test','te')}">
+                    
                     <x:raise event="main.prepare.success"/>
                     <x:else/>
                     <x:raise event="main.prepare.failed"/>
