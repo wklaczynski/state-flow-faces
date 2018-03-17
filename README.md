@@ -1,5 +1,5 @@
 # Java State Flow Faces
-This project integrate Java Server Faces witch State Chat Flow. It uses scxml notations to construct flow diagrams in the jaunted views of Java Server Faces. It is an alternative to the native Flow Faces. It extends the possibility of constructing flow diagrams with the assumptions contained in the scxml specification. Is a project integrating Java Server Faces with the State Chart XML (SCXML) specification.
+This project integrates Java Server Faces with State Chat Flow. Uses scxml notation to create flow diagrams in Java Server Faces views. It is an alternative to Flow Faces. It extends the possibility of constructing flow patterns with assumptions included in the scxml specification.
 
 https://www.w3.org/TR/scxml/
 
