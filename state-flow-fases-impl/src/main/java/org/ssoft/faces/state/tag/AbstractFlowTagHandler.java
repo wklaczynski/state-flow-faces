@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import javax.faces.application.ProjectStage;
 import javax.faces.component.UIComponent;
 import javax.faces.state.PathResolver;
@@ -53,6 +54,9 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
 
     public static final String ELEMENT_PREFIX = "facelets.flow.PARENT:";
 
+    protected static final Pattern inFct = Pattern.compile("In\\(");
+    protected static final Pattern dataFct = Pattern.compile("Data\\(");
+    
     private final Map<String, Class> parentMap = new LinkedHashMap<>();
     private final Map<String, Class> topParentMap = new LinkedHashMap<>();
 

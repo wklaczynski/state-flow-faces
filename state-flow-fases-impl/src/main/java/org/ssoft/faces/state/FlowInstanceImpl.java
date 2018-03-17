@@ -26,6 +26,7 @@ import javax.el.VariableMapper;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.context.FacesContext;
 import javax.faces.state.FlowContext;
+import static javax.faces.state.FlowContext.NAMESPACES_KEY;
 import javax.faces.state.FlowInstance;
 import javax.faces.state.PathResolver;
 import javax.faces.state.PathResolverHolder;
@@ -47,13 +48,6 @@ import org.ssoft.faces.state.utils.Util;
  */
 public final class FlowInstanceImpl extends FlowInstance {
 
-    /**
-     * Current document namespaces are saved under this key in the parent
-     * state's context.
-     */
-    private static final String NAMESPACES_KEY = "_ALL_NAMESPACES";
-    
-    
     private final ELContext ctx;
     private VariableMapper varMapper;
     private FunctionMapper fnMapper;
@@ -64,7 +58,7 @@ public final class FlowInstanceImpl extends FlowInstance {
         super(executor, facesContext);
         this.ctx = facesContext.getELContext();
         this.elFactory = facesContext.getApplication().getExpressionFactory();
-        facesContext.getAttributes().put(FLOW_CONTEXT_KEY, this);
+        facesContext.getAttributes().put(FLOW_EL_CONTEXT_KEY, this);
 
         this.varMapper = new VariableMapperWrapper(ctx.getVariableMapper());
         this.fnMapper = new CompositeFunctionMapper(new BuiltinFunctionMapper(), ctx.getFunctionMapper());

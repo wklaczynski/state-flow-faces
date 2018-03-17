@@ -286,7 +286,7 @@ public class FlowContextImpl implements FlowContext, Serializable {
     }
 
     private Object saveValueState(FacesContext context, String name, Object value) {
-        if ("_ALL_STATES".equals(name)) {
+        if (ALL_STATES_KEY.equals(name)) {
             Set<TransitionTarget> states = (Set<TransitionTarget>) value;
             value = saveTargetsState(context, states);
         }
@@ -298,7 +298,7 @@ public class FlowContextImpl implements FlowContext, Serializable {
 
     private Object restoreValueState(FacesContext context, StateChart chart, String name, Object state) {
         Object value = restoreAttachedState(context, state);
-        if ("_ALL_STATES".equals(name)) {
+        if (ALL_STATES_KEY.equals(name)) {
             value = restoreTargetsState(context, chart, value);
         }
         return value;

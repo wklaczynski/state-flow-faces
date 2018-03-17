@@ -21,6 +21,16 @@ limitations under the License.
     version="2.0">
     <namespace>http://xmlns.ssoft.org/flow/scxml</namespace>
         
+    <function>
+        <description>
+            Tests if an input state name is in current stats.
+        </description>
+        <function-name>in</function-name>
+        <function-class>org.ssoft.faces.state.el.Builtin</function-class>
+        <function-signature>boolean isMember(java.lang.String)</function-signature>
+    </function>
+        
+        
     <!--Core Constructs-->
     <tag>
         <tag-name>scxml</tag-name>

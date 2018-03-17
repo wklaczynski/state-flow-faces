@@ -24,17 +24,25 @@ import javax.faces.state.model.TransitionTarget;
  * @author Waldemar Kłaczyński
  */
 public interface FlowContext {
-    
+
+    /**
+     * Current document namespaces are saved under this key in the parent
+     * state's context.
+     */
+    public static final String NAMESPACES_KEY = "_ALL_NAMESPACES";
+
+    public static final String ALL_STATES_KEY = "_ALL_STATES";
+
     /**
      * Get target opwner reference this Context.
+     *
      * @return TransitionTarget
      */
-    TransitionTarget getTarget();    
-    
+    TransitionTarget getTarget();
+
     /**
-     * Assigns a new value to an existing variable or creates a new one.
-     * The method searches the chain of parent Contexts for variable
-     * existence.
+     * Assigns a new value to an existing variable or creates a new one. The
+     * method searches the chain of parent Contexts for variable existence.
      *
      * @param name The variable name
      * @param value The variable value
@@ -42,9 +50,9 @@ public interface FlowContext {
     void set(String name, Object value);
 
     /**
-     * Assigns a new value to an existing variable or creates a new one.
-     * The method allows to shaddow a variable of the same name up the
-     * Context chain.
+     * Assigns a new value to an existing variable or creates a new one. The
+     * method allows to shaddow a variable of the same name up the Context
+     * chain.
      *
      * @param name The variable name
      * @param value The variable value
@@ -70,8 +78,8 @@ public interface FlowContext {
     /**
      * Get the Map of all variables in this Context.
      *
-     * @return Local variable entries Map
-     * To get variables in parent Context, call getParent().getVars().
+     * @return Local variable entries Map To get variables in parent Context,
+     * call getParent().getVars().
      * @see #getParent()
      */
     Map getVars();
@@ -90,18 +98,18 @@ public interface FlowContext {
 
     /**
      * Save state this Context.
+     *
      * @param context The FacesContext
      * @return The saved state
      */
     public Object saveState(FacesContext context);
-    
-    
+
     /**
      * Save state this Context.
+     *
      * @param context The FacesContext
      * @param state State object
      */
     public void restoreState(FacesContext context, Object state);
-    
-    
+
 }

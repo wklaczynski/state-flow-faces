@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
+import static javax.faces.state.FlowContext.ALL_STATES_KEY;
 import javax.faces.state.model.StateChart;
 import javax.faces.state.model.Datamodel;
 import javax.faces.state.model.History;
@@ -482,7 +483,7 @@ public class StateFlowExecutor {
      */
     private void updateStatus(final FlowStep step) {
         currentStatus = step.getAfterStatus();
-        flowInstance.getRootContext().setLocal("_ALL_STATES", StateFlowHelper.getAncestorClosure((Set) currentStatus.getStates(), null));
+        flowInstance.getRootContext().setLocal(ALL_STATES_KEY, StateFlowHelper.getAncestorClosure((Set) currentStatus.getStates(), null));
         setEventData((FlowTriggerEvent[]) currentStatus.getEvents().toArray(new FlowTriggerEvent[0]));
     }
 

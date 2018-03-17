@@ -47,8 +47,8 @@ import javax.faces.state.FlowErrorReporter;
 import javax.faces.state.FlowEventDispatcher;
 import javax.faces.state.FlowExpressionException;
 import javax.faces.state.FlowInstance;
-import static javax.faces.state.FlowInstance.FLOW_CONTEXT_KEY;
 import javax.faces.state.FlowTriggerEvent;
+import static javax.faces.state.FlowInstance.FLOW_EL_CONTEXT_KEY;
 
 /**
  *
@@ -446,7 +446,7 @@ public abstract class Action implements NamespacePrefixesHolder {
 
     private ELContext getELContext() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        return (ELContext) facesContext.getAttributes().get(FLOW_CONTEXT_KEY);
+        return (ELContext) facesContext.getAttributes().get(FLOW_EL_CONTEXT_KEY);
     }
 
     Map<String, PropertyDescriptor> getDescriptorMap() {

@@ -36,7 +36,7 @@ public final class StateWebConfiguration {
     private StateWebConfiguration(ServletContext servletContext) {
 
         this.servletContext = servletContext;
-
+        
         String contextName = getServletContextName();
 
         // build the cache of list type params

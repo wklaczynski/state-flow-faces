@@ -51,7 +51,8 @@ import javax.faces.state.utils.StateFlowHelper;
 public abstract class FlowInstance extends ELContext {
 
     public static final String CURRENT_STACK_KEY = "javax.faces.state.CURRENT_STACK";
-    public static final String FLOW_CONTEXT_KEY = "javax.faces.FLOW_CONTEXT_KEY".intern();
+    public static final String FLOW_EL_CONTEXT_KEY = "javax.faces.FLOW_CONTEXT_KEY".intern();
+    public static final String FLOW_ISTANCE_KEY = "javax.faces.FLOW_CONTEXT_KEY".intern();
 
     /**
      * The notification registry.

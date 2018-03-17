@@ -55,6 +55,9 @@ public class RestoreFlowPhaseListener implements PhaseListener {
         }
 
         UIViewRoot viewRoot = context.getViewRoot();
+        if(viewRoot == null) {
+            return;
+        }
 
         UIComponent facet = viewRoot.getFacet(StateChart.STATECHART_FACET_NAME);
         if (facet != null) {

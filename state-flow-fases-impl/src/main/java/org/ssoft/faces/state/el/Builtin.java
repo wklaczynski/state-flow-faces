@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.context.FacesContext;
+import javax.faces.state.FlowInstance;
 import javax.faces.state.model.TransitionTarget;
 import javax.xml.transform.TransformerException;
 import org.ssoft.faces.state.utils.SFHelper;
@@ -31,6 +33,8 @@ import org.apache.xpath.XPathContext;
 import org.ssoft.faces.state.log.FlowLogger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import static javax.faces.state.FlowInstance.FLOW_ISTANCE_KEY;
+import javax.faces.state.model.State;
 
 /**
  *
@@ -40,6 +44,25 @@ public class Builtin implements Serializable {
 
     public static final Logger log = FlowLogger.FLOW.getLogger();
     
+    /**
+     * Implements the In() predicate for flow documents. The method
+     * name chosen is different since &quot;in&quot; is a reserved token
+     * in some expression languages.
+     *
+     * Does this state belong to the given Set of States.
+     * Simple ID based comparator, assumes IDs are unique.
+     *
+     * @param state The State ID to compare with
+     * @return Whether this State belongs to this Set
+     */
+    public static boolean isMember(final String state) {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        FlowInstance istance = (FlowInstance) facesContext.getAttributes().get(FLOW_ISTANCE_KEY);
+        
+        Set<State> states = istance.getExecutor().getCurrentStatus().getAllStates();
+        return isMember(states, state);
+    }
+
     /**
      * Implements the In() predicate for flow documents. The method
      * name chosen is different since &quot;in&quot; is a reserved token
@@ -61,7 +84,8 @@ public class Builtin implements Serializable {
         }
         return false;
     }
-
+    
+    
     /**
      * Implements the Data() function for Commons flow documents, that
      * can be used to obtain a node from one of the XML data trees.
