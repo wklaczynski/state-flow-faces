@@ -29,7 +29,16 @@ limitations under the License.
         <function-class>org.ssoft.faces.state.el.Builtin</function-class>
         <function-signature>boolean isMember(java.lang.String)</function-signature>
     </function>
-        
+
+    <function>
+        <description>
+            Get data value from Data object.
+        </description>
+        <function-name>data</function-name>
+        <function-class>org.ssoft.faces.state.el.Builtin</function-class>
+        <function-signature>boolean data(org.w3c.dom.Node, java.lang.String)</function-signature>
+    </function>
+                
         
     <!--Core Constructs-->
     <tag>

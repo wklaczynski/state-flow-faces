@@ -40,22 +40,46 @@ import org.ssoft.faces.state.config.StateWebConfiguration;
  *
  * @author Waldemar Kłaczyński
  */
-public class RestoreFlowPhaseListener implements PhaseListener {
+public class FlowPhaseListener implements PhaseListener {
 
     @Override
     public void afterPhase(PhaseEvent event) {
         FacesContext context = event.getFacesContext();
+        if (event.getPhaseId() == PhaseId.RESTORE_VIEW) {
+            restoreStateFlow(event);
+        }
+
+    }
+
+    @Override
+    public void beforePhase(PhaseEvent event) {
+        FacesContext context = event.getFacesContext();
+        if (event.getPhaseId() != PhaseId.RESTORE_VIEW) {
+
+        }
+        if (event.getPhaseId() != PhaseId.RENDER_RESPONSE) {
+            StateFlowHandler.getInstance().writeState(context);
+        }
+    }
+
+    @Override
+    public PhaseId getPhaseId() {
+        return PhaseId.ANY_PHASE;
+    }
+
+    private void restoreStateFlow(PhaseEvent event) {
+        FacesContext context = event.getFacesContext();
         if (context.isPostback()) {
             return;
         }
-        
+
         Boolean skip = (Boolean) context.getAttributes().get(SKIP_START_STATE_MACHINE_HINT);
         if (skip != null && skip) {
             return;
         }
 
         UIViewRoot viewRoot = context.getViewRoot();
-        if(viewRoot == null) {
+        if (viewRoot == null) {
             return;
         }
 
@@ -85,17 +109,6 @@ public class RestoreFlowPhaseListener implements PhaseListener {
                 startStateMachine(context, stateChart);
             }
         }
-
-    }
-
-    @Override
-    public void beforePhase(PhaseEvent event) {
-
-    }
-
-    @Override
-    public PhaseId getPhaseId() {
-        return PhaseId.RESTORE_VIEW;
     }
 
     public void startStateMachine(FacesContext context, StateChart stateFlow) {

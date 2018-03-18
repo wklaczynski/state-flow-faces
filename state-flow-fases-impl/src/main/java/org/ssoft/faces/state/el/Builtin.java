@@ -255,6 +255,8 @@ public class Builtin implements Serializable {
     public static Object data(final Object data, final String path) {
         Object retVal;
         String strVal = getNodeValue(dataNode(data, path));
+        
+        
         // try as a double
         try {
             double d = Double.parseDouble(strVal);

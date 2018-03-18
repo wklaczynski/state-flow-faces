@@ -17,8 +17,6 @@ package org.ssoft.faces.state.el;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.el.FunctionMapper;
 import org.ssoft.faces.state.log.FlowLogger;

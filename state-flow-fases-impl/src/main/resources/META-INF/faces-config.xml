@@ -15,8 +15,7 @@
     </ordering>    
     
    <lifecycle>
-        <phase-listener>org.ssoft.faces.state.facelets.RestoreFlowPhaseListener</phase-listener>
-        <phase-listener>org.ssoft.faces.state.facelets.RenderFlowPhaseListener</phase-listener>
+        <phase-listener>org.ssoft.faces.state.facelets.FlowPhaseListener</phase-listener>
     </lifecycle>
     
             
