@@ -20,13 +20,25 @@ limitations under the License.
     <client id="1">
         <phone type="home">+48376887788</phone>
         <phone type="mobile">+48786667756</phone>
-        <name>Jan</name>
-        <surname>Kowalski</surname>
+        <name>John</name>
+        <surname>Wick</surname>
     </client>
     <client id="2">
         <phone type="home">+48345456677</phone>
         <phone type="mobile">+48898966678</phone>
-        <name>Jan</name>
-        <surname>Kowalski</surname>
+        <name>Martin</name>
+        <surname>Cubber</surname>
+    </client>
+    <client id="3">
+        <phone type="home">+48676778889</phone>
+        <phone type="mobile">+48434343223</phone>
+        <name>Anna</name>
+        <surname>Shmith</surname>
+    </client>
+    <client id="4">
+        <phone type="home">+48676767432</phone>
+        <phone type="mobile">+48564322345</phone>
+        <name>Danny</name>
+        <surname>Carperter</surname>
     </client>
 </clients>

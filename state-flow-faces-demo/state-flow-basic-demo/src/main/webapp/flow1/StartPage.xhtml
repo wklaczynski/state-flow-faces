@@ -24,20 +24,7 @@
                 <h:panelGroup >
                     <h3>Test assigned data in owned &lt;scxml&gt; state flow faces.</h3>
                     <p/>
-                    <h4>Data assigned in &lt;scxml&gt;</h4>
-                    <p/>
-                    I'm reading phone last from state data book #{state.book['/clients/client[last()]/phone[@type=\'mobile\']']}
-                    <p/><pre>use xpath query: &quot;\#{state.book['/clients/client[last()]/phone[@type='mobile']']}&quot;</pre>
-                    <p/>
-                    I'm reading phone first from state data book #{state.book.clients.client['0']['phone[@type=\'mobile\']']}
-                    <p/><pre>use xpath query: &quot;\#{state.book.clients.client['0']['phone[@type='mobile']']}&quot;</pre>
-
-                    <h4>Data assigned in &lt;scxml&gt;/&lt;state id=&quot;start&quot;&gt;</h4>
-                    <p/>
-                    I'm reading phone for client id="1" from state data book1 #{state.book1['/clients/client[@id=\'1\']/phone[@type=\'mobile\']']}
-                    <p/>
-                    <h4>Show data in datatable</h4>
-                    <p/>
+                    <h4>Data assigned in root context on &lt;scxml&gt; tag content.</h4>
                     <h:dataTable 
                         value="#{state.book.clients.client}"
                         var="client"
@@ -75,7 +62,18 @@
                             </h:panelGrid>
                         </h:column> 
                     </h:dataTable>
+                    <p/>
+                    <h4>Reading data assigned in &lt;scxml&gt;, when use el query witch XPath.</h4>
+                    <p/>
+                    I'm reading phone last from state data book #{state.book['/clients/client[last()]/phone[@type=\'mobile\']']}
+                    <p/><pre>use xpath query: &quot;\#{state.book['/clients/client[last()]/phone[@type='mobile']']}&quot;</pre>
+                    <p/>
+                    I'm reading phone first from state data book #{state.book.clients.client['0']['phone[@type=\'mobile\']']}
+                    <p/><pre>use xpath query: &quot;\#{state.book.clients.client['0']['phone[@type='mobile']']}&quot;</pre>
 
+                    <h4>Data assigned in &lt;scxml&gt;/&lt;state id=&quot;start&quot;&gt;, reading local data from current state.</h4>
+                    <p/>
+                    I'm reading phone for client id="1" from state data book1 #{state.book1['/clients/client[@id=\'1\']/phone[@type=\'mobile\']']}
                 </h:panelGroup>
                 <h:panelGroup >
                     <hr/>
