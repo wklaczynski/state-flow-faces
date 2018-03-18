@@ -18,6 +18,7 @@ package javax.faces.state.model;
 import javax.faces.state.NamespacePrefixesHolder;
 import java.io.Serializable;
 import java.util.Map;
+import javax.el.ValueExpression;
 import org.w3c.dom.Node;
 
 /**
@@ -35,12 +36,12 @@ public class Data implements NamespacePrefixesHolder, Serializable {
     /**
      * The URL to get the XML data tree from.
      */
-    private String src;
+    private ValueExpression src;
 
     /**
      * The expression that evaluates to the value of this data instance.
      */
-    private String expr;
+    private ValueExpression expr;
 
     /**
      * The child XML data tree, parsed as a Node, cloned per execution
@@ -88,7 +89,7 @@ public class Data implements NamespacePrefixesHolder, Serializable {
      *
      * @return String The URL.
      */
-    public final String getSrc() {
+    public final ValueExpression getSrc() {
         return src;
     }
 
@@ -97,16 +98,16 @@ public class Data implements NamespacePrefixesHolder, Serializable {
      *
      * @param src The source URL.
      */
-    public final void setSrc(final String src) {
+    public final void setSrc(final ValueExpression src) {
         this.src = src;
     }
 
     /**
      * Get the expression that evaluates to the value of this data instance.
      *
-     * @return String The expression.
+     * @return ValueExpression The expression.
      */
-    public final String getExpr() {
+    public final ValueExpression getExpr() {
         return expr;
     }
 
@@ -115,7 +116,7 @@ public class Data implements NamespacePrefixesHolder, Serializable {
      *
      * @param expr The expression.
      */
-    public final void setExpr(final String expr) {
+    public final void setExpr(final ValueExpression expr) {
         this.expr = expr;
     }
 

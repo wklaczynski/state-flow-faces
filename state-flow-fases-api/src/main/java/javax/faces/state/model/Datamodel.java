@@ -26,15 +26,10 @@ import java.util.List;
 public class Datamodel implements Serializable {
 
    /**
-    * Serial version UID.
-    */
-   private static final long serialVersionUID = 1L;
-
-   /**
     * The set of &lt;data&gt; elements, parsed as Elements, that are
     * children of this &lt;datamodel&gt; element.
     */
-   private List data;
+   private final List<Data> data;
 
    /**
     * Constructor.
@@ -48,7 +43,7 @@ public class Datamodel implements Serializable {
     *
     * @return Returns the data.
     */
-   public final List getData() {
+   public final List<Data> getData() {
        return data;
    }
 

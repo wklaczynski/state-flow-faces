@@ -22,10 +22,11 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
+import javax.faces.state.FlowContext;
+import static javax.faces.state.FlowContext.ALL_STATES_KEY;
 import javax.faces.state.FlowInstance;
 import javax.faces.state.model.TransitionTarget;
 import javax.xml.transform.TransformerException;
-import org.ssoft.faces.state.utils.SFHelper;
 import org.apache.xml.utils.PrefixResolver;
 import org.apache.xpath.XPath;
 import org.apache.xpath.XPathAPI;
@@ -34,7 +35,9 @@ import org.ssoft.faces.state.log.FlowLogger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import static javax.faces.state.FlowInstance.FLOW_ISTANCE_KEY;
+import javax.faces.state.StateFlowExecutor;
 import javax.faces.state.model.State;
+import static javax.faces.state.utils.StateFlowHelper.getNodeValue;
 
 /**
  *
@@ -56,10 +59,15 @@ public class Builtin implements Serializable {
      * @return Whether this State belongs to this Set
      */
     public static boolean isMember(final String state) {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        FlowInstance istance = (FlowInstance) facesContext.getAttributes().get(FLOW_ISTANCE_KEY);
+        FacesContext fc = FacesContext.getCurrentInstance();
+        FlowInstance istance = (FlowInstance) fc.getAttributes().get(FLOW_ISTANCE_KEY);
         
-        Set<State> states = istance.getExecutor().getCurrentStatus().getAllStates();
+        FlowContext flowContext = getStateContext(fc);
+        Set<State> states = (Set<State>) flowContext.get(ALL_STATES_KEY);
+        if(states == null) {
+            return false;
+        }
+        
         return isMember(states, state);
     }
 
@@ -84,7 +92,22 @@ public class Builtin implements Serializable {
         }
         return false;
     }
-    
+
+
+    private static FlowContext getStateContext(final FacesContext fc) {
+        FlowInstance istance = (FlowInstance) fc.getAttributes().get(FLOW_ISTANCE_KEY);
+        StateFlowExecutor executor = istance.getExecutor();
+
+        Set<State> states = executor.getCurrentStatus().getStates();
+        
+        if(states.isEmpty()) {
+            return istance.getRootContext();
+        }
+        
+        State state = states.iterator().next();
+        FlowContext context = istance.getContext(state);
+        return context;
+    }    
     
     /**
      * Implements the Data() function for Commons flow documents, that
@@ -117,12 +140,10 @@ public class Builtin implements Serializable {
                 result = XPathAPI.selectNodeList(dataNode, path);
             } else {
                 XPathContext xpathSupport = new XPathContext();
-                PrefixResolver prefixResolver =
-                    new DataPrefixResolver(namespaces);
+                PrefixResolver prefixResolver = new DataPrefixResolver(namespaces);
                 XPath xpath = new XPath(path, null, prefixResolver, XPath.SELECT);
                 int ctxtNode = xpathSupport.getDTMHandleFromNode(dataNode);
-                result = xpath.execute(xpathSupport, ctxtNode,
-                    prefixResolver).nodelist();
+                result = xpath.execute(xpathSupport, ctxtNode, prefixResolver).nodelist();
             }
         } catch (TransformerException te) {
             log.log(Level.SEVERE, te.getMessage(), te);
@@ -159,7 +180,7 @@ public class Builtin implements Serializable {
      */
     public static Object data(final Map namespaces, final Object data, final String path) {
         Object retVal;
-        String strVal = SFHelper.getNodeValue(dataNode(namespaces, data, path));
+        String strVal = getNodeValue(dataNode(namespaces, data, path));
         // try as a double
         try {
             double d = Double.parseDouble(strVal);
@@ -188,8 +209,6 @@ public class Builtin implements Serializable {
      *             than the underlying expression language.
      * @param path The XPath expression.
      * @return The first node matching the path, or null if no nodes match.
-     *
-     * @deprecated Use {@link #dataNode(Map,Object,String)} instead
      */
     public static Node dataNode(final Object data, final String path) {
         if (data == null || !(data instanceof Node)) {
@@ -232,12 +251,10 @@ public class Builtin implements Serializable {
      * @param path The XPath expression.
      * @return The first node matching the path, coerced to a String, or null
      *         if no nodes match.
-     *
-     * @deprecated Use {@link #data(Map,Object,String)} instead
      */
     public static Object data(final Object data, final String path) {
         Object retVal;
-        String strVal = SFHelper.getNodeValue(dataNode(data, path));
+        String strVal = getNodeValue(dataNode(data, path));
         // try as a double
         try {
             double d = Double.parseDouble(strVal);

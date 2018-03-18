@@ -15,26 +15,23 @@
  */
 package javax.faces.state.utils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.faces.state.FlowContext;
+import javax.faces.context.FacesContext;
 import javax.faces.state.FlowErrorReporter;
-import javax.faces.state.FlowEvaluator;
-import javax.faces.state.FlowExpressionException;
-import javax.faces.state.model.Data;
-import javax.faces.state.model.Datamodel;
 import javax.faces.state.model.Parallel;
 import javax.faces.state.model.Path;
 import javax.faces.state.model.State;
 import javax.faces.state.model.Transition;
 import javax.faces.state.model.TransitionTarget;
 import javax.faces.state.semantics.ErrorConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
@@ -44,12 +41,6 @@ import org.w3c.dom.Text;
  * @author Waldemar Kłaczyński
  */
 public class StateFlowHelper {
-
-    /**
-     * Current document namespaces are saved under this key in the parent
-     * state's context.
-     */
-    private static final String NAMESPACES_KEY = "_ALL_NAMESPACES";
 
     /**
      * Return true if the string is empty.
@@ -163,48 +154,6 @@ public class StateFlowHelper {
             }
         }
         return closure;
-    }
-
-    /**
-     * Clone data model.
-     *
-     * @param ctx The context to clone to.
-     * @param datamodel The datamodel to clone.
-     * @param evaluator The expression evaluator.
-     */
-    public static void cloneDatamodel(final Datamodel datamodel, final FlowContext ctx, final FlowEvaluator evaluator) {
-        if (datamodel == null) {
-            return;
-        }
-        List data = datamodel.getData();
-        if (data == null) {
-            return;
-        }
-        for (Iterator iter = data.iterator(); iter.hasNext();) {
-            Data datum = (Data) iter.next();
-            Node datumNode = datum.getNode();
-            Node valueNode = null;
-            if (datumNode != null) {
-                valueNode = datumNode.cloneNode(true);
-            }
-            // prefer "src" over "expr" over "inline"
-            if (!StateFlowHelper.isStringEmpty(datum.getSrc())) {
-                ctx.setLocal(datum.getId(), valueNode);
-            } else if (!StateFlowHelper.isStringEmpty(datum.getExpr())) {
-                Object value = null;
-                try {
-                    ctx.setLocal(NAMESPACES_KEY, datum.getNamespaces());
-                    value = evaluator.eval(ctx, datum.getExpr());
-                    ctx.setLocal(NAMESPACES_KEY, null);
-                } catch (FlowExpressionException see) {
-                    Logger defaultLog = Logger.getLogger(StateFlowHelper.class.getName());
-                    defaultLog.log(Level.SEVERE, see.getMessage(), see);
-                }
-                ctx.setLocal(datum.getId(), value);
-            } else {
-                ctx.setLocal(datum.getId(), valueNode);
-            }
-        }
     }
 
     /**
@@ -412,4 +361,39 @@ public class StateFlowHelper {
         return result.trim();
     }
 
+    public static Node buildContentFromStream(FacesContext context, InputStream is) throws IOException {
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Node attrNode = db.parse(is);
+            return attrNode;
+        } catch (Throwable ex) {
+            String errmsg = StateFlowHelper.getErrorMessage(ex);
+            throw new IOException(String.format("can not build data %s.", errmsg), ex);
+        }
+    }
+    
+    public static Node buildContentFromPath(FacesContext context, String path) throws IOException {
+        try {
+            path = context.getExternalContext().getRealPath(path);
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Node attrNode = db.parse(path);
+            return attrNode;
+        } catch (Throwable ex) {
+            String errmsg = StateFlowHelper.getErrorMessage(ex);
+            throw new IOException(String.format("can not build data %s.", errmsg), ex);
+        }
+    }
+    
+    
+    public static String getErrorMessage(Throwable th) {
+        String result = th.getMessage();
+        
+        while(th.getCause() != null) {
+            result = th.getCause().getMessage();
+        }
+        return result;
+    }
+    
 }

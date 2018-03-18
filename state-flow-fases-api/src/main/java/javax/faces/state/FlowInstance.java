@@ -16,18 +16,22 @@
 package javax.faces.state;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import javax.el.ELContext;
 import javax.el.FunctionMapper;
 import javax.el.VariableMapper;
+import javax.faces.application.Resource;
 import static javax.faces.component.UIComponentBase.restoreAttachedState;
 import static javax.faces.component.UIComponentBase.saveAttachedState;
 import javax.faces.context.FacesContext;
@@ -35,6 +39,7 @@ import javax.faces.state.annotation.Statefull;
 import javax.faces.state.invoke.Invoker;
 import javax.faces.state.invoke.InvokerException;
 import javax.faces.state.model.Action;
+import javax.faces.state.model.Data;
 import javax.faces.state.model.Datamodel;
 import javax.faces.state.model.History;
 import javax.faces.state.model.Invoke;
@@ -43,6 +48,7 @@ import javax.faces.state.model.StateChart;
 import static javax.faces.state.model.StateChart.STATE_MACHINE_HINT;
 import javax.faces.state.model.TransitionTarget;
 import javax.faces.state.utils.StateFlowHelper;
+import org.w3c.dom.Node;
 
 /**
  *
@@ -212,7 +218,11 @@ public abstract class FlowInstance extends ELContext {
                 context = evaluator.newContext(transitionTarget, getContext(parent));
             }
             Datamodel datamodel = transitionTarget.getDatamodel();
-            StateFlowHelper.cloneDatamodel(datamodel, context, evaluator);
+            try {
+                putDatamodel(datamodel, context);
+            } catch (ModelException ex) {
+                throw new IllegalStateException(ex);
+            }
             contexts.put(transitionTarget, context);
         }
         return context;
@@ -378,6 +388,10 @@ public abstract class FlowInstance extends ELContext {
 
     protected abstract void postNewInvoker(final Invoke invoke, final Invoker invoker) throws IOException;
 
+    protected abstract <V> V processExecute(Action action, final Callable<V> fn) throws Exception;
+
+    protected abstract <V> V processData(Datamodel model, Data datum, FlowContext flowCtx, Callable<V> fn) throws Exception;
+
     public <V> V execute(Action action, final Callable<V> fn) throws ModelException, FlowExpressionException {
         try {
             return processExecute(action, fn);
@@ -388,7 +402,72 @@ public abstract class FlowInstance extends ELContext {
         }
     }
 
-    protected abstract <V> V processExecute(Action action, final Callable<V> fn) throws Exception;
+    /**
+     * Clone data model.
+     *
+     * @param ctx The context to clone to.
+     * @param datamodel The datamodel to clone.
+     * @throws javax.faces.state.ModelException
+     */
+    public void putDatamodel(final Datamodel datamodel, final FlowContext ctx) throws ModelException {
+        if (datamodel == null) {
+            return;
+        }
+        List<Data> data = datamodel.getData();
+        if (data == null) {
+            return;
+        }
+        try {
+            for (Data datum : data) {
+                Node datumNode = datum.getNode();
+                Node valueNode = null;
+                if (datumNode != null) {
+                    valueNode = datumNode.cloneNode(true);
+                }
+                // prefer "src" over "expr" over "inline"
+                if (datum.getSrc() == null) {
+                    if (datum.getExpr() != null) {
+                        Object value = datum.getExpr().getValue(this);
+                        ctx.setLocal(datum.getId(), value);
+                    } else {
+                        ctx.setLocal(datum.getId(), valueNode);
+                    }
+                } else {
+                    FacesContext fc = getFacesContext();
+
+                    Object value = datum.getSrc().getValue(this);
+                    if (value instanceof Resource) {
+                        Resource res = (Resource) value;
+                        if (!res.getContentType().equals("application/xml")) {
+                            String errmsg = String.format("%s (resource not xml content type)", res.getResourceName());
+                            throw new ModelException(String.format("can use datamodel from resouce %s.", errmsg));
+                        }
+                        valueNode = StateFlowHelper.buildContentFromStream(fc, res.getInputStream());
+                        ctx.setLocal(datum.getId(), valueNode);
+                    } else if (value instanceof InputStream) {
+                        try (InputStream is = (InputStream) value) {
+                            valueNode = StateFlowHelper.buildContentFromStream(fc, is);
+                        }
+                        ctx.setLocal(datum.getId(), valueNode);
+                    } else if (value instanceof Node) {
+                        valueNode = (Node) value;
+                        ctx.setLocal(datum.getId(), valueNode);
+                    } else if (value instanceof URL) {
+                        URL url = (URL) value;
+                        try (InputStream is = url.openStream()) {
+                            valueNode = StateFlowHelper.buildContentFromStream(fc, is);
+                        }
+                        ctx.setLocal(datum.getId(), valueNode);
+                    } else {
+                        String errmsg = String.format("%s (unsuported resorce type)", value.getClass().getName());
+                        throw new ModelException(String.format("can use datamodel from %s.", errmsg));
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            throw new ModelException(ex);
+        }
+    }
 
     /**
      * Get the {@link Invoker} for this {@link TransitionTarget}. May return
@@ -455,12 +534,11 @@ public abstract class FlowInstance extends ELContext {
     public abstract void setVariableMapper(VariableMapper varMapper);
 
     public abstract void setFunctionMapper(FunctionMapper fnMapper);
-    
+
     public abstract Object getAttribute(String name);
-    
+
     public abstract void setAttribute(String name, Object value);
-    
-    
+
     public Object saveState(FacesContext context) {
         if (context == null) {
             throw new NullPointerException();

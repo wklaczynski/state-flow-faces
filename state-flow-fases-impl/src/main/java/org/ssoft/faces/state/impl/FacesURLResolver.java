@@ -17,8 +17,9 @@ package org.ssoft.faces.state.impl;
 
 import java.io.File;
 import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.faces.context.FacesContext;
 import javax.faces.state.PathResolver;
 
@@ -35,56 +36,49 @@ public class FacesURLResolver implements PathResolver, Serializable {
 
     private final String root;
     private transient String base;
-    private transient URL contextURL;
+    private transient String contextPath;
 
     public FacesURLResolver(String root) {
         this.root = root;
     }
 
     @Override
-    public String resolvePath(FacesContext context, final String path) {
-        try {
-            URL resource;
-            if (path.startsWith("/")) {
-                resource = context.getExternalContext().getResource(path);
-            } else {
-                if (contextURL == null) {
-                    contextURL = context.getExternalContext().getResource(root);
-                }
-                resource = new URL(contextURL, path);
+    public String resolvePath(FacesContext context, String path) {
+        if (path.startsWith("/")) {
+            path = context.getExternalContext().getRealPath(path);
+        } else {
+            if (contextPath == null) {
+                contextPath = context.getExternalContext().getRealPath(root);
             }
-            return resolvePath(context, resource);
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e);
+            Path pth = Paths.get(contextPath);
+            path = pth.resolve(path).normalize().toString();
         }
+        return localPath(context, path);
     }
 
     @Override
     public PathResolver getResolver(FacesContext context, String path) {
         path = resolvePath(context, path);
-        try {
-            URL url = context.getExternalContext().getResource(path);
-            File file = new File(url.getPath());
-            if (file.isFile()) {
-                String parent = file.getParent();
-                if (!parent.endsWith("/")) {
-                    parent += "/";
-                }
-                url = new URL(url.getProtocol(), url.getHost(), url.getPort(), parent);
+        path = context.getExternalContext().getRealPath(path);
+        
+        Path pth = Paths.get(path);
+        File file = pth.toFile();
+        if (file.isFile()) {
+            String parent = file.getParent();
+            if (!parent.endsWith("/")) {
+                parent += "/";
             }
-            path = resolvePath(context, url);
-
-            return new FacesURLResolver(path);
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e);
+            path = parent;
         }
+        path = localPath(context, path);
+        return new FacesURLResolver(path);
     }
 
-    private String resolvePath(FacesContext context, URL url) {
+    private String localPath(FacesContext context, String path) {
         if (base == null) {
             base = context.getExternalContext().getRealPath("/");
         }
-        String result = url.getFile().replaceFirst(base, "");
+        String result = path.replaceFirst(base, "");
         return result;
     }
 

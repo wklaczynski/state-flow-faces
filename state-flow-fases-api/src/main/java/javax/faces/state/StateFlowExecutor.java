@@ -175,7 +175,7 @@ public class StateFlowExecutor {
             throw new ModelException(ERR_NO_STATE_MACHINE);
         } else {
             Datamodel rootdm = stateMachine.getDatamodel();
-            StateFlowHelper.cloneDatamodel(rootdm, rootCtx, flowInstance.getEvaluator());
+            flowInstance.putDatamodel(rootdm, rootCtx);
         }
         // all states and parallels, only states have variable contexts
         for (TransitionTarget tt : stateMachine.getTargets().values()) {
@@ -185,7 +185,7 @@ public class StateFlowExecutor {
                     context.reset();
                     Datamodel dm = tt.getDatamodel();
                     if (dm != null) {
-                        StateFlowHelper.cloneDatamodel(dm, context, flowInstance.getEvaluator());
+                        flowInstance.putDatamodel(dm, context);
                     }
                 }
             } else if (tt instanceof History) {

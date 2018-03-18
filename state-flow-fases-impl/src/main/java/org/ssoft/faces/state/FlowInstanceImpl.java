@@ -33,6 +33,8 @@ import javax.faces.state.PathResolverHolder;
 import javax.faces.state.StateFlowExecutor;
 import javax.faces.state.invoke.Invoker;
 import javax.faces.state.model.Action;
+import javax.faces.state.model.Data;
+import javax.faces.state.model.Datamodel;
 import javax.faces.state.model.Invoke;
 import javax.faces.state.model.State;
 import javax.faces.state.model.TransitionTarget;
@@ -137,6 +139,22 @@ public final class FlowInstanceImpl extends FlowInstance {
         }
     }
 
+    @Override
+    protected <V> V processData(Datamodel model, Data datum, FlowContext flowCtx, Callable<V> fn) throws Exception {
+
+        flowCtx.setLocal(NAMESPACES_KEY, datum.getNamespaces());
+
+        putContext(FlowContext.class, flowCtx);
+        try {
+            return fn.call();
+
+        } finally {
+            putContext(FlowContext.class, getEvaluator().newContext(null, null));
+            flowCtx.setLocal(NAMESPACES_KEY, null);
+        }
+    }
+    
+    
 
     /*
      * (non-Javadoc)

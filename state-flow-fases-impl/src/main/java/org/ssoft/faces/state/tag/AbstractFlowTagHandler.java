@@ -91,6 +91,11 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         return type;
     }
 
+    public boolean isProductionMode(FaceletContext ctx) {
+        ProjectStage projectStage = ctx.getFacesContext().getApplication().getProjectStage();
+        return projectStage == ProjectStage.Production;
+    }
+    
     public boolean isVerifyMode(FaceletContext ctx) {
         ProjectStage projectStage = ctx.getFacesContext().getApplication().getProjectStage();
         return projectStage != ProjectStage.Production;

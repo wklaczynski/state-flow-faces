@@ -7,6 +7,10 @@
     >
     <x:scxml id="main" initial="start">
 
+        <x:datamodel>
+            <x:data id="hasback" expr="#{scxml_has_parent == true}"/>
+        </x:datamodel>
+
         <x:state id="start">
             <x:onentry>
                 <x:if cond="#{main.prepare()}">
@@ -20,6 +24,11 @@
         </x:state>
 
         <x:state id="main">
+            <x:datamodel>
+                <x:data id="client_from_res" src="xml:data.xml"/>
+                <x:data id="client_from_path" src="../test/data.xml"/>
+            </x:datamodel>
+
             <x:invoke type="view" src="StartPage.xhtml"/>
         </x:state> 
 
