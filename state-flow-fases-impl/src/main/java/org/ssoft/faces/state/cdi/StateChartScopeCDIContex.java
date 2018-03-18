@@ -66,7 +66,7 @@ public class StateChartScopeCDIContex extends AbstractContext {
                 synchronized (this) {
                     if (createIfNotExist) {
                         contextualStorage = new ContextualStorage(beanManager, true, true);
-                        context.set(STORAGE_KEY, contextualStorage);
+                        context.setLocal(STORAGE_KEY, contextualStorage);
 
                         HttpSession session = (HttpSession) ec.getSession(true);
                         List<ContextualStorage> strlist = (List<ContextualStorage>) session.getAttribute(SESSION_STORAGES_LIST);

@@ -38,7 +38,6 @@ import javax.faces.state.model.State;
 import javax.faces.state.model.StateChart;
 import static org.ssoft.faces.state.FlowConstants.STATE_CHART_DEFAULT_PARAM_NAME;
 import static org.ssoft.faces.state.FlowConstants.STATE_CHART_REQUEST_PARAM_NAME;
-import org.ssoft.faces.state.cdi.StateFlowUtils;
 import org.ssoft.faces.state.config.StateWebConfiguration;
 
 /**
@@ -77,8 +76,9 @@ public class FlowPhaseListener implements PhaseListener {
             final FacesContext fc,
             final StateFlowExecutor executor) {
         Iterator iterator = executor.getCurrentStatus().getStates().iterator();
+        
         State state = ((State) iterator.next());
-        FlowContext context = StateFlowUtils.getTransitionContext(fc, executor, state);
+        FlowContext context = executor.getFlowInstance().getContext(state);
         return context;
     }
 

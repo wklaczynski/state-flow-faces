@@ -455,7 +455,7 @@ public class StateFlowExecutor {
      *
      * @return The SCInstance for this executor.
      */
-    FlowInstance getFlowInstance() {
+    public FlowInstance getFlowInstance() {
         return flowInstance;
     }
 

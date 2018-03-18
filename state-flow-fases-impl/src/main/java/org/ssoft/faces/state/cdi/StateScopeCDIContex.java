@@ -19,7 +19,6 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,7 +33,6 @@ import javax.faces.state.FlowContext;
 import javax.faces.state.StateFlowExecutor;
 import javax.faces.state.annotation.StateScoped;
 import javax.faces.state.model.State;
-import javax.faces.state.model.TransitionTarget;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import org.ssoft.faces.state.log.FlowLogger;
@@ -59,14 +57,13 @@ public class StateScopeCDIContex extends AbstractContext {
         this.beanManager = beanManager;
     }
 
-    private static FlowContext getStateContext(final FacesContext fc) {
-        StateFlowExecutor executor = StateFlowUtils.getExecutor(fc);
-        if (executor == null) {
-            return null;
-        }
+    private static FlowContext getStateContext(StateFlowExecutor executor, final FacesContext fc) {
+        FlowContext context = null;
         Iterator iterator = executor.getCurrentStatus().getStates().iterator();
-        State state = ((State) iterator.next());
-        FlowContext context = StateFlowUtils.getTransitionContext(fc, executor, state);
+        if (iterator.hasNext()) {
+            State state = ((State) iterator.next());
+            context = executor.getFlowInstance().getContext(state);
+        }
         return context;
     }
 
@@ -78,14 +75,14 @@ public class StateScopeCDIContex extends AbstractContext {
         if (executor == null) {
             throw new ContextNotActiveException("StateFlowExecutor: no executor set for the current Thread yet!");
         }
-        FlowContext context = getStateContext(fc);
+        FlowContext context = getStateContext(executor, fc);
         ContextualStorage contextualStorage = (ContextualStorage) context.get(STORAGE_KEY);
         if (contextualStorage == null) {
             synchronized (this) {
                 if (createIfNotExist) {
                     contextualStorage = new ContextualStorage(beanManager, true, true);
-                    
-                    context.set(STORAGE_KEY, contextualStorage);
+
+                    context.setLocal(STORAGE_KEY, contextualStorage);
 
                     HttpSession session = (HttpSession) ec.getSession(true);
                     List<ContextualStorage> strlist = (List<ContextualStorage>) session.getAttribute(SESSION_STORAGES_LIST);
@@ -131,13 +128,11 @@ public class StateScopeCDIContex extends AbstractContext {
 
         ContextualStorage contextualStorage;
         if (state != null) {
-            FlowContext context = StateFlowUtils.getTransitionContext(fc, executor, state);
+            FlowContext context = executor.getFlowInstance().getContext(state);
             contextualStorage = (ContextualStorage) context.get(STORAGE_KEY);
             if (contextualStorage != null) {
                 destroyAllActive(contextualStorage);
             }
-            Map<TransitionTarget, Object> contexts = StateFlowUtils.getContextsMap(fc, executor);
-            contexts.remove(state);
         }
         BeanManager beanManager = (BeanManager) Util.getCdiBeanManager(fc);
         if (Util.isCdiOneOneOrLater(fc)) {
