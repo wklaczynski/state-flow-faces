@@ -1,43 +1,87 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
     <h:head>
         <title>Test State Flow Faces</title>
+        <h:outputStylesheet library="css" name="demo-style.css"  />
     </h:head>
     <h:body>
         <h1>First State Flow Faces Page</h1>
         <hr/>
-        <h:panelGroup rendered="#{empty state.chart_title}">
-            <h2>Hello, I'm not starting from flow faces :(</h2>
-            <hr/>
-        </h:panelGroup>
-        <h:panelGroup rendered="#{not empty state.chart_title}">
-            <h3>Hello, I'm starting from flow faces: "#{state.chart_title}"</h3>
-            This page is started by state flow chart. It's assigned any data from owned &lt;scxml&gt;.<p/>
-            Assigned data and navigation is from &lt;scxml&gt; and current &lt;state&gt;.
-            <hr/>
-
-            <h:panelGroup >
-                <h3>Test assigned data in owned &lt;scxml&gt; state flow faces.</h3>
-                <p/>
-                <h4>Data assigned in &lt;scxml&gt;</h4>
-                <p/>
-                I'm reading phone last from state data book #{state.book['/clients/client[last()]/phone[@type=\'mobile\']']}
-                <p/><pre>use xpath query: &quot;\#{state.book['/clients/client[last()]/phone[@type='mobile']']}&quot;</pre>
-                <p/>
-                I'm reading phone first from state data book #{state.book.clients.client['0']['phone[@type=\'mobile\']']}
-                <p/><pre>use xpath query: &quot;\#{state.book.clients.client['0']['phone[@type='mobile']']}&quot;</pre>
-
-                <h4>Data assigned in &lt;scxml&gt;/&lt;state id=&quot;start&quot;&gt;</h4>
-                <p/>
-                I'm reading phone for client id="1" from state data book1 #{state.book1['/clients/client[@id=\'1\']/phone[@type=\'mobile\']']}
-                <p/>
+        <h:form>
+            <h:panelGroup rendered="#{empty state.chart_title}">
+                <h2>Hello, I'm not starting from flow faces :(</h2>
+                <hr/>
             </h:panelGroup>
-            <h:panelGroup >
-            <hr/>
+            <h:panelGroup rendered="#{not empty state.chart_title}">
+                <h3>Hello, I'm starting from flow faces: "#{state.chart_title}"</h3>
+                This page is started by state flow chart. It's assigned any data from owned &lt;scxml&gt;.<p/>
+                Assigned data and navigation is from &lt;scxml&gt; and current &lt;state&gt;.
+                <hr/>
+
+                <h:panelGroup >
+                    <h3>Test assigned data in owned &lt;scxml&gt; state flow faces.</h3>
+                    <p/>
+                    <h4>Data assigned in &lt;scxml&gt;</h4>
+                    <p/>
+                    I'm reading phone last from state data book #{state.book['/clients/client[last()]/phone[@type=\'mobile\']']}
+                    <p/><pre>use xpath query: &quot;\#{state.book['/clients/client[last()]/phone[@type='mobile']']}&quot;</pre>
+                    <p/>
+                    I'm reading phone first from state data book #{state.book.clients.client['0']['phone[@type=\'mobile\']']}
+                    <p/><pre>use xpath query: &quot;\#{state.book.clients.client['0']['phone[@type='mobile']']}&quot;</pre>
+
+                    <h4>Data assigned in &lt;scxml&gt;/&lt;state id=&quot;start&quot;&gt;</h4>
+                    <p/>
+                    I'm reading phone for client id="1" from state data book1 #{state.book1['/clients/client[@id=\'1\']/phone[@type=\'mobile\']']}
+                    <p/>
+                    <h4>Show data in datatable</h4>
+                    <p/>
+                    <h:dataTable 
+                        value="#{state.book.clients.client}"
+                        var="client"
+                        styleClass="order-table"
+                        headerClass="order-table-header"
+                        rowClasses="order-table-odd-row,order-table-even-row"                        
+                        >
+                        <h:column>
+                            <f:facet name="header">Id</f:facet>
+                                #{client.id}
+                        </h:column> 
+                        <h:column>
+                            <f:facet name="header">Name</f:facet>
+                                #{client.name}
+                        </h:column> 
+                        <h:column>
+                            <f:facet name="header">Surname</f:facet>
+                                #{client.surname}
+                        </h:column> 
+                        <h:column>
+                            <f:facet name="header">Mobile Phone</f:facet>
+                                #{client['phone[@type=\'mobile\']']}
+                        </h:column> 
+                        <h:column>
+                            <f:facet name="header">Home Phone</f:facet>
+                                #{client['phone[@type=\'home\']']}
+                        </h:column> 
+                        <h:column>
+                            <f:facet name="header">Actions</f:facet>
+                            <h:panelGrid columns="3">
+                                <h:commandButton action="show" value="Show">
+                                </h:commandButton>
+                                <h:commandButton action="change" value="Change">
+                                </h:commandButton>
+                            </h:panelGrid>
+                        </h:column> 
+                    </h:dataTable>
+
+                </h:panelGroup>
+                <h:panelGroup >
+                    <hr/>
+                </h:panelGroup>
             </h:panelGroup>
-        </h:panelGroup>
+        </h:form>
     </h:body>
 
 </html>
