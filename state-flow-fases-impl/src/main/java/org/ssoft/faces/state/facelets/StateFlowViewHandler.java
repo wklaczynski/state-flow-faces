@@ -14,7 +14,6 @@ import javax.faces.application.ViewHandler;
 import javax.faces.application.ViewHandlerWrapper;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
-import javax.faces.state.StateFlowHandler;
 import org.ssoft.faces.state.config.StateWebConfiguration;
 
 /**

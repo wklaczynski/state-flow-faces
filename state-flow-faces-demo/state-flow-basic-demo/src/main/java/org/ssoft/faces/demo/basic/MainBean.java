@@ -31,4 +31,9 @@ public class MainBean implements Serializable {
         return true;
     }
     
+    public String getBeanTitle() {
+        return "Main Bean";
+    }
+    
+    
 }

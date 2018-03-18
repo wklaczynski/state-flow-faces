@@ -33,8 +33,8 @@ import javax.faces.state.StateFlowHandler;
  */
 public class StateFlowScopesELResolver extends ELResolver {
 
-    public static final String DIALOG_SCOPE = "stateFlowScope";
-    public static final String DIALOG_VARIABLE_NAME = "stateFlow";
+    public static final String DIALOG_SCOPE = "chartScope";
+    public static final String DIALOG_VARIABLE_NAME = "chart";
     public static final String STATE_VARIABLE_NAME = "state";
     public static final String DIALOG_PARAM_MAP = "org.scxml.attr";
 
