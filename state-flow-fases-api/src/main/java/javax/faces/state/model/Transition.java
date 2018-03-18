@@ -19,6 +19,7 @@ import javax.faces.state.NamespacePrefixesHolder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.el.ValueExpression;
 
 /**
  *
@@ -34,7 +35,7 @@ public class Transition extends Executable implements NamespacePrefixesHolder {
     /**
      * Optional guard condition.
      */
-    private String cond;
+    private ValueExpression cond;
 
     /**
      * Optional guard condition.
@@ -81,7 +82,7 @@ public class Transition extends Executable implements NamespacePrefixesHolder {
      *
      * @return Returns the cond.
      */
-    public final String getCond() {
+    public final ValueExpression getCond() {
         return cond;
     }
 
@@ -90,7 +91,7 @@ public class Transition extends Executable implements NamespacePrefixesHolder {
      *
      * @param cond The cond to set.
      */
-    public final void setCond(final String cond) {
+    public final void setCond(final ValueExpression cond) {
         this.cond = cond;
     }
 

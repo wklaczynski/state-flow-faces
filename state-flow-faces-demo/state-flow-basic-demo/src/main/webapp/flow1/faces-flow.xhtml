@@ -9,6 +9,8 @@
 
         <x:datamodel>
             <x:data id="hasback" expr="#{scxml_has_parent == true}"/>
+            <x:data id="chart_title" expr="State Flow Faces from Faces Metadata"/>
+            <x:data id="book" src="/test/data.xml"/>
         </x:datamodel>
 
         <x:state id="start">
@@ -25,8 +27,8 @@
 
         <x:state id="main">
             <x:datamodel>
-                <x:data id="client_from_res" src="xml:data.xml"/>
-                <x:data id="client_from_path" src="../test/data.xml"/>
+                <x:data id="book1" src="../test/data.xml"/>
+                <x:data id="book2" src="xml:data.xml"/>
             </x:datamodel>
 
             <x:invoke type="view" src="StartPage.xhtml"/>

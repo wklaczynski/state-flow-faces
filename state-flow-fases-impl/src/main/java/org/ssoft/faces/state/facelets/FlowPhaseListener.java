@@ -17,6 +17,7 @@ package org.ssoft.faces.state.facelets;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -27,13 +28,17 @@ import javax.faces.context.Flash;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
+import javax.faces.state.FlowContext;
+import javax.faces.state.StateFlowExecutor;
 import javax.faces.state.StateFlowHandler;
 import static javax.faces.state.StateFlowHandler.DEFAULT_STATECHART_NAME;
 import static javax.faces.state.StateFlowHandler.SKIP_START_STATE_MACHINE_HINT;
 import javax.faces.state.component.UIStateChartRoot;
+import javax.faces.state.model.State;
 import javax.faces.state.model.StateChart;
 import static org.ssoft.faces.state.FlowConstants.STATE_CHART_DEFAULT_PARAM_NAME;
 import static org.ssoft.faces.state.FlowConstants.STATE_CHART_REQUEST_PARAM_NAME;
+import org.ssoft.faces.state.cdi.StateFlowUtils;
 import org.ssoft.faces.state.config.StateWebConfiguration;
 
 /**
@@ -46,7 +51,7 @@ public class FlowPhaseListener implements PhaseListener {
     public void afterPhase(PhaseEvent event) {
         FacesContext context = event.getFacesContext();
         if (event.getPhaseId() == PhaseId.RESTORE_VIEW) {
-            restoreStateFlow(event);
+            restoreStateFlow(context);
         }
 
     }
@@ -55,11 +60,26 @@ public class FlowPhaseListener implements PhaseListener {
     public void beforePhase(PhaseEvent event) {
         FacesContext context = event.getFacesContext();
         if (event.getPhaseId() != PhaseId.RESTORE_VIEW) {
-
+            StateFlowHandler fh = StateFlowHandler.getInstance();
+            StateFlowExecutor executor = fh.getExecutor(context);
+            if (executor != null) {
+                FlowContext stateContext = getStateContext(context, executor);
+                context.getELContext().putContext(FlowContext.class, stateContext);
+                context.getELContext().putContext(StateFlowExecutor.class, executor);
+            }
         }
         if (event.getPhaseId() != PhaseId.RENDER_RESPONSE) {
             StateFlowHandler.getInstance().writeState(context);
         }
+    }
+
+    private static FlowContext getStateContext(
+            final FacesContext fc,
+            final StateFlowExecutor executor) {
+        Iterator iterator = executor.getCurrentStatus().getStates().iterator();
+        State state = ((State) iterator.next());
+        FlowContext context = StateFlowUtils.getTransitionContext(fc, executor, state);
+        return context;
     }
 
     @Override
@@ -67,8 +87,7 @@ public class FlowPhaseListener implements PhaseListener {
         return PhaseId.ANY_PHASE;
     }
 
-    private void restoreStateFlow(PhaseEvent event) {
-        FacesContext context = event.getFacesContext();
+    private void restoreStateFlow(FacesContext context) {
         if (context.isPostback()) {
             return;
         }

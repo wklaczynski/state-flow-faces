@@ -1,14 +1,44 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
     <h:head>
-        <title>Facelet Title</title>
+        <title>Test State Flow Faces</title>
     </h:head>
     <h:body>
-        Hello from Facelets
+        <h1>First State Flow Faces Page</h1>
+        <hr/>
+        <h:panelGroup rendered="#{empty state.chart_title}">
+            <h2>Hello, I'm not starting from flow faces :(</h2>
+            <hr/>
+        </h:panelGroup>
+        <h:panelGroup rendered="#{not empty state.chart_title}">
+            <h3>Hello, I'm starting from flow faces: "#{state.chart_title}"</h3>
+            This page is started by state flow chart. It's assigned any data from owned &lt;scxml&gt;.<p/>
+            Assigned data is from &lt;scxml&gt; and current &lt;state&gt;.
+            <hr/>
+
+            <h:panelGroup >
+                <h3>Test assigned data in owned &lt;scxml&gt; state flow faces.</h3>
+                <p/>
+                <h4>Data assigned in &lt;scxml&gt;</h4>
+                <p/>
+                I'm reading phone last from state data book #{state.book['/clients/client[last()]/phone[@type=\'mobile\']']}
+                <p/><pre>use xpath query: &quot;\#{state.book['/clients/client[last()]/phone[@type='mobile']']}&quot;</pre>
+                <p/>
+                I'm reading phone first from state data book #{state.book.clients.client['0']['phone[@type=\'mobile\']']}
+                <p/><pre>use xpath query: &quot;\#{state.book.clients.client['0']['phone[@type='mobile']']}&quot;</pre>
+
+                <h4>Data assigned in &lt;scxml&gt;/&lt;state id=&quot;start&quot;&gt;</h4>
+                <p/>
+                I'm reading phone for client id="1" from state data book1 #{state.book1['/clients/client[@id=\'1\']/phone[@type=\'mobile\']']}
+                <p/>
+            </h:panelGroup>
+            <h:panelGroup >
+            <hr/>
+            </h:panelGroup>
+        </h:panelGroup>
     </h:body>
-    
+
 </html>
 

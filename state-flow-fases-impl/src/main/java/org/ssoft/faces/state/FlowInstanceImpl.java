@@ -17,6 +17,7 @@ package org.ssoft.faces.state;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
+import javax.el.CompositeELResolver;
 import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.el.ExpressionFactory;
@@ -36,11 +37,14 @@ import javax.faces.state.model.Action;
 import javax.faces.state.model.Data;
 import javax.faces.state.model.Datamodel;
 import javax.faces.state.model.Invoke;
+import javax.faces.state.model.Param;
 import javax.faces.state.model.State;
+import javax.faces.state.model.Transition;
 import javax.faces.state.model.TransitionTarget;
 import org.ssoft.faces.state.cdi.CdiUtil;
 import org.ssoft.faces.state.el.BuiltinFunctionMapper;
 import org.ssoft.faces.state.el.CompositeFunctionMapper;
+import org.ssoft.faces.state.el.FlowELResolver;
 import org.ssoft.faces.state.impl.VariableMapperWrapper;
 import org.ssoft.faces.state.utils.Util;
 
@@ -54,16 +58,22 @@ public final class FlowInstanceImpl extends FlowInstance {
     private VariableMapper varMapper;
     private FunctionMapper fnMapper;
     private final ExpressionFactory elFactory;
+    private final CompositeELResolver elResolver;
 
     @SuppressWarnings("LeakingThisInConstructor")
     public FlowInstanceImpl(StateFlowExecutor executor, FacesContext facesContext) {
         super(executor, facesContext);
         this.ctx = facesContext.getELContext();
         this.elFactory = facesContext.getApplication().getExpressionFactory();
+
         facesContext.getAttributes().put(FLOW_EL_CONTEXT_KEY, this);
 
         this.varMapper = new VariableMapperWrapper(ctx.getVariableMapper());
         this.fnMapper = new CompositeFunctionMapper(new BuiltinFunctionMapper(), ctx.getFunctionMapper());
+
+        this.elResolver = new CompositeELResolver();
+        this.elResolver.add(new FlowELResolver());
+        this.elResolver.add(ctx.getELResolver());
 
         putContext(StateFlowExecutor.class, executor);
     }
@@ -122,17 +132,16 @@ public final class FlowInstanceImpl extends FlowInstance {
     }
 
     @Override
-    protected <V> V processExecute(Action action, Callable<V> fn) throws Exception {
+    protected <V> V processAction(Action action, Callable<V> fn) throws Exception {
 
         TransitionTarget parentTarget = action.getParentTransitionTarget();
-        
+
         FlowContext flowCtx = getContext(parentTarget);
         flowCtx.setLocal(NAMESPACES_KEY, action.getNamespaces());
 
         putContext(FlowContext.class, flowCtx);
         try {
             return fn.call();
-
         } finally {
             putContext(FlowContext.class, getEvaluator().newContext(null, null));
             flowCtx.setLocal(NAMESPACES_KEY, null);
@@ -147,6 +156,21 @@ public final class FlowInstanceImpl extends FlowInstance {
         putContext(FlowContext.class, flowCtx);
         try {
             return fn.call();
+        } finally {
+            putContext(FlowContext.class, getEvaluator().newContext(null, null));
+            flowCtx.setLocal(NAMESPACES_KEY, null);
+        }
+    }
+
+    @Override
+    protected <V> V processTransition(Transition transition, Callable<V> fn) throws Exception {
+        FlowContext flowCtx = getContext(transition.getParent());
+
+        flowCtx.setLocal(NAMESPACES_KEY, transition.getNamespaces());
+
+        putContext(FlowContext.class, flowCtx);
+        try {
+            return fn.call();
 
         } finally {
             putContext(FlowContext.class, getEvaluator().newContext(null, null));
@@ -154,8 +178,20 @@ public final class FlowInstanceImpl extends FlowInstance {
         }
     }
     
-    
 
+    @Override
+    protected <V> V processParam(Param transition, Callable<V> fn) throws Exception {
+        FlowContext flowCtx = (FlowContext) getContext(FlowContext.class);
+
+        flowCtx.setLocal(NAMESPACES_KEY, transition.getNamespaces());
+        try {
+            return fn.call();
+
+        } finally {
+            flowCtx.setLocal(NAMESPACES_KEY, null);
+        }
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -255,7 +291,7 @@ public final class FlowInstanceImpl extends FlowInstance {
 
     @Override
     public ELResolver getELResolver() {
-        return this.ctx.getELResolver();
+        return elResolver;
     }
 
 }

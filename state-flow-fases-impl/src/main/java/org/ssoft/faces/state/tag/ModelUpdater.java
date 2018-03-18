@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import javax.el.ValueExpression;
 import javax.faces.state.ModelException;
 import javax.faces.state.model.History;
 import javax.faces.state.model.Initial;
@@ -212,17 +213,10 @@ public class ModelUpdater {
                 logAndThrowModelError(state, ERR_INVOKE_NO_TARGETTYPE,
                         new Object[]{getStateName(state)});
             }
-            String src = invoke.getSrc();
-            boolean noSrc = (src == null || src.trim().length() == 0);
-            String srcexpr = invoke.getSrcexpr();
-            boolean noSrcexpr = (srcexpr == null
-                    || srcexpr.trim().length() == 0);
-            if (noSrc && noSrcexpr) {
+            ValueExpression src = invoke.getSrc();
+            boolean noSrc = src == null;
+            if (noSrc) {
                 logAndThrowModelError(state, ERR_INVOKE_NO_SRC,
-                        new Object[]{getStateName(state)});
-            }
-            if (!noSrc && !noSrcexpr) {
-                logAndThrowModelError(state, ERR_INVOKE_AMBIGUOUS_SRC,
                         new Object[]{getStateName(state)});
             }
         } else {

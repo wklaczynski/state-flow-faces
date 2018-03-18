@@ -50,7 +50,7 @@ public class InvokeTagHandler extends AbstractFlowTagHandler<Invoke> {
         decorate(ctx, parent, target);
 
         target.setTargettype(type.getValue());
-        target.setSrc(src.getValue());
+        target.setSrc(src.getValueExpression(ctx, String.class));
         
         target.setId(id != null ? id.getValue() : null);
 

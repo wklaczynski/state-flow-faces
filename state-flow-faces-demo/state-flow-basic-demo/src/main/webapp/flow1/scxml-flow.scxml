@@ -8,6 +8,11 @@ and open the template in the editor.
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     initial="start">
 
+    <datamodel>
+        <data id="hasback" expr="#{scxml_has_parent == true}"/>
+        <data id="chart_title" expr="State Flow Faces from SCXML file"/>
+    </datamodel>
+    
     <state id="start">
         <onentry>
             <if cond="#{main.prepare()}">

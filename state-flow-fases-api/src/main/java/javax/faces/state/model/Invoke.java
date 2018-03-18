@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.el.ValueExpression;
 import javax.faces.state.PathResolver;
 
 /**
@@ -38,7 +39,7 @@ public class Invoke implements NamespacePrefixesHolder, PathResolverHolder, Seri
     /**
      * The source URL for the external service.
      */
-    private String src;
+    private ValueExpression src;
 
     /**
      * The ID of the invoke message.
@@ -46,17 +47,11 @@ public class Invoke implements NamespacePrefixesHolder, PathResolverHolder, Seri
     private String id;
     
     /**
-     * The expression that evaluates to the source URL for the
-     * external service.
-     */
-    private String srcexpr;
-
-    /**
      * The Map of the params to be sent to the invoked process.
      *
      * Remove with deprecated getParams() in 1.0
      */
-    private final Map<String, String> params;
+    private final Map<String, ValueExpression> params;
 
     /**
      * The List of the params to be sent to the invoked process.
@@ -110,7 +105,7 @@ public class Invoke implements NamespacePrefixesHolder, PathResolverHolder, Seri
      *
      * @return String The URL.
      */
-    public final String getSrc() {
+    public final ValueExpression getSrc() {
         return src;
     }
 
@@ -119,7 +114,7 @@ public class Invoke implements NamespacePrefixesHolder, PathResolverHolder, Seri
      *
      * @param src The source URL.
      */
-    public final void setSrc(final String src) {
+    public final void setSrc(final ValueExpression src) {
         this.src = src;
     }
 
@@ -139,26 +134,6 @@ public class Invoke implements NamespacePrefixesHolder, PathResolverHolder, Seri
      */
     public final void setId(final String id) {
         this.id = id;
-    }
-
-    /**
-     * Get the expression that evaluates to the source URL for the
-     * external service.
-     *
-     * @return String The source expression.
-     */
-    public final String getSrcexpr() {
-        return srcexpr;
-    }
-
-    /**
-     * Set the expression that evaluates to the source URL for the
-     * external service.
-     *
-     * @param srcexpr The source expression.
-     */
-    public final void setSrcexpr(final String srcexpr) {
-        this.srcexpr = srcexpr;
     }
 
     /**

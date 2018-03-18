@@ -55,24 +55,6 @@ public class Log extends Action {
     }
 
     /**
-     * Get the log expression.
-     *
-     * @return Returns the expression.
-     */
-    public final String getExpr() {
-        return expr;
-    }
-
-    /**
-     * Set the log expression.
-     *
-     * @param expr The expr to set.
-     */
-    public final void setExpr(final String expr) {
-        this.expr = expr;
-    }
-
-    /**
      * Get the log label.
      *
      * @return Returns the label.
@@ -101,7 +83,9 @@ public class Log extends Action {
         FlowContext ctx = scInstance.getContext(getParentTransitionTarget());
         FlowEvaluator eval = scInstance.getEvaluator();
         ctx.setLocal(getNamespacesKey(), getNamespaces());
-        log.log(Level.INFO, "{0}: {1}", new Object[]{label, String.valueOf(eval.eval(ctx, expr))});
+        
+        log.log(Level.INFO, "{0}: {1}", new Object[]{
+            label, String.valueOf(eval.eval(ctx, (String) getAttribute("expr")))});
         ctx.setLocal(getNamespacesKey(), null);
     }
 }

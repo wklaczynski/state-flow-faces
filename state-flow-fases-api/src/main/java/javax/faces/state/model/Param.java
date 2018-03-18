@@ -18,6 +18,7 @@ package javax.faces.state.model;
 import javax.faces.state.NamespacePrefixesHolder;
 import java.io.Serializable;
 import java.util.Map;
+import javax.el.ValueExpression;
 
 /**
  *
@@ -33,7 +34,7 @@ public class Param implements NamespacePrefixesHolder, Serializable {
     /**
      * The param expression, may be null.
      */
-    private String expr;
+    private ValueExpression expr;
 
     /**
      * The current XML namespaces in the document for this action node,
@@ -71,7 +72,7 @@ public class Param implements NamespacePrefixesHolder, Serializable {
      *
      * @return String The expression for this param value.
      */
-    public final String getExpr() {
+    public final ValueExpression getExpr() {
         return expr;
     }
 
@@ -80,7 +81,7 @@ public class Param implements NamespacePrefixesHolder, Serializable {
      *
      * @param expr The expression for this param value.
      */
-    public final void setExpr(final String expr) {
+    public final void setExpr(final ValueExpression expr) {
         this.expr = expr;
     }
 

@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import javax.el.ELContext;
 import javax.el.FunctionMapper;
+import javax.el.ValueExpression;
 import javax.el.VariableMapper;
 import javax.faces.application.Resource;
 import static javax.faces.component.UIComponentBase.restoreAttachedState;
@@ -43,9 +44,11 @@ import javax.faces.state.model.Data;
 import javax.faces.state.model.Datamodel;
 import javax.faces.state.model.History;
 import javax.faces.state.model.Invoke;
+import javax.faces.state.model.Param;
 import javax.faces.state.model.State;
 import javax.faces.state.model.StateChart;
 import static javax.faces.state.model.StateChart.STATE_MACHINE_HINT;
+import javax.faces.state.model.Transition;
 import javax.faces.state.model.TransitionTarget;
 import javax.faces.state.utils.StateFlowHelper;
 import org.w3c.dom.Node;
@@ -375,32 +378,110 @@ public abstract class FlowInstance extends ELContext {
         return invoker;
     }
 
-    public <V> V process(final State target, final Invoker invoker, final Callable<V> fn) throws InvokerException {
+    public void process(final State target, final Invoker invoker, final FlowRunnable fn) throws InvokerException {
         Invoke invoke = target.getInvoke();
         try {
-            return processInvoker(target, invoke, invoker, fn);
+            processInvoker(target, invoke, invoker, () -> {
+                fn.run();
+                return null;
+            });
         } catch (Throwable th) {
             throw new InvokerException(th);
         }
     }
 
-    protected abstract <V> V processInvoker(final State target, final Invoke invoke, final Invoker invoker, final Callable<V> fn) throws Exception;
-
-    protected abstract void postNewInvoker(final Invoke invoke, final Invoker invoker) throws IOException;
-
-    protected abstract <V> V processExecute(Action action, final Callable<V> fn) throws Exception;
-
-    protected abstract <V> V processData(Datamodel model, Data datum, FlowContext flowCtx, Callable<V> fn) throws Exception;
-
-    public <V> V execute(Action action, final Callable<V> fn) throws ModelException, FlowExpressionException {
+    public <V> V process(final Transition target, final FlowRunnable fn) throws ModelException {
         try {
-            return processExecute(action, fn);
+            return processTransition(target, () -> {
+                fn.run();
+                return null;
+            });
+        } catch (Throwable th) {
+            throw new ModelException(th);
+        }
+    }
+
+    public <V> V process(final Param param, final FlowRunnable fn) throws ModelException {
+        try {
+            return processParam(param, () -> {
+                fn.run();
+                return null;
+            });
+        } catch (Throwable th) {
+            throw new ModelException(th);
+        }
+    }
+
+    public <V> V process(Datamodel model, final Data data, FlowContext flowCtx, final FlowRunnable fn) throws ModelException {
+        try {
+            return processData(model, data, flowCtx, () -> {
+                fn.run();
+                return null;
+            });
+        } catch (Throwable th) {
+            throw new ModelException(th);
+        }
+    }
+    
+    
+    public void process(Action action, final FlowRunnable fn) throws ModelException, FlowExpressionException {
+        try {
+            processAction(action, () -> {
+                fn.run();
+                return null;
+            });
         } catch (ModelException | FlowExpressionException th) {
             throw th;
         } catch (Throwable th) {
             throw new FlowExpressionException(th);
         }
     }
+    
+    
+    public Object eval(final Param param, ValueExpression ve) throws FlowExpressionException {
+        try {
+            return FlowInstance.this.process(param, () -> ve.getValue(this));
+        } catch (Throwable th) {
+            throw new FlowExpressionException(th);
+        }
+    }
+    
+    public Object eval(final Transition transition, ValueExpression ve) throws FlowExpressionException {
+        try {
+            return processTransition(transition, () -> ve.getValue(this));
+        } catch (Throwable th) {
+            throw new FlowExpressionException(th);
+        }
+    }
+    
+    public Object eval(Datamodel model, final Data data, FlowContext flowCtx, ValueExpression ve) throws FlowExpressionException {
+        try {
+            return processData(model, data, flowCtx, () -> ve.getValue(this));
+        } catch (Throwable th) {
+            throw new FlowExpressionException(th);
+        }
+    }
+    
+    public Object eval(Action action, ValueExpression ve) throws FlowExpressionException {
+        try {
+            return processAction(action, () -> ve.getValue(this));
+        } catch (Throwable th) {
+            throw new FlowExpressionException(th);
+        }
+    }
+    
+    
+    protected abstract void postNewInvoker(final Invoke invoke, final Invoker invoker) throws IOException;
+
+    protected abstract <V> V processInvoker(final State target, final Invoke invoke, final Invoker invoker, Callable<V> fn) throws Exception;
+
+    protected abstract <V> V processAction(Action action, Callable<V> fn) throws Exception;
+
+    protected abstract <V> V processData(Datamodel model, Data datum, FlowContext flowCtx, Callable<V> fn) throws Exception;
+
+    protected abstract <V> V processTransition(final Transition transition, Callable<V> fn) throws Exception;
+
+    protected abstract <V> V processParam(final Param transition, Callable<V> fn) throws Exception;
 
     /**
      * Clone data model.
@@ -417,55 +498,61 @@ public abstract class FlowInstance extends ELContext {
         if (data == null) {
             return;
         }
+
         try {
             for (Data datum : data) {
-                Node datumNode = datum.getNode();
-                Node valueNode = null;
-                if (datumNode != null) {
-                    valueNode = datumNode.cloneNode(true);
-                }
-                // prefer "src" over "expr" over "inline"
-                if (datum.getSrc() == null) {
-                    if (datum.getExpr() != null) {
-                        Object value = datum.getExpr().getValue(this);
-                        ctx.setLocal(datum.getId(), value);
-                    } else {
-                        ctx.setLocal(datum.getId(), valueNode);
-                    }
-                } else {
-                    FacesContext fc = getFacesContext();
+                FlowInstance.this.process(datamodel, datum, ctx, () -> {
 
-                    Object value = datum.getSrc().getValue(this);
-                    if (value instanceof Resource) {
-                        Resource res = (Resource) value;
-                        if (!res.getContentType().equals("application/xml")) {
-                            String errmsg = String.format("%s (resource not xml content type)", res.getResourceName());
-                            throw new ModelException(String.format("can use datamodel from resouce %s.", errmsg));
-                        }
-                        valueNode = StateFlowHelper.buildContentFromStream(fc, res.getInputStream());
-                        ctx.setLocal(datum.getId(), valueNode);
-                    } else if (value instanceof InputStream) {
-                        try (InputStream is = (InputStream) value) {
-                            valueNode = StateFlowHelper.buildContentFromStream(fc, is);
-                        }
-                        ctx.setLocal(datum.getId(), valueNode);
-                    } else if (value instanceof Node) {
-                        valueNode = (Node) value;
-                        ctx.setLocal(datum.getId(), valueNode);
-                    } else if (value instanceof URL) {
-                        URL url = (URL) value;
-                        try (InputStream is = url.openStream()) {
-                            valueNode = StateFlowHelper.buildContentFromStream(fc, is);
-                        }
-                        ctx.setLocal(datum.getId(), valueNode);
-                    } else {
-                        String errmsg = String.format("%s (unsuported resorce type)", value.getClass().getName());
-                        throw new ModelException(String.format("can use datamodel from %s.", errmsg));
+                    Node datumNode = datum.getNode();
+                    Node valueNode = null;
+                    if (datumNode != null) {
+                        valueNode = datumNode.cloneNode(true);
                     }
-                }
+                    // prefer "src" over "expr" over "inline"
+                    if (datum.getSrc() == null) {
+                        if (datum.getExpr() != null) {
+                            Object value = datum.getExpr().getValue(this);
+                            ctx.setLocal(datum.getId(), value);
+                        } else {
+                            ctx.setLocal(datum.getId(), valueNode);
+                        }
+                    } else {
+                        FacesContext fc = getFacesContext();
+
+                        Object value = datum.getSrc().getValue(this);
+                        if (value instanceof Resource) {
+                            Resource res = (Resource) value;
+                            if (!res.getContentType().equals("application/xml")) {
+                                String errmsg = String.format("%s (resource not xml content type)", res.getResourceName());
+                                throw new ModelException(String.format("can use datamodel from resouce %s.", errmsg));
+                            }
+                            valueNode = StateFlowHelper.buildContentFromStream(fc, res.getInputStream());
+                            ctx.setLocal(datum.getId(), valueNode);
+                        } else if (value instanceof InputStream) {
+                            try (InputStream is = (InputStream) value) {
+                                valueNode = StateFlowHelper.buildContentFromStream(fc, is);
+                            }
+                            ctx.setLocal(datum.getId(), valueNode);
+                        } else if (value instanceof Node) {
+                            valueNode = (Node) value;
+                            ctx.setLocal(datum.getId(), valueNode);
+                        } else if (value instanceof URL) {
+                            URL url = (URL) value;
+                            try (InputStream is = url.openStream()) {
+                                valueNode = StateFlowHelper.buildContentFromStream(fc, is);
+                            }
+                            ctx.setLocal(datum.getId(), valueNode);
+                        } else {
+                            String errmsg = String.format("%s (unsuported resorce type)", value.getClass().getName());
+                            throw new ModelException(String.format("can use datamodel from %s.", errmsg));
+                        }
+                    }
+                });
             }
-        } catch (IOException ex) {
-            throw new ModelException(ex);
+        } catch (ModelException th) {
+            throw th;
+        } catch (Throwable th) {
+            throw new ModelException(th);
         }
     }
 

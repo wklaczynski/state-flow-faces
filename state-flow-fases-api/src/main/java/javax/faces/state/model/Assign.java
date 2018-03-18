@@ -209,8 +209,7 @@ public class Assign extends Action implements PathResolverHolder {
                         for (Node child = newNode.getFirstChild();
                                 child != null;
                                 child = child.getNextSibling()) {
-                            Node importedNode = oldNode.getOwnerDocument().
-                                    importNode(child, true);
+                            Node importedNode = oldNode.getOwnerDocument().importNode(child, true);
                             oldNode.appendChild(importedNode);
                         }
                     }
@@ -263,8 +262,7 @@ public class Assign extends Action implements PathResolverHolder {
         }
         Document doc = null;
         try {
-            doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().
-                    parse(resolvedSrc);
+            doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(resolvedSrc);
         } catch (Throwable t) {
             log.log(Level.SEVERE, t.getMessage(), t);
         }
