@@ -417,7 +417,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 clientWindow.enableClientWindowRenderMode(context);
             }
             String sessionKey = clientWindow.getId() + "_stateFlowStack";
-
             Object state = flowMap.get(sessionKey);
             if (null == state && create) {
                 result = new FlowDeque(sessionKey);

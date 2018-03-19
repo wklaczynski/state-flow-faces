@@ -67,7 +67,7 @@ public class FlowPhaseListener implements PhaseListener {
                 context.getELContext().putContext(StateFlowExecutor.class, executor);
             }
         }
-        if (event.getPhaseId() != PhaseId.RENDER_RESPONSE) {
+        if (event.getPhaseId() == PhaseId.RENDER_RESPONSE) {
             StateFlowHandler.getInstance().writeState(context);
         }
     }

@@ -33,8 +33,6 @@ import javax.el.FunctionMapper;
 import javax.el.ValueExpression;
 import javax.el.VariableMapper;
 import javax.faces.application.Resource;
-import static javax.faces.component.UIComponentBase.restoreAttachedState;
-import static javax.faces.component.UIComponentBase.saveAttachedState;
 import javax.faces.context.FacesContext;
 import javax.faces.state.annotation.Statefull;
 import javax.faces.state.invoke.Invoker;
@@ -51,6 +49,8 @@ import static javax.faces.state.model.StateChart.STATE_MACHINE_HINT;
 import javax.faces.state.model.Transition;
 import javax.faces.state.model.TransitionTarget;
 import javax.faces.state.utils.StateFlowHelper;
+import static javax.faces.state.utils.StateHolderSaver.restoreAttachedState;
+import static javax.faces.state.utils.StateHolderSaver.saveAttachedState;
 import org.w3c.dom.Node;
 
 /**

@@ -15,6 +15,9 @@
  */
 package org.ssoft.faces.state.cdi;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +27,9 @@ import javax.enterprise.context.spi.Contextual;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.PassivationCapable;
+import javax.faces.context.FacesContext;
+import javax.faces.state.model.Action;
+import org.ssoft.faces.state.utils.Util;
 
 /**
  *
@@ -31,15 +37,13 @@ import javax.enterprise.inject.spi.PassivationCapable;
  */
 public class ContextualStorage implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private Map<Object, ContextualInstanceInfo<?>> contextualInstances;
 
-    private final Map<Object, ContextualInstanceInfo<?>> contextualInstances;
+    private transient BeanManager beanManager;
 
-    private final BeanManager beanManager;
+    private boolean concurrent;
 
-    private final boolean concurrent;
-
-    private final boolean passivationCapable;
+    private boolean passivationCapable;
 
     /**
      * @param beanManager is needed for serialisation
@@ -150,4 +154,20 @@ public class ContextualStorage implements Serializable {
             return (Contextual<?>) beanKey;
         }
     }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.writeObject(concurrent);
+        out.writeObject(passivationCapable);
+        out.writeObject(contextualInstances);
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        //noinspection unchecked
+        concurrent = (boolean) in.readObject();
+        passivationCapable = (boolean) in.readObject();
+        contextualInstances = (Map<Object, ContextualInstanceInfo<?>>) in.readObject();
+
+        beanManager = Util.getCdiBeanManager(FacesContext.getCurrentInstance());
+    }
+
 }

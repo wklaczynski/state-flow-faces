@@ -23,13 +23,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static javax.faces.component.UIComponentBase.restoreAttachedState;
-import static javax.faces.component.UIComponentBase.saveAttachedState;
 import javax.faces.context.FacesContext;
 import javax.faces.state.FlowContext;
 import javax.faces.state.model.StateChart;
 import static javax.faces.state.model.StateChart.STATE_MACHINE_HINT;
 import javax.faces.state.model.TransitionTarget;
+import static javax.faces.state.utils.StateHolderSaver.restoreAttachedState;
+import static javax.faces.state.utils.StateHolderSaver.saveAttachedState;
 import org.ssoft.faces.state.log.FlowLogger;
 
 /**
