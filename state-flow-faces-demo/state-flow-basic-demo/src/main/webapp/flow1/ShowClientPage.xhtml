@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Test State Flow Faces</title>
+        <h:outputStylesheet library="css" name="demo-style.css"  />
+    </h:head>
+    <h:body>
+        <h1>"#{chart.chart_title}"</h1>
+        <hr/>
+        <h:form>
+            <h:panelGroup rendered="#{empty state.chart_title}">
+                <h2>Hello, I'm not starting from flow faces :(</h2>
+                <hr/>
+            </h:panelGroup>
+            <h:panelGroup>
+                <h3>Hello, I'm starting from flow faces: "#{chart.chart_title}"</h3>
+                This page is subproces resource element.
+                <p/>
+                Used bean: #{main.beanTitle} in chart scope, this bean can not see data from parent execution.
+                <hr/>
+
+                <h:panelGroup >
+                    <h3>Test assigned client from data in owned &lt;scxml&gt; state flow faces.</h3>
+                    <p/>
+                    <h4>Data assigned in root context on &lt;scxml&gt; tag content.</h4>
+                </h:panelGroup>
+                <h:panelGroup >
+                    <hr/>
+                </h:panelGroup>
+            </h:panelGroup>
+            <h:panelGroup>
+                <h:messages/> 
+            </h:panelGroup>
+        </h:form>
+    </h:body>
+
+</html>
+

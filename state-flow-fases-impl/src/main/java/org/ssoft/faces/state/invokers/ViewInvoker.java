@@ -15,7 +15,6 @@
  */
 package org.ssoft.faces.state.invokers;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,10 +48,11 @@ import javax.faces.state.model.State;
 import javax.faces.state.model.TransitionTarget;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
-import org.ssoft.faces.state.facelets.StateFlowNavigationHandler;
 import org.ssoft.faces.state.utils.AsyncTrigger;
 import org.ssoft.faces.state.utils.SharedUtils;
 import javax.faces.state.annotation.Statefull;
+import javax.faces.state.component.UIStateChartRoot;
+import javax.faces.state.model.StateChart;
 
 /**
  *
@@ -60,16 +60,13 @@ import javax.faces.state.annotation.Statefull;
  */
 public class ViewInvoker extends AbstractInvoker implements Invoker {
 
-    private final static Logger logger = Logger.getLogger(StateFlowNavigationHandler.class.getName());
+    private final static Logger logger = Logger.getLogger(ViewInvoker.class.getName());
 
     public static final String OUTCOME_EVENT_PREFIX = "faces.outcome.";
     public static final String VIEW_PARAMS_MAP = "___@@@ParamsMap____";
     public static final String FACES_VIEW_STATE = "com.sun.faces.FACES_VIEW_STATE";
 
-    private String eventPrefix;
-    private String statePrefix;
     private boolean cancelled;
-    private static final String invokePrefix = ".view.";
 
     @Statefull
     private String stateStore;
@@ -81,8 +78,6 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
     @Override
     public void setParentStateId(String parentStateId) {
         super.setParentStateId(parentStateId);
-        this.eventPrefix = this.parentStateId + invokePrefix;
-        this.statePrefix = this.parentStateId + "view.state.";
         this.cancelled = false;
     }
 
@@ -98,12 +93,13 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
             getViewParamsContext(fc).putAll(params);
 
             NavigationCase navCase = findNavigationCase(fc, source);
+            viewId = source;
             try {
                 viewId = navCase.getToViewId(fc);
             } catch (NullPointerException th) {
-                throw new IOException(String.format("Invoke source \"%s\" not found", source));
+                //throw new IOException(String.format("Invoke source \"%s\" not found", source));
             } catch (Throwable th) {
-                throw new IOException(String.format("Invoke source \"%s\" not found", source), th);
+                //throw new IOException(String.format("Invoke source \"%s\" not found", source), th);
             }
             viewId = vh.deriveLogicalViewId(fc, viewId);
 
@@ -146,18 +142,9 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
                 StateFlowExecutor executor = instance.getExecutor();
                 Iterator iterator = executor.getCurrentStatus().getStates().iterator();
                 State state = ((State) iterator.next());
-                String stateKey = "";
-                TransitionTarget target = state;
-                while (target != null) {
-                    stateKey = target.getId() + ":" + stateKey;
-                    target = state.getParent();
-                }
-                FlowContext stateContext = instance.getContext(state);
-                if (!stateKey.endsWith(":")) {
-                    stateKey += ":";
-                }
-                stateKey = "__@@" + stateKey;
+                String stateKey = "__@@" + state.getClientId() + ":";
 
+                FlowContext stateContext = instance.getContext(state);
                 viewState = stateContext.get(stateKey + "ViewState");
                 String lastViewId = (String) stateContext.get(stateKey + "LastViewId");
                 if (lastViewId != null) {
@@ -170,6 +157,25 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
                 String currentViewId = fc.getViewRoot().getViewId();
                 if (currentViewId.equals(viewId)) {
                     return;
+                }
+            }
+
+            StateChart stateChart = null;
+            UIViewRoot viewRoot = null;
+            ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(fc, viewId);
+            ViewMetadata metadata = null;
+            if (vdl != null) {
+                metadata = vdl.getViewMetadata(fc, viewId);
+
+                if (metadata != null) {
+                    viewRoot = metadata.createMetadataView(fc);
+                    UIComponent facet = viewRoot.getFacet(StateChart.STATECHART_FACET_NAME);
+                    if (facet != null) {
+                        UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent("main");
+                        if (uichart != null) {
+                            stateChart = uichart.getStateChart();
+                        }
+                    }
                 }
             }
 
@@ -205,7 +211,6 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
                 ec.redirect(redirect);
                 fc.responseComplete();
             } else {
-                UIViewRoot viewRoot = null;
                 if (viewState != null) {
                     fc.getAttributes().put(FACES_VIEW_STATE, viewState);
                     viewRoot = vh.restoreView(fc, viewId);
@@ -213,31 +218,23 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
                     fc.setProcessingEvents(true);
                     vh.initView(fc);
                 } else {
-                    ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(fc, viewId);
-                    ViewMetadata metadata = null;
-                    if (vdl != null) {
-                        metadata = vdl.getViewMetadata(fc, viewId);
+                    if (viewRoot != null) {
+                        if (!ViewMetadata.hasMetadata(viewRoot)) {
+                            fc.renderResponse();
+                        } else {
+                            VisitContext vc = VisitContext.createVisitContext(fc);
+                            viewRoot.visitTree(vc, (VisitContext context, UIComponent target) -> {
 
-                        if (metadata != null) {
-                            viewRoot = metadata.createMetadataView(fc);
+                                if (target instanceof UIViewParameter) {
+                                    UIViewParameter parametr = (UIViewParameter) target;
+                                    String name = parametr.getName();
+                                    //parametr.setSubmittedValue(viewState);
+                                }
 
-                            if (!ViewMetadata.hasMetadata(viewRoot)) {
-                                fc.renderResponse();
-                            } else {
-                                VisitContext vc = VisitContext.createVisitContext(fc);
-                                viewRoot.visitTree(vc, (VisitContext context, UIComponent target) -> {
-
-                                    if (target instanceof UIViewParameter) {
-                                        UIViewParameter parametr = (UIViewParameter) target;
-                                        String name = parametr.getName();
-                                    }
-
-                                    return VisitResult.ACCEPT;
-                                });
-                            }
+                                return VisitResult.ACCEPT;
+                            });
                         }
                     }
-
                     if (vdl == null || metadata == null) {
                         fc.renderResponse();
                     }
@@ -253,7 +250,7 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
                 fc.setViewRoot(viewRoot);
                 fc.renderResponse();
             }
-        } catch (IOException ex) {
+        } catch (Throwable ex) {
             logger.log(Level.SEVERE, "Invoke failed", ex);
             throw new InvokerException(ex);
         } finally {
@@ -310,7 +307,7 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
         for (FlowTriggerEvent event : evts) {
             if (event.getType() == FlowTriggerEvent.SIGNAL_EVENT && event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
                 String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
-                FlowTriggerEvent te = new FlowTriggerEvent(eventPrefix + outcome, FlowTriggerEvent.SIGNAL_EVENT);
+                FlowTriggerEvent te = new FlowTriggerEvent(event(ACTION_EVENT, outcome), FlowTriggerEvent.SIGNAL_EVENT);
                 ExternalContext ec = context.getExternalContext();
 
                 StateFlowExecutor executor = instance.getExecutor();
@@ -360,7 +357,6 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
                         storeContext.setLocal(stateKey + "LastViewId", lastViewId);
                     }
                 }
-
                 new AsyncTrigger(executor, te).start();
             }
         }
@@ -371,6 +367,8 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
         FacesContext fc = FacesContext.getCurrentInstance();
         getViewParamsContext(fc).clear();
         cancelled = true;
+        FlowTriggerEvent te = new FlowTriggerEvent(event(INVOKE_EVENT, INVOKE_CANCEL_EVENT), FlowTriggerEvent.SIGNAL_EVENT);
+        new AsyncTrigger(instance.getExecutor(), te).start();
     }
 
     protected NavigationCase findNavigationCase(FacesContext context, String outcome) {

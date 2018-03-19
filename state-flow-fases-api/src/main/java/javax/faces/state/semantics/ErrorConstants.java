@@ -56,6 +56,13 @@ public class ErrorConstants {
      */
     public static final String EXPRESSION_ERROR = "EXPRESSION_ERROR";
 
+    /**
+     * An expression language error.
+     *
+     */
+    public static final String INVOKE_ERROR = "INVOKE_ERROR";
+    
+    
     //---------------------------------------------- STATIC CONSTANTS ONLY
 
     /**

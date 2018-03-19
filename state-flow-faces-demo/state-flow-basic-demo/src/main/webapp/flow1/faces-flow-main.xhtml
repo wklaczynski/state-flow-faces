@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<f:metadata
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:x="http://xmlns.ssoft.org/flow/scxml"
+    xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+    >
+    <x:scxml id="main" initial="start">
+
+        <x:datamodel>
+            <x:data id="hasback" expr="#{scxml_has_parent == true}"/>
+            <x:data id="chart_title" expr="State Flow Faces from Faces Metadata"/>
+            <x:data id="book" src="/test/data.xml"/>
+        </x:datamodel>
+
+        <x:state id="start">
+            <x:onentry>
+                <x:if cond="#{main.prepare()}">
+                    <x:raise event="start.prepare.success"/>
+                    <x:else/>
+                    <x:raise event="start.prepare.failed"/>
+                </x:if>
+            </x:onentry>
+            <x:transition event="start.prepare.success" target="main"/>
+            <x:transition event="start.prepare.failed" target="exit"/>
+        </x:state>
+
+        <x:state id="main">
+            <x:datamodel>
+                <x:data id="book1" src="../test/data.xml"/>
+                <x:data id="book2" src="xml:data.xml"/>
+            </x:datamodel>
+
+            <x:invoke type="view" src="MainPage.xhtml"/>
+            <x:transition event="main.invoke.failed" target="error"/>
+            
+            <x:transition event="main.action.show" target="show-client"/>
+            <x:transition event="main.action.exit" target="exit"/>
+        </x:state> 
+
+        <x:state id="show-client"> 
+            <x:invoke type="scxml" src="faces-flow-show-client.xhtml">
+                <x:param name="id"  expr="#{param.cid}"/>
+            </x:invoke>
+            <x:transition event="show-client.invoke.failed" target="main"/>
+
+            <x:transition event="show-client.execute.cancel" target="main"/>
+            <x:transition event="show-client.execute.success" target="main">
+
+            </x:transition>
+        </x:state>      
+        
+        <x:state id="show-client-page">
+            <x:invoke type="view" src="ShowClientPage.xhtml"/>
+            <x:transition event="show-client-page.invoke.failed" target="error"/>
+        </x:state> 
+        
+        
+        
+        <x:state id="error"> 
+            <x:invoke type="scxml" src="/common/error.scxml">
+                <x:finalize/>
+            </x:invoke>
+            <x:transition event="error.invoke.done" target="exit"/>
+        </x:state>      
+
+        <x:final id="exit">
+        </x:final>
+
+    </x:scxml>    
+
+</f:metadata>

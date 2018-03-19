@@ -391,7 +391,8 @@ public class StateFlowHelper {
         String result = th.getMessage();
         
         while(th.getCause() != null) {
-            result = th.getCause().getMessage();
+            th = th.getCause();
+            result = th.getMessage();
         }
         return result;
     }

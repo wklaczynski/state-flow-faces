@@ -7,12 +7,6 @@
     >
     <x:scxml id="main" initial="start">
 
-        <x:datamodel>
-            <x:data id="hasback" expr="#{scxml_has_parent == true}"/>
-            <x:data id="chart_title" expr="State Flow Faces from Faces Metadata"/>
-            <x:data id="book" src="/test/data.xml"/>
-        </x:datamodel>
-
         <x:state id="start">
             <x:onentry>
                 <x:if cond="#{main.prepare()}">
@@ -26,12 +20,8 @@
         </x:state>
 
         <x:state id="main">
-            <x:datamodel>
-                <x:data id="book1" src="../test/data.xml"/>
-                <x:data id="book2" src="xml:data.xml"/>
-            </x:datamodel>
-
-            <x:invoke type="view" src="StartPage.xhtml"/>
+            <x:invoke type="view" src="ShowClientPage.xhtml"/>
+            <x:transition event="main.invoke.failed" target="error"/>
         </x:state> 
 
         <x:state id="error"> 
@@ -39,6 +29,7 @@
                 <x:finalize/>
             </x:invoke>
             <x:transition event="error.invoke.done" target="exit"/>
+            <x:transition event="error.invoke.failed" target="exit"/>
         </x:state>      
 
         <x:final id="exit">

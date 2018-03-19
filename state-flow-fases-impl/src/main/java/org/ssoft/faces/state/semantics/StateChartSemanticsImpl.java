@@ -61,7 +61,11 @@ import javax.faces.state.FlowEvaluator;
 import javax.faces.state.FlowExpressionException;
 import javax.faces.state.FlowNotificationRegistry;
 import javax.faces.state.PathResolver;
+import javax.faces.state.invoke.AbstractInvoker;
+import static javax.faces.state.invoke.Invoker.INVOKE_EVENT;
+import static javax.faces.state.invoke.Invoker.INVOKE_FAILED_EVENT;
 import javax.faces.state.model.Param;
+import static javax.faces.state.semantics.ErrorConstants.INVOKE_ERROR;
 import javax.faces.state.semantics.StateChartSemantics;
 import org.ssoft.faces.state.log.FlowLogger;
 
@@ -787,7 +791,8 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
 
                     istance.setInvoker(state, invoke, inv);
                 } catch (InvokerException ie) {
-                    FlowTriggerEvent te = new FlowTriggerEvent(state.getId() + ".invoke.failed", FlowTriggerEvent.ERROR_EVENT);
+                    istance.getExecutor().getErrorReporter().onError(INVOKE_ERROR, StateFlowHelper.getErrorMessage(ie), invoke);
+                    FlowTriggerEvent te = new FlowTriggerEvent(AbstractInvoker.event(state.getId(), INVOKE_EVENT, INVOKE_FAILED_EVENT)  , FlowTriggerEvent.ERROR_EVENT);
                     internalEvents.add(te);
                 }
             }

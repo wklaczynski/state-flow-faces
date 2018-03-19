@@ -15,14 +15,10 @@
  */
 package javax.faces.state.invoke;
 
-import java.lang.reflect.Field;
-import static javax.faces.component.UIComponentBase.restoreAttachedState;
-import static javax.faces.component.UIComponentBase.saveAttachedState;
 import javax.faces.context.FacesContext;
 import javax.faces.state.FlowInstance;
 import static javax.faces.state.FlowInstance.saveStatefullState;
 import javax.faces.state.FlowTriggerEvent;
-import javax.faces.state.annotation.Statefull;
 
 /**
  *
@@ -101,5 +97,26 @@ public abstract class AbstractInvoker implements Invoker {
 
     }
 
+    public String prefix(String type) {
+        return prefix(parentStateId, type);
+    }
+    
+    public String event(String type, String name) {
+        return event(parentStateId, type, name);
+    }
 
+    public static String event(String id, String type, String name) {
+        return new StringBuilder(id)
+                .append(".").append(type)
+                .append(".").append(name)
+                .toString();
+    }
+
+    public static String prefix(String id, String type) {
+        return new StringBuilder(id)
+                .append(".").append(type).append(".")
+                .toString();
+    }
+
+    
 }

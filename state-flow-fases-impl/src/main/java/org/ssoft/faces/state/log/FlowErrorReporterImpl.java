@@ -21,7 +21,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.state.FlowErrorReporter;
+import javax.faces.state.model.Invoke;
 import javax.faces.state.model.State;
 import javax.faces.state.model.StateChart;
 import javax.faces.state.model.TransitionTarget;
@@ -98,10 +101,21 @@ public class FlowErrorReporterImpl implements FlowErrorReporter, Serializable {
                 }
                 msg.append(']');
             }
+        } else if (errCode == ErrorConstants.INVOKE_ERROR) {
+            if (errCtx instanceof Invoke) {
+                Invoke invoke = (Invoke) errCtx;
+                
+                
+            }
         }
         if (log.isLoggable(Level.WARNING)) {
             log.log(Level.WARNING, msg.toString());
         }
+        FacesContext fc = FacesContext.getCurrentInstance();
+        FacesMessage message = new FacesMessage(msg.toString());
+        message.setSeverity(FacesMessage.SEVERITY_ERROR);
+        fc.getMessageList().add(message);
+        
     }
 
 }

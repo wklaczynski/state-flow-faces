@@ -34,7 +34,7 @@ public abstract class StateFlowHandler {
     public static final String BUILD_STATE_MACHINE_HINT = "javax.faces.flow.BUILD_STATE_MACHINE_HINT";
     
     public static final String KEY = "javax.faces.state.StateFlowHandler";
-    
+
     public final static StateFlowHandler getInstance() {
         FacesContext fc = FacesContext.getCurrentInstance();
         StateFlowHandler handler = (StateFlowHandler) fc.getExternalContext().getApplicationMap().get(KEY);

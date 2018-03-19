@@ -39,24 +39,13 @@ import org.ssoft.faces.state.utils.AsyncTrigger;
  */
 public class SubInvoker extends AbstractInvoker implements Invoker {
 
-    /**
-     * Event prefix, all events sent to the parent executor must begin with this
-     * prefix.
-     */
-    private String eventPrefix;
+    private final static Logger logger = Logger.getLogger(SubInvoker.class.getName());
+    
     /**
      * Cancellation status.
      */
     private boolean cancelled;
     //// Constants
-    /**
-     * Prefix for all events sent to the parent state machine.
-     */
-    private static final String invokePrefix = ".invoke.";
-    /**
-     * Suffix for invoke done event.
-     */
-    private static final String invokeCancelResponse = "cancel.response";
 
     public SubInvoker() {
         super();
@@ -65,7 +54,6 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
     @Override
     public void setParentStateId(final String parentStateId) {
         super.setParentStateId(parentStateId);
-        this.eventPrefix = this.parentStateId + invokePrefix;
         this.cancelled = false;
     }
 
@@ -81,15 +69,6 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
             StateFlowHandler handler = StateFlowHandler.getInstance();
 
             String viewId = source;
-            String realPath = ec.getRealPath("/");
-            if (viewId.contains(realPath)) {
-                viewId = viewId.substring(realPath.length());
-            }
-            String contextPath = ec.getApplicationContextPath();
-            if (viewId.startsWith(contextPath)) {
-                //viewId = viewId.substring(viewId.indexOf(contextPath));
-                viewId = viewId.substring(contextPath.length());
-            }
             int pos = viewId.indexOf("META-INF/resources/");
             if (pos >= 0) {
                 viewId = viewId.substring(pos + 18);
@@ -98,8 +77,9 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
             StateChart stateMachine = handler.createStateMachine(fc, viewId);
 
             handler.startExecutor(fc, stateMachine, params, false);
-        } catch (ModelException ex) {
-            Logger.getLogger(SubInvoker.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Throwable ex) {
+            logger.log(Level.SEVERE, "Invoke failed", ex);
+            throw new InvokerException(ex);
         }
     }
 
@@ -142,7 +122,7 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
     @Override
     public void cancel() throws InvokerException {
         cancelled = true;
-        FlowTriggerEvent te = new FlowTriggerEvent(eventPrefix + invokeCancelResponse, FlowTriggerEvent.SIGNAL_EVENT);
+        FlowTriggerEvent te = new FlowTriggerEvent(event(INVOKE_EVENT, INVOKE_CANCEL_EVENT), FlowTriggerEvent.SIGNAL_EVENT);
         new AsyncTrigger(instance.getExecutor(), te).start();
     }
 

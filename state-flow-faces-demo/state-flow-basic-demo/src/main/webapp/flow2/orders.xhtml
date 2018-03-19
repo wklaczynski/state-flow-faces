@@ -40,8 +40,8 @@
                 <x:param name="id"  expr="#{orders.selected}"/>
                 <x:param name="name" expr="#{orders.selected.name}"/>
             </x:invoke>
-            <x:transition event="show-order.invoke.cancel" target="main"/>
-            <x:transition event="show-order.invoke.success" target="main">
+            <x:transition event="show-order.action.cancel" target="main"/>
+            <x:transition event="show-order.action.success" target="main">
                 <x:send event="update" target="#{orders.dispatchSend}"/>
             </x:transition>
         </x:state>      
