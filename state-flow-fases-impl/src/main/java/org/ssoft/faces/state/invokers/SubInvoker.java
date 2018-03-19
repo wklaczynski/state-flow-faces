@@ -40,7 +40,7 @@ import org.ssoft.faces.state.utils.AsyncTrigger;
 public class SubInvoker extends AbstractInvoker implements Invoker {
 
     private final static Logger logger = Logger.getLogger(SubInvoker.class.getName());
-    
+
     /**
      * Cancellation status.
      */
@@ -97,22 +97,24 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
         StateFlowExecutor executor = handler.getExecutor(fc, instance.getExecutor());
-        boolean doneBefore = executor.getCurrentStatus().isFinal();
-        try {
-            executor.triggerEvents(evts);
-        } catch (ModelException me) {
-            throw new InvokerException(me.getMessage(), me.getCause());
-        }
-        if (!doneBefore && executor.getCurrentStatus().isFinal()) {
-            FlowContext ctx = executor.getRootContext();
-            if (ctx.has("__@result@__")) {
-                FlowContext result = (FlowContext) ctx.get("__@result@__");
-                FlowStatus pstatus = instance.getExecutor().getCurrentStatus();
-                State pstate = (State) pstatus.getStates().iterator().next();
-                FlowContext pcontext = instance.getContext(pstate);
-                pcontext.setLocal("__@result@__", result);
+        if (executor != null) {
+            boolean doneBefore = executor.getCurrentStatus().isFinal();
+            try {
+                executor.triggerEvents(evts);
+            } catch (ModelException me) {
+                throw new InvokerException(me.getMessage(), me.getCause());
             }
-            handler.stopExecutor(fc, instance.getExecutor());
+            if (!doneBefore && executor.getCurrentStatus().isFinal()) {
+                FlowContext ctx = executor.getRootContext();
+                if (ctx.has("__@result@__")) {
+                    FlowContext result = (FlowContext) ctx.get("__@result@__");
+                    FlowStatus pstatus = instance.getExecutor().getCurrentStatus();
+                    State pstate = (State) pstatus.getStates().iterator().next();
+                    FlowContext pcontext = instance.getContext(pstate);
+                    pcontext.setLocal("__@result@__", result);
+                }
+                handler.stopExecutor(fc, instance.getExecutor());
+            }
         }
     }
 
@@ -124,6 +126,7 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
         cancelled = true;
         FlowTriggerEvent te = new FlowTriggerEvent(event(INVOKE_EVENT, INVOKE_CANCEL_EVENT), FlowTriggerEvent.SIGNAL_EVENT);
         new AsyncTrigger(instance.getExecutor(), te).start();
+
     }
 
 }

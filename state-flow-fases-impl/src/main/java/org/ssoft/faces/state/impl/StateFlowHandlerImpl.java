@@ -158,7 +158,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public StateFlowExecutor getExecutor(FacesContext context, StateFlowExecutor parent) {
+    public StateFlowExecutor getExecutor(FacesContext context) {
         FlowDeque fs = getFlowStack(context, false);
         if (fs == null) {
             return null;
@@ -171,9 +171,27 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
 
         StateFlowExecutor result = stack.peek();
+        
+        return result;
+    }
+
+    @Override
+    public StateFlowExecutor getExecutor(FacesContext context, StateFlowExecutor parent) {
+        FlowDeque fs = getFlowStack(context, false);
+        if (fs == null) {
+            return null;
+        }
+
+        Stack<StateFlowExecutor> stack = fs.getExecutors();
+
+        if (stack.isEmpty()) {
+            return null;
+        }
+
+        StateFlowExecutor result = null;
 
         if (parent == null) {
-            return result;
+            return getRootExecutor(context);
         }
 
         for (int i = stack.size() - 1; i > 0; i--) {

@@ -41,9 +41,7 @@ public abstract class StateFlowHandler {
         return handler;
     }
     
-    public StateFlowExecutor getExecutor(FacesContext context) {
-        return getExecutor(context, null);
-    }
+    public abstract StateFlowExecutor getExecutor(FacesContext context);
     
     public abstract StateFlowExecutor getExecutor(FacesContext context, StateFlowExecutor parent);
     
