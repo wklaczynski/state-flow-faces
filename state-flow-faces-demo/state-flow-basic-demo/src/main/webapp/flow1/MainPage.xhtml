@@ -30,39 +30,39 @@
                     <h4>Data assigned of root context in &lt;scxml&gt; tag content.</h4>
                     <h:dataTable 
                         value="#{state.book.clients.client}"
-                        var="client"
+                        var="cvar"
                         styleClass="order-table"
                         headerClass="order-table-header"
                         rowClasses="order-table-odd-row,order-table-even-row"                        
                         >
                         <h:column>
                             <f:facet name="header">Id</f:facet>
-                                #{client.id}
+                                #{cvar.id}
                         </h:column> 
                         <h:column>
                             <f:facet name="header">Name</f:facet>
-                                #{client.name}
+                                #{cvar.name}
                         </h:column> 
                         <h:column>
                             <f:facet name="header">Surname</f:facet>
-                                #{client.surname}
+                                #{cvar.surname}
                         </h:column> 
                         <h:column>
                             <f:facet name="header">Mobile Phone</f:facet>
-                                #{client['phone[@type=\'mobile\']']}
+                                #{cvar['phone[@type=\'mobile\']']}
                         </h:column> 
                         <h:column>
                             <f:facet name="header">Home Phone</f:facet>
-                                #{client['phone[@type=\'home\']']}
+                                #{cvar['phone[@type=\'home\']']}
                         </h:column> 
                         <h:column>
                             <f:facet name="header">Actions</f:facet>
                             <h:panelGrid columns="3">
                                 <h:commandButton action="show" value="Show">
-                                    <f:param name="cid" value="#{client.id}"/>
+                                    <f:param name="clid" value="#{cvar.id}"/>
                                 </h:commandButton>
                                 <h:commandButton action="change" value="Change">
-                                    <f:param name="cid" value="#{client.id}"/>
+                                    <f:param name="clid" value="#{cvar.id}"/>
                                 </h:commandButton>
                             </h:panelGrid>
                         </h:column> 

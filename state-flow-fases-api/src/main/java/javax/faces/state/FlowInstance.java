@@ -385,6 +385,8 @@ public abstract class FlowInstance extends ELContext {
                 fn.run();
                 return null;
             });
+        } catch (InvokerException th) {
+            throw th;
         } catch (Throwable th) {
             throw new InvokerException(th);
         }

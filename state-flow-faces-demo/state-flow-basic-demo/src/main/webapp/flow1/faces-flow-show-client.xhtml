@@ -7,6 +7,11 @@
     >
     <x:scxml id="main" initial="start">
 
+        <x:datamodel>
+            <x:data id="chart_title" expr="Show Client Process"/>
+        </x:datamodel>
+
+
         <x:state id="start">
             <x:onentry>
                 <x:if cond="#{main.prepare()}">
@@ -22,6 +27,9 @@
         <x:state id="main">
             <x:invoke type="view" src="ShowClientPage.xhtml"/>
             <x:transition event="main.invoke.failed" target="error"/>
+
+            <x:transition event="main.action.accept" target="success"/>
+            <x:transition event="main.action.cencel" target="cencel"/>
         </x:state> 
 
         <x:state id="error"> 
@@ -33,9 +41,12 @@
         </x:state>      
 
         <x:final id="exit">
-            <x:onexit>
+        </x:final>
+        
+        <x:final id="cancel">
+        </x:final>
 
-            </x:onexit>
+        <x:final id="success">
         </x:final>
 
     </x:scxml>    

@@ -19,7 +19,7 @@
                 <h3>Hello, I'm starting from flow faces: "#{chart.chart_title}"</h3>
                 This page is subproces resource element.
                 <p/>
-                Used bean: #{main.beanTitle} in chart scope, this bean can not see data from parent execution.
+                Used bean: #{client.beanTitle} in chart scope, this bean can not see data from parent execution.
                 <hr/>
 
                 <h:panelGroup >
@@ -29,6 +29,20 @@
                 </h:panelGroup>
                 <h:panelGroup >
                     <hr/>
+                </h:panelGroup>
+                <h:panelGroup id="navigation">
+                    <h:panelGroup layout="block" style=" text-align: left;">
+                        <h:panelGrid cellspacing="4" columns="2" style="bottom: 0px">
+                            <h:commandButton
+                                action="accept"
+                                value="OK"
+                                immediate="true"/>
+                            <h:commandButton
+                                action="cancel"
+                                value="Cancel"
+                                immediate="false"/>
+                        </h:panelGrid>
+                    </h:panelGroup>
                 </h:panelGroup>
             </h:panelGroup>
             <h:panelGroup>
