@@ -28,6 +28,8 @@ public class FlowConstants {
 
     public final static String STATE_CHART_REQUEST_PARAM_NAME = "javax.faces.flow.STATE_CHART_REQUEST_PARAM_NAME";
 
+    public final static String LOCAL_XPATH_RESOLVER = "javax.faces.flow.LOCAL_XPATH_RESOLVER";
+    
     public final static String ORYGINAL_SCXML_DEFAULT_SUFIX = ".scxml";
 
     public final static String STATE_CHART_DEFAULT_PARAM_NAME = "flow";

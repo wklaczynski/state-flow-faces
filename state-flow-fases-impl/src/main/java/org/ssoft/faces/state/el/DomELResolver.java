@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ssoft.faces.state.facelets;
+package org.ssoft.faces.state.el;
 
 import java.beans.FeatureDescriptor;
 import java.util.ArrayList;
@@ -23,10 +23,11 @@ import javax.el.ELException;
 import javax.el.ELResolver;
 import javax.xml.transform.TransformerException;
 import org.apache.xpath.XPathAPI;
+import static org.ssoft.faces.state.FlowConstants.LOCAL_XPATH_RESOLVER;
+import org.ssoft.faces.state.config.StateWebConfiguration;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.traversal.NodeIterator;
 
 /**
  *
@@ -34,8 +35,27 @@ import org.w3c.dom.traversal.NodeIterator;
  */
 public class DomELResolver extends ELResolver {
 
+    private Boolean enabled;
+
+    public DomELResolver() {
+        super();
+    }
+    
+    private boolean isEnabled() {
+        if(enabled == null) {
+            StateWebConfiguration swc = StateWebConfiguration.getInstance();
+            String option = swc.getOptionValue(LOCAL_XPATH_RESOLVER, "true");
+            enabled = Boolean.parseBoolean(option);
+        }
+        return enabled;
+    }
+    
+    
     @Override
     public Class<?> getCommonPropertyType(ELContext context, Object base) {
+        if(!isEnabled()) {
+            return null;
+        }
         if (base instanceof NodeList) {
             return Integer.class;
         }
@@ -49,11 +69,17 @@ public class DomELResolver extends ELResolver {
 
     @Override
     public Class<?> getType(ELContext context, Object base, Object property) {
+        if(!isEnabled()) {
+            return null;
+        }
         return getValue(context, base, property).getClass();
     }
 
     @Override
     public Object getValue(ELContext context, Object base, Object property) {
+        if(!isEnabled()) {
+            return null;
+        }
         if (property == null) {
             return null;
         }
@@ -151,6 +177,9 @@ public class DomELResolver extends ELResolver {
 
     @Override
     public void setValue(ELContext context, Object base, Object property, Object value) {
+        if(!isEnabled()) {
+            return;
+        }
         // we don't modify the DOM
     }
 

@@ -259,14 +259,14 @@ public class StateFlowHelper {
                 if (count.size() < p.getChildren().size()) {
                     errRep.onError(ErrorConstants.ILLEGAL_CONFIG,
                             "Not all AND states active for parallel "
-                            + p.getId(), entry);
+                            + p.getId(), entry, null);
                     legalConfig = false;
                 }
             } else {
                 if (count.size() > 1) {
                     errRep.onError(ErrorConstants.ILLEGAL_CONFIG,
                             "Multiple OR states active for state "
-                            + tt.getId(), entry);
+                            + tt.getId(), entry, null);
                     legalConfig = false;
                 }
             }
@@ -274,7 +274,7 @@ public class StateFlowHelper {
         }
         if (scxmlCount.size() > 1) {
             errRep.onError(ErrorConstants.ILLEGAL_CONFIG,
-                    "Multiple top-level OR states active!", scxmlCount);
+                    "Multiple top-level OR states active!", scxmlCount, null);
         }
         //cleanup
         scxmlCount.clear();

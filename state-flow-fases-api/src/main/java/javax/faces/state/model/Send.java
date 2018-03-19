@@ -319,7 +319,7 @@ public class Send extends Action implements ExternalContent {
                 Object varObj = ctx.get(varName);
                 if (varObj == null) {
                     //considered as a warning here
-                    errRep.onError(ErrorConstants.UNDEFINED_VARIABLE, varName + " = null", parentTarget);
+                    errRep.onError(ErrorConstants.UNDEFINED_VARIABLE, varName + " = null", parentTarget, null);
                 }
                 params.put(varName, varObj);
             }

@@ -230,7 +230,7 @@ public class Assign extends Action implements PathResolverHolder {
         } else {
             // lets try "name" (usage as in Sep '05 WD, useful with <var>)
             if (!ctx.has(name)) {
-                errRep.onError(ErrorConstants.UNDEFINED_VARIABLE, name  + " = null", parentTarget);
+                errRep.onError(ErrorConstants.UNDEFINED_VARIABLE, name  + " = null", parentTarget, null);
             } else {
                 @SuppressWarnings("UnusedAssignment")
                 Object varObj = null;

@@ -31,8 +31,10 @@ public interface FlowErrorReporter {
      * @param errCtx
      *            typically an SCXML element which caused an error,
      *            may be accompanied by additional information
+     * @param cause 
+     *            Parent cause of the exception  
      */
-    void onError(String errCode, String errDetail, Object errCtx);
+    void onError(String errCode, String errDetail, Object errCtx, Throwable cause);
 
     /**
      * Missing initial state for a composite state or for the scxml root.

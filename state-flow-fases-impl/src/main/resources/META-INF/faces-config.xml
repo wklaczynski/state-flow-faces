@@ -22,7 +22,7 @@
     <application>
         <el-resolver>org.ssoft.faces.state.facelets.StateFlowELResolver</el-resolver>
         <el-resolver>org.ssoft.faces.state.facelets.StateFlowScopesELResolver</el-resolver>
-        <el-resolver>org.ssoft.faces.state.facelets.DomELResolver</el-resolver>
+        <el-resolver>org.ssoft.faces.state.el.DomELResolver</el-resolver>
         <navigation-handler>org.ssoft.faces.state.facelets.StateFlowNavigationHandler</navigation-handler>
     </application>
     

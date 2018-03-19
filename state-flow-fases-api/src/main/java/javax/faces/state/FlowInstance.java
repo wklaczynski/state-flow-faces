@@ -32,6 +32,7 @@ import javax.el.ELContext;
 import javax.el.FunctionMapper;
 import javax.el.ValueExpression;
 import javax.el.VariableMapper;
+import javax.faces.FacesException;
 import javax.faces.application.Resource;
 import javax.faces.context.FacesContext;
 import javax.faces.state.annotation.Statefull;
@@ -385,9 +386,9 @@ public abstract class FlowInstance extends ELContext {
                 fn.run();
                 return null;
             });
-        } catch (InvokerException th) {
+        } catch (InvokerException | FacesException th) {
             throw th;
-        } catch (Throwable th) {
+        } catch (Exception th) {
             throw new InvokerException(th);
         }
     }
@@ -398,7 +399,9 @@ public abstract class FlowInstance extends ELContext {
                 fn.run();
                 return null;
             });
-        } catch (Throwable th) {
+        } catch (ModelException | FacesException th) {
+            throw th;
+        } catch (Exception th) {
             throw new ModelException(th);
         }
     }
@@ -409,7 +412,9 @@ public abstract class FlowInstance extends ELContext {
                 fn.run();
                 return null;
             });
-        } catch (Throwable th) {
+        } catch (ModelException | FacesException th) {
+            throw th;
+        } catch (Exception th) {
             throw new ModelException(th);
         }
     }
@@ -420,7 +425,9 @@ public abstract class FlowInstance extends ELContext {
                 fn.run();
                 return null;
             });
-        } catch (Throwable th) {
+        } catch (ModelException | FacesException th) {
+            throw th;
+        } catch (Exception th) {
             throw new ModelException(th);
         }
     }
@@ -432,9 +439,9 @@ public abstract class FlowInstance extends ELContext {
                 fn.run();
                 return null;
             });
-        } catch (ModelException | FlowExpressionException th) {
+        } catch (ModelException | FlowExpressionException | FacesException th) {
             throw th;
-        } catch (Throwable th) {
+        } catch (Exception th) {
             throw new FlowExpressionException(th);
         }
     }
@@ -443,7 +450,9 @@ public abstract class FlowInstance extends ELContext {
     public Object eval(final Param param, ValueExpression ve) throws FlowExpressionException {
         try {
             return FlowInstance.this.process(param, () -> ve.getValue(this));
-        } catch (Throwable th) {
+        } catch (FacesException th) {
+            throw th;
+        } catch (ModelException th) {
             throw new FlowExpressionException(th);
         }
     }
@@ -451,7 +460,9 @@ public abstract class FlowInstance extends ELContext {
     public Object eval(final Transition transition, ValueExpression ve) throws FlowExpressionException {
         try {
             return processTransition(transition, () -> ve.getValue(this));
-        } catch (Throwable th) {
+        } catch (FlowExpressionException | FacesException th) {
+            throw th;
+        } catch (Exception th) {
             throw new FlowExpressionException(th);
         }
     }
@@ -459,7 +470,9 @@ public abstract class FlowInstance extends ELContext {
     public Object eval(Datamodel model, final Data data, FlowContext flowCtx, ValueExpression ve) throws FlowExpressionException {
         try {
             return processData(model, data, flowCtx, () -> ve.getValue(this));
-        } catch (Throwable th) {
+        } catch (FlowExpressionException | FacesException th) {
+            throw th;
+        } catch (Exception th) {
             throw new FlowExpressionException(th);
         }
     }
@@ -467,7 +480,9 @@ public abstract class FlowInstance extends ELContext {
     public Object eval(Action action, ValueExpression ve) throws FlowExpressionException {
         try {
             return processAction(action, () -> ve.getValue(this));
-        } catch (Throwable th) {
+        } catch (FlowExpressionException | FacesException th) {
+            throw th;
+        } catch (Exception th) {
             throw new FlowExpressionException(th);
         }
     }

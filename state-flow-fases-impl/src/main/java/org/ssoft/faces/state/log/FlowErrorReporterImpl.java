@@ -16,16 +16,13 @@
 package org.ssoft.faces.state.log;
 
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.faces.application.FacesMessage;
+import javax.faces.FacesException;
+import javax.faces.application.ProjectStage;
 import javax.faces.context.FacesContext;
 import javax.faces.state.FlowErrorReporter;
 import javax.faces.state.model.Invoke;
@@ -64,11 +61,12 @@ public class FlowErrorReporterImpl implements FlowErrorReporter, Serializable {
 
     /**
      * @param errorCode
+     * @param cause
      * @see ErrorReporter#onError(String, String, Object)
      */
     @Override
     @SuppressWarnings({"StringEquality", "ConvertToStringSwitch"})
-    public void onError(final String errorCode, final String errDetail, final Object errCtx) {
+    public void onError(final String errorCode, final String errDetail, final Object errCtx, Throwable cause) {
         //Note: the if-then-else below is based on the actual usage
         // (codebase search), it has to be kept up-to-date as the code changes
         String errCode = errorCode.intern();
@@ -119,95 +117,16 @@ public class FlowErrorReporterImpl implements FlowErrorReporter, Serializable {
 
             }
         }
-        if (log.isLoggable(Level.WARNING)) {
-            log.log(Level.WARNING, msg.toString());
-        }
         FacesContext fc = FacesContext.getCurrentInstance();
-        error(fc, msg.toString());
-        
-    }
-
-    public static void error(FacesContext fc, String message, Object... params) {
-        FacesMessage facesMessage = getFacesMessage(fc, message, params);
-        facesMessage.setSeverity(FacesMessage.SEVERITY_ERROR);
-        fc.addMessage(null, facesMessage);
-    }
-
-    public static FacesMessage getFacesMessage(FacesContext fc, String message, Object... params) {
-        return getFacesMessage(fc, message, null, params);
-    }
-
-    public static FacesMessage getFacesMessage(FacesContext fc, String summary, String detail, Object... params) {
-        String messageInfo[] = new String[2];
-        Locale locale;
-
-        String summaryId = summary;
-        String detailId = detail;
-
-        if (detailId == null) {
-            detailId = summaryId + DETAIL_SUFFIX;
-        }
-
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        if (facesContext != null && facesContext.getViewRoot() != null) {
-            locale = facesContext.getViewRoot().getLocale();
-            if (locale == null) {
-                locale = Locale.getDefault();
+        if (fc.getApplication().getProjectStage() == ProjectStage.Production) {
+            if (log.isLoggable(Level.WARNING)) {
+                log.log(Level.WARNING, msg.toString());
             }
+            WebMessage.error(fc, msg.toString());
         } else {
-            locale = Locale.getDefault();
-        }
-        String bundleName = fc.getApplication().getMessageBundle();
-        if (bundleName != null) {
-            try {
-                loadMessageInfo(bundleName, locale, summaryId, detailId, messageInfo);
-            } catch (Exception e) {
-                log.log(Level.WARNING, FACES_MESSAGES_BUNDLE, e);
-            }
-        }
-        if (messageInfo[SUMMARYID] == null && messageInfo[DETAILID] == null) {
-            loadMessageInfo(FACES_MESSAGES_BUNDLE, locale, summaryId, detailId, messageInfo);
-        }
-        if (messageInfo[SUMMARYID] == null && messageInfo[DETAILID] == null) {
-            loadMessageInfo(FacesMessage.FACES_MESSAGES, locale, summaryId, detailId, messageInfo);
-        }
-        if (messageInfo[SUMMARYID] == null && messageInfo[DETAILID] == null) {
-            messageInfo[SUMMARYID] = summary;
-            messageInfo[DETAILID] = detail;
-        }
-        if (params != null) {
-            for (int i = 0; i < messageInfo.length; i++) {
-                if (messageInfo[i] != null) {
-                    messageInfo[i] = new MessageFormat(messageInfo[i], locale).format(params);
-                }
-            }
+            throw new FacesException(cause);
         }
 
-        if (messageInfo[DETAILID] == null) {
-            messageInfo[DETAILID] = messageInfo[SUMMARYID];
-        }
-
-        return new FacesMessage(messageInfo[SUMMARYID], messageInfo[DETAILID]);
-    }
-
-    private static void loadMessageInfo(String bundleName, Locale locale, String summaryId, String detailId, String[] messageInfo) {
-        ResourceBundle bundle = ResourceBundle.getBundle(bundleName, locale, getCurrentLoader(bundleName));
-        try {
-            messageInfo[SUMMARYID] = bundle.getString(summaryId);
-        } catch (MissingResourceException e) {
-            //messageInfo[SUMMARYID] = summaryId;
-            messageInfo[SUMMARYID] = null;
-        }
-        try {
-            messageInfo[DETAILID] = bundle.getString(detailId);
-        } catch (MissingResourceException e) {
-            messageInfo[DETAILID] = null;
-        }
-    }
-
-    public static ClassLoader getCurrentLoader(Object o) {
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        return loader != null ? loader : o.getClass().getClassLoader();
     }
 
 }

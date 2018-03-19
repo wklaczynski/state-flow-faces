@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.FacesException;
 import javax.faces.application.ConfigurableNavigationHandler;
 import javax.faces.application.NavigationCase;
 import javax.faces.application.NavigationHandler;
@@ -69,7 +70,8 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
                 try {
                     executor.triggerEvent(new FlowTriggerEvent(ViewInvoker.OUTCOME_EVENT_PREFIX + outcome, FlowTriggerEvent.SIGNAL_EVENT));
                 } catch (ModelException ex) {
-                    logger.log(Level.SEVERE, ex.getMessage(), ex);
+                    throw new FacesException(ex);
+                    //logger.log(Level.SEVERE, ex.getMessage(), ex);
                 }
                 executor = handler.getRootExecutor(context);
                 if (executor.getCurrentStatus().isFinal()) {

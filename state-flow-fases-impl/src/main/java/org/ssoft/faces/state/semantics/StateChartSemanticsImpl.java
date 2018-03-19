@@ -127,7 +127,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
         TransitionTarget tmp = input.getInitialTarget();
         if (tmp == null) {
             errRep.onError(ErrorConstants.NO_INITIAL,
-                    "SCXML initialstate is missing!", input);
+                    "SCXML initialstate is missing!", input, null);
         } else {
             targets.add(tmp);
             determineTargetStates(targets, errRep, scInstance);
@@ -178,7 +178,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                     }
                 } catch (FlowExpressionException e) {
                     errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(),
-                            oe);
+                            oe, e);
                 }
             }
             // check if invoke is active in this state
@@ -210,7 +210,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                     });
                 }
             } catch (FlowExpressionException e) {
-                errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), transition);
+                errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), transition, e);
             }
             List rtargets = transition.getRuntimeTargets();
             for (int j = 0; j < rtargets.size(); j++) {
@@ -231,7 +231,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                         });
                     }
                 } catch (FlowExpressionException e) {
-                    errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), oe);
+                    errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), oe, e);
                 }
             }
             nr.fireOnEntry(tt, tt);
@@ -253,7 +253,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                         }
                     } catch (FlowExpressionException e) {
                         errRep.onError(ErrorConstants.EXPRESSION_ERROR,
-                                e.getMessage(), ini);
+                                e.getMessage(), ini, e);
                     }
                 }
                 if (ts.isFinal()) {
@@ -369,7 +369,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                                     step.getAfterStatus().getEvents()));
                         }
                     } catch (FlowExpressionException e) {
-                        errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), fn);
+                        errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), fn, e);
                     }
                 }
             }
@@ -395,7 +395,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                     rslt = (Boolean) scInstance.eval(t, t.getCond());
                 } catch (FlowExpressionException e) {
                     rslt = Boolean.FALSE;
-                    errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), t);
+                    errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), t, e);
                 }
             }
             if (!rslt) {
@@ -763,7 +763,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                                     argValue = (String) istance.eval(p, p.getExpr());
                                 } catch (FlowExpressionException see) {
                                     errRep.onError(ErrorConstants.EXPRESSION_ERROR,
-                                            see.getMessage(), invoke);
+                                            see.getMessage(), invoke, see);
                                 }
                             } else {
                                 // No. Does value of "name" attribute refer to a valid
@@ -779,7 +779,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                                     }
                                 } catch (FlowExpressionException see) {
                                     errRep.onError(ErrorConstants.EXPRESSION_ERROR,
-                                            see.getMessage(), invoke);
+                                            see.getMessage(), invoke, see);
                                 }
                             }
                             ctx.setLocal(NAMESPACES_KEY, null);
@@ -791,8 +791,11 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
 
                     istance.setInvoker(state, invoke, inv);
                 } catch (InvokerException ie) {
-                    istance.getExecutor().getErrorReporter().onError(INVOKE_ERROR, StateFlowHelper.getErrorMessage(ie), invoke);
-                    FlowTriggerEvent te = new FlowTriggerEvent(AbstractInvoker.event(state.getId(), INVOKE_EVENT, INVOKE_FAILED_EVENT)  , FlowTriggerEvent.ERROR_EVENT);
+                    istance.getExecutor().getErrorReporter().onError(INVOKE_ERROR,
+                            StateFlowHelper.getErrorMessage(ie), invoke, ie);
+                    FlowTriggerEvent te = new FlowTriggerEvent(
+                            AbstractInvoker.event(state.getId(), INVOKE_EVENT, INVOKE_FAILED_EVENT),
+                            FlowTriggerEvent.ERROR_EVENT);
                     internalEvents.add(te);
                 }
             }
