@@ -61,9 +61,6 @@ import javax.faces.state.FlowEvaluator;
 import javax.faces.state.FlowExpressionException;
 import javax.faces.state.FlowNotificationRegistry;
 import javax.faces.state.PathResolver;
-import javax.faces.state.invoke.AbstractInvoker;
-import static javax.faces.state.invoke.Invoker.INVOKE_EVENT;
-import static javax.faces.state.invoke.Invoker.INVOKE_FAILED_EVENT;
 import javax.faces.state.model.Param;
 import static javax.faces.state.semantics.ErrorConstants.INVOKE_ERROR;
 import javax.faces.state.semantics.StateChartSemantics;
@@ -187,8 +184,9 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                 try {
                     scInstance.process((State) tt, toCancel, () -> toCancel.cancel());
                 } catch (InvokerException ie) {
-                    FlowTriggerEvent te = new FlowTriggerEvent(tt.getId()
-                            + ".invoke.cancel.failed", FlowTriggerEvent.ERROR_EVENT);
+                    FlowTriggerEvent te = new FlowTriggerEvent(
+                            tt.getId() + "invoke.cancel.failed",
+                            FlowTriggerEvent.ERROR_EVENT);
                     internalEvents.add(te);
                 }
                 // done here, don't wait for cancel response
@@ -236,8 +234,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
             }
             nr.fireOnEntry(tt, tt);
             nr.fireOnEntry(stateMachine, tt);
-            FlowTriggerEvent te = new FlowTriggerEvent(tt.getId() + ".entry",
-                    FlowTriggerEvent.CHANGE_EVENT);
+            FlowTriggerEvent te = new FlowTriggerEvent(tt.getId() + ".entry", FlowTriggerEvent.CHANGE_EVENT);
             internalEvents.add(te);
             // actions in initial transition (if any) and .done events
             if (tt instanceof State) {
@@ -262,8 +259,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                     if (parent != null) {
                         prefix = parent.getId();
                     }
-                    te = new FlowTriggerEvent(prefix + ".done",
-                            FlowTriggerEvent.CHANGE_EVENT);
+                    te = new FlowTriggerEvent(prefix + ".done", FlowTriggerEvent.CHANGE_EVENT);
                     internalEvents.add(te);
                     if (parent != null) {
                         scInstance.setDone(parent, true);
@@ -335,14 +331,14 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
      * @param step [inout]
      * @param evtDispatcher The {@link EventDispatcher} [in]
      * @param errRep ErrorReporter callback [inout]
-     * @param scInstance The state chart instance [in]
+     * @param istance The state chart instance [in]
      * @throws ModelException in case there is a fatal SCXML object model
      * problem.
      */
     @Override
     public void filterTransitionsSet(final FlowStep step,
             final FlowEventDispatcher evtDispatcher,
-            final FlowErrorReporter errRep, final FlowInstance scInstance)
+            final FlowErrorReporter errRep, final FlowInstance istance)
             throws ModelException {
         /*
          * - filter transition set by applying events
@@ -351,12 +347,12 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
          * each transition (local check) - transition precedence (bottom-up)
          * as defined by Flow specs
          */
-        Set allEvents = new HashSet(step.getBeforeStatus().getEvents().size()
-                + step.getExternalEvents().size());
+        Set<FlowTriggerEvent> allEvents = new HashSet(step.getBeforeStatus()
+                .getEvents().size() + step.getExternalEvents().size());
         allEvents.addAll(step.getBeforeStatus().getEvents());
         allEvents.addAll(step.getExternalEvents());
         // Finalize invokes, if applicable
-        for (Iterator iter = scInstance.getInvokers().keySet().iterator(); iter.hasNext();) {
+        for (Iterator iter = istance.getInvokers().keySet().iterator(); iter.hasNext();) {
             State s = (State) iter.next();
             if (finalizeMatch(s.getId(), allEvents)) {
                 Finalize fn = s.getInvoke().getFinalize();
@@ -364,8 +360,8 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                     try {
                         for (Iterator fnIter = fn.getActions().iterator(); fnIter.hasNext();) {
                             final Action action = (Action) fnIter.next();
-                            scInstance.process(action, () -> action.execute(
-                                    evtDispatcher, errRep, scInstance, 
+                            istance.process(action, () -> action.execute(
+                                    evtDispatcher, errRep, istance, 
                                     step.getAfterStatus().getEvents()));
                         }
                     } catch (FlowExpressionException e) {
@@ -392,7 +388,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                 rslt = Boolean.TRUE;
             } else {
                 try {
-                    rslt = (Boolean) scInstance.eval(t, t.getCond());
+                    rslt = (Boolean) istance.eval(t, t.getCond());
                 } catch (FlowExpressionException e) {
                     rslt = Boolean.FALSE;
                     errRep.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), t, e);
@@ -794,8 +790,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
                     istance.getExecutor().getErrorReporter().onError(INVOKE_ERROR,
                             StateFlowHelper.getErrorMessage(ie), invoke, ie);
                     FlowTriggerEvent te = new FlowTriggerEvent(
-                            AbstractInvoker.event(state.getId(), INVOKE_EVENT, INVOKE_FAILED_EVENT),
-                            FlowTriggerEvent.ERROR_EVENT);
+                            state.getId() + ".invoke.failed", FlowTriggerEvent.ERROR_EVENT);
                     internalEvents.add(te);
                 }
             }
@@ -846,8 +841,8 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
      * @return true/false
      */
     @SuppressWarnings("UnnecessaryContinue")
-    protected boolean finalizeMatch(final String parentStateId,
-            final Set eventOccurrences) {
+    protected boolean finalizeMatch(final String parentStateId, final Set eventOccurrences) {
+        
         String prefix = parentStateId + ".invoke."; // invoke prefix
         Iterator i = eventOccurrences.iterator();
         while (i.hasNext()) {

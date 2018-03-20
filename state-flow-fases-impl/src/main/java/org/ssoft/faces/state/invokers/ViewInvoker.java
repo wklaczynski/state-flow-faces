@@ -62,9 +62,9 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
 
     private final static Logger logger = Logger.getLogger(ViewInvoker.class.getName());
 
-    public static final String OUTCOME_EVENT_PREFIX = "faces.outcome.";
     public static final String VIEW_PARAMS_MAP = "___@@@ParamsMap____";
     public static final String FACES_VIEW_STATE = "com.sun.faces.FACES_VIEW_STATE";
+    public static final String OUTCOME_EVENT_PREFIX = "faces.navigation.outcome.";
 
     private boolean cancelled;
 
@@ -305,9 +305,10 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
         }
 
         for (FlowTriggerEvent event : evts) {
+            
             if (event.getType() == FlowTriggerEvent.SIGNAL_EVENT && event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
                 String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
-                FlowTriggerEvent te = new FlowTriggerEvent(event(ACTION_EVENT, outcome), FlowTriggerEvent.SIGNAL_EVENT);
+                FlowTriggerEvent te = new FlowTriggerEvent(event("action." + outcome), FlowTriggerEvent.SIGNAL_EVENT);
                 ExternalContext ec = context.getExternalContext();
 
                 StateFlowExecutor executor = instance.getExecutor();
@@ -367,7 +368,7 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
         FacesContext fc = FacesContext.getCurrentInstance();
         getViewParamsContext(fc).clear();
         cancelled = true;
-        FlowTriggerEvent te = new FlowTriggerEvent(event(INVOKE_EVENT, INVOKE_CANCEL_EVENT), FlowTriggerEvent.SIGNAL_EVENT);
+        FlowTriggerEvent te = new FlowTriggerEvent(event("cancel"), FlowTriggerEvent.SIGNAL_EVENT);
         new AsyncTrigger(instance.getExecutor(), te).start();
     }
 

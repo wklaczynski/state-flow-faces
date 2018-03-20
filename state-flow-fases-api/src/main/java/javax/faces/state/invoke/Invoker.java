@@ -25,48 +25,6 @@ import javax.faces.state.FlowTriggerEvent;
  * @author Waldemar Kłaczyński
  */
 public interface Invoker {
-
-    /**
-     * Basic invoke event prefix type element
-     * {state.id}.invoke.{event name}
-     */
-    public static final String INVOKE_EVENT = "invoke";
-
-    /**
-     * Executor invoke event prefix
-     * {state.id}.execute.{event name}
-     */
-    public static final String EXECUTOR_EVENT = "execute";
-
-    /**
-     * View action invoke event prefix
-     * {state.id}.action.{event name}
-     */
-    public static final String ACTION_EVENT = "action";
-
-    /**
-     * Cancel invoke event sufix
-     * {state.id}.invoke.cancel
-     */
-    public static final String INVOKE_CANCEL_EVENT = "cancel";
-
-    /**
-     * Cancel invoke event sufix
-     * {state.id}.invoke.cancel
-     */
-    public static final String INVOKE_FAILED_EVENT = "failed";
-
-    /**
-     * Cancel invoke event sufix
-     * {state.id}.execute.close
-     */
-    public static final String EXECUTOR_CLOSE_EVENT = "close";
-
-    /**
-     * Cancel invoke event sufix
-     * {state.id}.execute.close
-     */
-    public static final String EXECUTOR_DONE_EVENT = "done";
     
     /**
      * Set the invoker type of the owning state for the &lt;invoke&gt;.

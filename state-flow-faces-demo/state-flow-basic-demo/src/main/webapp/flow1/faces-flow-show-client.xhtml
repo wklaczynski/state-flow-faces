@@ -29,15 +29,15 @@
             <x:invoke type="view" src="ShowClientPage.xhtml"/>
             <x:transition event="main.invoke.failed" target="error"/>
 
-            <x:transition event="main.action.accept" target="success"/>
-            <x:transition event="main.action.cancel" target="cancel"/>
+            <x:transition event="main.invoke.action.accept" target="success"/>
+            <x:transition event="main.invoke.action.cancel" target="cancel"/>
         </x:state> 
 
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml">
                 <x:finalize/>
             </x:invoke>
-            <x:transition event="error.invoke.done" target="exit"/>
+            <x:transition event="error.invoke.cancel" target="exit"/>
             <x:transition event="error.invoke.failed" target="exit"/>
         </x:state>      
 

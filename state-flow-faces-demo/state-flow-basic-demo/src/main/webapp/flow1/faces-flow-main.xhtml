@@ -36,21 +36,21 @@
             <x:invoke type="view" src="MainPage.xhtml"/>
             <x:transition event="main.invoke.failed" target="error"/>
             
-            <x:transition event="main.action.show" target="show-client"/>
-            <x:transition event="main.action.exit" target="exit"/>
+            <x:transition event="main.invoke.action.show" target="show-client"/>
+            <x:transition event="main.invoke.action.exit" target="exit"/>
         </x:state> 
 
         <x:state id="show-client"> 
             <x:invoke type="scxml" src="faces-flow-show-client.xhtml">
                 <x:param name="id"  expr="#{param.clid}"/>
             </x:invoke>
+
             <x:transition event="show-client.invoke.failed" target="main"/>
-
-            <x:transition event="show-client.execute.cancel" target="main"/>
-            <x:transition event="show-client.execute.exit" target="main"/>
+            <x:transition event="show-client.invoke.cancel" target="main"/>
             
-            <x:transition event="show-client.execute.success" target="main">
-
+            <x:transition event="show-client.invoke.exit.done" target="main"/>
+            
+            <x:transition event="show-client.invoke.success.done" target="main">
             </x:transition>
         </x:state>      
         
@@ -61,8 +61,8 @@
             <x:transition event="error.invoke.done" target="exit"/>
         </x:state>      
 
-        <x:final id="exit">
-        </x:final>
+        
+        
 
     </x:scxml>    
 

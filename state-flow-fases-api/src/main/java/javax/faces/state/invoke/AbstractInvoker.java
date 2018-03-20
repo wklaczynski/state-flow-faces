@@ -29,6 +29,7 @@ public abstract class AbstractInvoker implements Invoker {
     protected String type;
     protected String parentStateId;
     protected FlowInstance instance;
+    protected String invokePrefix;
 
     public String getType() {
         return type;
@@ -45,6 +46,7 @@ public abstract class AbstractInvoker implements Invoker {
 
     @Override
     public void setParentStateId(String parentStateId) {
+        this.invokePrefix = prefix("invoke");
         this.parentStateId = parentStateId;
     }
 
@@ -98,25 +100,20 @@ public abstract class AbstractInvoker implements Invoker {
     }
 
     public String prefix(String type) {
-        return prefix(parentStateId, type);
-    }
-    
-    public String event(String type, String name) {
-        return event(parentStateId, type, name);
+        return new StringBuilder(parentStateId)
+                .append(".").append(type).append(".")
+                .toString();
     }
 
-    public static String event(String id, String type, String name) {
-        return new StringBuilder(id)
+    public String event(String name) {
+        return new StringBuilder(invokePrefix).append(name).toString();
+    }
+
+    public String event(String type, String name) {
+        return new StringBuilder(parentStateId)
                 .append(".").append(type)
                 .append(".").append(name)
                 .toString();
     }
 
-    public static String prefix(String id, String type) {
-        return new StringBuilder(id)
-                .append(".").append(type).append(".")
-                .toString();
-    }
-
-    
 }

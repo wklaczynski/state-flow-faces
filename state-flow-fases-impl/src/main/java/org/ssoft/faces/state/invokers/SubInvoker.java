@@ -106,12 +106,12 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
             }
             if (!doneBefore && executor.getCurrentStatus().isFinal()) {
                 FlowContext ctx = executor.getRootContext();
-                if (ctx.has("__@result@__")) {
-                    FlowContext result = (FlowContext) ctx.get("__@result@__");
+                if (ctx.has("@result")) {
+                    FlowContext result = (FlowContext) ctx.get("@result");
                     FlowStatus pstatus = instance.getExecutor().getCurrentStatus();
                     State pstate = (State) pstatus.getStates().iterator().next();
                     FlowContext pcontext = instance.getContext(pstate);
-                    pcontext.setLocal("__@result@__", result);
+                    pcontext.setLocal("@result", result);
                 }
                 handler.stopExecutor(fc, instance.getExecutor());
             }
@@ -124,8 +124,13 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
     @Override
     public void cancel() throws InvokerException {
         cancelled = true;
-        FlowTriggerEvent te = new FlowTriggerEvent(event(INVOKE_EVENT, INVOKE_CANCEL_EVENT), FlowTriggerEvent.SIGNAL_EVENT);
+        FlowTriggerEvent te = new FlowTriggerEvent(invokePrefix + "cancel", FlowTriggerEvent.SIGNAL_EVENT);
         new AsyncTrigger(instance.getExecutor(), te).start();
+
+        FlowStatus pstatus = instance.getExecutor().getCurrentStatus();
+        State pstate = (State) pstatus.getStates().iterator().next();
+        FlowContext pcontext = instance.getContext(pstate);
+        pcontext.getVars().remove("@result");
 
     }
 

@@ -56,7 +56,6 @@ import org.ssoft.faces.state.utils.Util;
 import javax.faces.state.annotation.FlowAction;
 import javax.faces.state.annotation.FlowInvoker;
 import javax.faces.state.component.UIStateChartRoot;
-import javax.faces.state.invoke.AbstractInvoker;
 import static javax.faces.state.model.StateChart.STATE_MACHINE_HINT;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
@@ -171,7 +170,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
 
         StateFlowExecutor result = stack.peek();
-        
+
         return result;
     }
 
@@ -374,25 +373,24 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
             AsyncTrigger trigger = new AsyncTrigger(parent);
 
-            FlowContext fctx = executor.getRootContext();
             FlowStatus pstatus = parent.getCurrentStatus();
             for (State pstate : pstatus.getStates()) {
-                String eventPrefix = AbstractInvoker.prefix(pstate.getId(), Invoker.EXECUTOR_EVENT);
+                String eventPrefix = pstate.getId() + ".invoke.";
 
                 boolean stop = false;
                 FlowStatus status = executor.getCurrentStatus();
                 for (State state : status.getStates()) {
                     if (state.isFinal()) {
-                        FlowTriggerEvent te = new FlowTriggerEvent(eventPrefix + state.getId(), FlowTriggerEvent.SIGNAL_EVENT);
+                        FlowTriggerEvent te = new FlowTriggerEvent(eventPrefix + state.getId() + ".done", FlowTriggerEvent.CHANGE_EVENT);
                         trigger.add(te);
                         stop = true;
                     }
                 }
                 if (!stop) {
-                    FlowTriggerEvent te = new FlowTriggerEvent(eventPrefix + Invoker.EXECUTOR_CLOSE_EVENT, FlowTriggerEvent.SIGNAL_EVENT);
+                    FlowTriggerEvent te = new FlowTriggerEvent(eventPrefix +  ".stop", FlowTriggerEvent.SIGNAL_EVENT);
                     trigger.add(te);
                 }
-                FlowTriggerEvent te = new FlowTriggerEvent(eventPrefix + Invoker.EXECUTOR_DONE_EVENT, FlowTriggerEvent.SIGNAL_EVENT);
+                FlowTriggerEvent te = new FlowTriggerEvent(eventPrefix + ".done", FlowTriggerEvent.SIGNAL_EVENT);
                 trigger.add(te);
             }
 

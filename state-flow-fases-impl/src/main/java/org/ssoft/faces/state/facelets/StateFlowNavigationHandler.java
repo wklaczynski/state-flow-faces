@@ -17,7 +17,6 @@ package org.ssoft.faces.state.facelets;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.FacesException;
 import javax.faces.application.ConfigurableNavigationHandler;
@@ -28,7 +27,7 @@ import javax.faces.state.FlowTriggerEvent;
 import javax.faces.state.ModelException;
 import javax.faces.state.StateFlowExecutor;
 import javax.faces.state.StateFlowHandler;
-import org.ssoft.faces.state.invokers.ViewInvoker;
+import static org.ssoft.faces.state.invokers.ViewInvoker.OUTCOME_EVENT_PREFIX;
 
 /**
  *
@@ -68,7 +67,7 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
             } else {
                 StateFlowExecutor executor = handler.getRootExecutor(context);
                 try {
-                    executor.triggerEvent(new FlowTriggerEvent(ViewInvoker.OUTCOME_EVENT_PREFIX + outcome, FlowTriggerEvent.SIGNAL_EVENT));
+                    executor.triggerEvent(new FlowTriggerEvent(OUTCOME_EVENT_PREFIX + outcome, FlowTriggerEvent.NAVIGATION_EVENT));
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
                     //logger.log(Level.SEVERE, ex.getMessage(), ex);
