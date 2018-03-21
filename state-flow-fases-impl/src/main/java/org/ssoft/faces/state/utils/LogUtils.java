@@ -17,8 +17,8 @@ package org.ssoft.faces.state.utils;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import javax.faces.state.model.Transition;
-import javax.faces.state.model.TransitionTarget;
+import javax.scxml.model.Transition;
+import javax.scxml.model.TransitionTarget;
 
 /**
  *

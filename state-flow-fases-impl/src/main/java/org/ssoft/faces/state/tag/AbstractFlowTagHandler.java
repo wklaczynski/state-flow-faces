@@ -15,6 +15,13 @@
  */
 package org.ssoft.faces.state.tag;
 
+import javax.scxml.model.If;
+import javax.scxml.model.Initial;
+import javax.scxml.model.Transition;
+import javax.scxml.model.Executable;
+import javax.scxml.model.History;
+import javax.scxml.model.Action;
+import javax.scxml.model.TransitionTarget;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,10 +34,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.faces.application.ProjectStage;
 import javax.faces.component.UIComponent;
-import javax.faces.state.PathResolver;
-import javax.faces.state.PathResolverHolder;
-import javax.faces.state.model.*;
-import javax.faces.state.utils.StateFlowHelper;
+import javax.scxml.PathResolver;
 import javax.faces.view.facelets.CompositeFaceletHandler;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.FaceletHandler;
@@ -38,6 +42,11 @@ import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
 import javax.faces.view.facelets.TagHandler;
+import javax.scxml.model.EnterableState;
+import javax.scxml.model.Parallel;
+import javax.scxml.model.SCXML;
+import javax.scxml.model.State;
+import javax.scxml.model.TransitionalState;
 import org.ssoft.faces.state.log.FlowLogger;
 
 /**
@@ -102,7 +111,7 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         return projectStage != ProjectStage.Production;
     }
 
-    protected void verifyAssign(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentFlow) {
+    protected void verifyAssign(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentFlow) {
         if (!isVerifyMode(ctx)) {
             return;
         }
@@ -149,26 +158,22 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         return sb.toString();
     }
 
-    public abstract void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException;
+    public abstract void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException;
 
     protected void decorate(FaceletContext ctx, UIComponent parent, Object element) throws IOException {
-        if (element instanceof PathResolverHolder) {
-            PathResolver resolver = getElement(parent, PathResolver.class);
-            PathResolverHolder holder = (PathResolverHolder) element;
-            holder.setPathResolver(resolver);
-        }
+
     }
 
     @Override
     public void apply(FaceletContext ctx, UIComponent parent) throws IOException {
-        StateChart chart = (StateChart) getElement(parent, StateChart.class);
+        SCXML chart = (SCXML) getElement(parent, SCXML.class);
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
 
         verifyAssign(ctx, parent, chart, currentFlow);
         apply(ctx, parent, chart, currentFlow);
     }
 
-    public T findElement(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
+    public T findElement(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Map<String, Object> elementMap = (Map<String, Object>) getElement(parent, ELEMENT_MAP);
         Object element = elementMap.get(tag.toString());
         return (T) element;
@@ -251,34 +256,38 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         return (E) popElement(parent, elname);
     }
 
-    protected void addChild(FaceletContext ctx, UIComponent parent, TransitionTarget child) throws IOException {
-        StateChart chart = getElement(parent, StateChart.class);
+    protected void addChild(FaceletContext ctx, UIComponent parent, EnterableState child) throws IOException {
+        SCXML chart = getElement(parent, SCXML.class);
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
-        if (currentFlow instanceof StateChart) {
-            StateChart chat = (StateChart) currentFlow;
-            if (chat.getChildren().containsKey(child.getId())) {
+        if (currentFlow instanceof SCXML) {
+            SCXML chat = (SCXML) currentFlow;
+            if (chat.getChildren().contains(child)) {
                 throw new TagException(this.tag, "transition target already defined!");
             }
             chat.addChild(child);
-        } else if (currentFlow instanceof TransitionTarget) {
-            TransitionTarget target = (TransitionTarget) currentFlow;
-            if (target.getChildren().containsKey(child.getId())) {
+        } else if (currentFlow instanceof State) {
+            State target = (State) currentFlow;
+            if (target.getChildren().contains(child)) {
                 throw new TagException(this.tag, "transition target already defined!");
             }
             target.addChild(child);
+        } else if (currentFlow instanceof Parallel) {
+            Parallel target = (Parallel) currentFlow;
+            if (target.getChildren().contains(child)) {
+                throw new TagException(this.tag, "transition target already defined!");
+            }
+            target.getChildren().add(child);
         } else {
             throw new TagException(this.tag, "can not stored this element on parent element!");
         }
-
-        chart.getIdMap().put(child.getClientId(), child);
     }
 
     protected void addHistory(FaceletContext ctx, UIComponent parent, History child) throws IOException {
-        StateChart chart = getElement(parent, StateChart.class);
+        SCXML chart = getElement(parent, SCXML.class);
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
-        if (currentFlow instanceof TransitionTarget) {
-            TransitionTarget target = (TransitionTarget) currentFlow;
-            if (target.getChildren().containsKey(child.getId())) {
+        if (currentFlow instanceof TransitionalState) {
+            TransitionalState target = (TransitionalState) currentFlow;
+            if (target.getHistory().contains(child)) {
                 throw new TagException(this.tag, "transition target already defined!");
             }
             target.addHistory(child);
@@ -286,16 +295,15 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
             throw new TagException(this.tag, "can not stored history element on parent element!");
         }
 
-        chart.getIdMap().put(child.getClientId(), child);
     }
 
     protected String generateUniqueId(FaceletContext ctx, UIComponent parent, TransitionTarget child, String prefix) throws IOException {
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
-        if (currentFlow instanceof StateChart) {
-            StateChart chat = (StateChart) currentFlow;
+        if (currentFlow instanceof SCXML) {
+            SCXML chat = (SCXML) currentFlow;
             return prefix + chat.getChildren().size();
-        } else if (currentFlow instanceof TransitionTarget) {
-            TransitionTarget target = (TransitionTarget) currentFlow;
+        } else if (currentFlow instanceof TransitionalState) {
+            TransitionalState target = (TransitionalState) currentFlow;
             return prefix + target.getChildren().size();
         } else {
             throw new TagException(this.tag, "can not support generate unique id this element on parent element!");
@@ -304,8 +312,8 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
 
     protected void addTransitionTarget(FaceletContext ctx, UIComponent parent, TransitionTarget target) throws IOException {
         String tid = target.getId();
-        if (!StateFlowHelper.isStringEmpty(tid)) {
-            StateChart chart = getElement(parent, StateChart.class);
+        if (!(tid == null && tid.isEmpty())) {
+            SCXML chart = getElement(parent, SCXML.class);
             if (chart.getTargets().containsKey(target.getId())) {
                 throw new TagException(this.tag, "transition target already defined!");
             }
@@ -318,8 +326,8 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         if (currentFlow instanceof Initial) {
             Initial target = (Initial) currentFlow;
             target.setTransition(transition);
-        } else if (currentFlow instanceof TransitionTarget) {
-            TransitionTarget target = (TransitionTarget) currentFlow;
+        } else if (currentFlow instanceof TransitionalState) {
+            TransitionalState target = (TransitionalState) currentFlow;
             target.addTransition(transition);
         } else {
             throw new TagException(this.tag, "can not stored this element on parent element!");

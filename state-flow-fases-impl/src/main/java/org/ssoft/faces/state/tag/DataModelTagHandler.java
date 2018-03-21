@@ -17,13 +17,13 @@ package org.ssoft.faces.state.tag;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import javax.faces.state.model.Datamodel;
-import javax.faces.state.model.Parallel;
-import javax.faces.state.model.State;
-import javax.faces.state.model.StateChart;
+import javax.scxml.model.Datamodel;
+import javax.scxml.model.Parallel;
+import javax.scxml.model.State;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
+import javax.scxml.model.SCXML;
 
 /**
  *
@@ -34,13 +34,13 @@ public class DataModelTagHandler extends AbstractFlowTagHandler<Datamodel> {
     public DataModelTagHandler(TagConfig config) {
         super(config, Datamodel.class);
         
-        in("scxml", StateChart.class);
+        in("scxml", SCXML.class);
         in("parallel", Parallel.class);
         in("state", State.class);
     }
     
     @Override
-    public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
+    public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         if(isDatamodel(ctx, parent)) {
             throw new TagException(this.tag, "already defined in this element!");
         }
@@ -56,8 +56,8 @@ public class DataModelTagHandler extends AbstractFlowTagHandler<Datamodel> {
 
     protected void setDatamodel(FaceletContext ctx, UIComponent parent, Datamodel datamodel) throws IOException {
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
-        if (currentFlow instanceof StateChart) {
-            StateChart chat = (StateChart) currentFlow;
+        if (currentFlow instanceof SCXML) {
+            SCXML chat = (SCXML) currentFlow;
             chat.setDatamodel(datamodel);
         } else if (currentFlow instanceof Parallel) {
             Parallel parallel = (Parallel) currentFlow;
@@ -73,8 +73,8 @@ public class DataModelTagHandler extends AbstractFlowTagHandler<Datamodel> {
     protected boolean isDatamodel(FaceletContext ctx, UIComponent parent) throws IOException {
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
         boolean result = false;
-        if (currentFlow instanceof StateChart) {
-            StateChart chat = (StateChart) currentFlow;
+        if (currentFlow instanceof SCXML) {
+            SCXML chat = (SCXML) currentFlow;
             result = chat.getDatamodel() != null;
         } else if (currentFlow instanceof Parallel) {
             Parallel parallel = (Parallel) currentFlow;

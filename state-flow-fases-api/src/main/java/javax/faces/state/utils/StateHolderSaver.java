@@ -26,9 +26,8 @@ import java.util.logging.Logger;
 import javax.faces.component.StateHolder;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.state.model.StateChart;
-import static javax.faces.state.model.StateChart.STATE_MACHINE_HINT;
-import javax.faces.state.model.TransitionTarget;
+import javax.scxml.model.SCXML;
+import javax.scxml.model.TransitionTarget;
 
 /**
  *
@@ -127,14 +126,14 @@ public class StateHolderSaver implements Serializable {
         }
 
         if (ttid != null) {
-            StateChart chart = (StateChart) context.getAttributes().get(STATE_MACHINE_HINT);
-            Object found = chart.findElement(ttid);
-            if (found == null) {
-                throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
-            }
+//            SCXML chart = (SCXML) context.getAttributes().get(STATE_MACHINE_HINT);
+//            Object found = chart.findElement(ttid);
+//            if (found == null) {
+//                throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
+//            }
 
-            TransitionTarget tt = (TransitionTarget) found;
-            return tt;
+//            TransitionTarget tt = (TransitionTarget) found;
+            return null;
         }
 
         // else the object to save did implement StateHolder

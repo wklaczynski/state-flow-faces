@@ -17,13 +17,13 @@ package org.ssoft.faces.state.tag;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import javax.faces.state.model.Finalize;
-import javax.faces.state.model.Invoke;
-import javax.faces.state.model.State;
-import javax.faces.state.model.StateChart;
+import javax.scxml.model.Finalize;
+import javax.scxml.model.Invoke;
+import javax.scxml.model.State;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
+import javax.scxml.model.SCXML;
 
 /**
  *
@@ -38,7 +38,7 @@ public class FinalizeTagHandler extends AbstractFlowTagHandler<Finalize> {
     }
 
     @Override
-    public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
+    public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Invoke invoke = (Invoke) parentElement;
 
         if(invoke.getFinalize() != null) {

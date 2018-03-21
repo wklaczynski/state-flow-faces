@@ -17,11 +17,10 @@ package org.ssoft.faces.state.impl;
 
 import java.io.File;
 import java.io.Serializable;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.faces.context.FacesContext;
-import javax.faces.state.PathResolver;
+import javax.scxml.PathResolver;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -43,7 +42,8 @@ public class FacesURLResolver implements PathResolver, Serializable {
     }
 
     @Override
-    public String resolvePath(FacesContext context, String path) {
+    public String resolvePath(String path) {
+        FacesContext context = FacesContext.getCurrentInstance();
         if (path.startsWith("/")) {
             path = context.getExternalContext().getRealPath(path);
         } else {
@@ -57,8 +57,10 @@ public class FacesURLResolver implements PathResolver, Serializable {
     }
 
     @Override
-    public PathResolver getResolver(FacesContext context, String path) {
-        path = resolvePath(context, path);
+    public PathResolver getResolver(String path) {
+        path = resolvePath(path);
+
+        FacesContext context = FacesContext.getCurrentInstance();
         path = context.getExternalContext().getRealPath(path);
         
         Path pth = Paths.get(path);

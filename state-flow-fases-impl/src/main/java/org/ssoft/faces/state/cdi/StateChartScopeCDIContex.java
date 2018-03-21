@@ -27,12 +27,12 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.state.FlowContext;
-import javax.faces.state.StateFlowExecutor;
 import javax.servlet.http.HttpSessionEvent;
 import org.ssoft.faces.state.log.FlowLogger;
 import org.ssoft.faces.state.utils.Util;
 import javax.faces.state.annotation.StateChartScoped;
+import javax.scxml.Context;
+import javax.scxml.SCXMLExecutor;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -57,10 +57,10 @@ public class StateChartScopeCDIContex extends AbstractContext {
     protected ContextualStorage getContextualStorage(Contextual<?> contextual, boolean createIfNotExist) {
         FacesContext fc = FacesContext.getCurrentInstance();
         ExternalContext ec = fc.getExternalContext();
-        StateFlowExecutor executor = StateFlowUtils.getExecutor(fc);
+        SCXMLExecutor executor = StateFlowUtils.getExecutor(fc);
         ContextualStorage contextualStorage;
         if (executor != null) {
-            FlowContext context = executor.getRootContext();
+            Context context = executor.getRootContext();
             contextualStorage = (ContextualStorage) context.get(STORAGE_KEY);
             if (contextualStorage == null) {
                 synchronized (this) {
@@ -113,11 +113,11 @@ public class StateChartScopeCDIContex extends AbstractContext {
         }
     }
 
-    public static void flowExecutorExited(StateFlowExecutor executor) {
+    public static void flowExecutorExited(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         ContextualStorage contextualStorage;
         if (executor != null) {
-            FlowContext context = executor.getRootContext();
+            Context context = executor.getRootContext();
             contextualStorage = (ContextualStorage) context.get(STORAGE_KEY);
             if (contextualStorage != null) {
                 destroyAllActive(contextualStorage);
@@ -146,7 +146,7 @@ public class StateChartScopeCDIContex extends AbstractContext {
         }
     }
 
-    public static void flowExecutorEntered(StateFlowExecutor executor) {
+    public static void flowExecutorEntered(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         if (Util.isCdiOneOneOrLater(facesContext)) {
             Class flowCDIEventFireHelperImplClass = null;

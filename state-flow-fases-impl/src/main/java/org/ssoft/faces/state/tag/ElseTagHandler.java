@@ -17,11 +17,11 @@ package org.ssoft.faces.state.tag;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import javax.faces.state.model.Else;
-import javax.faces.state.model.If;
-import javax.faces.state.model.StateChart;
+import javax.scxml.model.Else;
+import javax.scxml.model.If;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagConfig;
+import javax.scxml.model.SCXML;
 
 /**
  *
@@ -36,7 +36,7 @@ public class ElseTagHandler extends AbstractFlowTagHandler<Else> {
     }
 
     @Override
-    public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
+    public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Else action = new Else();
         decorate(ctx, parent, action);
 

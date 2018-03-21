@@ -15,9 +15,9 @@
  */
 package org.ssoft.faces.state.cdi;
 
-import javax.faces.state.StateFlowExecutor;
-import javax.faces.state.model.Parallel;
-import javax.faces.state.model.State;
+import javax.scxml.SCXMLExecutor;
+import javax.scxml.model.Parallel;
+import javax.scxml.model.State;
 
 /**
  *
@@ -25,9 +25,9 @@ import javax.faces.state.model.State;
  */
 public interface StateFlowCDIEventFireHelper {
 
-    void fireExecutorInitializedEvent(StateFlowExecutor executor);
+    void fireExecutorInitializedEvent(SCXMLExecutor executor);
 
-    void fireExecutorDestroyedEvent(StateFlowExecutor executor);
+    void fireExecutorDestroyedEvent(SCXMLExecutor executor);
     
     void fireStateInitializedEvent(State state);
 

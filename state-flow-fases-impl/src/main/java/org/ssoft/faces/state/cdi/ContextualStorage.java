@@ -28,7 +28,7 @@ import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.PassivationCapable;
 import javax.faces.context.FacesContext;
-import javax.faces.state.model.Action;
+import javax.scxml.model.Action;
 import org.ssoft.faces.state.utils.Util;
 
 /**

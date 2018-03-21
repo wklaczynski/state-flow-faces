@@ -17,12 +17,12 @@ package org.ssoft.faces.state.tag;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import javax.faces.state.model.Initial;
-import javax.faces.state.model.State;
-import javax.faces.state.model.StateChart;
+import javax.scxml.model.Initial;
+import javax.scxml.model.State;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
+import javax.scxml.model.SCXML;
 
 /**
  *
@@ -37,7 +37,7 @@ public class InitialTagHandler extends AbstractFlowTagHandler<Initial> {
     }
 
     @Override
-    public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
+    public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         State state = (State) parentElement;
         if(state.getInitial()!= null) {
             throw new TagException(this.tag, "already defined in this element!");

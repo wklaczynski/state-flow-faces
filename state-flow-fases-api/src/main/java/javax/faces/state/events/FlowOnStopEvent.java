@@ -15,7 +15,7 @@
  */
 package javax.faces.state.events;
 
-import javax.faces.state.model.State;
+import javax.scxml.model.State;
 
 /**
  *

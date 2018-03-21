@@ -26,20 +26,10 @@ limitations under the License.
             Tests if an input state name is in current stats.
         </description>
         <function-name>in</function-name>
-        <function-class>org.ssoft.faces.state.el.Builtin</function-class>
+        <function-class>org.ssoft.faces.state.el.FacesFlowBuiltin</function-class>
         <function-signature>boolean isMember(java.lang.String)</function-signature>
     </function>
 
-    <function>
-        <description>
-            Get data value from Data object.
-        </description>
-        <function-name>data</function-name>
-        <function-class>org.ssoft.faces.state.el.Builtin</function-class>
-        <function-signature>boolean data(java.lang.Object, java.lang.String)</function-signature>
-    </function>
-                
-        
     <!--Core Constructs-->
     <tag>
         <tag-name>scxml</tag-name>

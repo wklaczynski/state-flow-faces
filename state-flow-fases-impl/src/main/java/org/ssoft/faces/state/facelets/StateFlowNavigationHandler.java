@@ -23,10 +23,11 @@ import javax.faces.application.ConfigurableNavigationHandler;
 import javax.faces.application.NavigationCase;
 import javax.faces.application.NavigationHandler;
 import javax.faces.context.FacesContext;
-import javax.faces.state.FlowTriggerEvent;
-import javax.faces.state.ModelException;
-import javax.faces.state.StateFlowExecutor;
-import javax.faces.state.StateFlowHandler;
+import javax.scxml.EventBuilder;
+import javax.scxml.SCXMLExecutor;
+import javax.scxml.TriggerEvent;
+import javax.faces.state.faces.StateFlowHandler;
+import javax.scxml.model.ModelException;
 import static org.ssoft.faces.state.invokers.ViewInvoker.OUTCOME_EVENT_PREFIX;
 
 /**
@@ -62,19 +63,20 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
                 return;
             }
             if (outcome.endsWith(".xhtml")) {
-                handler.stopExecutor(context);
+                handler.close(context);
                 wrappedNavigationHandler.handleNavigation(context, fromAction, outcome);
             } else {
-                StateFlowExecutor executor = handler.getRootExecutor(context);
+                SCXMLExecutor executor = handler.getRootExecutor(context);
                 try {
-                    executor.triggerEvent(new FlowTriggerEvent(OUTCOME_EVENT_PREFIX + outcome, FlowTriggerEvent.NAVIGATION_EVENT));
+                    TriggerEvent ev = new EventBuilder(OUTCOME_EVENT_PREFIX + outcome, TriggerEvent.SIGNAL_EVENT).build();
+                    executor.triggerEvent(ev);
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
                     //logger.log(Level.SEVERE, ex.getMessage(), ex);
                 }
                 executor = handler.getRootExecutor(context);
-                if (executor.getCurrentStatus().isFinal()) {
-                    handler.stopExecutor(context);
+                if (executor.getStatus().isFinal()) {
+                    handler.close(context);
                 }
             }
         } else {

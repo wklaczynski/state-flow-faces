@@ -17,15 +17,14 @@ package org.ssoft.faces.state.tag;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import javax.faces.state.model.Final;
-import javax.faces.state.model.OnExit;
-import javax.faces.state.model.Parallel;
-import javax.faces.state.model.State;
-import javax.faces.state.model.StateChart;
-import javax.faces.state.model.TransitionTarget;
+import javax.scxml.model.Final;
+import javax.scxml.model.OnExit;
+import javax.scxml.model.Parallel;
+import javax.scxml.model.State;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagConfig;
-import javax.faces.view.facelets.TagException;
+import javax.scxml.model.SCXML;
+import javax.scxml.model.TransitionalState;
 
 /**
  *
@@ -42,19 +41,15 @@ public class OnExitTagHandler extends AbstractFlowTagHandler<OnExit> {
     }
 
     @Override
-    public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
-        TransitionTarget target = (TransitionTarget) parentElement;
+    public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
+        TransitionalState target = (TransitionalState) parentElement;
         decorate(ctx, parent, target);
-
-        if (target.getOnExit() != null) {
-            throw new TagException(this.tag, "already defined in this element!");
-        }
 
         OnExit executable = new OnExit();
 
         applyNext(ctx, parent, executable);
 
-        target.setOnExit(executable);
+        target.addOnExit(executable);
     }
 
 }

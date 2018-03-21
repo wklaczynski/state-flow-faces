@@ -16,7 +16,6 @@
 package org.ssoft.faces.state.tag;
 
 import com.sun.faces.el.ELContextImpl;
-import com.sun.faces.facelets.el.CompositeFunctionMapper;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,18 +29,18 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
-import javax.faces.state.PathResolver;
-import static javax.faces.state.StateFlowHandler.BUILD_STATE_MACHINE_HINT;
-import static javax.faces.state.StateFlowHandler.DEFAULT_STATECHART_NAME;
+import javax.scxml.PathResolver;
 import javax.faces.state.component.UIStateChartRoot;
-import javax.faces.state.model.StateChart;
+import static javax.faces.state.faces.StateFlowHandler.BUILD_STATE_MACHINE_HINT;
+import static javax.faces.state.faces.StateFlowHandler.DEFAULT_STATECHART_NAME;
+import static javax.faces.state.faces.StateFlowHandler.STATECHART_FACET_NAME;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
 import javax.faces.view.facelets.TagHandler;
-import org.ssoft.faces.state.el.BuiltinFunctionMapper;
+import javax.scxml.model.SCXML;
 import org.ssoft.faces.state.impl.FacesURLResolver;
 import org.ssoft.faces.state.impl.VariableMapperWrapper;
 import org.ssoft.faces.state.log.FlowLogger;
@@ -86,14 +85,14 @@ public class StateChartTagHandler extends TagHandler {
             return;
         }
 
-        StateChart chart = getElement(parent, StateChart.class);
+        SCXML chart = getElement(parent, SCXML.class);
         if (chart != null) {
             throw new TagException(this.tag, "can not instance new chart in other chart!");
         }
 
         UIComponent facetComponent = null;
         if (root.getFacetCount() > 0) {
-            facetComponent = root.getFacets().get(StateChart.STATECHART_FACET_NAME);
+            facetComponent = root.getFacets().get(STATECHART_FACET_NAME);
         }
 
         UIStateChartRoot uichart = null;
@@ -116,10 +115,11 @@ public class StateChartTagHandler extends TagHandler {
             return;
         }
 
-        chart = new StateChart(chartId, root.getViewId());
+        chart = new SCXML();
         if (initial != null) {
             chart.setInitial(initial.getValue(ctx));
         }
+        chart.setDatamodelName(tag.getNamespace());
 
         Application app = ctx.getFacesContext().getApplication();
         if (facetComponent == null && !(facetComponent instanceof UIPanel)) {
@@ -127,11 +127,11 @@ public class StateChartTagHandler extends TagHandler {
             if (facetComponent != null) {
                 panelGroup.getChildren().add(facetComponent);
             }
-            root.getFacets().put(StateChart.STATECHART_FACET_NAME, panelGroup);
+            root.getFacets().put(STATECHART_FACET_NAME, panelGroup);
             facetComponent = panelGroup;
         }
         if (null != facetComponent) {
-            facetComponent.setId(StateChart.STATECHART_FACET_NAME);
+            facetComponent.setId(STATECHART_FACET_NAME);
         }
 
         if (uichart == null) {
@@ -148,10 +148,9 @@ public class StateChartTagHandler extends TagHandler {
             fc.getExternalContext().getApplicationMap().put(BASE_PATH_RESOLVER, baseResolver);
         }
 
-        PathResolver resolver = baseResolver.getResolver(fc, root.getViewId());
+        PathResolver resolver = baseResolver.getResolver(root.getViewId());
 
         FunctionMapper forig = ctx.getFunctionMapper();
-        ctx.setFunctionMapper(new CompositeFunctionMapper(new BuiltinFunctionMapper(), forig));
 
         VariableMapper corig = ctx.getVariableMapper();
         ctx.setVariableMapper(new VariableMapperWrapper(corig));
@@ -170,9 +169,9 @@ public class StateChartTagHandler extends TagHandler {
 
     }
 
-    protected void build(FaceletContext ctx, UIComponent parent, StateChart chart, Map<Object, Tag> tags, PathResolver resolver) throws IOException {
+    protected void build(FaceletContext ctx, UIComponent parent, SCXML chart, Map<Object, Tag> tags, PathResolver resolver) throws IOException {
         pushElement(parent, TAG_MAP, tags);
-        pushElement(parent, StateChart.class, chart);
+        pushElement(parent, SCXML.class, chart);
         pushElement(parent, PathResolver.class, resolver);
         pushElement(parent, CURRENT_FLOW_OBJECT, chart);
         try {
@@ -180,7 +179,7 @@ public class StateChartTagHandler extends TagHandler {
         } finally {
             popElement(parent, CURRENT_FLOW_OBJECT);
             popElement(parent, PathResolver.class);
-            popElement(parent, StateChart.class);
+            popElement(parent, SCXML.class);
             popElement(parent, TAG_MAP);
         }
     }

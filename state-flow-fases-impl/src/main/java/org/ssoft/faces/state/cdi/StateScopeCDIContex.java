@@ -29,10 +29,11 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.state.FlowContext;
-import javax.faces.state.StateFlowExecutor;
 import javax.faces.state.annotation.StateScoped;
-import javax.faces.state.model.State;
+import javax.scxml.Context;
+import javax.scxml.SCXMLExecutor;
+import javax.scxml.model.EnterableState;
+import javax.scxml.model.State;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import org.ssoft.faces.state.log.FlowLogger;
@@ -57,12 +58,12 @@ public class StateScopeCDIContex extends AbstractContext {
         this.beanManager = beanManager;
     }
 
-    private static FlowContext getStateContext(StateFlowExecutor executor, final FacesContext fc) {
-        FlowContext context = null;
-        Iterator iterator = executor.getCurrentStatus().getStates().iterator();
+    private static Context getStateContext(SCXMLExecutor executor, final FacesContext fc) {
+        Context context = null;
+        Iterator iterator = executor.getStatus().getStates().iterator();
         if (iterator.hasNext()) {
-            State state = ((State) iterator.next());
-            context = executor.getFlowInstance().getContext(state);
+            EnterableState state = ((EnterableState) iterator.next());
+            //context = state.getInstance().getContext(state);
         }
         return context;
     }
@@ -71,11 +72,11 @@ public class StateScopeCDIContex extends AbstractContext {
     protected ContextualStorage getContextualStorage(Contextual<?> contextual, boolean createIfNotExist) {
         FacesContext fc = FacesContext.getCurrentInstance();
         ExternalContext ec = fc.getExternalContext();
-        StateFlowExecutor executor = StateFlowUtils.getExecutor(fc);
+        SCXMLExecutor executor = StateFlowUtils.getExecutor(fc);
         if (executor == null) {
             throw new ContextNotActiveException("StateFlowExecutor: no executor set for the current Thread yet!");
         }
-        FlowContext context = getStateContext(executor, fc);
+        Context context = getStateContext(executor, fc);
         ContextualStorage contextualStorage = (ContextualStorage) context.get(STORAGE_KEY);
         if (contextualStorage == null) {
             synchronized (this) {
@@ -121,18 +122,18 @@ public class StateScopeCDIContex extends AbstractContext {
 
     public static void flowStateExited(State state) {
         FacesContext fc = FacesContext.getCurrentInstance();
-        StateFlowExecutor executor = StateFlowUtils.getExecutor(fc);
+        SCXMLExecutor executor = StateFlowUtils.getExecutor(fc);
         if (executor == null) {
             throw new ContextNotActiveException("StateFlowExecutor: no executor set for the current Thread yet!");
         }
 
         ContextualStorage contextualStorage;
         if (state != null) {
-            FlowContext context = executor.getFlowInstance().getContext(state);
-            contextualStorage = (ContextualStorage) context.get(STORAGE_KEY);
-            if (contextualStorage != null) {
-                destroyAllActive(contextualStorage);
-            }
+            Context context = null;//executor.getFlowInstance().getContext(state);
+//            contextualStorage = (ContextualStorage) context.get(STORAGE_KEY);
+//            if (contextualStorage != null) {
+//                destroyAllActive(contextualStorage);
+//            }
         }
         BeanManager beanManager = (BeanManager) Util.getCdiBeanManager(fc);
         if (Util.isCdiOneOneOrLater(fc)) {

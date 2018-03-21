@@ -17,12 +17,13 @@ package org.ssoft.faces.state.tag;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import javax.faces.state.model.Invoke;
-import javax.faces.state.model.State;
-import javax.faces.state.model.StateChart;
+import javax.scxml.model.Invoke;
+import javax.scxml.model.State;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
+import javax.scxml.model.SCXML;
+import javax.scxml.model.TransitionalState;
 
 /**
  *
@@ -45,19 +46,20 @@ public class InvokeTagHandler extends AbstractFlowTagHandler<Invoke> {
     }
 
     @Override
-    public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
+    public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Invoke target = new Invoke();
         decorate(ctx, parent, target);
 
-        target.setTargettype(type.getValue());
-        target.setSrc(src.getValueExpression(ctx, String.class));
+        
+        target.setType(type.getValue());
+        target.setSrc(src.getValue());
         
         target.setId(id != null ? id.getValue() : null);
 
         applyNext(ctx, parent, target);
 
-        State state = (State) parentElement;
-        state.setInvoke(target);
+        TransitionalState state = (TransitionalState) parentElement;
+        state.addInvoke(target);
     }
 
 }

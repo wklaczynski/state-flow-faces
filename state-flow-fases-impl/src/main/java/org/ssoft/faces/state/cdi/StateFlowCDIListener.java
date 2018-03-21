@@ -21,24 +21,25 @@ import javax.faces.context.FacesContext;
 import javax.faces.state.events.FlowOnEntryEvent;
 import javax.faces.state.events.FlowOnExitEvent;
 import javax.faces.state.events.FlowOnTransitionEvent;
-import javax.faces.state.model.Parallel;
-import javax.faces.state.model.State;
-import javax.faces.state.model.Transition;
-import javax.faces.state.model.TransitionTarget;
+import javax.scxml.SCXMLListener;
+import javax.scxml.model.EnterableState;
+import javax.scxml.model.Parallel;
+import javax.scxml.model.State;
+import javax.scxml.model.Transition;
+import javax.scxml.model.TransitionTarget;
 import org.ssoft.faces.state.utils.Util;
-import javax.faces.state.StateFlowListener;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class StateFlowCDIListener implements StateFlowListener, Serializable {
+public class StateFlowCDIListener implements SCXMLListener, Serializable {
 
     public StateFlowCDIListener() {
     }
 
     @Override
-    public void onEntry(TransitionTarget tt) {
+    public void onEntry(EnterableState tt) {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (Util.isCdiAvailable(fc)) {
             BeanManager bm = Util.getCdiBeanManager(fc);
@@ -56,7 +57,7 @@ public class StateFlowCDIListener implements StateFlowListener, Serializable {
     }
 
     @Override
-    public void onTransition(TransitionTarget from, TransitionTarget to, Transition t) {
+    public void onTransition(TransitionTarget from, TransitionTarget to, Transition t, String event) {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (Util.isCdiAvailable(fc)) {
             BeanManager bm = Util.getCdiBeanManager(fc);
@@ -65,7 +66,7 @@ public class StateFlowCDIListener implements StateFlowListener, Serializable {
     }
 
     @Override
-    public void onExit(TransitionTarget tt) {
+    public void onExit(EnterableState tt) {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (Util.isCdiAvailable(fc)) {
             BeanManager bm = Util.getCdiBeanManager(fc);

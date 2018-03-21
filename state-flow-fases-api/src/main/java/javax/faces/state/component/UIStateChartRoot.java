@@ -18,7 +18,7 @@ package javax.faces.state.component;
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.event.ComponentSystemEventListener;
 import javax.faces.event.PostRestoreStateEvent;
-import javax.faces.state.model.StateChart;
+import javax.scxml.model.SCXML;
 
 /**
  *
@@ -45,11 +45,11 @@ public class UIStateChartRoot extends UIFlowBase {
         });
     }
 
-    public StateChart getStateChart() {
-        return (StateChart) getStateHelper().eval(PropertyKeys.stateChart);
+    public SCXML getStateChart() {
+        return (SCXML) getStateHelper().eval(PropertyKeys.stateChart);
     }
 
-    public void setStateChart(StateChart stateChart) {
+    public void setStateChart(SCXML stateChart) {
         getStateHelper().put(PropertyKeys.stateChart, stateChart);
     }
 

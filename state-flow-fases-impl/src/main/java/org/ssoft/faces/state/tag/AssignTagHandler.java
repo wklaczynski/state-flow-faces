@@ -17,16 +17,16 @@ package org.ssoft.faces.state.tag;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import javax.faces.state.model.Assign;
-import javax.faces.state.model.Finalize;
-import javax.faces.state.model.If;
-import javax.faces.state.model.OnEntry;
-import javax.faces.state.model.OnExit;
-import javax.faces.state.model.StateChart;
-import javax.faces.state.model.Transition;
+import javax.scxml.model.Assign;
+import javax.scxml.model.Finalize;
+import javax.scxml.model.If;
+import javax.scxml.model.OnEntry;
+import javax.scxml.model.OnExit;
+import javax.scxml.model.Transition;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
+import javax.scxml.model.SCXML;
 
 /**
  *
@@ -57,7 +57,7 @@ public class AssignTagHandler extends AbstractFlowTagHandler<Assign> {
     }
 
     @Override
-    public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
+    public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Assign action = new Assign();
         decorate(ctx, parent, action);
 

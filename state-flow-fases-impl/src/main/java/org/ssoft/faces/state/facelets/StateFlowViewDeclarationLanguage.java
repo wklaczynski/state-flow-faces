@@ -19,8 +19,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewDeclarationLanguageWrapper;
 import javax.faces.view.ViewMetadata;
-import static org.ssoft.faces.state.FlowConstants.ORYGINAL_SCXML_DEFAULT_SUFIX;
-import static org.ssoft.faces.state.FlowConstants.ORYGINAL_SCXML_SUFIX;
+import static org.ssoft.faces.state.FacesFlowConstants.ORYGINAL_SCXML_DEFAULT_SUFIX;
+import static org.ssoft.faces.state.FacesFlowConstants.ORYGINAL_SCXML_SUFIX;
 import org.ssoft.faces.state.config.StateWebConfiguration;
 
 /**

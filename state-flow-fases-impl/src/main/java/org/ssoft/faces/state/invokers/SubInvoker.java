@@ -1,11 +1,12 @@
 /*
- * Copyright 2018 Waldemar Kłaczyński.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,48 +16,63 @@
  */
 package org.ssoft.faces.state.invokers;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.state.FlowStatus;
-import javax.faces.state.FlowTriggerEvent;
-import javax.faces.state.ModelException;
-import javax.faces.state.StateFlowExecutor;
-import javax.faces.state.StateFlowHandler;
-import javax.faces.state.invoke.AbstractInvoker;
-import javax.faces.state.invoke.Invoker;
-import javax.faces.state.invoke.InvokerException;
-import javax.faces.state.model.State;
-import javax.faces.state.model.StateChart;
-import org.ssoft.faces.state.utils.AsyncTrigger;
+import javax.faces.state.faces.StateFlowHandler;
+import javax.scxml.EventBuilder;
+import javax.scxml.SCXMLExecutor;
+import javax.scxml.SCXMLIOProcessor;
+import javax.scxml.TriggerEvent;
+import javax.scxml.invoke.Invoker;
+import javax.scxml.invoke.InvokerException;
+import javax.scxml.model.SCXML;
 
 /**
- *
- * @author Waldemar Kłaczyński
+ * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
+ * contain external namespace elements, further invokes etc.
  */
-public class SubInvoker extends AbstractInvoker implements Invoker {
+public class SubInvoker implements Invoker, Serializable {
 
     private final static Logger logger = Logger.getLogger(SubInvoker.class.getName());
 
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 1L;
+    /**
+     * invokeId ID.
+     */
+    private String invokeId;
+    /**
+     * Invoking parent SCXMLExecutor
+     */
+    private SCXMLExecutor parentSCXMLExecutor;
+    /**
+     * The invoked state machine executor.
+     */
+    private SCXMLExecutor executor;
+    /**
      * Cancellation status.
      */
     private boolean cancelled;
-    //// Constants
-    private String executorPrefix;
 
-    public SubInvoker() {
-        super();
+    /**
+     * {@inheritDoc}.
+     */
+    @Override
+    public String getInvokeId() {
+        return invokeId;
     }
 
+    /**
+     * {@inheritDoc}.
+     */
     @Override
-    public void setParentStateId(final String parentStateId) {
-        super.setParentStateId(parentStateId);
-        this.executorPrefix = prefix("executor");
+    public void setInvokeId(final String invokeId) {
+        this.invokeId = invokeId;
         this.cancelled = false;
     }
 
@@ -64,25 +80,59 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
      * {@inheritDoc}.
      */
     @Override
-    public void invoke(final String source, final Map params) throws InvokerException {
+    public void setParentSCXMLExecutor(SCXMLExecutor parentSCXMLExecutor) {
+        this.parentSCXMLExecutor = parentSCXMLExecutor;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Override
+    public SCXMLIOProcessor getChildIOProcessor() {
+        // not used
+        return executor;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Override
+    public void invoke(final String url, final Map<String, Object> params)
+            throws InvokerException {
+        FacesContext fc = FacesContext.getCurrentInstance();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        SCXML scxml;
         try {
-            FacesContext fc = FacesContext.getCurrentInstance();
-            ExternalContext ec = fc.getExternalContext();
-
-            StateFlowHandler handler = StateFlowHandler.getInstance();
-
-            String viewId = source;
+            String viewId = url;
             int pos = viewId.indexOf("META-INF/resources/");
             if (pos >= 0) {
                 viewId = viewId.substring(pos + 18);
             }
 
-            StateChart stateMachine = handler.createStateMachine(fc, viewId);
-
-            handler.startExecutor(fc, parentStateId, stateMachine, params, false);
+            scxml = handler.createStateMachine(fc, viewId);
         } catch (Throwable ex) {
-            logger.log(Level.SEVERE, "Invoke failed", ex);
             throw new InvokerException(ex);
+        }
+        execute(handler, scxml, params);
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Override
+    public void invokeContent(final String content, final Map<String, Object> params)
+            throws InvokerException {
+
+    }
+
+    protected void execute(StateFlowHandler handler, SCXML scxml, final Map<String, Object> params) throws InvokerException {
+        try {
+            FacesContext fc = FacesContext.getCurrentInstance();
+            ExternalContext ec = fc.getExternalContext();
+
+            executor = handler.execute(parentSCXMLExecutor, invokeId, scxml, params);
+        } catch (Throwable me) {
+            throw new InvokerException(me);
         }
     }
 
@@ -90,51 +140,23 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
      * {@inheritDoc}.
      */
     @Override
-    public void parentEvents(final FlowTriggerEvent[] evts) throws InvokerException {
-        if (cancelled) {
-            return;
+    public void parentEvent(final TriggerEvent event) throws InvokerException {
+        if (!cancelled) {
+
         }
+
         FacesContext fc = FacesContext.getCurrentInstance();
         ExternalContext ec = fc.getExternalContext();
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
-        AsyncTrigger execTriger = new AsyncTrigger(instance.getExecutor());
-
-        List<FlowTriggerEvent> slevt = new ArrayList<>();
-        for (FlowTriggerEvent event : evts) {
-            if (event.getType() == FlowTriggerEvent.EXECUTOR_EVENT && event.getName().startsWith(executorPrefix)) {
-                String outcome = event.getName().substring(executorPrefix.length());
-                if (outcome.equals("stop")) {
-                    FlowTriggerEvent te = new FlowTriggerEvent(invokePrefix + "cancel", FlowTriggerEvent.SIGNAL_EVENT);
-                    execTriger.add(te);
-                }
-            } else {
-                slevt.add(event);
-            }
-        }
-
-        StateFlowExecutor executor = handler.getExecutor(fc, instance.getExecutor());
         if (executor != null) {
 
-            boolean doneBefore = executor.getCurrentStatus().isFinal();
-            try {
-                FlowTriggerEvent[] subevts = slevt.toArray(new FlowTriggerEvent[slevt.size()]);
-                executor.triggerEvents(subevts);
-            } catch (ModelException me) {
-                throw new InvokerException(me.getMessage(), me.getCause());
-            }
+            boolean doneBefore = executor.getStatus().isFinal();
 
-            if (!doneBefore && executor.getCurrentStatus().isFinal()) {
+            executor.addEvent(event);
 
-                AsyncTrigger finalTriger = new AsyncTrigger(instance.getExecutor());
+            if (!doneBefore && executor.getStatus().isFinal()) {
 
-                FlowStatus status = executor.getCurrentStatus();
-                for (State state : status.getStates()) {
-                    if (state.isFinal()) {
-                        FlowTriggerEvent te = new FlowTriggerEvent(invokePrefix + state.getId() + ".done", FlowTriggerEvent.CHANGE_EVENT);
-                        finalTriger.add(te);
-                    }
-                }
 //                FlowContext ctx = executor.getRootContext();
 //                if (ctx.has("@result")) {
 //                    FlowContext result = (FlowContext) ctx.get("@result");
@@ -143,10 +165,9 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
 //                    FlowContext pcontext = instance.getContext(pstate);
 //                    pcontext.setLocal("@result", result);
 //                }
-                finalTriger.start();
             }
         }
-        execTriger.start();
+
     }
 
     /**
@@ -154,20 +175,8 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
      */
     @Override
     public void cancel() throws InvokerException {
-        if (cancelled) {
-            return;
-        }
         cancelled = true;
-        FlowTriggerEvent te = new FlowTriggerEvent(invokePrefix + "cancel", FlowTriggerEvent.SIGNAL_EVENT);
-        new AsyncTrigger(instance.getExecutor(), te).start();
-
-        FacesContext fc = FacesContext.getCurrentInstance();
-        StateFlowHandler handler = StateFlowHandler.getInstance();
-        StateFlowExecutor executor = handler.getExecutor(fc, instance.getExecutor());
-        if (executor != null) {
-            handler.stopExecutor(fc, instance.getExecutor());
-        }
-
+        executor.getParentSCXMLIOProcessor().close();
+        executor.addEvent(new EventBuilder("cancel.invoke." + invokeId, TriggerEvent.CANCEL_EVENT).build());
     }
-
 }

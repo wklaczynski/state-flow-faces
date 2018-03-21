@@ -35,8 +35,7 @@ public enum FlowLogger {
     CDI("cdi"),
     PARSER("parser"),
     APPLICATION("apps"),
-    TAGLIB("taglib")
-    ;
+    TAGLIB("taglib");
 
     private static final String LOGGER_RESOURCES
             = "org.ssoft.faces.state.LogStrings";

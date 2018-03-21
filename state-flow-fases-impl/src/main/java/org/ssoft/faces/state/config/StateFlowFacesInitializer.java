@@ -21,7 +21,7 @@ import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.HandlesTypes;
-import static org.ssoft.faces.state.FlowConstants.ANNOTATED_CLASSES;
+import static org.ssoft.faces.state.FacesFlowConstants.ANNOTATED_CLASSES;
 import javax.faces.state.annotation.FlowAction;
 import javax.faces.state.annotation.FlowInvoker;
 

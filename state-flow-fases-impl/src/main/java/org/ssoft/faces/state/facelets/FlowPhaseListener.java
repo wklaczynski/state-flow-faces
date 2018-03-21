@@ -28,16 +28,17 @@ import javax.faces.context.Flash;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
-import javax.faces.state.FlowContext;
-import javax.faces.state.StateFlowExecutor;
-import javax.faces.state.StateFlowHandler;
-import static javax.faces.state.StateFlowHandler.DEFAULT_STATECHART_NAME;
-import static javax.faces.state.StateFlowHandler.SKIP_START_STATE_MACHINE_HINT;
+import javax.scxml.Context;
+import javax.scxml.SCXMLExecutor;
 import javax.faces.state.component.UIStateChartRoot;
-import javax.faces.state.model.State;
-import javax.faces.state.model.StateChart;
-import static org.ssoft.faces.state.FlowConstants.STATE_CHART_DEFAULT_PARAM_NAME;
-import static org.ssoft.faces.state.FlowConstants.STATE_CHART_REQUEST_PARAM_NAME;
+import javax.faces.state.faces.StateFlowHandler;
+import static javax.faces.state.faces.StateFlowHandler.DEFAULT_STATECHART_NAME;
+import static javax.faces.state.faces.StateFlowHandler.SKIP_START_STATE_MACHINE_HINT;
+import static javax.faces.state.faces.StateFlowHandler.STATECHART_FACET_NAME;
+import javax.scxml.model.SCXML;
+import javax.scxml.model.State;
+import static org.ssoft.faces.state.FacesFlowConstants.STATE_CHART_DEFAULT_PARAM_NAME;
+import static org.ssoft.faces.state.FacesFlowConstants.STATE_CHART_REQUEST_PARAM_NAME;
 import org.ssoft.faces.state.config.StateWebConfiguration;
 
 /**
@@ -60,11 +61,11 @@ public class FlowPhaseListener implements PhaseListener {
         FacesContext context = event.getFacesContext();
         if (event.getPhaseId() != PhaseId.RESTORE_VIEW) {
             StateFlowHandler fh = StateFlowHandler.getInstance();
-            StateFlowExecutor executor = fh.getExecutor(context);
+            SCXMLExecutor executor = fh.getExecutor(context);
             if (executor != null) {
-                FlowContext stateContext = getStateContext(context, executor);
-                context.getELContext().putContext(FlowContext.class, stateContext);
-                context.getELContext().putContext(StateFlowExecutor.class, executor);
+                Context stateContext = getStateContext(context, executor);
+                context.getELContext().putContext(Context.class, stateContext);
+                context.getELContext().putContext(SCXMLExecutor.class, executor);
             }
         }
         if (event.getPhaseId() == PhaseId.RENDER_RESPONSE) {
@@ -72,13 +73,13 @@ public class FlowPhaseListener implements PhaseListener {
         }
     }
 
-    private static FlowContext getStateContext(
+    private static Context getStateContext(
             final FacesContext fc,
-            final StateFlowExecutor executor) {
-        Iterator iterator = executor.getCurrentStatus().getStates().iterator();
+            final SCXMLExecutor executor) {
+        Iterator iterator = executor.getStatus().getStates().iterator();
         
         State state = ((State) iterator.next());
-        FlowContext context = executor.getFlowInstance().getContext(state);
+        Context context = executor.getGlobalContext();
         return context;
     }
 
@@ -102,9 +103,9 @@ public class FlowPhaseListener implements PhaseListener {
             return;
         }
 
-        UIComponent facet = viewRoot.getFacet(StateChart.STATECHART_FACET_NAME);
+        UIComponent facet = viewRoot.getFacet(STATECHART_FACET_NAME);
         if (facet != null) {
-            StateChart stateChart = null;
+            SCXML stateChart = null;
 
             StateWebConfiguration wcfg = StateWebConfiguration.getInstance();
 
@@ -130,7 +131,7 @@ public class FlowPhaseListener implements PhaseListener {
         }
     }
 
-    public void startStateMachine(FacesContext context, StateChart stateFlow) {
+    public void startStateMachine(FacesContext context, SCXML stateFlow) {
         UIViewRoot currentViewRoot = context.getViewRoot();
         Map<String, Object> currentViewMapShallowCopy = Collections.emptyMap();
 
@@ -150,7 +151,7 @@ public class FlowPhaseListener implements PhaseListener {
                 params.put(key, pmap.get(key));
             }
 
-            flowHandler.startExecutor(context, "faces.view", stateFlow, params, true);
+            flowHandler.execute(stateFlow, params);
             UIViewRoot result = context.getViewRoot();
 
             if (null != currentViewRoot) {

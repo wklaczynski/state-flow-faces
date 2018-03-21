@@ -18,13 +18,14 @@ package org.ssoft.faces.state.tag;
 import java.io.IOException;
 import java.util.List;
 import javax.faces.component.UIComponent;
-import javax.faces.state.model.Invoke;
-import javax.faces.state.model.Param;
-import javax.faces.state.model.Send;
-import javax.faces.state.model.StateChart;
+import javax.scxml.model.Invoke;
+import javax.scxml.model.Param;
+import javax.scxml.model.Send;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
+import javax.scxml.model.ParamsContainer;
+import javax.scxml.model.SCXML;
 
 /**
  *
@@ -46,19 +47,18 @@ public class ParamTagHandler extends AbstractFlowTagHandler<Param> {
     }
 
     @Override
-    public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
+    public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         List<Param> params = null;
-        if(parentElement instanceof Invoke) {
-            params = ((Invoke) parentElement).params();
-        }else if(parentElement instanceof Send) {
-            params = ((Send) parentElement).params();
+        if(parentElement instanceof ParamsContainer) {
+            ParamsContainer pc = (ParamsContainer) parentElement;
+            params = pc.getParams();
         }
         
         Param param = new Param();
         decorate(ctx, parent, param);
 
         param.setName(name.getValue());
-        param.setExpr(expr.getValueExpression(ctx, Object.class));
+        param.setExpr(expr.getValue());
         
         applyNext(ctx, parent, param);
         

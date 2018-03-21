@@ -15,9 +15,12 @@
  */
 package org.ssoft.faces.state.cdi;
 
-import javax.faces.state.FlowInstance;
-import javax.faces.state.PathResolver;
+import javax.faces.context.FacesContext;
+import javax.scxml.PathResolver;
 import javax.faces.state.annotation.StateChartScoped;
+import javax.faces.state.faces.StateFlowHandler;
+import javax.scxml.SCXMLExecutor;
+import javax.scxml.model.SCXML;
 
 /**
  *
@@ -31,10 +34,15 @@ public class PathResolverProducer extends CdiProducer<PathResolver> {
     private static final long serialVersionUID = 1L;
     
     public PathResolverProducer() {
+        StateFlowHandler fh = StateFlowHandler.getInstance();
+        SCXMLExecutor executor = fh.getExecutor(FacesContext.getCurrentInstance());
+        SCXML stateMachine = executor.getStateMachine();
+        
+        
         super.name("flowPathResolver")
              .scope(StateChartScoped.class)
              .beanClassAndType(PathResolver.class)   
-             .create(e -> FlowInstance.current(PathResolver.class));
+             .create(e -> null);
     }
 
 }

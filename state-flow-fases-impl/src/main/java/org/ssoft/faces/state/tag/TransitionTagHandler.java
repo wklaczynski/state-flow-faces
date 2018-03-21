@@ -17,17 +17,18 @@ package org.ssoft.faces.state.tag;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import javax.faces.state.model.History;
-import javax.faces.state.model.Initial;
-import javax.faces.state.model.Parallel;
-import javax.faces.state.model.State;
-import javax.faces.state.model.StateChart;
-import javax.faces.state.model.Transition;
+import javax.scxml.model.History;
+import javax.scxml.model.Initial;
+import javax.scxml.model.Parallel;
+import javax.scxml.model.State;
+import javax.scxml.model.Transition;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagAttributeException;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
+import javax.scxml.model.SCXML;
+import javax.scxml.model.TransitionType;
 
 /**
  *
@@ -45,7 +46,7 @@ public class TransitionTagHandler extends AbstractFlowTagHandler<Transition> {
     public TransitionTagHandler(TagConfig config) {
         super(config, Transition.class);
 
-        in("scxml", StateChart.class);
+        in("scxml", SCXML.class);
         in("parallel", Parallel.class);
         in("state", State.class);
         in("history", History.class);
@@ -58,7 +59,7 @@ public class TransitionTagHandler extends AbstractFlowTagHandler<Transition> {
     }
 
     @Override
-    public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
+    public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
 
         if (parentElement instanceof Initial) {
             Initial initial = (Initial) parentElement;
@@ -77,8 +78,8 @@ public class TransitionTagHandler extends AbstractFlowTagHandler<Transition> {
         decorate(ctx, parent, transition);
 
         if (type != null) {
-            String tvalue = type.getValue();
-            if (tvalue.equals("internal") || tvalue.equals("external")) {
+            TransitionType tvalue =  TransitionType.valueOf(type.getValue());
+            if (tvalue != null) {
                 transition.setType(tvalue);
             } else {
                 throw new TagAttributeException(type, String.format("illegal tranisition type \"%s\", transition tyme mus be match \"internal\" or \"external\".", tvalue));
@@ -90,7 +91,7 @@ public class TransitionTagHandler extends AbstractFlowTagHandler<Transition> {
         }
 
         if (cond != null) {
-            transition.setCond(cond.getValueExpression(ctx, Boolean.class));
+            transition.setCond(cond.getValue());
         }
 
         if (target != null) {

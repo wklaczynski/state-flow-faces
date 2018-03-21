@@ -15,8 +15,8 @@
  */
 package javax.faces.state.events;
 
-import javax.faces.state.model.Transition;
-import javax.faces.state.model.TransitionTarget;
+import javax.scxml.model.Transition;
+import javax.scxml.model.TransitionTarget;
 
 /**
  *

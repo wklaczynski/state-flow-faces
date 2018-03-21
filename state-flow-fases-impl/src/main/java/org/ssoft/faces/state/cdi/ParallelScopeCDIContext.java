@@ -29,15 +29,16 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.state.FlowContext;
-import javax.faces.state.StateFlowExecutor;
-import javax.faces.state.model.Parallel;
-import javax.faces.state.model.State;
+import javax.scxml.model.Parallel;
+import javax.scxml.model.State;
 import javax.servlet.http.HttpSessionEvent;
 import org.ssoft.faces.state.log.FlowLogger;
 import static org.ssoft.faces.state.cdi.AbstractContext.destroyAllActive;
 import org.ssoft.faces.state.utils.Util;
 import javax.faces.state.annotation.ParallelScoped;
+import javax.scxml.Context;
+import javax.scxml.SCXMLExecutor;
+import javax.scxml.model.EnterableState;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -58,19 +59,27 @@ public class ParallelScopeCDIContext extends AbstractContext {
         this.beanManager = beanManager;
     }
 
-    private static FlowContext getParallelContext(final FacesContext fc) {
-        StateFlowExecutor executor = StateFlowUtils.getExecutor(fc);
+    private static Context getParallelContext(final FacesContext fc) {
+        SCXMLExecutor executor = StateFlowUtils.getExecutor(fc);
         if (executor == null) {
             return null;
         }
-        Iterator iterator = executor.getCurrentStatus().getStates().iterator();
-        State state = ((State) iterator.next());
-        Parallel parallel = state.getParallel();
+        Iterator iterator = executor.getStatus().getStates().iterator();
+        EnterableState state = ((State) iterator.next());
+        Parallel parallel = null;
+        while(state != null) {
+            if(state instanceof Parallel) {
+                parallel = (Parallel) state;
+                break;
+            }
+            state = state.getParent();
+        }
+
         if (parallel == null) {
             return null;
         }
 
-        FlowContext context = StateFlowUtils.getTransitionContext(fc, executor, parallel);
+        Context context = StateFlowUtils.getTransitionContext(fc, executor, parallel);
         return context;
     }
 
@@ -78,11 +87,11 @@ public class ParallelScopeCDIContext extends AbstractContext {
     protected ContextualStorage getContextualStorage(Contextual<?> contextual, boolean createIfNotExist) {
         FacesContext fc = FacesContext.getCurrentInstance();
         ExternalContext ec = fc.getExternalContext();
-        StateFlowExecutor executor = StateFlowUtils.getExecutor(fc);
+        SCXMLExecutor executor = StateFlowUtils.getExecutor(fc);
         if (executor == null) {
             throw new ContextNotActiveException("StateFlowExecutor: no executor set for the current Thread yet!");
         }
-        FlowContext context = getParallelContext(fc);
+        Context context = getParallelContext(fc);
         if (context == null) {
             throw new ContextNotActiveException("StateFlowExecutor: no parallel set for the current Thread yet!");
         }
@@ -132,14 +141,14 @@ public class ParallelScopeCDIContext extends AbstractContext {
 
     public static void flowParallelExited(Parallel parallel) {
         FacesContext fc = FacesContext.getCurrentInstance();
-        StateFlowExecutor executor = StateFlowUtils.getExecutor(fc);
+        SCXMLExecutor executor = StateFlowUtils.getExecutor(fc);
         if (executor == null) {
             throw new ContextNotActiveException("StateFlowExecutor: no executor set for the current Thread yet!");
         }
 
         ContextualStorage contextualStorage;
         if (executor != null) {
-            FlowContext context = StateFlowUtils.getTransitionContext(fc, executor, parallel);
+            Context context = StateFlowUtils.getTransitionContext(fc, executor, parallel);
             contextualStorage = (ContextualStorage) context.get(STORAGE_KEY);
             if (contextualStorage != null) {
                 destroyAllActive(contextualStorage);

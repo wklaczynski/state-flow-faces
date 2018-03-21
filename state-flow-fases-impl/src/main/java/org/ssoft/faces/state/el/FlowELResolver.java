@@ -22,8 +22,8 @@ import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.el.PropertyNotFoundException;
 import javax.el.PropertyNotWritableException;
-import javax.faces.state.FlowContext;
-import javax.faces.state.StateFlowExecutor;
+import javax.scxml.Context;
+import javax.scxml.SCXMLExecutor;
 
 /**
  *
@@ -45,7 +45,7 @@ public class FlowELResolver extends ELResolver implements Serializable {
                 context.setPropertyResolved(true);
                 result = getResultParams(context);
             } else {
-                FlowContext ctx = (FlowContext) context.getContext(FlowContext.class);
+                Context ctx = (Context) context.getContext(Context.class);
                 if (ctx != null && ctx.has(property.toString())) {
                     Object value = ctx.get(property.toString());
                     if (value != null) {
@@ -73,7 +73,7 @@ public class FlowELResolver extends ELResolver implements Serializable {
             if (STATE_RESULT_NAME.equals(property.toString())) {
                 result = ResultParams.class;
             } else {
-                FlowContext ctx = (FlowContext) context.getContext(FlowContext.class);
+                Context ctx = (Context) context.getContext(Context.class);
                 if (ctx != null && ctx.has(property.toString())) {
                     Object value = ctx.get(property.toString());
                     if (value != null) {
@@ -100,7 +100,7 @@ public class FlowELResolver extends ELResolver implements Serializable {
             throw new PropertyNotFoundException(message);
         }
         if (null == base) {
-            FlowContext ctx = (FlowContext) context.getContext(FlowContext.class);
+            Context ctx = (Context) context.getContext(Context.class);
             if (ctx != null && ctx.has(property.toString())) {
                 Object old = ctx.get(property.toString());
                 if (old != null) {
@@ -124,7 +124,7 @@ public class FlowELResolver extends ELResolver implements Serializable {
                 context.setPropertyResolved(true);
                 result = true;
             } else {
-                FlowContext ctx = (FlowContext) context.getContext(FlowContext.class);
+                Context ctx = (Context) context.getContext(Context.class);
                 if (ctx != null && ctx.has(property.toString())) {
                     context.setPropertyResolved(true);
                     result = false;
@@ -149,11 +149,11 @@ public class FlowELResolver extends ELResolver implements Serializable {
 
     private ResultParams getResultParams(ELContext context) {
         ResultParams attrScope = null;
-        StateFlowExecutor executor = (StateFlowExecutor) context.getContext(StateFlowExecutor.class);
+        SCXMLExecutor executor = (SCXMLExecutor) context.getContext(SCXMLExecutor.class);
         if (executor != null) {
-            FlowContext ctx = (FlowContext) context.getContext(FlowContext.class);
+            Context ctx = (Context) context.getContext(Context.class);
             if (ctx != null) {
-                FlowContext result = (FlowContext) ctx.get("__@result@__");
+                Context result = (Context) ctx.get("__@result@__");
                 if (result != null) {
                     attrScope = new ResultParams(result);
                 }
@@ -164,13 +164,13 @@ public class FlowELResolver extends ELResolver implements Serializable {
 
     private static class ResultParams implements Serializable {
 
-        private final FlowContext ctx;
+        private final Context ctx;
 
-        public ResultParams(FlowContext ctx) {
+        public ResultParams(Context ctx) {
             this.ctx = ctx;
         }
 
-        public FlowContext getCtx() {
+        public Context getCtx() {
             return ctx;
         }
 

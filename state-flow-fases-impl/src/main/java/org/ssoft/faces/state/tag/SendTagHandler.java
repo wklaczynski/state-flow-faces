@@ -17,16 +17,16 @@ package org.ssoft.faces.state.tag;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import javax.faces.state.model.Finalize;
-import javax.faces.state.model.If;
-import javax.faces.state.model.OnEntry;
-import javax.faces.state.model.OnExit;
-import javax.faces.state.model.Send;
-import javax.faces.state.model.StateChart;
-import javax.faces.state.model.Transition;
+import javax.scxml.model.Finalize;
+import javax.scxml.model.If;
+import javax.scxml.model.OnEntry;
+import javax.scxml.model.OnExit;
+import javax.scxml.model.Send;
+import javax.scxml.model.Transition;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
+import javax.scxml.model.SCXML;
 
 /**
  *
@@ -64,14 +64,14 @@ public class SendTagHandler extends AbstractFlowTagHandler<Send> {
     }
 
     @Override
-    public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
+    public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Send action = new Send();
         decorate(ctx, parent, action);
 
         action.setEvent(event.getValue());
         action.setTarget(target != null ? target.getValue() : null);
-        action.setTargettype(type != null ? type.getValue() : null);
-        action.setSendid(id != null ? id.getValue() : null);
+        action.setType(type != null ? type.getValue() : null);
+        action.setId(id != null ? id.getValue() : null);
         action.setDelay(delay != null ? delay.getValue() : null);
         action.setNamelist(namelist != null ? namelist.getValue() : null);
 

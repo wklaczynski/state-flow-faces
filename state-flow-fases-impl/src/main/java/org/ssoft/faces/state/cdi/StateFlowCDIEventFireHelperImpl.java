@@ -18,22 +18,22 @@ package org.ssoft.faces.state.cdi;
 import javax.enterprise.context.Destroyed;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Event;
-import javax.faces.state.StateFlowExecutor;
 import javax.inject.Inject;
 import javax.faces.state.annotation.StateScoped;
-import javax.faces.state.model.Parallel;
-import javax.faces.state.model.State;
+import javax.scxml.model.Parallel;
+import javax.scxml.model.State;
 import javax.faces.state.annotation.ParallelScoped;
 import javax.faces.state.annotation.StateChartScoped;
+import javax.scxml.SCXMLExecutor;
 
 public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHelper {
 
     @Inject
     @Initialized(StateChartScoped.class)
-    Event<StateFlowExecutor> stateChartScopeInitializedEvent;
+    Event<SCXMLExecutor> stateChartScopeInitializedEvent;
     @Inject
     @Destroyed(StateChartScoped.class)
-    Event<StateFlowExecutor> stateChartScopeDestroyedEvent;
+    Event<SCXMLExecutor> stateChartScopeDestroyedEvent;
 
     @Inject
     @Initialized(StateScoped.class)
@@ -52,12 +52,12 @@ public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHel
     Event<Parallel> parallelScopeDestroyedEvent;
 
     @Override
-    public void fireExecutorInitializedEvent(StateFlowExecutor executor) {
+    public void fireExecutorInitializedEvent(SCXMLExecutor executor) {
         stateChartScopeInitializedEvent.fire(executor);
     }
 
     @Override
-    public void fireExecutorDestroyedEvent(StateFlowExecutor executor) {
+    public void fireExecutorDestroyedEvent(SCXMLExecutor executor) {
         stateChartScopeDestroyedEvent.fire(executor);
     }
 

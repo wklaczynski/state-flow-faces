@@ -1,11 +1,12 @@
 /*
- * Copyright 2018 Waldemar Kłaczyński.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +16,7 @@
  */
 package org.ssoft.faces.state.invokers;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,28 +39,26 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.PartialViewContext;
 import javax.faces.render.RenderKit;
 import javax.faces.render.ResponseStateManager;
-import javax.faces.state.FlowContext;
-import javax.faces.state.FlowTriggerEvent;
-import javax.faces.state.StateFlowExecutor;
-import javax.faces.state.invoke.Invoker;
-import javax.faces.state.invoke.InvokerException;
-import javax.faces.state.model.Parallel;
-import javax.faces.state.invoke.AbstractInvoker;
-import javax.faces.state.model.State;
-import javax.faces.state.model.TransitionTarget;
-import javax.faces.view.ViewDeclarationLanguage;
-import javax.faces.view.ViewMetadata;
-import org.ssoft.faces.state.utils.AsyncTrigger;
-import org.ssoft.faces.state.utils.SharedUtils;
 import javax.faces.state.annotation.Statefull;
 import javax.faces.state.component.UIStateChartRoot;
-import javax.faces.state.model.StateChart;
+import static javax.faces.state.faces.StateFlowHandler.STATECHART_FACET_NAME;
+import javax.faces.view.ViewDeclarationLanguage;
+import javax.faces.view.ViewMetadata;
+import javax.scxml.Context;
+import javax.scxml.EventBuilder;
+import javax.scxml.SCXMLExecutor;
+import javax.scxml.SCXMLIOProcessor;
+import javax.scxml.TriggerEvent;
+import javax.scxml.invoke.Invoker;
+import javax.scxml.invoke.InvokerException;
+import javax.scxml.model.SCXML;
+import org.ssoft.faces.state.utils.SharedUtils;
 
 /**
- *
- * @author Waldemar Kłaczyński
+ * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
+ * contain external namespace elements, further invokes etc.
  */
-public class ViewInvoker extends AbstractInvoker implements Invoker {
+public class ViewInvoker implements Invoker, Serializable {
 
     private final static Logger logger = Logger.getLogger(ViewInvoker.class.getName());
 
@@ -66,8 +66,23 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
     public static final String FACES_VIEW_STATE = "com.sun.faces.FACES_VIEW_STATE";
     public static final String OUTCOME_EVENT_PREFIX = "faces.navigation.outcome.";
 
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 1L;
+    /**
+     * invokeId ID.
+     */
+    private String invokeId;
+    /**
+     * Invoking parent SCXMLExecutor
+     */
+    private SCXMLExecutor executor;
+
+    /**
+     * Cancellation status.
+     */
     private boolean cancelled;
-    private String viewActionPrefix;
 
     @Statefull
     private String stateStore;
@@ -76,15 +91,45 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
     @Statefull
     private String viewId;
 
+    /**
+     * {@inheritDoc}.
+     */
     @Override
-    public void setParentStateId(String parentStateId) {
-        super.setParentStateId(parentStateId);
-        this.viewActionPrefix = prefix("view.action");
+    public String getInvokeId() {
+        return invokeId;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Override
+    public void setInvokeId(final String invokeId) {
+        this.invokeId = invokeId;
         this.cancelled = false;
     }
 
+    /**
+     * {@inheritDoc}.
+     */
     @Override
-    public void invoke(String source, Map params) throws InvokerException {
+    public void setParentSCXMLExecutor(SCXMLExecutor executor) {
+        this.executor = executor;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Override
+    public SCXMLIOProcessor getChildIOProcessor() {
+        // not used
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Override
+    public void invoke(final String url, final Map<String, Object> params) throws InvokerException {
         FacesContext fc = FacesContext.getCurrentInstance();
         boolean oldProcessingEvents = fc.isProcessingEvents();
         try {
@@ -94,8 +139,8 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
 
             getViewParamsContext(fc).putAll(params);
 
-            NavigationCase navCase = findNavigationCase(fc, source);
-            viewId = source;
+            NavigationCase navCase = findNavigationCase(fc, url);
+            viewId = url;
             try {
                 viewId = navCase.getToViewId(fc);
             } catch (NullPointerException th) {
@@ -107,7 +152,7 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
 
             Map<String, Object> options = new HashMap();
             Map<String, Object> vieparams = new HashMap();
-            for (Object key : params.keySet()) {
+            for (String key : params.keySet()) {
                 String skey = (String) key;
                 Object value = params.get(key);
                 if (skey.startsWith("@view.")) {
@@ -141,12 +186,10 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
 
             Object viewState = null;
             if (control.equals("statefull")) {
-                StateFlowExecutor executor = instance.getExecutor();
-                Iterator iterator = executor.getCurrentStatus().getStates().iterator();
-                State state = ((State) iterator.next());
-                String stateKey = "__@@" + state.getClientId() + ":";
 
-                FlowContext stateContext = instance.getContext(state);
+                String stateKey = "__@@Invoke:" + invokeId + ":";
+
+                Context stateContext = executor.getRootContext();
                 viewState = stateContext.get(stateKey + "ViewState");
                 String lastViewId = (String) stateContext.get(stateKey + "LastViewId");
                 if (lastViewId != null) {
@@ -162,7 +205,7 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
                 }
             }
 
-            StateChart stateChart = null;
+            SCXML stateChart = null;
             UIViewRoot viewRoot = null;
             ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(fc, viewId);
             ViewMetadata metadata = null;
@@ -171,7 +214,7 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
 
                 if (metadata != null) {
                     viewRoot = metadata.createMetadataView(fc);
-                    UIComponent facet = viewRoot.getFacet(StateChart.STATECHART_FACET_NAME);
+                    UIComponent facet = viewRoot.getFacet(STATECHART_FACET_NAME);
                     if (facet != null) {
                         UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent("main");
                         if (uichart != null) {
@@ -258,7 +301,6 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
         } finally {
             fc.setProcessingEvents(oldProcessingEvents);
         }
-
     }
 
     private void clearViewMapIfNecessary(UIViewRoot root, String newId) {
@@ -294,25 +336,42 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
 
     }
 
+    protected NavigationCase findNavigationCase(FacesContext context, String outcome) {
+        ConfigurableNavigationHandler navigationHandler = (ConfigurableNavigationHandler) context.getApplication().getNavigationHandler();
+        return navigationHandler.getNavigationCase(context, null, outcome);
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
     @Override
-    public void parentEvents(FlowTriggerEvent[] evts) throws InvokerException {
+    public void invokeContent(final String content, final Map<String, Object> params)
+            throws InvokerException {
+
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Override
+    public void parentEvent(final TriggerEvent event) throws InvokerException {
+        if (!cancelled) {
+
+        }
+
         if (cancelled) {
             return;
         }
-        StateFlowExecutor executor = instance.getExecutor();
-        AsyncTrigger at = new AsyncTrigger(executor);
-        for (FlowTriggerEvent event : evts) {
-            if (event.getType() == FlowTriggerEvent.NAVIGATION_EVENT && event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
-                String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
-                FlowTriggerEvent te = new FlowTriggerEvent(viewActionPrefix + outcome, FlowTriggerEvent.SIGNAL_EVENT);
-                at.add(te);
-            }
-        }
-        if (!at.isEmpty()) {
-            at.run();
+
+        if (event.getType() == TriggerEvent.SIGNAL_EVENT && event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
+            String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
+            executor.addEvent(new EventBuilder("cancel.invoke." + invokeId, TriggerEvent.CANCEL_EVENT).build());
         }
     }
 
+    /**
+     * {@inheritDoc}.
+     */
     @Override
     public void cancel() throws InvokerException {
         FacesContext context = FacesContext.getCurrentInstance();
@@ -324,17 +383,13 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
         if (params != null) {
             getViewParamsContext(context).putAll(params);
         }
-        
-        
-        FlowTriggerEvent te = new FlowTriggerEvent(event("cancel"), FlowTriggerEvent.SIGNAL_EVENT);
-        new AsyncTrigger(instance.getExecutor(), te).start();
 
-        StateFlowExecutor executor = instance.getExecutor();
+        executor.addEvent(new EventBuilder("cancel.invoke." + invokeId, TriggerEvent.CANCEL_EVENT).build());
+
         ExternalContext ec = context.getExternalContext();
-        Iterator iterator = executor.getCurrentStatus().getStates().iterator();
-        State state = ((State) iterator.next());
-        FlowContext stateContext = instance.getContext(state);
-
+        Context stateContext = executor.getRootContext();
+        
+        
         Map<String, String> parameterMap = ec.getRequestParameterMap();
         for (Map.Entry<String, String> entry : parameterMap.entrySet()) {
             stateContext.setLocal(entry.getKey(), entry.getValue());
@@ -348,26 +403,9 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
                 RenderKit renderKit = fc.getRenderKit();
                 ResponseStateManager rsm = renderKit.getResponseStateManager();
                 Object viewState = rsm.getState(fc, lastViewId);
-                TransitionTarget storeTarget = null;
-                TransitionTarget target = state;
-                while (target != null) {
-                    if (storeTarget == null) {
-                        if ("state".equals(stateStore) && target instanceof State) {
-                            storeTarget = target;
-                        }
-                        if ("parallel".equals(stateStore) && target instanceof Parallel) {
-                            storeTarget = target;
-                        }
-                    }
-                    target = target.getParent();
-                }
-                FlowContext storeContext = instance.getRootContext();
+                Context storeContext = executor.getRootContext();
 
-                if (storeTarget != null) {
-                    storeContext = instance.getContext(storeTarget);
-                }
-
-                String stateKey = "__@@" + state.getClientId() + ":";
+                String stateKey = "__@@Invoke:" + invokeId + ":";
 
                 storeContext.setLocal(stateKey + "ViewState", viewState);
                 storeContext.setLocal(stateKey + "LastViewId", lastViewId);
@@ -375,10 +413,4 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
         }
         getViewParamsContext(context).clear();
     }
-
-    protected NavigationCase findNavigationCase(FacesContext context, String outcome) {
-        ConfigurableNavigationHandler navigationHandler = (ConfigurableNavigationHandler) context.getApplication().getNavigationHandler();
-        return navigationHandler.getNavigationCase(context, null, outcome);
-    }
-
 }

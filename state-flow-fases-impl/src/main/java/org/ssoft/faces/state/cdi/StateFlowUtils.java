@@ -19,10 +19,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.faces.context.FacesContext;
-import javax.faces.state.FlowContext;
-import javax.faces.state.StateFlowExecutor;
-import javax.faces.state.StateFlowHandler;
-import javax.faces.state.model.TransitionTarget;
+import javax.faces.state.faces.StateFlowHandler;
+import javax.scxml.Context;
+import javax.scxml.SCXMLExecutor;
+import javax.scxml.model.TransitionTarget;
 
 /**
  *
@@ -32,30 +32,30 @@ public class StateFlowUtils {
     
     private static final String STORAGE_MAP_KEY = "_____@@@ContextTransitionMap____";
     
-    public static StateFlowExecutor getExecutor() {
-        StateFlowExecutor result;
+    public static SCXMLExecutor getExecutor() {
+        SCXMLExecutor result;
         FacesContext context = FacesContext.getCurrentInstance();
         result = getExecutor(context);
 
         return result;
     }
 
-    public static StateFlowExecutor getExecutor(FacesContext context) {
+    public static SCXMLExecutor getExecutor(FacesContext context) {
         StateFlowHandler flowHandler = StateFlowHandler.getInstance();
         if (null == flowHandler) {
             return null;
         }
-        StateFlowExecutor result = flowHandler.getExecutor(context);
+        SCXMLExecutor result = flowHandler.getExecutor(context);
         return result;
     }
 
     public static Map<TransitionTarget, Object> getContextsMap(final FacesContext fc,
-            final StateFlowExecutor executor) {
+            final SCXMLExecutor executor) {
 
         if (executor == null) {
             return null;
         }
-        FlowContext context = executor.getRootContext();
+        Context context = executor.getRootContext();
 
         Map<TransitionTarget, Object> instance = (Map<TransitionTarget, Object>) context.get(STORAGE_MAP_KEY);
         if (instance == null) {
@@ -65,21 +65,21 @@ public class StateFlowUtils {
         return instance;
     }
 
-    public static FlowContext getTransitionContext(final FacesContext fc,
-            final StateFlowExecutor executor,
+    public static Context getTransitionContext(final FacesContext fc,
+            final SCXMLExecutor executor,
             final TransitionTarget transitionTarget) {
 
         if (executor == null) {
             return null;
         }
         Map<TransitionTarget, Object> contexts = StateFlowUtils.getContextsMap(fc, executor);
-        FlowContext context = (FlowContext) contexts.get(transitionTarget);
+        Context context = (Context) contexts.get(transitionTarget);
         if (context == null) {
             TransitionTarget parent = transitionTarget.getParent();
             if (parent == null) {
-                context = executor.getEvaluator().newContext(transitionTarget, executor.getRootContext());
+                context = executor.getEvaluator().newContext(executor.getRootContext());
             } else {
-                context = executor.getEvaluator().newContext(transitionTarget, getTransitionContext(fc, executor, parent));
+                context = executor.getEvaluator().newContext(getTransitionContext(fc, executor, parent));
             }
             contexts.put(transitionTarget, context);
         }

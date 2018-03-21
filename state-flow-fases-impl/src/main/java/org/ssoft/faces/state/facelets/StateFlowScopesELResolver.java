@@ -23,9 +23,9 @@ import javax.el.*;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PostConstructCustomScopeEvent;
 import javax.faces.event.ScopeContext;
-import javax.faces.state.FlowContext;
-import javax.faces.state.StateFlowExecutor;
-import javax.faces.state.StateFlowHandler;
+import javax.scxml.Context;
+import javax.scxml.SCXMLExecutor;
+import javax.faces.state.faces.StateFlowHandler;
 
 /**
  *
@@ -210,7 +210,7 @@ public class StateFlowScopesELResolver extends ELResolver {
         return null;
     }
 
-    private StateFlowExecutor getExecutor() {
+    private SCXMLExecutor getExecutor() {
         FacesContext fc = FacesContext.getCurrentInstance();
         StateFlowHandler handler = StateFlowHandler.getInstance();
         return handler.getExecutor(fc);
@@ -218,9 +218,9 @@ public class StateFlowScopesELResolver extends ELResolver {
 
     private DialogScope getDialogScope(ELContext elContext) {
         DialogScope attrScope = null;
-        StateFlowExecutor executor = getExecutor();
+        SCXMLExecutor executor = getExecutor();
         if (executor != null) {
-            FlowContext context = executor.getRootContext();
+            Context context = executor.getRootContext();
             attrScope = (DialogScope) context.get(DIALOG_PARAM_MAP);
             if (attrScope == null) {
                 attrScope = new DialogScope();
@@ -233,7 +233,7 @@ public class StateFlowScopesELResolver extends ELResolver {
 
     private DialogParams getDialogParams(ELContext context) {
         DialogParams attrScope = null;
-        StateFlowExecutor executor = (StateFlowExecutor) context.getContext(StateFlowExecutor.class);
+        SCXMLExecutor executor = (SCXMLExecutor) context.getContext(SCXMLExecutor.class);
         if (executor == null) {
             executor = getExecutor();
         }
@@ -246,9 +246,9 @@ public class StateFlowScopesELResolver extends ELResolver {
 
     private StateParams getStateParams(ELContext context) {
         StateParams attrScope = null;
-        StateFlowExecutor executor = (StateFlowExecutor) context.getContext(StateFlowExecutor.class);
+        SCXMLExecutor executor = (SCXMLExecutor) context.getContext(SCXMLExecutor.class);
         if (executor != null) {
-            FlowContext ctx = (FlowContext) context.getContext(FlowContext.class);
+            Context ctx = (Context) context.getContext(Context.class);
             if (ctx != null) {
                 attrScope = new StateParams(ctx);
             }
@@ -271,19 +271,19 @@ public class StateFlowScopesELResolver extends ELResolver {
 
     private static class DialogParams extends AbstractMap<String, Object> implements Serializable {
 
-        private final FlowContext ctx;
-        private final StateFlowExecutor executor;
+        private final Context ctx;
+        private final SCXMLExecutor executor;
 
-        public DialogParams(StateFlowExecutor executor) {
+        public DialogParams(SCXMLExecutor executor) {
             this.executor = executor;
             this.ctx = executor.getRootContext();
         }
 
-        public FlowContext getCtx() {
+        public Context getCtx() {
             return ctx;
         }
 
-        public StateFlowExecutor getExecutor() {
+        public SCXMLExecutor getExecutor() {
             return executor;
         }
 
@@ -308,13 +308,13 @@ public class StateFlowScopesELResolver extends ELResolver {
 
     private static class StateParams implements Serializable {
 
-        private final FlowContext ctx;
+        private final Context ctx;
 
-        public StateParams(FlowContext ctx) {
+        public StateParams(Context ctx) {
             this.ctx = ctx;
         }
 
-        public FlowContext getCtx() {
+        public Context getCtx() {
             return ctx;
         }
 
