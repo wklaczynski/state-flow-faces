@@ -40,9 +40,9 @@
                 <x:onexit>
                     <x:log expr="I'm finishing show-client"/>
                 </x:onexit>
-                
+
                 <x:invoke type="view" src="ShowClientPage.xhtml"/>
-                
+
                 <x:transition event="show-client.invoke.failed" target="error"/>
 
                 <x:transition event="show-client.view.action.accept" target="success"/>
@@ -97,9 +97,21 @@
         </x:final>
 
         <x:final id="cancel">
+            <x:onentry>
+                <x:log expr="I'm starting cancel"/>
+            </x:onentry>
+            <x:onexit>
+                <x:log expr="I'm finishing cancel"/>
+            </x:onexit>
         </x:final>
 
         <x:final id="success">
+            <x:onentry>
+                <x:log expr="I'm starting success"/>
+            </x:onentry>
+            <x:onexit>
+                <x:log expr="I'm finishing success"/>
+            </x:onexit>
         </x:final>
 
     </x:scxml>    
