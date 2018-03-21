@@ -348,11 +348,9 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
                 RenderKit renderKit = fc.getRenderKit();
                 ResponseStateManager rsm = renderKit.getResponseStateManager();
                 Object viewState = rsm.getState(fc, lastViewId);
-                String stateKey = "";
                 TransitionTarget storeTarget = null;
                 TransitionTarget target = state;
                 while (target != null) {
-                    stateKey = target.getId() + ":" + stateKey;
                     if (storeTarget == null) {
                         if ("state".equals(stateStore) && target instanceof State) {
                             storeTarget = target;
@@ -361,17 +359,15 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
                             storeTarget = target;
                         }
                     }
-                    target = state.getParent();
+                    target = target.getParent();
                 }
                 FlowContext storeContext = instance.getRootContext();
 
                 if (storeTarget != null) {
                     storeContext = instance.getContext(storeTarget);
                 }
-                if (!stateKey.endsWith(":")) {
-                    stateKey += ":";
-                }
-                stateKey = "__@@" + stateKey;
+
+                String stateKey = "__@@" + state.getClientId() + ":";
 
                 storeContext.setLocal(stateKey + "ViewState", viewState);
                 storeContext.setLocal(stateKey + "LastViewId", lastViewId);

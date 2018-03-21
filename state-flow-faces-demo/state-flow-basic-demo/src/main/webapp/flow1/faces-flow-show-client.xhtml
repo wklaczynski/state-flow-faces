@@ -42,6 +42,7 @@
                 </x:onexit>
                 
                 <x:invoke type="view" src="ShowClientPage.xhtml"/>
+                
                 <x:transition event="show-client.invoke.failed" target="error"/>
 
                 <x:transition event="show-client.view.action.accept" target="success"/>
@@ -68,7 +69,7 @@
                         <x:log expr="I'm finishing show-process-1"/>
                     </x:onexit>
 
-                    <x:transition event="show-client.invoke.action.next_process" target="show-process-2"/>
+                    <x:transition event="show-client.view.action.next_process" target="show-process-2"/>
                 </x:state>     
 
                 <x:state id="show-process-2">
@@ -79,7 +80,7 @@
                         <x:log expr="I'm finishing show-process-2"/>
                     </x:onexit>
 
-                    <x:transition event="show-client.invoke.action.next" target="show-process-1"/>
+                    <x:transition event="show-client.view.action.next" target="show-process-1"/>
                 </x:state>             
             </x:state> 
         </x:parallel>
