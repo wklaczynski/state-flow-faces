@@ -33,7 +33,14 @@
                 <x:log expr="I'm finishing parallel"/>
             </x:onexit>
 
-            <x:state id="show-client-view">
+            <x:state id="show-client">
+                <x:onentry>
+                    <x:log expr="I'm starting show-client"/>
+                </x:onentry>
+                <x:onexit>
+                    <x:log expr="I'm finishing show-client"/>
+                </x:onexit>
+                
                 <x:invoke type="view" src="ShowClientPage.xhtml"/>
                 <x:transition event="show-client.invoke.failed" target="error"/>
 

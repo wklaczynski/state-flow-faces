@@ -18,7 +18,6 @@ package javax.faces.state;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.faces.state.model.State;
 import javax.faces.state.model.Transition;
 
 /**
@@ -79,12 +78,12 @@ public class FlowStep {
     /**
      * The list of TransitionTargets that were exited during this step.
      */
-    private final List<State> exitList;
+    private final List exitList;
 
     /**
      * The list of TransitionTargets that were entered during this step.
      */
-    private final List<State> entryList;
+    private final List entryList;
 
     /**
      * The list of Transitions taken during this step.
@@ -122,14 +121,14 @@ public class FlowStep {
     /**
      * @return Returns the entryList.
      */
-    public List<State> getEntryList() {
+    public List getEntryList() {
         return entryList;
     }
 
     /**
      * @return Returns the exitList.
      */
-    public List<State> getExitList() {
+    public List getExitList() {
         return exitList;
     }
 

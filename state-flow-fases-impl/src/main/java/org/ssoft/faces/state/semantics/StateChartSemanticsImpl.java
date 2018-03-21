@@ -163,7 +163,9 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
         Collection internalEvents = step.getAfterStatus().getEvents();
         Map<TransitionTarget, Invoker> invokers = scInstance.getInvokers();
         // ExecutePhaseActions / OnExit
-        for (TransitionTarget tt : step.getExitList()) {
+        for (Iterator i = step.getExitList().iterator(); i.hasNext();) {
+            TransitionTarget tt = (TransitionTarget) i.next();
+
             OnExit oe = tt.getOnExit();
             if (oe != null) {
                 try {
@@ -218,7 +220,9 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
             }
         }
         // ExecutePhaseActions / OnEntry
-        for (TransitionTarget tt : step.getEntryList()) {
+        for (Iterator i = step.getEntryList().iterator(); i.hasNext();) {
+            TransitionTarget tt = (TransitionTarget) i.next();
+            
             OnEntry oe = tt.getOnEntry();
             if (oe != null) {
                 try {
@@ -619,16 +623,16 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
     public void followTransitions(final FlowStep step,
             final FlowErrorReporter errorReporter, final FlowInstance scInstance)
             throws ModelException {
-        Set<State> currentStates = step.getBeforeStatus().getStates();
+        Set currentStates = step.getBeforeStatus().getStates();
         List<Transition> transitions = step.getTransitList();
         // DetermineExitedStates (currentStates, transitList) -> exitedStates
-        Set<State> exitedStates = new HashSet();
+        Set exitedStates = new HashSet();
         for (Transition t : transitions) {
             Set ext = StateFlowHelper.getStatesExited(t, currentStates);
             exitedStates.addAll(ext);
         }
         // compute residual states - these are preserved from the previous step
-        Set<State> residual = new HashSet<>(currentStates);
+        Set residual = new HashSet<>(currentStates);
         residual.removeAll(exitedStates);
         // SeedTargetSet (residual, transitList) -> seedSet
         Set seedSet = seedTargetSet(residual, transitions, errorReporter);
@@ -661,7 +665,7 @@ public class StateChartSemanticsImpl implements StateChartSemantics, Serializabl
             throw new ModelException("Illegal state machine configuration!");
         }
         // sort onEntry and onExit according state hierarchy
-        State[] oex = exitedStates.toArray(new State[exitedStates.size()]);
+        Object[] oex = exitedStates.toArray();
         exitedStates.clear();
         Object[] oen = entered.toArray();
         entered.clear();
