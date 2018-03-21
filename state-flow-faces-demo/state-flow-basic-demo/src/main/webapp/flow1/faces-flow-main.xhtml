@@ -36,8 +36,8 @@
             <x:invoke type="view" src="MainPage.xhtml"/>
             <x:transition event="main.invoke.failed" target="error"/>
             
-            <x:transition event="main.invoke.action.show" target="show-client"/>
-            <x:transition event="main.invoke.action.exit" target="exit"/>
+            <x:transition event="main.view.action.show" target="show-client"/>
+            <x:transition event="main.view.action.exit" target="exit"/>
         </x:state> 
 
         <x:state id="show-client"> 
@@ -46,11 +46,9 @@
             </x:invoke>
 
             <x:transition event="show-client.invoke.failed" target="main"/>
-            <x:transition event="show-client.invoke.cancel" target="main"/>
-            
-            <x:transition event="show-client.invoke.exit.done" target="main"/>
-            
-            <x:transition event="show-client.invoke.success.done" target="main">
+            <x:transition event="show-client.invoke.done" target="main">
+                
+                
             </x:transition>
         </x:state>      
         
@@ -61,7 +59,9 @@
             <x:transition event="error.invoke.done" target="exit"/>
         </x:state>      
 
-        
+        <x:final id="exit">
+            
+        </x:final>
         
 
     </x:scxml>    

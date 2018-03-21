@@ -97,19 +97,20 @@ public abstract class Action implements NamespacePrefixesHolder {
     private AttributesMap attributes = null;
 
     /**
-     * <p>Each entry is an map of <code>PropertyDescriptor</code>s describing
-     * the properties of a concrete {@link UIComponent} implementation, keyed
-     * by the corresponding <code>java.lang.Class</code>.</p>
+     * <p>
+     * Each entry is an map of <code>PropertyDescriptor</code>s describing the
+     * properties of a concrete {@link UIComponent} implementation, keyed by the
+     * corresponding <code>java.lang.Class</code>.</p>
      * <p/>
      */
-    private Map<Class<?>, Map<String, PropertyDescriptor>> descriptors;            
-    
+    private Map<Class<?>, Map<String, PropertyDescriptor>> descriptors;
+
     /**
      * Reference to the map of <code>PropertyDescriptor</code>s for this class
      * in the <code>descriptors<code> <code>Map<code>.
      */
     private Map<String, PropertyDescriptor> pdMap = null;
-    
+
     /**
      * Constructor.
      */
@@ -122,7 +123,7 @@ public abstract class Action implements NamespacePrefixesHolder {
     }
 
     private void populateDescriptorsMapIfNecessary() {
-        
+
         FacesContext facesContext = FacesContext.getCurrentInstance();
         Class<?> clazz = getClass();
 
@@ -245,10 +246,10 @@ public abstract class Action implements NamespacePrefixesHolder {
      */
     public final TransitionTarget getParentTransitionTarget() throws ModelException {
         TransitionTarget tt = parent.getParent();
-        if (tt instanceof State) {
+        if (tt instanceof State || tt instanceof Parallel) {
             return tt;
-        } else if (tt instanceof Initial) {
-            return (TransitionTarget) tt.getParent();
+        } else if (tt instanceof History || tt instanceof Initial) {
+            return tt.getParent();
         } else {
             throw new ModelException("Unknown TransitionTarget subclass:"
                     + tt.getClass().getName());
@@ -452,7 +453,7 @@ public abstract class Action implements NamespacePrefixesHolder {
     Map<String, PropertyDescriptor> getDescriptorMap() {
         return pdMap;
     }
-    
+
     private static class AttributesMap implements Map<String, Object>, Serializable {
 
         //private Map<String, Object> attributes;
@@ -740,6 +741,7 @@ public abstract class Action implements NamespacePrefixesHolder {
             }
             action.restoreState(FacesContext.getCurrentInstance(), in.readObject());
         }
+
     }
 
 }

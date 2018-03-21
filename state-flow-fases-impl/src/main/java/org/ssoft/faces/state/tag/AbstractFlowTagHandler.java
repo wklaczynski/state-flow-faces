@@ -30,6 +30,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.state.PathResolver;
 import javax.faces.state.PathResolverHolder;
 import javax.faces.state.model.*;
+import javax.faces.state.utils.StateFlowHelper;
 import javax.faces.view.facelets.CompositeFaceletHandler;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.FaceletHandler;
@@ -56,7 +57,7 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
 
     protected static final Pattern inFct = Pattern.compile("In\\(");
     protected static final Pattern dataFct = Pattern.compile("Data\\(");
-    
+
     private final Map<String, Class> parentMap = new LinkedHashMap<>();
     private final Map<String, Class> topParentMap = new LinkedHashMap<>();
 
@@ -95,7 +96,7 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         ProjectStage projectStage = ctx.getFacesContext().getApplication().getProjectStage();
         return projectStage == ProjectStage.Production;
     }
-    
+
     public boolean isVerifyMode(FaceletContext ctx) {
         ProjectStage projectStage = ctx.getFacesContext().getApplication().getProjectStage();
         return projectStage != ProjectStage.Production;
@@ -268,30 +269,48 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         } else {
             throw new TagException(this.tag, "can not stored this element on parent element!");
         }
-        
+
         chart.getIdMap().put(child.getClientId(), child);
-        
+    }
+
+    protected void addHistory(FaceletContext ctx, UIComponent parent, History child) throws IOException {
+        StateChart chart = getElement(parent, StateChart.class);
+        Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
+        if (currentFlow instanceof TransitionTarget) {
+            TransitionTarget target = (TransitionTarget) currentFlow;
+            if (target.getChildren().containsKey(child.getId())) {
+                throw new TagException(this.tag, "transition target already defined!");
+            }
+            target.addHistory(child);
+        } else {
+            throw new TagException(this.tag, "can not stored history element on parent element!");
+        }
+
+        chart.getIdMap().put(child.getClientId(), child);
     }
 
     protected String generateUniqueId(FaceletContext ctx, UIComponent parent, TransitionTarget child, String prefix) throws IOException {
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
         if (currentFlow instanceof StateChart) {
             StateChart chat = (StateChart) currentFlow;
-            return prefix+chat.getChildren().size();
+            return prefix + chat.getChildren().size();
         } else if (currentFlow instanceof TransitionTarget) {
             TransitionTarget target = (TransitionTarget) currentFlow;
-            return prefix+target.getChildren().size();
+            return prefix + target.getChildren().size();
         } else {
             throw new TagException(this.tag, "can not support generate unique id this element on parent element!");
         }
     }
 
     protected void addTransitionTarget(FaceletContext ctx, UIComponent parent, TransitionTarget target) throws IOException {
-        StateChart chart = getElement(parent, StateChart.class);
-        if (chart.getTargets().containsKey(target.getId())) {
-            throw new TagException(this.tag, "transition target already defined!");
+        String tid = target.getId();
+        if (!StateFlowHelper.isStringEmpty(tid)) {
+            StateChart chart = getElement(parent, StateChart.class);
+            if (chart.getTargets().containsKey(target.getId())) {
+                throw new TagException(this.tag, "transition target already defined!");
+            }
+            chart.addTarget(target);
         }
-        chart.addTarget(target);
     }
 
     protected void addTransition(FaceletContext ctx, UIComponent parent, Transition transition) throws IOException {

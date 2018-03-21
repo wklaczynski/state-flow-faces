@@ -36,7 +36,6 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.lifecycle.ClientWindow;
 import javax.faces.state.FlowContext;
-import javax.faces.state.FlowStatus;
 import javax.faces.state.FlowTriggerEvent;
 import javax.faces.state.ModelException;
 import javax.faces.state.StateFlowExecutor;
@@ -44,7 +43,6 @@ import javax.faces.state.StateFlowHandler;
 import javax.faces.state.events.FlowOnFinalEvent;
 import javax.faces.state.invoke.Invoker;
 import javax.faces.state.model.CustomAction;
-import javax.faces.state.model.State;
 import javax.faces.state.model.StateChart;
 import javax.servlet.ServletContext;
 import static org.ssoft.faces.state.FlowConstants.ANNOTATED_CLASSES;
@@ -271,9 +269,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         return stack != null && !stack.isEmpty();
     }
 
-    private StateFlowExecutor newStateFlowExecutor(FacesContext context, StateChart stateMachine) {
+    private StateFlowExecutor newStateFlowExecutor(FacesContext context, String stateId, StateChart stateMachine) {
 
-        StateFlowExecutor executor = new StateFlowExecutorImpl(context);
+        StateFlowExecutor executor = new StateFlowExecutorImpl(context, stateId);
         executor.setStateMachine(stateMachine);
         executor.addListener(stateMachine, new StateFlowCDIListener());
         for (Map.Entry<String, Class<?>> entry : customInvokers.entrySet()) {
@@ -284,15 +282,16 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public StateFlowExecutor startExecutor(FacesContext context, StateChart stateMachine, Map params, boolean root) {
+    public StateFlowExecutor startExecutor(FacesContext context, String stateId, StateChart stateMachine, Map params, boolean root) {
         try {
             FlowDeque fs = getFlowStack(context, true);
+
             Stack<StateFlowExecutor> stack = fs.getExecutors();
             Stack<Integer> roots = fs.getRoots();
 
             StateFlowExecutor parent = getExecutor(context);
 
-            StateFlowExecutor executor = newStateFlowExecutor(context, stateMachine);
+            StateFlowExecutor executor = newStateFlowExecutor(context, stateId, stateMachine);
 
             FlowContext rootCtx = executor.getEvaluator().newContext(null, null);
             executor.setRootContext(rootCtx);
@@ -310,9 +309,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
             pushExecutor(context, executor);
             if (root) {
-                int id = stack.size() - 1;
-                if (roots.peek() != id) {
-                    roots.push(id);
+                int rid = stack.size() - 1;
+                if (roots.peek() != rid) {
+                    roots.push(rid);
                 }
                 StateChartScopeCDIContex.flowExecutorEntered(executor);
             }
@@ -320,6 +319,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             try {
                 executor.go();
             } catch (ModelException me) {
+                throw new FacesException(me);
             }
             if (executor.getCurrentStatus().isFinal()) {
                 stopExecutor(context, parent);
@@ -370,30 +370,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
 
         } else if (!chroot) {
-
             AsyncTrigger trigger = new AsyncTrigger(parent);
-
-            FlowStatus pstatus = parent.getCurrentStatus();
-            for (State pstate : pstatus.getStates()) {
-                String eventPrefix = pstate.getId() + ".invoke.";
-
-                boolean stop = false;
-                FlowStatus status = executor.getCurrentStatus();
-                for (State state : status.getStates()) {
-                    if (state.isFinal()) {
-                        FlowTriggerEvent te = new FlowTriggerEvent(eventPrefix + state.getId() + ".done", FlowTriggerEvent.CHANGE_EVENT);
-                        trigger.add(te);
-                        stop = true;
-                    }
-                }
-                if (!stop) {
-                    FlowTriggerEvent te = new FlowTriggerEvent(eventPrefix +  ".stop", FlowTriggerEvent.SIGNAL_EVENT);
-                    trigger.add(te);
-                }
-                FlowTriggerEvent te = new FlowTriggerEvent(eventPrefix + ".done", FlowTriggerEvent.SIGNAL_EVENT);
-                trigger.add(te);
-            }
-
+            String eventPrefix = executor.getStateId() + ".executor.";
+            FlowTriggerEvent te = new FlowTriggerEvent(eventPrefix + "stop", FlowTriggerEvent.EXECUTOR_EVENT);
+            trigger.add(te);
             trigger.start();
         }
 
@@ -507,15 +487,16 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             Object[] attached = new Object[executors.size()];
             int i = 0;
             for (StateFlowExecutor executor : executors) {
-                Object values[] = new Object[3];
+                Object values[] = new Object[4];
                 StateChart stateMachine = executor.getStateMachine();
 
                 values[0] = stateMachine.getViewId();
                 values[1] = stateMachine.getId();
+                values[2] = executor.getStateId();
 
                 context.getAttributes().put(STATE_MACHINE_HINT, stateMachine);
                 try {
-                    values[2] = executor.saveState(context);
+                    values[3] = executor.saveState(context);
                 } finally {
                     context.getAttributes().remove(STATE_MACHINE_HINT);
                 }
@@ -549,6 +530,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
                     String viewId = (String) values[0];
                     String id = (String) values[1];
+                    String stateId = (String) values[2];
 
                     StateChart stateMachine = null;
                     try {
@@ -561,11 +543,11 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                         throw new FacesException(String.format("Restored state flow %s in %s not found.", viewId, id));
                     }
 
-                    StateFlowExecutor executor = newStateFlowExecutor(context, stateMachine);
+                    StateFlowExecutor executor = newStateFlowExecutor(context, stateId, stateMachine);
 
                     context.getAttributes().put(STATE_MACHINE_HINT, stateMachine);
                     try {
-                        executor.restoreState(context, values[2]);
+                        executor.restoreState(context, values[3]);
                     } finally {
                         context.getAttributes().remove(STATE_MACHINE_HINT);
                     }

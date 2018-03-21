@@ -46,8 +46,8 @@ public abstract class AbstractInvoker implements Invoker {
 
     @Override
     public void setParentStateId(String parentStateId) {
-        this.invokePrefix = prefix("invoke");
         this.parentStateId = parentStateId;
+        this.invokePrefix = prefix("invoke");
     }
 
     public FlowInstance getInstance() {

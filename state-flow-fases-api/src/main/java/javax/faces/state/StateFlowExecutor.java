@@ -64,6 +64,11 @@ public class StateFlowExecutor {
     protected static final String ERR_NO_STATE_MACHINE = "StateFlowExecutor: State machine not set";
 
     /**
+     * Identifier for this executor state id.
+     * may refer to state using state ID.
+     */
+    protected String stateId;
+    /**
      * The stateMachine being executed.
      */
     protected StateChart stateMachine;
@@ -147,6 +152,15 @@ public class StateFlowExecutor {
         logState();
     }
 
+    /**
+     * Get the identifier for stateId.
+     *
+     * @return Returns the state id.
+     */
+    public String getStateId() {
+        return stateId;
+    }
+    
     /**
      * Convenience method when only one event needs to be triggered.
      *

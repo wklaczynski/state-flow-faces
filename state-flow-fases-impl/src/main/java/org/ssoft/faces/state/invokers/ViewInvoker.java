@@ -67,6 +67,7 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
     public static final String OUTCOME_EVENT_PREFIX = "faces.navigation.outcome.";
 
     private boolean cancelled;
+    private String viewActionPrefix;
 
     @Statefull
     private String stateStore;
@@ -78,6 +79,7 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
     @Override
     public void setParentStateId(String parentStateId) {
         super.setParentStateId(parentStateId);
+        this.viewActionPrefix = prefix("view.action");
         this.cancelled = false;
     }
 
@@ -297,79 +299,85 @@ public class ViewInvoker extends AbstractInvoker implements Invoker {
         if (cancelled) {
             return;
         }
-        FacesContext context = FacesContext.getCurrentInstance();
-        UIViewRoot view = context.getViewRoot();
-        Map params = (Map) view.getViewMap(true).get(VIEW_PARAMS_MAP);
-        if (params != null) {
-            getViewParamsContext(context).putAll(params);
-        }
-
+        StateFlowExecutor executor = instance.getExecutor();
+        AsyncTrigger at = new AsyncTrigger(executor);
         for (FlowTriggerEvent event : evts) {
-            
-            if (event.getType() == FlowTriggerEvent.SIGNAL_EVENT && event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
+            if (event.getType() == FlowTriggerEvent.NAVIGATION_EVENT && event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
                 String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
-                FlowTriggerEvent te = new FlowTriggerEvent(event("action." + outcome), FlowTriggerEvent.SIGNAL_EVENT);
-                ExternalContext ec = context.getExternalContext();
-
-                StateFlowExecutor executor = instance.getExecutor();
-                Iterator iterator = executor.getCurrentStatus().getStates().iterator();
-                State state = ((State) iterator.next());
-                FlowContext stateContext = instance.getContext(state);
-
-                Map<String, String> parameterMap = ec.getRequestParameterMap();
-                for (Map.Entry<String, String> entry : parameterMap.entrySet()) {
-                    stateContext.setLocal(entry.getKey(), entry.getValue());
-                }
-
-                if (control.equals("statefull")) {
-                    FacesContext fc = FacesContext.getCurrentInstance();
-                    UIViewRoot viewRoot = fc.getViewRoot();
-                    if (viewRoot != null) {
-                        String lastViewId = viewRoot.getViewId();
-                        RenderKit renderKit = fc.getRenderKit();
-                        ResponseStateManager rsm = renderKit.getResponseStateManager();
-                        Object viewState = rsm.getState(fc, lastViewId);
-                        String stateKey = "";
-                        TransitionTarget storeTarget = null;
-                        TransitionTarget target = state;
-                        while (target != null) {
-                            stateKey = target.getId() + ":" + stateKey;
-                            if (storeTarget == null) {
-                                if ("state".equals(stateStore) && target instanceof State) {
-                                    storeTarget = target;
-                                }
-                                if ("parallel".equals(stateStore) && target instanceof Parallel) {
-                                    storeTarget = target;
-                                }
-                            }
-                            target = state.getParent();
-                        }
-                        FlowContext storeContext = instance.getRootContext();
-
-                        if (storeTarget != null) {
-                            storeContext = instance.getContext(storeTarget);
-                        }
-                        if (!stateKey.endsWith(":")) {
-                            stateKey += ":";
-                        }
-                        stateKey = "__@@" + stateKey;
-
-                        storeContext.setLocal(stateKey + "ViewState", viewState);
-                        storeContext.setLocal(stateKey + "LastViewId", lastViewId);
-                    }
-                }
-                new AsyncTrigger(executor, te).start();
+                FlowTriggerEvent te = new FlowTriggerEvent(viewActionPrefix + outcome, FlowTriggerEvent.SIGNAL_EVENT);
+                at.add(te);
             }
+        }
+        if (!at.isEmpty()) {
+            at.run();
         }
     }
 
     @Override
     public void cancel() throws InvokerException {
-        FacesContext fc = FacesContext.getCurrentInstance();
-        getViewParamsContext(fc).clear();
+        FacesContext context = FacesContext.getCurrentInstance();
+
         cancelled = true;
+
+        UIViewRoot view = context.getViewRoot();
+        Map params = (Map) view.getViewMap(true).get(VIEW_PARAMS_MAP);
+        if (params != null) {
+            getViewParamsContext(context).putAll(params);
+        }
+        
+        
         FlowTriggerEvent te = new FlowTriggerEvent(event("cancel"), FlowTriggerEvent.SIGNAL_EVENT);
         new AsyncTrigger(instance.getExecutor(), te).start();
+
+        StateFlowExecutor executor = instance.getExecutor();
+        ExternalContext ec = context.getExternalContext();
+        Iterator iterator = executor.getCurrentStatus().getStates().iterator();
+        State state = ((State) iterator.next());
+        FlowContext stateContext = instance.getContext(state);
+
+        Map<String, String> parameterMap = ec.getRequestParameterMap();
+        for (Map.Entry<String, String> entry : parameterMap.entrySet()) {
+            stateContext.setLocal(entry.getKey(), entry.getValue());
+        }
+
+        if (control.equals("statefull")) {
+            FacesContext fc = FacesContext.getCurrentInstance();
+            UIViewRoot viewRoot = fc.getViewRoot();
+            if (viewRoot != null) {
+                String lastViewId = viewRoot.getViewId();
+                RenderKit renderKit = fc.getRenderKit();
+                ResponseStateManager rsm = renderKit.getResponseStateManager();
+                Object viewState = rsm.getState(fc, lastViewId);
+                String stateKey = "";
+                TransitionTarget storeTarget = null;
+                TransitionTarget target = state;
+                while (target != null) {
+                    stateKey = target.getId() + ":" + stateKey;
+                    if (storeTarget == null) {
+                        if ("state".equals(stateStore) && target instanceof State) {
+                            storeTarget = target;
+                        }
+                        if ("parallel".equals(stateStore) && target instanceof Parallel) {
+                            storeTarget = target;
+                        }
+                    }
+                    target = state.getParent();
+                }
+                FlowContext storeContext = instance.getRootContext();
+
+                if (storeTarget != null) {
+                    storeContext = instance.getContext(storeTarget);
+                }
+                if (!stateKey.endsWith(":")) {
+                    stateKey += ":";
+                }
+                stateKey = "__@@" + stateKey;
+
+                storeContext.setLocal(stateKey + "ViewState", viewState);
+                storeContext.setLocal(stateKey + "LastViewId", lastViewId);
+            }
+        }
+        getViewParamsContext(context).clear();
     }
 
     protected NavigationCase findNavigationCase(FacesContext context, String outcome) {

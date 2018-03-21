@@ -18,6 +18,7 @@ package org.ssoft.faces.state.tag;
 import java.io.IOException;
 import javax.faces.component.UIComponent;
 import javax.faces.state.model.Parallel;
+import javax.faces.state.model.State;
 import javax.faces.state.model.StateChart;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
@@ -35,6 +36,7 @@ public class ParallelTagHandler extends AbstractFlowTagHandler<Parallel> {
         super(config, Parallel.class);
         
         in("scxml", StateChart.class);
+        in("state", State.class);
         
         this.id = this.getAttribute("id");
     }
@@ -44,14 +46,17 @@ public class ParallelTagHandler extends AbstractFlowTagHandler<Parallel> {
         Parallel parallel = new Parallel();
         decorate(ctx, parent, parallel);
         
-        String cid = null;
+        String cid;
         if(id != null) {
             cid = id.getValue();
         } else {
             cid = generateUniqueId(ctx, parent, parallel, "parallel_");
         }
-
+        parallel.setId(cid);
+        
         applyNext(ctx, parent, parallel);
+        
+        addTransitionTarget(ctx, parent, parallel);
         
         addChild(ctx, parent, parallel);
     }

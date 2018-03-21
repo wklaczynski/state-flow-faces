@@ -15,12 +15,13 @@
  */
 package org.ssoft.faces.state.invokers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.state.FlowContext;
 import javax.faces.state.FlowStatus;
 import javax.faces.state.FlowTriggerEvent;
 import javax.faces.state.ModelException;
@@ -46,6 +47,7 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
      */
     private boolean cancelled;
     //// Constants
+    private String executorPrefix;
 
     public SubInvoker() {
         super();
@@ -54,6 +56,7 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
     @Override
     public void setParentStateId(final String parentStateId) {
         super.setParentStateId(parentStateId);
+        this.executorPrefix = prefix("executor");
         this.cancelled = false;
     }
 
@@ -76,7 +79,7 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
 
             StateChart stateMachine = handler.createStateMachine(fc, viewId);
 
-            handler.startExecutor(fc, stateMachine, params, false);
+            handler.startExecutor(fc, parentStateId, stateMachine, params, false);
         } catch (Throwable ex) {
             logger.log(Level.SEVERE, "Invoke failed", ex);
             throw new InvokerException(ex);
@@ -93,29 +96,57 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
         }
         FacesContext fc = FacesContext.getCurrentInstance();
         ExternalContext ec = fc.getExternalContext();
-
         StateFlowHandler handler = StateFlowHandler.getInstance();
+
+        AsyncTrigger execTriger = new AsyncTrigger(instance.getExecutor());
+
+        List<FlowTriggerEvent> slevt = new ArrayList<>();
+        for (FlowTriggerEvent event : evts) {
+            if (event.getType() == FlowTriggerEvent.EXECUTOR_EVENT && event.getName().startsWith(executorPrefix)) {
+                String outcome = event.getName().substring(executorPrefix.length());
+                if (outcome.equals("stop")) {
+                    FlowTriggerEvent te = new FlowTriggerEvent(invokePrefix + "cancel", FlowTriggerEvent.SIGNAL_EVENT);
+                    execTriger.add(te);
+                }
+            } else {
+                slevt.add(event);
+            }
+        }
 
         StateFlowExecutor executor = handler.getExecutor(fc, instance.getExecutor());
         if (executor != null) {
+
             boolean doneBefore = executor.getCurrentStatus().isFinal();
             try {
-                executor.triggerEvents(evts);
+                FlowTriggerEvent[] subevts = slevt.toArray(new FlowTriggerEvent[slevt.size()]);
+                executor.triggerEvents(subevts);
             } catch (ModelException me) {
                 throw new InvokerException(me.getMessage(), me.getCause());
             }
+
             if (!doneBefore && executor.getCurrentStatus().isFinal()) {
-                FlowContext ctx = executor.getRootContext();
-                if (ctx.has("@result")) {
-                    FlowContext result = (FlowContext) ctx.get("@result");
-                    FlowStatus pstatus = instance.getExecutor().getCurrentStatus();
-                    State pstate = (State) pstatus.getStates().iterator().next();
-                    FlowContext pcontext = instance.getContext(pstate);
-                    pcontext.setLocal("@result", result);
+
+                AsyncTrigger finalTriger = new AsyncTrigger(instance.getExecutor());
+
+                FlowStatus status = executor.getCurrentStatus();
+                for (State state : status.getStates()) {
+                    if (state.isFinal()) {
+                        FlowTriggerEvent te = new FlowTriggerEvent(invokePrefix + state.getId() + ".done", FlowTriggerEvent.CHANGE_EVENT);
+                        finalTriger.add(te);
+                    }
                 }
-                handler.stopExecutor(fc, instance.getExecutor());
+//                FlowContext ctx = executor.getRootContext();
+//                if (ctx.has("@result")) {
+//                    FlowContext result = (FlowContext) ctx.get("@result");
+//                    FlowStatus pstatus = instance.getExecutor().getCurrentStatus();
+//                    State pstate = (State) pstatus.getStates().iterator().next();
+//                    FlowContext pcontext = instance.getContext(pstate);
+//                    pcontext.setLocal("@result", result);
+//                }
+                finalTriger.start();
             }
         }
+        execTriger.start();
     }
 
     /**
@@ -123,14 +154,19 @@ public class SubInvoker extends AbstractInvoker implements Invoker {
      */
     @Override
     public void cancel() throws InvokerException {
+        if (cancelled) {
+            return;
+        }
         cancelled = true;
         FlowTriggerEvent te = new FlowTriggerEvent(invokePrefix + "cancel", FlowTriggerEvent.SIGNAL_EVENT);
         new AsyncTrigger(instance.getExecutor(), te).start();
 
-        FlowStatus pstatus = instance.getExecutor().getCurrentStatus();
-        State pstate = (State) pstatus.getStates().iterator().next();
-        FlowContext pcontext = instance.getContext(pstate);
-        pcontext.getVars().remove("@result");
+        FacesContext fc = FacesContext.getCurrentInstance();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        StateFlowExecutor executor = handler.getExecutor(fc, instance.getExecutor());
+        if (executor != null) {
+            handler.stopExecutor(fc, instance.getExecutor());
+        }
 
     }
 

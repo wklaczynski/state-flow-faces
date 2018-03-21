@@ -272,4 +272,9 @@ public class Assign extends Action implements PathResolverHolder {
         return doc.getDocumentElement();
     }
 
+    @Override
+    public String toString() {
+        return "Assign{" + "name=" + name + ", location=" + location + ", src=" + src + ", expr=" + expr + '}';
+    }
+
 }

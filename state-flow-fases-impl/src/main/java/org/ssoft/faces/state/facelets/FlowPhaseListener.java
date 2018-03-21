@@ -150,7 +150,7 @@ public class FlowPhaseListener implements PhaseListener {
                 params.put(key, pmap.get(key));
             }
 
-            flowHandler.startExecutor(context, stateFlow, params, true);
+            flowHandler.startExecutor(context, "faces.view", stateFlow, params, true);
             UIViewRoot result = context.getViewRoot();
 
             if (null != currentViewRoot) {

@@ -58,6 +58,8 @@ public class Initial extends TransitionTarget {
     protected String createUniqueId(Object element) {
         if(element instanceof Transition) {
             return "start";
+        } else if(element instanceof State) {
+            return "initial";
         } else {
             throw new IllegalArgumentException("Initial element no support child "
                     + "element type: " + element.getClass().getName());

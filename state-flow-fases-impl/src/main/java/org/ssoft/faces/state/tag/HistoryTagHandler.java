@@ -52,7 +52,9 @@ public class HistoryTagHandler extends AbstractFlowTagHandler<History> {
 
         applyNext(ctx, parent, target);
         
-        addChild(ctx, parent, target);
+        addTransitionTarget(ctx, parent, target);
+        
+        addHistory(ctx, parent, target);
     }
 
 }

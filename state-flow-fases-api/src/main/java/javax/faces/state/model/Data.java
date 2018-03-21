@@ -158,5 +158,10 @@ public class Data implements NamespacePrefixesHolder, Serializable {
         this.namespaces = namespaces;
     }
 
+    @Override
+    public String toString() {
+        return "Data{" + "id=" + id + ", src=" + src + ", expr=" + expr + '}';
+    }
+
 }
 

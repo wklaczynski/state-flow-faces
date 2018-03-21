@@ -31,4 +31,9 @@ public class Final extends State {
         this.setFinal(true);
     }
 
+    @Override
+    public String toString() {
+        return "Final{" + "id=" + getId() + '}';
+    }
+
 }

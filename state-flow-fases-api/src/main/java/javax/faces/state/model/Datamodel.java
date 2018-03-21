@@ -15,7 +15,6 @@
  */
 package javax.faces.state.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +22,7 @@ import java.util.List;
  *
  * @author Waldemar Kłaczyński
  */
-public class Datamodel implements Serializable {
+public class Datamodel {
 
    /**
     * The set of &lt;data&gt; elements, parsed as Elements, that are
@@ -57,6 +56,11 @@ public class Datamodel implements Serializable {
            data.add(datum);
        }
    }
+
+    @Override
+    public String toString() {
+        return "Datamodel{" + "data=" + data + '}';
+    }
 
 }
 

@@ -19,6 +19,7 @@ import java.io.IOException;
 import javax.faces.component.UIComponent;
 import javax.faces.state.model.Finalize;
 import javax.faces.state.model.Invoke;
+import javax.faces.state.model.State;
 import javax.faces.state.model.StateChart;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagConfig;
@@ -39,13 +40,16 @@ public class FinalizeTagHandler extends AbstractFlowTagHandler<Finalize> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, StateChart chart, Object parentElement) throws IOException {
         Invoke invoke = (Invoke) parentElement;
-        decorate(ctx, parent, invoke);
 
         if(invoke.getFinalize() != null) {
             throw new TagException(this.tag, "already defined in this element!");
         }
         
         Finalize executable = new Finalize();
+        decorate(ctx, parent, executable);
+        
+        State state = getElement(parent, State.class);
+        executable.setParent(state);
 
         applyNext(ctx, parent, executable);
 

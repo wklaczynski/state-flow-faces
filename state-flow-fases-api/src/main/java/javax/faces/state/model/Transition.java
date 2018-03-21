@@ -212,4 +212,12 @@ public class Transition extends Executable implements NamespacePrefixesHolder {
         }
         return paths;
     }
+
+    @Override
+    public String toString() {
+        return "Transition{" + "event=" + event + ", cond=" + cond + ", type=" + type + ", next=" + next + '}';
+    }
+    
+    
+    
 }

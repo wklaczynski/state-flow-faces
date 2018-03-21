@@ -69,4 +69,9 @@ public class Cancel extends Action {
         evtDispatcher.cancel(sendid);
     }
 
+    @Override
+    public String toString() {
+        return "Cancel{" + "sendid=" + sendid + '}';
+    }
+
 }

@@ -78,10 +78,16 @@ public class FlowTriggerEvent implements Serializable {
     public static final int ERROR_EVENT = 5;
 
     /**
-     * <code>ERROR_EVENT</code>.
+     * <code>NAVIGATION_EVENT</code>.
      *
      */
     public static final int NAVIGATION_EVENT = 6;
+
+    /**
+     * <code>EXECUTOR_EVENT</code>.
+     *
+     */
+    public static final int EXECUTOR_EVENT = 7;
 
     /**
      * The event name.

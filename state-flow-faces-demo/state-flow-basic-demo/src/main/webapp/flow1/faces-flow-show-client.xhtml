@@ -21,17 +21,61 @@
                     <x:raise event="main.prepare.failed"/>
                 </x:if>
             </x:onentry>
-            <x:transition event="main.prepare.success" target="main"/>
+            <x:transition event="main.prepare.success" target="show"/>
             <x:transition event="main.prepare.failed" target="exit"/>
         </x:state>
 
-        <x:state id="main">
-            <x:invoke type="view" src="ShowClientPage.xhtml"/>
-            <x:transition event="main.invoke.failed" target="error"/>
+        <x:parallel id="show">
+            <x:onentry>
+                <x:log expr="I'm starting parallel"/>
+            </x:onentry>
+            <x:onexit>
+                <x:log expr="I'm finishing parallel"/>
+            </x:onexit>
 
-            <x:transition event="main.invoke.action.accept" target="success"/>
-            <x:transition event="main.invoke.action.cancel" target="cancel"/>
-        </x:state> 
+            <x:state id="show-client-view">
+                <x:invoke type="view" src="ShowClientPage.xhtml"/>
+                <x:transition event="show-client.invoke.failed" target="error"/>
+
+                <x:transition event="show-client.view.action.accept" target="success"/>
+                <x:transition event="show-client.view.action.cancel" target="cancel"/>
+            </x:state>
+
+            <x:state id="show-process">
+                <x:onentry>
+                    <x:log expr="I'm starting show-process"/>
+                </x:onentry>
+                <x:onexit>
+                    <x:log expr="I'm finishing show-process"/>
+                </x:onexit>
+
+                <x:initial>
+                    <x:transition target="show-process-1"/>
+                </x:initial>
+
+                <x:state id="show-process-1">
+                    <x:onentry>
+                        <x:log expr="I'm starting show-process-1"/>
+                    </x:onentry>
+                    <x:onexit>
+                        <x:log expr="I'm finishing show-process-1"/>
+                    </x:onexit>
+
+                    <x:transition event="show-client.invoke.action.next_process" target="show-process-2"/>
+                </x:state>     
+
+                <x:state id="show-process-2">
+                    <x:onentry>
+                        <x:log expr="I'm starting show-process-2"/>
+                    </x:onentry>
+                    <x:onexit>
+                        <x:log expr="I'm finishing show-process-2"/>
+                    </x:onexit>
+
+                    <x:transition event="show-client.invoke.action.next" target="show-process-1"/>
+                </x:state>             
+            </x:state> 
+        </x:parallel>
 
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml">
@@ -43,7 +87,7 @@
 
         <x:final id="exit">
         </x:final>
-        
+
         <x:final id="cancel">
         </x:final>
 

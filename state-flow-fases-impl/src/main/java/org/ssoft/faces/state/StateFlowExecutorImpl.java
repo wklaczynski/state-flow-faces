@@ -38,29 +38,33 @@ public class StateFlowExecutorImpl extends StateFlowExecutor {
      * Constructor.
      *
      * @param facesContext
+     * @param stateId
      * @param expEvaluator The expression evaluator
      * @param evtDisp The event dispatcher
      * @param errRep The error reporter
      */
     public StateFlowExecutorImpl(
             final FacesContext facesContext,
+            final String stateId,
             final FlowEvaluator expEvaluator,
             final FlowEventDispatcher evtDisp, final FlowErrorReporter errRep) {
-        this(facesContext, expEvaluator, evtDisp, errRep, null);
+        this(facesContext, stateId, expEvaluator, evtDisp, errRep, null);
     }
 
     /**
      * Convenience constructor.
      * @param facesContext
+     * @param stateId
      */
-    public StateFlowExecutorImpl(final FacesContext facesContext) {
-        this(facesContext, null, null, null, null);
+    public StateFlowExecutorImpl(final FacesContext facesContext, final String stateId) {
+        this(facesContext, stateId, null, null, null, null);
     }
 
     /**
      * Constructor.
      *
      * @param facesContext
+     * @param stateId
      * @param expEvaluator The expression evaluator
      * @param evtDisp The event dispatcher
      * @param errRep The error reporter
@@ -68,9 +72,11 @@ public class StateFlowExecutorImpl extends StateFlowExecutor {
      */
     public StateFlowExecutorImpl(
             final FacesContext facesContext,
+            final String stateId,
             final FlowEvaluator expEvaluator,
             final FlowEventDispatcher evtDisp, final FlowErrorReporter errRep,
             final StateChartSemantics semantics) {
+        this.stateId = stateId;
         this.eventdispatcher = evtDisp;
         this.errorReporter = errRep;
         this.currentStatus = new FlowStatus();

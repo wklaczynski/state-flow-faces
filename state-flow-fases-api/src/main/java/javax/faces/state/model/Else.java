@@ -30,5 +30,10 @@ public class Else extends ElseIf {
         getAttributes().put("cond", true);
     }
 
+    @Override
+    public String toString() {
+        return "Else{" + '}';
+    }
+
 }
 

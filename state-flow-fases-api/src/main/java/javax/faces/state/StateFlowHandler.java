@@ -49,7 +49,7 @@ public abstract class StateFlowHandler {
     
     public abstract boolean isActive(FacesContext context);
     
-    public abstract StateFlowExecutor startExecutor(FacesContext context, StateChart stateMachine, Map params, boolean root);
+    public abstract StateFlowExecutor startExecutor(FacesContext context, String stateId, StateChart stateMachine, Map params, boolean root);
     
     public void stopExecutor(FacesContext context) {
         stopExecutor(context, null);

@@ -28,4 +28,9 @@ public class Parallel extends TransitionTarget {
 
     }
 
+    @Override
+    public String toString() {
+        return "Parallel{" + "id=" + getId() + '}';
+    }
+
 }

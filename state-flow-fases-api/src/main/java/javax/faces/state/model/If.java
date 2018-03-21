@@ -98,4 +98,9 @@ public class If extends Action {
         }
     }
 
+    @Override
+    public String toString() {
+        return "If{" + '}';
+    }
+
 }

@@ -201,4 +201,9 @@ public class State extends TransitionTarget {
         return parallel != null;
     }
 
+    @Override
+    public String toString() {
+        return "State{" + "id=" + getId() + '}';
+    }
+
 }
