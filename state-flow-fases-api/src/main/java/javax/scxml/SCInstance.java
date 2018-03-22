@@ -16,6 +16,7 @@
  */
 package javax.scxml;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,9 +36,8 @@ import javax.scxml.model.TransitionalState;
 import javax.scxml.semantics.ErrorConstants;
 
 /**
- * The <code>SCInstance</code> performs book-keeping functions for
- * a particular execution of a state chart represented by a
- * <code>SCXML</code> object.
+ * The <code>SCInstance</code> performs book-keeping functions for a particular
+ * execution of a state chart represented by a <code>SCXML</code> object.
  */
 public class SCInstance implements Serializable {
 
@@ -122,18 +122,20 @@ public class SCInstance implements Serializable {
     private Context globalContext;
 
     /**
-     * Flag indicating if the globalContext is shared between all states (a single flat context, default false)
+     * Flag indicating if the globalContext is shared between all states (a
+     * single flat context, default false)
      */
     private boolean singleContext;
 
     /**
      * Constructor
+     *
      * @param internalIOProcessor The I/O Processor for the internal event queue
      * @param evaluator The evaluator
      * @param errorReporter The error reporter
      */
     protected SCInstance(final SCXMLIOProcessor internalIOProcessor, final Evaluator evaluator,
-                         final ErrorReporter errorReporter) {
+            final ErrorReporter errorReporter) {
         this.internalIOProcessor = internalIOProcessor;
         this.evaluator = evaluator;
         this.errorReporter = errorReporter;
@@ -142,9 +144,12 @@ public class SCInstance implements Serializable {
     }
 
     /**
-     * (re)Initializes the state machine instance, clearing all variable contexts, histories and current status,
-     * and clones the SCXML root datamodel into the root context.
-     * @throws ModelException if the state machine hasn't been setup for this instance
+     * (re)Initializes the state machine instance, clearing all variable
+     * contexts, histories and current status, and clones the SCXML root
+     * datamodel into the root context.
+     *
+     * @throws ModelException if the state machine hasn't been setup for this
+     * instance
      */
     protected void initialize() throws ModelException {
         running = false;
@@ -158,8 +163,8 @@ public class SCInstance implements Serializable {
             singleContext = true;
         }
         if (stateMachine.getDatamodelName() != null && !stateMachine.getDatamodelName().equals(evaluator.getSupportedDatamodel())) {
-            throw new ModelException("Incompatible SCXML document datamodel \""+stateMachine.getDatamodelName()+"\""
-                    + " for evaluator "+evaluator.getClass().getName()+" supported datamodel \""+evaluator.getSupportedDatamodel()+"\"");
+            throw new ModelException("Incompatible SCXML document datamodel \"" + stateMachine.getDatamodelName() + "\""
+                    + " for evaluator " + evaluator.getClass().getName() + " supported datamodel \"" + evaluator.getSupportedDatamodel() + "\"");
         }
         if (errorReporter == null) {
             throw new ModelException(ERR_NO_ERROR_REPORTER);
@@ -199,7 +204,8 @@ public class SCInstance implements Serializable {
     /**
      * Detach this state machine instance to allow external serialization.
      * <p>
-     * This clears the internal I/O processor, evaluator and errorReporter members.
+     * This clears the internal I/O processor, evaluator and errorReporter
+     * members.
      * </p>
      */
     protected void detach() {
@@ -210,6 +216,7 @@ public class SCInstance implements Serializable {
 
     /**
      * Sets the I/O Processor for the internal event queue
+     *
      * @param internalIOProcessor the I/O Processor
      */
     protected void setInternalIOProcessor(SCXMLIOProcessor internalIOProcessor) {
@@ -219,9 +226,10 @@ public class SCInstance implements Serializable {
     /**
      * Set or re-attach the evaluator
      * <p>
-     * If not re-attaching and this state machine instance has been initialized before,
-     * it will be initialized again, destroying all existing state!
+     * If not re-attaching and this state machine instance has been initialized
+     * before, it will be initialized again, destroying all existing state!
      * </p>
+     *
      * @param evaluator The evaluator for this state machine instance
      * @param reAttach Flag whether or not re-attaching it
      * @throws ModelException if {@code evaluator} is null
@@ -232,8 +240,7 @@ public class SCInstance implements Serializable {
             if (!reAttach) {
                 // change of evaluator after initialization: re-initialize
                 initialize();
-            }
-            else if (evaluator == null) {
+            } else if (evaluator == null) {
                 throw new ModelException("SCInstance: re-attached without Evaluator");
             }
         }
@@ -248,8 +255,10 @@ public class SCInstance implements Serializable {
 
     /**
      * Set or re-attach the error reporter
+     *
      * @param errorReporter The error reporter for this state machine instance.
-     * @throws ModelException if an attempt is made to set a null value for the error reporter
+     * @throws ModelException if an attempt is made to set a null value for the
+     * error reporter
      */
     protected void setErrorReporter(ErrorReporter errorReporter) throws ModelException {
         if (errorReporter == null) {
@@ -268,11 +277,13 @@ public class SCInstance implements Serializable {
     /**
      * Sets the state machine for this instance.
      * <p>
-     * If this state machine instance has been initialized before, it will be initialized again, destroying all existing
-     * state!
+     * If this state machine instance has been initialized before, it will be
+     * initialized again, destroying all existing state!
      * </p>
+     *
      * @param stateMachine The state machine for this instance
-     * @throws ModelException if an attempt is made to set a null value for the state machine
+     * @throws ModelException if an attempt is made to set a null value for the
+     * state machine
      */
     protected void setStateMachine(SCXML stateMachine) throws ModelException {
         if (stateMachine == null) {
@@ -301,7 +312,7 @@ public class SCInstance implements Serializable {
      * @param evaluator The expression evaluator.
      * @param errorReporter The error reporter
      */
-    protected void cloneDatamodel(final Datamodel datamodel, final Context ctx, 
+    protected void cloneDatamodel(final Datamodel datamodel, final Context ctx,
             final Evaluator evaluator, final ErrorReporter errorReporter) {
         if (datamodel == null || Evaluator.NULL_DATA_MODEL.equals(evaluator.getSupportedDatamodel())) {
             return;
@@ -319,23 +330,22 @@ public class SCInstance implements Serializable {
             boolean setValue = false;
             // prefer "src" over "expr" over "inline"
             if (datum.getSrc() != null) {
-//                String resolvedSrc = datum.getSrc();
-//                final PathResolver pr = getStateMachine().getPathResolver();
-//                if (pr != null) {
-//                    resolvedSrc = pr.resolvePath(resolvedSrc);
-//                }
-//                try {
-//                    datum.setParsedValue(ContentParser.DEFAULT_PARSER.parseResource(resolvedSrc));
-//                    value = evaluator.cloneData(datum.getParsedValue().getValue());
-//                    setValue = true;
-//                } catch (IOException e) {
-//                    if (internalIOProcessor != null) {
-//                        internalIOProcessor.addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION, TriggerEvent.ERROR_EVENT).build());
-//                    }
-//                    errorReporter.onError(ErrorConstants.EXECUTION_ERROR, e.getMessage(), datum);
-//                }
-            }
-            else if (datum.getExpr() != null) {
+                String resolvedSrc = datum.getSrc();
+                final PathResolver pr = getStateMachine().getPathResolver();
+                if (pr != null) {
+                    resolvedSrc = pr.resolvePath(resolvedSrc);
+                }
+                try {
+                    datum.setParsedValue(ContentParser.parse(resolvedSrc));
+                    value = evaluator.cloneData(datum.getParsedValue().getValue());
+                    setValue = true;
+                } catch (IOException e) {
+                    if (internalIOProcessor != null) {
+                        internalIOProcessor.addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION, TriggerEvent.ERROR_EVENT).build());
+                    }
+                    errorReporter.onError(ErrorConstants.EXECUTION_ERROR, e.getMessage(), datum, "src", e);
+                }
+            } else if (datum.getExpr() != null) {
                 try {
                     value = evaluator.eval(ctx, datum.getExpr());
                     setValue = true;
@@ -343,32 +353,17 @@ public class SCInstance implements Serializable {
                     if (internalIOProcessor != null) {
                         internalIOProcessor.addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION, TriggerEvent.ERROR_EVENT).build());
                     }
-                    errorReporter.onError(ErrorConstants.EXPRESSION_ERROR, see.getMessage(), datum);
+                    errorReporter.onError(ErrorConstants.EXPRESSION_ERROR, see.getMessage(), datum, "expr", see);
                 }
-            }
-            else if (datum.getParsedValue() != null) {
+            } else if (datum.getParsedValue() != null) {
                 value = evaluator.cloneData(datum.getParsedValue().getValue());
                 setValue = true;
-            }
-            else {
+            } else {
                 // initialize data value with null
                 setValue = true;
             }
             if (setValue) {
-//                if (evaluator instanceof JSEvaluator) {
-//                    // the Javascript engine (Nashorn) may require special handling/wrapping of data objects which
-//                    // directly injecting them in the context.
-//                    try {
-//                        ((JSEvaluator)evaluator).injectData(ctx, datum.getId(), value);
-//                    } catch (SCXMLExpressionException e) {
-//                        if (internalIOProcessor != null) {
-//                            internalIOProcessor.addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION, TriggerEvent.ERROR_EVENT).build());
-//                        }
-//                        errorReporter.onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), datum);
-//                    }
-//                } else {
-//                    ctx.setLocal(datum.getId(), value);
-//                }
+                ctx.setLocal(datum.getId(), value);
             }
         }
     }
@@ -396,10 +391,12 @@ public class SCInstance implements Serializable {
 
     /**
      * Starts the state machine, {@link #isRunning()} hereafter will return true
-     * @throws IllegalStateException Exception thrown if trying to start the state machine when in a Final state
+     *
+     * @throws IllegalStateException Exception thrown if trying to start the
+     * state machine when in a Final state
      */
     public void start() throws IllegalStateException {
-        if (!this.running &&  currentStatus.isFinal()) {
+        if (!this.running && currentStatus.isFinal()) {
             throw new IllegalStateException("The state machine is in a Final state and cannot be set running again");
         }
         this.running = true;
@@ -426,6 +423,7 @@ public class SCInstance implements Serializable {
 
     /**
      * Set or replace the root context.
+     *
      * @param context The new root context.
      */
     protected void setRootContext(final Context context) {
@@ -460,7 +458,8 @@ public class SCInstance implements Serializable {
     }
 
     /**
-     * @return Returns the global context, which is the top context <em>within</em> the state machine.
+     * @return Returns the global context, which is the top context
+     * <em>within</em> the state machine.
      */
     public Context getGlobalContext() {
         if (globalContext == null) {
@@ -474,7 +473,8 @@ public class SCInstance implements Serializable {
     }
 
     /**
-     * Get the context for an EnterableState or create one if not created before.
+     * Get the context for an EnterableState or create one if not created
+     * before.
      *
      * @param state The EnterableState.
      * @return The context.
@@ -484,8 +484,7 @@ public class SCInstance implements Serializable {
         if (context == null) {
             if (singleContext) {
                 context = getGlobalContext();
-            }
-            else {
+            } else {
                 EnterableState parent = state.getParent();
                 if (parent == null) {
                     // docroot
@@ -495,7 +494,7 @@ public class SCInstance implements Serializable {
                 }
             }
             if (state instanceof TransitionalState) {
-                Datamodel datamodel = ((TransitionalState)state).getDatamodel();
+                Datamodel datamodel = ((TransitionalState) state).getDatamodel();
                 cloneDatamodel(datamodel, context, evaluator, errorReporter);
             }
             contexts.put(state, context);
@@ -506,7 +505,8 @@ public class SCInstance implements Serializable {
     /**
      * Get the context for an EnterableState if available.
      *
-     * <p>Note: used for testing purposes only</p>
+     * <p>
+     * Note: used for testing purposes only</p>
      *
      * @param state The EnterableState
      * @return The context or null if not created yet.
@@ -518,7 +518,8 @@ public class SCInstance implements Serializable {
     /**
      * Set the context for an EnterableState
      *
-     * <p>Note: used for testing purposes only</p>
+     * <p>
+     * Note: used for testing purposes only</p>
      *
      * @param state The EnterableState.
      * @param context The context.
@@ -556,7 +557,8 @@ public class SCInstance implements Serializable {
     /**
      * Resets the history state.
      *
-     * <p>Note: used for testing purposes only</p>
+     * <p>
+     * Note: used for testing purposes only</p>
      *
      * @param history The history.
      */
@@ -564,4 +566,3 @@ public class SCInstance implements Serializable {
         histories.remove(history);
     }
 }
-

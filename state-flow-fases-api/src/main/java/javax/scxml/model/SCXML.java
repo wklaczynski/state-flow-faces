@@ -24,9 +24,8 @@ import java.util.Map;
 import javax.scxml.PathResolver;
 
 /**
- * The class in this SCXML object model that corresponds to the
- * &lt;scxml&gt; root element, and serves as the &quot;document
- * root&quot;.
+ * The class in this SCXML object model that corresponds to the &lt;scxml&gt;
+ * root element, and serves as the &quot;document root&quot;.
  *
  */
 public class SCXML implements Serializable, Observable {
@@ -42,7 +41,8 @@ public class SCXML implements Serializable, Observable {
     public static final String GENERATED_TT_ID_PREFIX = "_generated_tt_id_";
 
     /**
-     * The predefined observableId with value 0 (zero) for this SCXML state machine
+     * The predefined observableId with value 0 (zero) for this SCXML state
+     * machine
      */
     private static final Integer SCXML_OBSERVABLE_ID = 0;
 
@@ -77,7 +77,8 @@ public class SCXML implements Serializable, Observable {
     private String exmode;
 
     /**
-     * optional flag indicating if this document uses late or early (default) binding
+     * optional flag indicating if this document uses late or early (default)
+     * binding
      */
     private Boolean lateBinding;
 
@@ -87,9 +88,9 @@ public class SCXML implements Serializable, Observable {
     private String datamodelName;
 
     /**
-     * Optional property holding the data model for this SCXML document.
-     * This gets merged with the root context and potentially hides any
-     * (namesake) variables in the root context.
+     * Optional property holding the data model for this SCXML document. This
+     * gets merged with the root context and potentially hides any (namesake)
+     * variables in the root context.
      */
     private Datamodel datamodel;
 
@@ -109,22 +110,25 @@ public class SCXML implements Serializable, Observable {
     private final List<EnterableState> children;
 
     /**
-     * A global map of all States and Parallels associated with this
-     * state machine, keyed by their id.
+     * A global map of all States and Parallels associated with this state
+     * machine, keyed by their id.
      */
     private final Map<String, TransitionTarget> targets;
 
     /**
-     * The XML namespaces defined on the SCXML document root node,
-     * preserved primarily for serialization.
+     * The XML namespaces defined on the SCXML document root node, preserved
+     * primarily for serialization.
      */
     private Map<String, String> namespaces;
 
     /**
      * The next auto-generated transition target unique id value
+     *
      * @see #generateTransitionTargetId()
      */
     private long ttNextId;
+
+    private Map<Object, Object> tags;
 
     /**
      * Constructor.
@@ -144,10 +148,11 @@ public class SCXML implements Serializable, Observable {
 
     /**
      * Simple unique TransitionTarget id value generation
+     *
      * @return a unique TransitionTarget id for this SCXML instance
      */
     public final String generateTransitionTargetId() {
-        return GENERATED_TT_ID_PREFIX +ttNextId++;
+        return GENERATED_TT_ID_PREFIX + ttNextId++;
     }
 
     public final Script getGlobalScript() {
@@ -189,7 +194,8 @@ public class SCXML implements Serializable, Observable {
 
     /**
      * Set the initial Transition.
-     * <p>Note: the initial transition can/may not have executable content!</p>
+     * <p>
+     * Note: the initial transition can/may not have executable content!</p>
      *
      * @param initialTransition The initial transition to set.
      *
@@ -237,9 +243,11 @@ public class SCXML implements Serializable, Observable {
     }
 
     /**
-     * Get the first immediate child of the SCXML root. Return null if there's no child.
+     * Get the first immediate child of the SCXML root. Return null if there's
+     * no child.
      *
-     * @return Returns the first immediate child of the SCXML root. Return null if there's no child.
+     * @return Returns the first immediate child of the SCXML root. Return null
+     * if there's no child.
      *
      * @since 2.0
      */
@@ -299,11 +307,11 @@ public class SCXML implements Serializable, Observable {
     }
 
     /**
-     * Get the namespace definitions specified on the SCXML element.
-     * May be <code>null</code>.
+     * Get the namespace definitions specified on the SCXML element. May be
+     * <code>null</code>.
      *
-     * @return The namespace definitions specified on the SCXML element,
-     *         may be <code>null</code>.
+     * @return The namespace definitions specified on the SCXML element, may be
+     * <code>null</code>.
      */
     public final Map<String, String> getNamespaces() {
         return namespaces;
@@ -312,13 +320,34 @@ public class SCXML implements Serializable, Observable {
     /**
      * Set the namespace definitions specified on the SCXML element.
      *
-     * @param namespaces The namespace definitions specified on the
-     *                   SCXML element.
+     * @param namespaces The namespace definitions specified on the SCXML
+     * element.
      */
     public final void setNamespaces(final Map<String, String> namespaces) {
         this.namespaces = namespaces;
     }
 
+    /**
+     * Get the tags definitions specified on the all SCXML element. May be
+     * <code>null</code>.
+     *
+     * @return The tags definitions specified on the all SCXML element, may be
+     * <code>null</code>.
+     */
+    public final Map<Object, Object> getTags() {
+        return tags;
+    }
+
+    /**
+     * Set the namespace definitions specified on the SCXML element.
+     *
+     * @param tags The namespace definitions specified on the SCXML
+     * element.
+     */
+    public final void setTags(final Map<Object, Object> tags) {
+        this.tags = tags;
+    }
+    
     /**
      * Get the the initial transition target.
      *
@@ -344,57 +373,58 @@ public class SCXML implements Serializable, Observable {
      *
      * @return The name for this state machine.
      */
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * Set the name for this state machine.
-	 *
-	 * @param name The name for this state machine.
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+    /**
+     * Set the name for this state machine.
+     *
+     * @param name The name for this state machine.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	/**
-	 * Get the profile in use for this state machine.
-	 *
-	 * @return The profile in use.
-	 */
-	public String getProfile() {
-		return profile;
-	}
+    /**
+     * Get the profile in use for this state machine.
+     *
+     * @return The profile in use.
+     */
+    public String getProfile() {
+        return profile;
+    }
 
-	/**
-	 * Set the profile in use for this state machine.
-	 *
-	 * @param profile The profile to be used.
-	 */
-	public void setProfile(String profile) {
-		this.profile = profile;
-	}
+    /**
+     * Set the profile in use for this state machine.
+     *
+     * @param profile The profile to be used.
+     */
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
 
-	/**
-	 * Get the exmode in use for this state machine.
-	 *
-	 * @return The exmode in use.
-	 */
-	public String getExmode() {
-		return exmode;
-	}
+    /**
+     * Get the exmode in use for this state machine.
+     *
+     * @return The exmode in use.
+     */
+    public String getExmode() {
+        return exmode;
+    }
 
-	/**
-	 * Set the exmode to be used for this state machine.
-	 *
-	 * @param exmode The exmode to be used.
-	 */
-	public void setExmode(String exmode) {
-		this.exmode = exmode;
-	}
+    /**
+     * Set the exmode to be used for this state machine.
+     *
+     * @param exmode The exmode to be used.
+     */
+    public void setExmode(String exmode) {
+        this.exmode = exmode;
+    }
 
     /**
      * Get the datamodel name as specified as attribute on this document
+     *
      * @return The datamodel name of this document
      */
     public String getDatamodelName() {
@@ -403,10 +433,10 @@ public class SCXML implements Serializable, Observable {
 
     /**
      * Sets the datamodel name as specified as attribute on this document
+     *
      * @param datamodelName The datamodel name
      */
     public void setDatamodelName(final String datamodelName) {
         this.datamodelName = datamodelName;
     }
 }
-

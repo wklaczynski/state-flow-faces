@@ -717,7 +717,7 @@ public class SCXMLSemanticsImpl implements SCXMLSemantics {
             catch (SCXMLExpressionException e) {
                 exctx.getInternalIOProcessor().addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION, TriggerEvent.ERROR_EVENT).build());
                 exctx.getErrorReporter().onError(ErrorConstants.EXPRESSION_ERROR, "Treating as false due to error: "
-                        + e.getMessage(), transition);
+                        + e.getMessage(), transition, "cond", e);
             }
             return result;
         }
@@ -794,7 +794,7 @@ public class SCXMLSemanticsImpl implements SCXMLSemantics {
             scxmlCount.add(es);
         }
         if (scxmlCount.size() > 1) {
-            errRep.onError(ErrorConstants.ILLEGAL_CONFIG, "Multiple top-level OR states active!", scxmlCount);
+            errRep.onError(ErrorConstants.ILLEGAL_CONFIG, "Multiple top-level OR states active!", scxmlCount, null, null);
             legalConfig = false;
         }
         else {
@@ -805,12 +805,12 @@ public class SCXMLSemanticsImpl implements SCXMLSemantics {
                 if (es instanceof Parallel) {
                     Parallel p = (Parallel) es;
                     if (count.size() < p.getChildren().size()) {
-                        errRep.onError(ErrorConstants.ILLEGAL_CONFIG, "Not all AND states active for parallel " + p.getId(), entry);
+                        errRep.onError(ErrorConstants.ILLEGAL_CONFIG, "Not all AND states active for parallel " + p.getId(), entry, null, null);
                         legalConfig = false;
                     }
                 } else {
                     if (count.size() > 1) {
-                        errRep.onError(ErrorConstants.ILLEGAL_CONFIG, "Multiple OR states active for state " + es.getId(), entry);
+                        errRep.onError(ErrorConstants.ILLEGAL_CONFIG, "Multiple OR states active for state " + es.getId(), entry, null, null);
                         legalConfig = false;
                     }
                 }
@@ -862,7 +862,7 @@ public class SCXMLSemanticsImpl implements SCXMLSemantics {
                 globalScript.execute(exctx.getActionExecutionContext());
             } catch (SCXMLExpressionException e) {
                 exctx.getInternalIOProcessor().addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION, TriggerEvent.ERROR_EVENT).build());
-                exctx.getErrorReporter().onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), exctx.getStateMachine());
+                exctx.getErrorReporter().onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), exctx.getStateMachine(), null, e);
             }
         }
     }
@@ -944,13 +944,13 @@ public class SCXMLSemanticsImpl implements SCXMLSemantics {
             }
         } catch (SCXMLExpressionException e) {
             exctx.getInternalIOProcessor().addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION, TriggerEvent.ERROR_EVENT).build());
-            exctx.getErrorReporter().onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), exec);
+            exctx.getErrorReporter().onError(ErrorConstants.EXPRESSION_ERROR, e.getMessage(), exec, null, e);
         } catch (ActionExecutionError e) {
             if (!e.isEventRaised()) {
                 exctx.getInternalIOProcessor().addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION, TriggerEvent.ERROR_EVENT).build());
             }
             if (e.getMessage() != null) {
-                exctx.getErrorReporter().onError(ErrorConstants.EXECUTION_ERROR, e.getMessage(), exec);
+                exctx.getErrorReporter().onError(ErrorConstants.EXECUTION_ERROR, e.getMessage(), exec, null, e);
             }
         }
         if (exec instanceof Transition) {

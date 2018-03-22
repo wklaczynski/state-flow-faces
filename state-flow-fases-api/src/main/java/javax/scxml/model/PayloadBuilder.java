@@ -141,7 +141,7 @@ public class PayloadBuilder {
                 Object varObj = evaluator.eval(ctx, varName);
                 if (varObj == null) {
                     //considered as a warning here
-                    errorReporter.onError(ErrorConstants.UNDEFINED_VARIABLE, varName + " = null", parentState);
+                    errorReporter.onError(ErrorConstants.UNDEFINED_VARIABLE, varName + " = null", parentState, null, null);
                 }
                 addToPayload(varName, evaluator.cloneData(varObj), payload);
             }

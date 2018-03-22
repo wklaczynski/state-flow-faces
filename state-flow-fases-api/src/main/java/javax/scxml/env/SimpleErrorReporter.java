@@ -26,7 +26,10 @@ import javax.scxml.ErrorReporter;
 import javax.scxml.model.Data;
 import javax.scxml.model.EnterableState;
 import javax.scxml.model.Executable;
+import javax.scxml.model.Final;
+import javax.scxml.model.Invoke;
 import javax.scxml.model.SCXML;
+import javax.scxml.model.Send;
 import javax.scxml.model.State;
 import javax.scxml.model.TransitionTarget;
 import javax.scxml.semantics.ErrorConstants;
@@ -53,17 +56,31 @@ public class SimpleErrorReporter implements ErrorReporter, Serializable {
     }
 
     /**
+     * @param errorCode
+     * @param cause
      * @see ErrorReporter#onError(String, String, Object)
      */
     @SuppressWarnings("unchecked")
+    @Override
     public void onError(final String errorCode, final String errDetail,
-            final Object errCtx) {
+            Object errCtx, String parametrName, final Throwable cause) {
         //Note: the if-then-else below is based on the actual usage
         // (codebase search), it has to be kept up-to-date as the code changes
         String errCode = errorCode.intern();
         StringBuffer msg = new StringBuffer();
         msg.append(errCode).append(" (");
         msg.append(errDetail).append("): ");
+        
+        if(errCtx instanceof Final) {
+            errCtx = ((Final) errCtx).getParent();
+        }
+        if(errCtx instanceof Invoke) {
+            errCtx = ((Invoke) errCtx).getParent();
+        }
+        if(errCtx instanceof Send) {
+            errCtx = ((Send) errCtx).getParent();
+        }
+        
         if (errCode == ErrorConstants.NO_INITIAL) {
             if (errCtx instanceof SCXML) {
                 //determineInitialStates

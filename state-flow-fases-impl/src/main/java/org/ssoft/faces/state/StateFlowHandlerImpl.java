@@ -34,9 +34,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.lifecycle.ClientWindow;
 import javax.scxml.Context;
-import javax.scxml.EventBuilder;
 import javax.scxml.SCXMLExecutor;
-import javax.scxml.TriggerEvent;
 import javax.faces.state.events.FlowOnFinalEvent;
 import javax.scxml.invoke.Invoker;
 import javax.scxml.model.CustomAction;
@@ -267,25 +265,39 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         return stack != null && !stack.isEmpty();
     }
 
-    private SCXMLExecutor newRootExecutor(FacesContext context, String invokeId, SCXML stateMachine) {
+    private SCXMLExecutor newRootExecutor(FacesContext context, String invokeId, SCXML scxml) throws ModelException {
 
         FacesFlowEvaluator evaluator = new FacesFlowEvaluator();
         FacesFlowDispatcher dispatcher = new FacesFlowDispatcher();
         FacesFlowErrorReporter errorReporter = new FacesFlowErrorReporter();
-        
+
+        errorReporter.getTags().putAll(scxml.getTags());
+
         SCXMLExecutor executor = new SCXMLExecutor(evaluator, dispatcher, errorReporter);
+        executor.setStateMachine(scxml);
 
         for (Map.Entry<String, Class<? extends Invoker>> entry : customInvokers.entrySet()) {
             executor.registerInvokerClass(entry.getKey(), entry.getValue());
         }
 
+        Context rootCtx = executor.getRootContext();
+        rootCtx.setLocal("scxml_has_parent", false);
+
         return executor;
     }
 
+    private SCXMLExecutor newExecutor(SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException {
 
-    private SCXMLExecutor newExecutor(SCXMLExecutor parent, String invokeId, SCXML stateMachine) throws ModelException {
-        SCXMLExecutor executor = new SCXMLExecutor(parent, invokeId, stateMachine);
-        executor.addListener(stateMachine, new StateFlowCDIListener());
+        FacesFlowErrorReporter errorReporter = (FacesFlowErrorReporter) parent.getErrorReporter();
+        errorReporter.getTags().putAll(scxml.getTags());
+
+        SCXMLExecutor executor = new SCXMLExecutor(parent, invokeId, scxml);
+        executor.addListener(scxml, new StateFlowCDIListener());
+
+        if (parent != null) {
+            Context rootCtx = executor.getRootContext();
+            rootCtx.setLocal("scxml_has_parent", true);
+        }
 
         return null;
     }
@@ -294,29 +306,28 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     public SCXMLExecutor execute(SCXMLExecutor parent, String invokeId, SCXML scxml, Map<String, Object> params) {
         return execute(parent, invokeId, scxml, params, false);
     }
-    
-    
+
     @Override
     public SCXMLExecutor execute(SCXML scxml, Map<String, Object> params) {
         return execute(null, KEY, scxml, params, true);
     }
-    
+
     private SCXMLExecutor execute(SCXMLExecutor parent, String stateId, SCXML scxml, Map<String, Object> params, boolean root) {
         try {
             FacesContext context = FacesContext.getCurrentInstance();
-            
+
             FlowDeque fs = getFlowStack(context, true);
 
             Stack<SCXMLExecutor> stack = fs.getExecutors();
             Stack<Integer> roots = fs.getRoots();
 
             SCXMLExecutor executor;
-            if(root) {
+            if (root) {
                 executor = newRootExecutor(context, stateId, scxml);
             } else {
                 executor = newExecutor(parent, stateId, scxml);
-            }       
-            
+            }
+
             Context rootCtx = executor.getEvaluator().newContext(null);
             executor.setRootContext(rootCtx);
 
@@ -383,8 +394,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
 
         } else if (!chroot) {
-                executor.getParentSCXMLIOProcessor().close();
-                
+            executor.getParentSCXMLIOProcessor().close();
+
 //                String event = "root" + ".executor.stop";
 //                TriggerEvent ev = new EventBuilder(event, TriggerEvent.SIGNAL_EVENT).build();
 //                executor.triggerEvents();
@@ -428,6 +439,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
             String sessionKey = clientWindow.getId() + "_stateFlowStack";
             result = (FlowDeque) flowMap.get(sessionKey);
+            if (null == result && create) {
+                result = new FlowDeque(sessionKey);
+            }
+
 //            Object state = flowMap.get(sessionKey);
 //            if (null == state && create) {
 //                result = new FlowDeque(sessionKey);
@@ -507,7 +522,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 //                values[0] = stateMachine.getViewId();
 //                values[1] = stateMachine.getId();
 //                values[2] = executor.getStateId();
-
                 context.getAttributes().put(STATE_MACHINE_HINT, stateMachine);
                 try {
                     //values[3] = executor.saveState(context);

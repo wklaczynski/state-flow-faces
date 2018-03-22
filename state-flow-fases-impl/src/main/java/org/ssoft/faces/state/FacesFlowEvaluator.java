@@ -34,8 +34,8 @@ import javax.scxml.model.SCXML;
 import static org.ssoft.faces.state.FacesFlowEvaluatorProvider.SUPPORTED_DATA_MODEL;
 import org.ssoft.faces.state.el.BuiltinFunctionMapper;
 import org.ssoft.faces.state.el.CompositeFunctionMapper;
+import org.ssoft.faces.state.el.DefaultVariableMapper;
 import org.ssoft.faces.state.el.FlowELResolver;
-import org.ssoft.faces.state.impl.VariableMapperWrapper;
 
 /**
  *
@@ -102,6 +102,8 @@ public class FacesFlowEvaluator extends AbstractBaseEvaluator {
         if (stateChart != null) {
             ec.putContext(SCXML.class, stateChart);
         }
+
+        ec.putContext(FacesContext.class, fc);
         try {
             return call.call();
         } catch (Exception ex) {
@@ -147,14 +149,19 @@ public class FacesFlowEvaluator extends AbstractBaseEvaluator {
     public class ContextWrapper extends ELContext implements Serializable {
 
         private final ELContext ctx;
-        private final VariableMapper varMapper;
+        private VariableMapper varMapper;
         private final FunctionMapper fnMapper;
         private final CompositeELResolver elResolver;
 
         private ContextWrapper(FacesContext facesContext) {
             super();
             this.ctx = facesContext.getELContext();
-            this.varMapper = new VariableMapperWrapper(ctx.getVariableMapper());
+
+            this.varMapper = ctx.getVariableMapper();
+            if (varMapper == null) {
+                this.varMapper = new DefaultVariableMapper();
+            }
+
             this.fnMapper = new CompositeFunctionMapper(new BuiltinFunctionMapper(), ctx.getFunctionMapper());
 
             this.elResolver = new CompositeELResolver();

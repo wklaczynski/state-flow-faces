@@ -24,6 +24,7 @@ import javax.faces.view.facelets.TagException;
 import org.w3c.dom.Node;
 import javax.scxml.model.Data;
 import javax.scxml.model.Datamodel;
+import javax.scxml.model.NodeValue;
 import javax.scxml.model.SCXML;
 
 /**
@@ -55,20 +56,16 @@ public class DataTagHandler extends AbstractFlowTagHandler<Data> {
 
         data.setId(id.getValue());
 
-        Object srcobj;
-        if (src != null) {
-            srcobj = src.getValueExpression(ctx, Object.class).getValue(ctx);
-            data.setSrc(src.getValue());
-        }
-
         data.setExpr(expr != null ? expr.getValue() : null);
 
         applyNext(ctx, parent, data);
-        
-        
 
+        if (src != null) {
+            data.setSrc(src.getValue());
+        }
+        
 //        if (isProductionMode(ctx) && staticNode != null ) {
-//            data.setNode(staticNode);
+//            data.setParsedValue(new NodeValue(staticNode));
 //        } else if (srcobj != null && srcobj instanceof String) {
 //            FacesContext fc = ctx.getFacesContext();
 //            ResourceHandler rh = fc.getApplication().getResourceHandler();

@@ -128,7 +128,7 @@ public class If extends Action implements ActionsContainer {
             rslt = Boolean.FALSE;
             exctx.getInternalIOProcessor().addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION, TriggerEvent.ERROR_EVENT).build());
             exctx.getErrorReporter().onError(ErrorConstants.EXPRESSION_ERROR, "Treating as false due to error: "
-                    + e.getMessage(), this);
+                    + e.getMessage(), this, "cond", e);
         }
         execute = rslt;
         // The "if" statement is a "container"

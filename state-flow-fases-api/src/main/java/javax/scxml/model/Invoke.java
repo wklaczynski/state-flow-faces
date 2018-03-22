@@ -16,11 +16,13 @@
  */
 package javax.scxml.model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.scxml.ActionExecutionContext;
+import javax.scxml.ContentParser;
 import javax.scxml.Context;
 import javax.scxml.Evaluator;
 import javax.scxml.EventBuilder;
@@ -37,8 +39,8 @@ import javax.scxml.semantics.ErrorConstants;
 import org.w3c.dom.Element;
 
 /**
- * The class in this SCXML object model that corresponds to the
- * &lt;invoke&gt; SCXML element.
+ * The class in this SCXML object model that corresponds to the &lt;invoke&gt;
+ * SCXML element.
  *
  */
 public class Invoke extends Action implements ContentContainer, ParamsContainer {
@@ -49,17 +51,20 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     private static final long serialVersionUID = 1L;
 
     /**
-     * The default context variable key under which the current SCXMLExecutionContext is provided
+     * The default context variable key under which the current
+     * SCXMLExecutionContext is provided
      */
     private static final String CURRENT_EXECUTION_CONTEXT_KEY = "_CURRENT_EXECUTION_CONTEXT";
 
     /**
      * Identifier for this Invoke.
-     * */
+     *
+     */
     private String id;
 
     /**
-     * Path expression evaluating to a location within a previously defined XML data tree.
+     * Path expression evaluating to a location within a previously defined XML
+     * data tree.
      */
     private String idlocation;
 
@@ -79,8 +84,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     private String src;
 
     /**
-     * The expression that evaluates to the source URL for the
-     * external service.
+     * The expression that evaluates to the source URL for the external service.
      */
     private String srcexpr;
 
@@ -143,6 +147,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
 
     /**
      * Set the idlocation expression
+     *
      * @param idlocation The idlocation expression
      */
     public void setIdlocation(final String idlocation) {
@@ -176,6 +181,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
 
     /**
      * Sets the type expression
+     *
      * @param typeexpr The type expression to set
      */
     public void setTypeexpr(final String typeexpr) {
@@ -201,8 +207,8 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     }
 
     /**
-     * Get the expression that evaluates to the source URL for the
-     * external service.
+     * Get the expression that evaluates to the source URL for the external
+     * service.
      *
      * @return String The source expression.
      */
@@ -211,8 +217,8 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     }
 
     /**
-     * Set the expression that evaluates to the source URL for the
-     * external service.
+     * Set the expression that evaluates to the source URL for the external
+     * service.
      *
      * @param srcexpr The source expression.
      */
@@ -220,16 +226,17 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
         this.srcexpr = srcexpr;
     }
 
-
     /**
-     * @return Returns true if all external events should be forwarded to the invoked process.
+     * @return Returns true if all external events should be forwarded to the
+     * invoked process.
      */
     public final boolean isAutoForward() {
         return autoForward != null && autoForward;
     }
 
     /**
-     * @return Returns the flag indicating whether to forward events to the invoked process.
+     * @return Returns the flag indicating whether to forward events to the
+     * invoked process.
      */
     public final Boolean getAutoForward() {
         return autoForward;
@@ -237,6 +244,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
 
     /**
      * Set the flag indicating whether to forward events to the invoked process.
+     *
      * @param autoForward the flag
      */
     public final void setAutoForward(final Boolean autoForward) {
@@ -291,6 +299,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
 
     /**
      * Enforce identity equality only
+     *
      * @param other other object to compare with
      * @return this == other
      */
@@ -301,7 +310,9 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
 
     /**
      * Enforce returning identity based hascode
-     * @return {@link System#identityHashCode(Object) System.identityHashCode(this)}
+     *
+     * @return
+     * {@link System#identityHashCode(Object) System.identityHashCode(this)}
      */
     @Override
     public final int hashCode() {
@@ -319,7 +330,8 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     }
 
     /**
-     * @return The local context variable name under which the current SCXMLExecutionContext is provided to the Invoke
+     * @return The local context variable name under which the current
+     * SCXMLExecutionContext is provided to the Invoke
      */
     public String getCurrentSCXMLExecutionContextKey() {
         return CURRENT_EXECUTION_CONTEXT_KEY;
@@ -347,6 +359,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
 
     /**
      * Set the parent EnterableState.
+     *
      * @param parent The parent state to set
      * @param invokeIndex
      */
@@ -362,19 +375,19 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     public void execute(final ActionExecutionContext axctx) throws ModelException {
         EnterableState parentState = getParentEnterableState();
         Context ctx = axctx.getContext(parentState);
-        SCXMLExecutionContext exctx = (SCXMLExecutionContext)ctx.getVars().get(getCurrentSCXMLExecutionContextKey());
+        SCXMLExecutionContext exctx = (SCXMLExecutionContext) ctx.getVars().get(getCurrentSCXMLExecutionContextKey());
         if (exctx == null) {
-            throw new ModelException("Missing current SCXMLExecutionContext instance in context under key: "+ getCurrentSCXMLExecutionContextKey());
+            throw new ModelException("Missing current SCXMLExecutionContext instance in context under key: " + getCurrentSCXMLExecutionContextKey());
         }
         try {
             Evaluator eval = axctx.getEvaluator();
 
             String typeValue = type;
             if (typeValue == null && typeexpr != null) {
-                typeValue = (String)eval.eval(ctx, typeexpr);
+                typeValue = (String) eval.eval(ctx, typeexpr);
                 if (typeValue == null) {
-                    throw new SCXMLExpressionException("<invoke> for state "+parentState.getId() +
-                            ": type expression \"" + typeexpr + "\" evaluated to null or empty String");
+                    throw new SCXMLExpressionException("<invoke> for state " + parentState.getId()
+                            + ": type expression \"" + typeexpr + "\" evaluated to null or empty String");
                 }
             }
             if (typeValue == null) {
@@ -391,9 +404,10 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
             }
             invoker.setInvokeId(invokeId);
 
+            @SuppressWarnings("LocalVariableHidesMemberVariable")
             String src = getSrc();
             if (src == null && getSrcexpr() != null) {
-                src = (String)eval.eval(ctx, getSrcexpr());
+                src = (String) eval.eval(ctx, getSrcexpr());
             }
             if (src != null) {
                 PathResolver pr = exctx.getStateMachine().getPathResolver();
@@ -410,8 +424,8 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
                         exctx.getInternalIOProcessor().addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION,
                                 TriggerEvent.ERROR_EVENT).build());
                         exctx.getErrorReporter().onError(ErrorConstants.EXPRESSION_ERROR,
-                                "Failed to evaluate <invoke> <content> expression due to error: "+ e.getMessage()
-                                        + ", Using empty value instead.", getParent());
+                                "Failed to evaluate <invoke> <content> expression due to error: " + e.getMessage()
+                                + ", Using empty value instead.", this, "expr", e);
                         contentValue = "";
                     }
                 } else if (content.getParsedValue() != null) {
@@ -421,29 +435,28 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
                     // inline content
                 } else if (contentValue instanceof Element) {
                     // xml based content (must be assigned through data)
-                    Element contentElement = (Element)contentValue;
-                    if (SCXMLConstants.ELEM_SCXML.equals(contentElement.getLocalName()) &&
-                            SCXMLConstants.XMLNS_SCXML.equals(contentElement.getNamespaceURI())) {
+                    Element contentElement = (Element) contentValue;
+                    if (SCXMLConstants.ELEM_SCXML.equals(contentElement.getLocalName())
+                            && SCXMLConstants.XMLNS_SCXML.equals(contentElement.getNamespaceURI())) {
                         // statemachine definition: transform to string as we cannot (yet) pass XML directly to invoker
-//                        try {
-//                            contentValue = ContentParser.DEFAULT_PARSER.toXml(contentElement);
-//                        }
-//                        catch (IOException e) {
-//                            throw new ActionExecutionError("<invoke> for state "+parentState.getId() +
-//                                    ": invalid <content><scxml> definition");
-//                        }
+                        try {
+                            contentValue = ContentParser.changeToXml(contentElement);
+                        } catch (IOException e) {
+                            throw new ActionExecutionError("<invoke> for state " + parentState.getId()
+                                    + ": invalid <content><scxml> definition");
+                        }
                     } else {
-                        throw new ActionExecutionError("<invoke> for state "+parentState.getId() +
-                                ": invalid <content> definition");
+                        throw new ActionExecutionError("<invoke> for state " + parentState.getId()
+                                + ": invalid <content> definition");
                     }
                 } else {
-                    throw new ActionExecutionError("<invoke> for state "+parentState.getId() +
-                            ": invalid <content> definition");
+                    throw new ActionExecutionError("<invoke> for state " + parentState.getId()
+                            + ": invalid <content> definition");
                 }
             }
             if (src == null && contentValue == null) {
-                throw new ActionExecutionError("<invoke> for state "+parentState.getId() +
-                        ": no src and no content defined");
+                throw new ActionExecutionError("<invoke> for state " + parentState.getId()
+                        + ": no src and no content defined");
             }
             Map<String, Object> payloadDataMap = new HashMap<>();
             PayloadBuilder.addNamelistDataToPayload(parentState, ctx, eval, exctx.getErrorReporter(), namelist, payloadDataMap);
@@ -451,17 +464,15 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
             invoker.setParentSCXMLExecutor(exctx.getSCXMLExecutor());
             if (src != null) {
                 invoker.invoke(src, payloadDataMap);
-            }
-            else {
-                invoker.invokeContent((String)contentValue, payloadDataMap);
+            } else {
+                invoker.invokeContent((String) contentValue, payloadDataMap);
             }
             exctx.registerInvoker(this, invoker);
-        }
-        catch (InvokerException|ActionExecutionError|SCXMLExpressionException e) {
+        } catch (InvokerException | ActionExecutionError | SCXMLExpressionException e) {
             axctx.getInternalIOProcessor().addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION, TriggerEvent.ERROR_EVENT).build());
             if (e.getMessage() != null) {
                 axctx.getErrorReporter().onError(e instanceof SCXMLExpressionException
-                        ? ErrorConstants.EXPRESSION_ERROR : ErrorConstants.EXECUTION_ERROR, e.getMessage(), this);
+                        ? ErrorConstants.EXPRESSION_ERROR : ErrorConstants.EXECUTION_ERROR, e.getMessage(), this, null, e);
             }
         }
     }

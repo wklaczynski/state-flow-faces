@@ -443,7 +443,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
                             TriggerEvent.ERROR_EVENT).build());
                     exctx.getErrorReporter().onError(ErrorConstants.EXPRESSION_ERROR,
                             "Failed to evaluate <send> <content> expression due to error: "+ e.getMessage()
-                                    + ", Using empty value instead.", getParent());
+                                    + ", Using empty value instead.", this, "expr", e);
                     evalResult = "";
                 }
                 payload = eval.cloneData(evalResult);

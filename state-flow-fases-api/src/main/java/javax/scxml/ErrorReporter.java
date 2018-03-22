@@ -34,6 +34,8 @@ public interface ErrorReporter {
      * @param errCtx
      *            typically an SCXML element which caused an error,
      *            may be accompanied by additional information
+     * @param parametrName
+     * @param cause
      */
-    void onError(String errCode, String errDetail, Object errCtx);
+    void onError(String errCode, String errDetail, Object errCtx, String parametrName, Throwable cause);
 }

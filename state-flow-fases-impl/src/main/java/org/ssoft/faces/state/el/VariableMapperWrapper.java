@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ssoft.faces.state.impl;
+package org.ssoft.faces.state.el;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.el.ELException;
 import javax.el.ValueExpression;
 import javax.el.VariableMapper;
 
@@ -24,39 +25,39 @@ import javax.el.VariableMapper;
  *
  * @author Waldemar Kłaczyński
  */
-public class DefaultVariableMapper extends VariableMapper {
+public class VariableMapperWrapper extends VariableMapper {
+
+    private final VariableMapper target;
 
     private Map vars;
 
-    public DefaultVariableMapper() {
+    public VariableMapperWrapper(VariableMapper orig) {
         super();
+        this.target = orig;
     }
 
-    /**
-     * @param name
-     * @return 
-     * @see javax.el.VariableMapper#resolveVariable(java.lang.String)
-     */
     @Override
-    public ValueExpression resolveVariable(String name) {
-        if (this.vars != null) {
-            return (ValueExpression) this.vars.get(name);
+    public ValueExpression resolveVariable(String variable) {
+        ValueExpression ve = null;
+        try {
+            if (this.vars != null) {
+                ve = (ValueExpression) this.vars.get(variable);
+            }
+            if (ve == null) {
+                return this.target.resolveVariable(variable);
+            }
+            return ve;
+        } catch (StackOverflowError e) {
+            throw new ELException("Could not Resolve Variable [Overflow]: " + variable, e);
         }
-        return null;
     }
 
-    /**
-     * @param name
-     * @param expression
-     * @return 
-     * @see javax.el.VariableMapper#setVariable(java.lang.String, javax.el.ValueExpression)
-     */
     @Override
-    public ValueExpression setVariable(String name, ValueExpression expression) {
+    public ValueExpression setVariable(String variable,
+            ValueExpression expression) {
         if (this.vars == null) {
             this.vars = new HashMap();
         }
-        return (ValueExpression) this.vars.put(name, expression);
+        return (ValueExpression) this.vars.put(variable, expression);
     }
-
 }

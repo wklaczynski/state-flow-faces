@@ -42,7 +42,7 @@ import javax.faces.view.facelets.TagException;
 import javax.faces.view.facelets.TagHandler;
 import javax.scxml.model.SCXML;
 import org.ssoft.faces.state.impl.FacesURLResolver;
-import org.ssoft.faces.state.impl.VariableMapperWrapper;
+import org.ssoft.faces.state.el.VariableMapperWrapper;
 import org.ssoft.faces.state.log.FlowLogger;
 import static org.ssoft.faces.state.tag.AbstractFlowTagHandler.CURRENT_FLOW_OBJECT;
 import static org.ssoft.faces.state.tag.AbstractFlowTagHandler.TAG_MAP;
@@ -103,10 +103,10 @@ public class StateChartTagHandler extends TagHandler {
         }
 
         String buildId = (String) ctx.getFacesContext().getAttributes().get(BUILD_STATE_MACHINE_HINT);
-        if(buildId != null && !buildId.equals(chartId)){
+        if (buildId != null && !buildId.equals(chartId)) {
             return;
-        } 
-        
+        }
+
         if (facetComponent != null) {
             uichart = (UIStateChartRoot) facetComponent.findComponent(chartId);
         }
@@ -155,7 +155,6 @@ public class StateChartTagHandler extends TagHandler {
         VariableMapper corig = ctx.getVariableMapper();
         ctx.setVariableMapper(new VariableMapperWrapper(corig));
 
-        
         Map<Object, Tag> tags = new HashMap<>();
         try {
             build(ctx, uichart, chart, tags, resolver);
@@ -163,6 +162,8 @@ public class StateChartTagHandler extends TagHandler {
             ctx.setVariableMapper(corig);
             ctx.setFunctionMapper(forig);
         }
+
+        chart.setTags(new HashMap<>(tags));
 
         ModelUpdater updater = new ModelUpdater(tags);
         updater.updateSCXML(chart);
@@ -183,12 +184,12 @@ public class StateChartTagHandler extends TagHandler {
             popElement(parent, TAG_MAP);
         }
     }
-    
-   private void pushMapper(FacesContext ctx, FunctionMapper mapper) {
+
+    private void pushMapper(FacesContext ctx, FunctionMapper mapper) {
         ELContext elContext = ctx.getELContext();
         if (elContext instanceof ELContextImpl) {
             ((ELContextImpl) elContext).setFunctionMapper(mapper);
         }
-    }    
+    }
 
 }

@@ -98,7 +98,7 @@ public class Final extends EnterableState {
                                     TriggerEvent.ERROR_EVENT).build());
                             exctx.getErrorReporter().onError(ErrorConstants.EXPRESSION_ERROR,
                                     "Failed to evaluate <donedata> <content> expression due to error: "+ e.getMessage()
-                                            + ", Using empty value instead.", getParent());
+                                            + ", Using empty value instead.", this, "expr", e);
                             evalResult = "";
                         }
                         result = eval.cloneData(evalResult);
@@ -117,7 +117,7 @@ public class Final extends EnterableState {
                 result = null;
                 exctx.getInternalIOProcessor().addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION, TriggerEvent.ERROR_EVENT).build());
                 exctx.getErrorReporter().onError(ErrorConstants.EXPRESSION_ERROR,
-                        "Failed to process final donedata due to error: "+ e.getMessage(), getParent());
+                        "Failed to process final donedata due to error: "+ e.getMessage(), this, "expr", e);
             }
         }
         return result;
