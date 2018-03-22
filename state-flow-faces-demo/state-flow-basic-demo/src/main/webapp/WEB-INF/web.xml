@@ -14,11 +14,11 @@
     </context-param>
     
     <context-param>
-        <param-name>javax.faces.flow.ORYGINAL_SCXML_SUFIX</param-name>
+        <param-name>org.apache.faces.ORYGINAL_SCXML_SUFIX</param-name>
         <param-value>.shtml .flow</param-value>
     </context-param>
     <context-param>
-        <param-name>javax.faces.flow.STATE_CHART_REQUEST_PARAM_NAME</param-name>
+        <param-name>org.apache.faces.STATE_CHART_REQUEST_PARAM_NAME</param-name>
         <param-value>flow</param-value>
     </context-param>
     

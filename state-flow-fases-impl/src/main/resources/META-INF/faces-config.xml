@@ -15,24 +15,24 @@
     </ordering>    
     
    <lifecycle>
-        <phase-listener>org.ssoft.faces.state.facelets.StateFlowPhaseListener</phase-listener>
+        <phase-listener>org.apache.faces.impl.state.facelets.StateFlowPhaseListener</phase-listener>
     </lifecycle>
     
             
     <application>
-        <el-resolver>org.ssoft.faces.state.facelets.StateFlowELResolver</el-resolver>
-        <el-resolver>org.ssoft.faces.state.facelets.StateFlowScopesELResolver</el-resolver>
-        <el-resolver>org.ssoft.faces.state.el.DomELResolver</el-resolver>
-        <navigation-handler>org.ssoft.faces.state.facelets.StateFlowNavigationHandler</navigation-handler>
+        <el-resolver>org.apache.faces.impl.state.facelets.StateFlowELResolver</el-resolver>
+        <el-resolver>org.apache.faces.impl.state.facelets.StateFlowScopesELResolver</el-resolver>
+        <el-resolver>org.apache.faces.impl.state.el.DomELResolver</el-resolver>
+        <navigation-handler>org.apache.faces.impl.state.facelets.StateFlowNavigationHandler</navigation-handler>
     </application>
     
     <factory>
-        <view-declaration-language-factory>org.ssoft.faces.state.facelets.StateFlowViewDeclarationLanguageFactory</view-declaration-language-factory>
+        <view-declaration-language-factory>org.apache.faces.impl.state.facelets.StateFlowViewDeclarationLanguageFactory</view-declaration-language-factory>
     </factory>
 
     <component>
-        <component-type>javax.faces.UIStateChartRoot</component-type>
-        <component-class>javax.faces.state.component.UIStateChartRoot</component-class>
+        <component-type>org.apache.faces.UIStateChartRoot</component-type>
+        <component-class>org.apache.faces.state.component.UIStateChartRoot</component-class>
     </component>
     
     

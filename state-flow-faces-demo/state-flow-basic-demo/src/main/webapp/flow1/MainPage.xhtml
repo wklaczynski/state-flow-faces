@@ -8,15 +8,15 @@
         <h:outputStylesheet library="css" name="demo-style.css"  />
     </h:head>
     <h:body>
-        <h1>#{chart.chart_title}</h1>
+        <h1>#{scxml.chart_title}</h1>
         <hr/>
         <h:form>
-            <h:panelGroup rendered="#{empty state.chart_title}">
+            <h:panelGroup rendered="#{empty scxml.chart_title}">
                 <h2>Hello, I'm not starting from flow faces :(</h2>
                 <hr/>
             </h:panelGroup>
             <h:panelGroup>
-                <h3>Hello, I'm in root state state chat &lt;scxml id="main"&gt;: "#{chart.chart_view}"</h3>
+                <h3>Hello, I'm in root state state chat &lt;scxml id="main"&gt;: "#{scxml.chart_view}"</h3>
                 This page is started by state flow chart. It's assigned any data from owned &lt;scxml&gt;
                 <p/>
                 Assigned data and navigation is from &lt;scxml&gt; and current &lt;state&gt;.
@@ -29,7 +29,7 @@
                     <p/>
                     <h4>Data assigned of root context in &lt;scxml&gt; tag content.</h4>
                     <h:dataTable 
-                        value="#{state.book.clients.client}"
+                        value="#{scxml.book.client}"
                         var="cvar"
                         styleClass="order-table"
                         headerClass="order-table-header"
@@ -70,15 +70,11 @@
                     <p/>
                     <h4>Reading data assigned in &lt;scxml&gt;, when use el query witch XPath.</h4>
                     <p/>
-                    I'm reading the last phone from  data "book" in root datamodel. Result: #{state.book['/clients/client[last()]/phone[@type=\'mobile\']']}
-                    <p/><pre>use xpath query: &quot;\#{state.book['/clients/client[last()]/phone[@type='mobile']']}&quot;</pre>
+                    I'm reading the last phone from  data "book" in root datamodel. Result: #{scxml.book['client[last()]/phone[@type=\'mobile\']']}
+                    <p/><pre>use xpath query: &quot;\#{scxml.book['client[last()]/phone[@type='mobile']']}&quot;</pre>
                     <p/>
-                    I'm reading the first phone from data "book" in root datamodel. Result: #{state.book.clients.client['0']['phone[@type=\'mobile\']']}
-                    <p/><pre>use xpath query: &quot;\#{state.book.clients.client['0']['phone[@type='mobile']']}&quot;</pre>
-
-                    <h4>Data assigned in &lt;scxml&gt;/&lt;state id=&quot;start&quot;&gt;, reading local data from current state.</h4>
-                    <p/>
-                    I'm reading phone for client id="1" from data "book1" in local state datamodel. Result: #{state.book1['/clients/client[@id=\'1\']/phone[@type=\'mobile\']']}
+                    I'm reading the first phone from data "book" in root datamodel. Result: #{scxml.book.client['0']['phone[@type=\'mobile\']']}
+                    <p/><pre>use xpath query: &quot;\#{scxml.book.client['0']['phone[@type='mobile']']}&quot;</pre>
                 </h:panelGroup>
                 <h:panelGroup >
                     <hr/>

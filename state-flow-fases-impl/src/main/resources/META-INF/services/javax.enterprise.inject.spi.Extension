@@ -1,1 +1,1 @@
-org.ssoft.faces.state.cdi.StateFlowCDIExtension
+org.apache.faces.impl.state.cdi.StateFlowCDIExtension

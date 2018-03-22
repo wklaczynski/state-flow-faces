@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <f:metadata
     xmlns:f="http://xmlns.jcp.org/jsf/core"
-    xmlns:x="http://xmlns.ssoft.org/flow/scxml"
+    xmlns:x="http://xmlns.apache.org/faces/scxml"
     xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
     >
     <x:scxml id="main" initial="start">
@@ -43,10 +43,10 @@
 
                 <x:invoke type="view" src="ShowClientPage.xhtml"/>
 
-                <x:transition event="show-client.invoke.failed" target="error"/>
+                <x:transition event="error.execution" target="error"/>
 
-                <x:transition event="show-client.view.action.accept" target="success"/>
-                <x:transition event="show-client.view.action.cancel" target="cancel"/>
+                <x:transition event="view.action.accept" target="success"/>
+                <x:transition event="view.action.cancel" target="cancel"/>
             </x:state>
 
             <x:state id="show-process">
@@ -69,7 +69,7 @@
                         <x:log expr="I'm finishing show-process-1"/>
                     </x:onexit>
 
-                    <x:transition event="show-client.view.action.next_process" target="show-process-2"/>
+                    <x:transition event="view.action.next" target="show-process-2"/>
                 </x:state>     
 
                 <x:state id="show-process-2">
@@ -80,7 +80,7 @@
                         <x:log expr="I'm finishing show-process-2"/>
                     </x:onexit>
 
-                    <x:transition event="show-client.view.action.next" target="show-process-1"/>
+                    <x:transition event="view.action.next" target="show-process-1"/>
                 </x:state>             
             </x:state> 
         </x:parallel>
