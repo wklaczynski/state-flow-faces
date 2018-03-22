@@ -589,7 +589,7 @@ public final class SCXMLExecutor implements SCXMLIOProcessor {
      *
      * @return The SCInstance for this executor.
      */
-    protected SCInstance getSCInstance() {
+    public SCInstance getSCInstance() {
         return exctx.getScInstance();
     }
 

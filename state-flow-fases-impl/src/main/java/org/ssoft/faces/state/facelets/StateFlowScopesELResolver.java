@@ -65,13 +65,19 @@ public class StateFlowScopesELResolver extends ELResolver {
                 }
             }
         } else if (base instanceof DialogParams) {
-            context.setPropertyResolved(true);
             DialogParams scope = (DialogParams) base;
             result = scope.get(property.toString());
-        } else if (base instanceof StateParams) {
+            if (result == null) {
+                notf("chart", property);
+            }
             context.setPropertyResolved(true);
+        } else if (base instanceof StateParams) {
             StateParams scope = (StateParams) base;
             result = scope.get(property.toString());
+            if (result == null) {
+                notf("state", property);
+            }
+            context.setPropertyResolved(true);
         } else if (base instanceof DialogScope) {
             context.setPropertyResolved(true);
             DialogScope scope = (DialogScope) base;
@@ -104,22 +110,22 @@ public class StateFlowScopesELResolver extends ELResolver {
                 }
             }
         } else if (base instanceof DialogParams) {
-            context.setPropertyResolved(true);
             DialogParams scope = (DialogParams) base;
             Object value = scope.get(property.toString());
+            context.setPropertyResolved(true);
             if (value != null) {
                 result = value.getClass();
             }
         } else if (base instanceof StateParams) {
-            context.setPropertyResolved(true);
             StateParams scope = (StateParams) base;
+            context.setPropertyResolved(true);
             Object value = scope.get(property.toString());
             if (value != null) {
                 result = value.getClass();
             }
         } else if (base instanceof DialogScope) {
-            context.setPropertyResolved(true);
             DialogScope scope = (DialogScope) base;
+            context.setPropertyResolved(true);
             Object value = scope.get(property.toString());
             if (value != null) {
                 result = value.getClass();
@@ -198,6 +204,10 @@ public class StateFlowScopesELResolver extends ELResolver {
             StateParams scope = (StateParams) base;
         }
         return result.iterator();
+    }
+
+    private void notf(String scope, Object property) {
+        throw new PropertyNotFoundException(String.format("(%s property '%s' not found)", scope, property));
     }
 
     @Override
@@ -301,7 +311,7 @@ public class StateFlowScopesELResolver extends ELResolver {
 
         @Override
         public Set<Map.Entry<String, Object>> entrySet() {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return ctx.getVars().entrySet();
         }
 
     }

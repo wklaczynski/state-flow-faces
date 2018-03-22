@@ -58,6 +58,10 @@ public class FlowELResolver extends ELResolver implements Serializable {
             context.setPropertyResolved(true);
             ResultParams scope = (ResultParams) base;
             result = scope.get(property.toString());
+            if (result == null) {
+                String message = " base " + base + " property " + property;
+                throw new PropertyNotFoundException(message);
+            }
         }
         return result;
     }
@@ -145,6 +149,10 @@ public class FlowELResolver extends ELResolver implements Serializable {
     @Override
     public Class<?> getCommonPropertyType(ELContext context, Object base) {
         return null;
+    }
+
+    private void notf(String scope, Object property) {
+        throw new PropertyNotFoundException(String.format("(%s property '%s' not found)", scope, property));
     }
 
     private ResultParams getResultParams(ELContext context) {

@@ -348,5 +348,14 @@ public class Util {
         return (context.getApplication().getStateManager());
     }
     
+    public static String getErrorMessage(Throwable th) {
+        String result = th.getMessage();
+        
+        while(th.getCause() != null) {
+            th = th.getCause();
+            result = th.getMessage();
+        }
+        return result;
+    }
 
 }

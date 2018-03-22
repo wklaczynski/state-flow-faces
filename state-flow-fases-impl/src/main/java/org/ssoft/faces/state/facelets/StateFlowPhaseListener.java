@@ -35,23 +35,33 @@ import javax.faces.state.faces.StateFlowHandler;
 import static javax.faces.state.faces.StateFlowHandler.DEFAULT_STATECHART_NAME;
 import static javax.faces.state.faces.StateFlowHandler.SKIP_START_STATE_MACHINE_HINT;
 import static javax.faces.state.faces.StateFlowHandler.STATECHART_FACET_NAME;
+import javax.scxml.model.EnterableState;
 import javax.scxml.model.SCXML;
-import javax.scxml.model.State;
+import javax.scxml.model.TransitionalState;
 import static org.ssoft.faces.state.FacesFlowConstants.STATE_CHART_DEFAULT_PARAM_NAME;
 import static org.ssoft.faces.state.FacesFlowConstants.STATE_CHART_REQUEST_PARAM_NAME;
 import org.ssoft.faces.state.config.StateWebConfiguration;
+import org.ssoft.faces.state.impl.CompositeContext;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class FlowPhaseListener implements PhaseListener {
+public class StateFlowPhaseListener implements PhaseListener {
 
     @Override
     public void afterPhase(PhaseEvent event) {
         FacesContext context = event.getFacesContext();
         if (event.getPhaseId() == PhaseId.RESTORE_VIEW) {
             restoreStateFlow(context);
+            
+            StateFlowHandler fh = StateFlowHandler.getInstance();
+            SCXMLExecutor executor = fh.getExecutor(context);
+            if (executor != null) {
+                Context stateContext = getStateContext(context, executor);
+                context.getELContext().putContext(Context.class, stateContext);
+                context.getELContext().putContext(SCXMLExecutor.class, executor);
+            }
         }
 
     }
@@ -60,13 +70,6 @@ public class FlowPhaseListener implements PhaseListener {
     public void beforePhase(PhaseEvent event) {
         FacesContext context = event.getFacesContext();
         if (event.getPhaseId() != PhaseId.RESTORE_VIEW) {
-            StateFlowHandler fh = StateFlowHandler.getInstance();
-            SCXMLExecutor executor = fh.getExecutor(context);
-            if (executor != null) {
-                Context stateContext = getStateContext(context, executor);
-                context.getELContext().putContext(Context.class, stateContext);
-                context.getELContext().putContext(SCXMLExecutor.class, executor);
-            }
         }
         if (event.getPhaseId() == PhaseId.RENDER_RESPONSE) {
             StateFlowHandler.getInstance().writeState(context);
@@ -76,11 +79,18 @@ public class FlowPhaseListener implements PhaseListener {
     private static Context getStateContext(
             final FacesContext fc,
             final SCXMLExecutor executor) {
-        Iterator iterator = executor.getStatus().getStates().iterator();
+
+        CompositeContext result = new CompositeContext(executor.getRootContext());
         
-        State state = ((State) iterator.next());
-        Context context = executor.getGlobalContext();
-        return context;
+        Iterator<EnterableState> iterator = executor.getStatus().getActiveStates().iterator();
+        while (iterator.hasNext()) {
+            EnterableState enterable = iterator.next();
+            if(enterable instanceof TransitionalState) {
+                Context context = executor.getSCInstance().getContext(enterable);
+                result.add(context);
+            }
+        }
+        return result;
     }
 
     @Override

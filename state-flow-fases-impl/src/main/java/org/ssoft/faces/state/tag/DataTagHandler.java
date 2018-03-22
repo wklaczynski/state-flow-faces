@@ -21,11 +21,15 @@ import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
+import javax.scxml.ContentParser;
+import javax.scxml.PathResolver;
 import org.w3c.dom.Node;
 import javax.scxml.model.Data;
 import javax.scxml.model.Datamodel;
 import javax.scxml.model.NodeValue;
+import javax.scxml.model.ParsedValue;
 import javax.scxml.model.SCXML;
+import org.ssoft.faces.state.utils.Util;
 
 /**
  *
@@ -37,7 +41,7 @@ public class DataTagHandler extends AbstractFlowTagHandler<Data> {
     protected final TagAttribute src;
     protected final TagAttribute expr;
 
-    private Node staticNode;
+    private ParsedValue staticValue;
 
     public DataTagHandler(TagConfig config) {
         super(config, Data.class);
@@ -63,59 +67,24 @@ public class DataTagHandler extends AbstractFlowTagHandler<Data> {
         if (src != null) {
             data.setSrc(src.getValue());
         }
-        
-//        if (isProductionMode(ctx) && staticNode != null ) {
-//            data.setParsedValue(new NodeValue(staticNode));
-//        } else if (srcobj != null && srcobj instanceof String) {
-//            FacesContext fc = ctx.getFacesContext();
-//            ResourceHandler rh = fc.getApplication().getResourceHandler();
-//
-//            Resource res;
-//
-//            String resourceId = (String) srcobj;
-//            String libraryName = null;
-//            String resourceName = null;
-//
-//            int end = 0, start = 0;
-//            if (-1 != (end = resourceId.lastIndexOf(":"))) {
-//                resourceName = resourceId.substring(end + 1);
-//                if (-1 != (start = resourceId.lastIndexOf(":", end - 1))) {
-//                    libraryName = resourceId.substring(start + 1, end);
-//                } else {
-//                    libraryName = resourceId.substring(0, end);
-//                }
-//            }
-//
-//            if (libraryName != null) {
-//                res = rh.createResource(resourceName, libraryName);
-//                if (res == null) {
-//                    String errmsg = String.format("%s (resource not found)", src.getValue());
-//                    buildex(errmsg);
-//                }
-//
-//                if (!res.getContentType().equals("application/xml")) {
-//                    String errmsg = String.format("%s (resource not xml content type)", src.getValue());
-//                    buildex(errmsg);
-//                }
-//                staticNode = StateFlowHelper.buildContentFromStream(fc, res.getInputStream());
-//                
-//                
-//
-//            } else {
-//                PathResolver pr = getElement(parent, PathResolver.class);
-//                if (pr != null) {
-//                    resourceId = pr.resolvePath(fc, resourceId);
-//                }
-//                String mimeType = fc.getExternalContext().getMimeType(resourceId);
-//                if (!mimeType.equals("application/xml")) {
-//                    String errmsg = String.format("%s (resource not xml content type)", src.getValue());
-//                    buildex(errmsg);
-//                }
-//                staticNode = StateFlowHelper.buildContentFromPath(fc, resourceId);
-//            }
-//
-//            data.setNode(staticNode);
-//        }
+
+        if (isProductionMode(ctx) && staticValue != null) {
+            data.setParsedValue(staticValue);
+        } else if (src != null) {
+            String resolvedSrc = src.getValue();
+            final PathResolver pr = chart.getPathResolver();
+            if (pr != null) {
+                resolvedSrc = pr.resolvePath(resolvedSrc);
+            }
+            try {
+                staticValue = ContentParser.parse(resolvedSrc);
+                data.setParsedValue(staticValue);
+            } catch (IOException e) {
+                throw new TagException(this.tag,
+                        String.format("can not build data %s.", Util.getErrorMessage(e)));
+            }
+
+        }
 
         Datamodel datamodel = (Datamodel) parentElement;
         datamodel.addData(data);
