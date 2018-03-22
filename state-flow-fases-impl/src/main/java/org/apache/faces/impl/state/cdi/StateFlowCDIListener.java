@@ -47,11 +47,10 @@ public class StateFlowCDIListener implements SCXMLListener, Serializable {
             
             if(tt instanceof State) {
                 State state = (State) tt;
-                StateScopeCDIContex.flowStateEntered(state);
+
             }
             if(tt instanceof Parallel) {
                 Parallel parallel = (Parallel) tt;
-                ParallelScopeCDIContext.flowParallelEntered(parallel);
             }
         }
     }
@@ -74,11 +73,10 @@ public class StateFlowCDIListener implements SCXMLListener, Serializable {
             
             if(tt instanceof State) {
                 State state = (State) tt;
-                StateScopeCDIContex.flowStateExited(state);
+
             }
             if(tt instanceof Parallel) {
                 Parallel parallel = (Parallel) tt;
-                ParallelScopeCDIContext.flowParallelExited(parallel);
             }
         }
     }

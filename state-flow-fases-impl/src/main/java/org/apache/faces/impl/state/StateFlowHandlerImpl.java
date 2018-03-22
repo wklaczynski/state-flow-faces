@@ -41,8 +41,6 @@ import org.apache.scxml.model.CustomAction;
 import javax.servlet.ServletContext;
 import static org.apache.faces.impl.state.StateFlowConstants.ANNOTATED_CLASSES;
 import org.apache.faces.impl.state.utils.Util;
-import org.apache.faces.state.annotation.FlowAction;
-import org.apache.faces.state.annotation.FlowInvoker;
 import org.apache.faces.state.component.UIStateChartRoot;
 import org.apache.faces.state.StateFlowHandler;
 import org.apache.scxml.model.Action;
@@ -55,6 +53,8 @@ import org.apache.faces.impl.state.cdi.StateChartScopeCDIContex;
 import org.apache.faces.impl.state.cdi.StateFlowCDIListener;
 import org.apache.faces.impl.state.invokers.SubInvoker;
 import org.apache.faces.impl.state.invokers.ViewInvoker;
+import org.apache.faces.state.annotation.StateChartInvoker;
+import org.apache.faces.state.annotation.StateChartAction;
 
 /**
  *
@@ -79,13 +79,13 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         Set<Class<?>> annotatedClasses = (Set<Class<?>>) ctx.getAttribute(ANNOTATED_CLASSES);
         for (Class<?> type : annotatedClasses) {
 
-            if (type.isAnnotationPresent(FlowAction.class)) {
-                FlowAction a = type.getAnnotation(FlowAction.class);
+            if (type.isAnnotationPresent(StateChartAction.class)) {
+                StateChartAction a = type.getAnnotation(StateChartAction.class);
                 Class<?> javaClass = type;
                 CustomAction action = new CustomAction(a.namespaceURI(), a.value(), (Class<? extends Action>) javaClass);
                 customActions.add(action);
-            } else if (type.isAnnotationPresent(FlowInvoker.class)) {
-                FlowInvoker a = type.getAnnotation(FlowInvoker.class);
+            } else if (type.isAnnotationPresent(StateChartInvoker.class)) {
+                StateChartInvoker a = type.getAnnotation(StateChartInvoker.class);
                 Class<?> javaClass = type;
                 customInvokers.put(a.value(), (Class<Invoker>) javaClass);
             }

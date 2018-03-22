@@ -24,9 +24,7 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.BeforeBeanDiscovery;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessBean;
-import org.apache.faces.state.annotation.StateScoped;
 import org.apache.faces.impl.state.utils.Util;
-import org.apache.faces.state.annotation.ParallelScoped;
 import org.apache.faces.state.annotation.StateChartScoped;
 import org.apache.faces.impl.state.log.FlowLogger;
 
@@ -46,8 +44,6 @@ public class StateFlowCDIExtension implements Extension {
 
     public void beforeBean(@Observes final BeforeBeanDiscovery event, BeanManager beanManager) {
         event.addScope(StateChartScoped.class, true, true);
-        event.addScope(ParallelScoped.class, true, true);
-        event.addScope(StateScoped.class, true, true);
     }
 
     public void processBean(@Observes ProcessBean<?> event) {
@@ -55,24 +51,13 @@ public class StateFlowCDIExtension implements Extension {
         if (dialogScoped != null && log.isLoggable(Level.FINE)) {
             log.log(Level.FINE, "Processing occurrence of @DialogScoped");
         }
-        ParallelScoped parallerScoped = event.getAnnotated().getAnnotation(ParallelScoped.class);
-        if (dialogScoped != null && log.isLoggable(Level.FINE)) {
-            log.log(Level.FINE, "Processing occurrence of @ParallerScoped");
-        }
-        StateScoped stateScoped = event.getAnnotated().getAnnotation(StateScoped.class);
-        if (dialogScoped != null && log.isLoggable(Level.FINE)) {
-            log.log(Level.FINE, "Processing occurrence of @StateScoped");
-        }
-
     }
 
     public void afterBean(@Observes final AfterBeanDiscovery event, BeanManager beanManager) {
 
         event.addContext(new StateChartScopeCDIContex(beanManager));
-        event.addContext(new ParallelScopeCDIContext(beanManager));
-        event.addContext(new StateScopeCDIContex(beanManager));
-//        event.addBean(new NamespaceMapProducer());
-//        event.addBean(new PathResolverProducer());
+
+        event.addBean(new PathResolverProducer());
 
         if (cdiOneOneOrGreater) {
             Class clazz;

@@ -15,22 +15,20 @@
  */
 package org.apache.faces.state.annotation;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
+import java.lang.annotation.Documented;
 import static java.lang.annotation.ElementType.TYPE;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Target;
-import javax.inject.Qualifier;
 
-/**
- *
- * @author Waldemar Kłaczyński
- */
-@Target({TYPE, METHOD, PARAMETER, FIELD})
-@Qualifier
-@Retention(value = RUNTIME)
-public @interface NamespaceMap {
-    
+@Target({TYPE})
+@Documented
+@Retention(RUNTIME)
+@Inherited
+public @interface StateChartAction {
+    String value();
+    String namespaceURI() default "http://xmlns.jcp.org/flow/custom";
 }
+
+

@@ -26,9 +26,8 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface FlowAction {
+public @interface StateChartInvoker {
     String value();
-    String namespaceURI() default "http://xmlns.jcp.org/flow/custom";
 }
 
 

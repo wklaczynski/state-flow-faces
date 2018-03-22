@@ -41,7 +41,6 @@ import org.apache.scxml.model.TransitionalState;
 import static org.apache.faces.impl.state.StateFlowConstants.STATE_CHART_DEFAULT_PARAM_NAME;
 import static org.apache.faces.impl.state.StateFlowConstants.STATE_CHART_REQUEST_PARAM_NAME;
 import org.apache.faces.impl.state.config.StateWebConfiguration;
-import org.apache.faces.impl.state.CompositeContext;
 
 /**
  *

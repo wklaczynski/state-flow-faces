@@ -39,7 +39,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.PartialViewContext;
 import javax.faces.render.RenderKit;
 import javax.faces.render.ResponseStateManager;
-import org.apache.faces.state.annotation.Statefull;
 import org.apache.faces.state.component.UIStateChartRoot;
 import static org.apache.faces.state.StateFlowHandler.STATECHART_FACET_NAME;
 import javax.faces.view.ViewDeclarationLanguage;
@@ -84,11 +83,8 @@ public class ViewInvoker implements Invoker, Serializable {
      */
     private boolean cancelled;
 
-    @Statefull
     private String stateStore;
-    @Statefull
     private String control;
-    @Statefull
     private String viewId;
 
     /**

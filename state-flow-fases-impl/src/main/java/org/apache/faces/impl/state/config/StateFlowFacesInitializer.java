@@ -22,8 +22,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.HandlesTypes;
 import static org.apache.faces.impl.state.StateFlowConstants.ANNOTATED_CLASSES;
-import org.apache.faces.state.annotation.FlowAction;
-import org.apache.faces.state.annotation.FlowInvoker;
+import org.apache.faces.state.annotation.StateChartAction;
+import org.apache.faces.state.annotation.StateChartInvoker;
 
 /**
  *
@@ -31,8 +31,8 @@ import org.apache.faces.state.annotation.FlowInvoker;
  */
 @SuppressWarnings({"UnusedDeclaration"})
 @HandlesTypes({
-    FlowAction.class,
-    FlowInvoker.class
+    StateChartAction.class,
+    StateChartInvoker.class
 })
 public class StateFlowFacesInitializer implements ServletContainerInitializer {
 
