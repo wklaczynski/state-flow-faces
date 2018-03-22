@@ -47,14 +47,14 @@ import org.xml.sax.SAXException;
  *
  * @author Waldemar Kłaczyński
  */
-public class FacesFlowContentParser extends ContentParser {
+public class StateFlowContentParser extends ContentParser {
 
     /**
      * Jackson JSON ObjectMapper
      */
     private final ObjectMapper jsonObjectMapper;
 
-    public FacesFlowContentParser() {
+    public StateFlowContentParser() {
         this.jsonObjectMapper = null;
     }
 

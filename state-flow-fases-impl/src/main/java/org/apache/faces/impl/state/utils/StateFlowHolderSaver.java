@@ -24,7 +24,7 @@ import javax.faces.context.FacesContext;
  *
  * @author Waldemar Kłaczyński
  */
-public class FlowStateHolderSaver implements Serializable {
+public class StateFlowHolderSaver implements Serializable {
 
     private static final long serialVersionUID = 6470180891722042701L;
 
@@ -58,7 +58,7 @@ public class FlowStateHolderSaver implements Serializable {
         return result;
     }
 
-    public FlowStateHolderSaver(FacesContext context, Object toSave) {
+    public StateFlowHolderSaver(FacesContext context, Object toSave) {
         if(toSave == null) {
             className = null;
         } else {

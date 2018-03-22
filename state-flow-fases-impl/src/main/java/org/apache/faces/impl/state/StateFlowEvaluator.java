@@ -31,7 +31,7 @@ import org.apache.scxml.SCXMLExecutor;
 import org.apache.scxml.SCXMLExpressionException;
 import org.apache.scxml.env.AbstractBaseEvaluator;
 import org.apache.scxml.model.SCXML;
-import static org.apache.faces.impl.state.FacesFlowEvaluatorProvider.SUPPORTED_DATA_MODEL;
+import static org.apache.faces.impl.state.StateFlowEvaluatorProvider.SUPPORTED_DATA_MODEL;
 import org.apache.faces.impl.state.el.BuiltinFunctionMapper;
 import org.apache.faces.impl.state.el.CompositeFunctionMapper;
 import org.apache.faces.impl.state.el.DefaultVariableMapper;
@@ -41,7 +41,7 @@ import org.apache.faces.impl.state.el.FlowELResolver;
  *
  * @author Waldemar Kłaczyński
  */
-public class FacesFlowEvaluator extends AbstractBaseEvaluator {
+public class StateFlowEvaluator extends AbstractBaseEvaluator {
 
     public static final String CURRENT_STACK_KEY = "javax.faces.state.CURRENT_STACK";
     public static final String FLOW_EL_CONTEXT_KEY = "javax.faces.FLOW_CONTEXT_KEY".intern();
@@ -54,7 +54,7 @@ public class FacesFlowEvaluator extends AbstractBaseEvaluator {
     private transient ContextWrapper ec;
     private transient ExpressionFactory ef;
 
-    public FacesFlowEvaluator() {
+    public StateFlowEvaluator() {
         super();
         sccashe = new ThreadLocal<>();
         excashe = new ThreadLocal<>();
@@ -143,7 +143,7 @@ public class FacesFlowEvaluator extends AbstractBaseEvaluator {
 
     @Override
     public Context newContext(Context parent) {
-        return new FacesFlowContext(parent);
+        return new StateFlowContext(parent);
     }
 
     public class ContextWrapper extends ELContext implements Serializable {

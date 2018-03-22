@@ -39,7 +39,7 @@ import org.apache.faces.state.events.FlowOnFinalEvent;
 import org.apache.scxml.invoke.Invoker;
 import org.apache.scxml.model.CustomAction;
 import javax.servlet.ServletContext;
-import static org.apache.faces.impl.state.FacesFlowConstants.ANNOTATED_CLASSES;
+import static org.apache.faces.impl.state.StateFlowConstants.ANNOTATED_CLASSES;
 import org.apache.faces.impl.state.utils.Util;
 import org.apache.faces.state.annotation.FlowAction;
 import org.apache.faces.state.annotation.FlowInvoker;
@@ -50,7 +50,7 @@ import org.apache.scxml.model.ModelException;
 import org.apache.scxml.model.SCXML;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
-import static org.apache.faces.impl.state.FacesFlowConstants.STATE_FLOW_STACK;
+import static org.apache.faces.impl.state.StateFlowConstants.STATE_FLOW_STACK;
 import org.apache.faces.impl.state.cdi.StateChartScopeCDIContex;
 import org.apache.faces.impl.state.cdi.StateFlowCDIListener;
 import org.apache.faces.impl.state.invokers.SubInvoker;
@@ -267,9 +267,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     private SCXMLExecutor newRootExecutor(FacesContext context, String invokeId, SCXML scxml) throws ModelException {
 
-        FacesFlowEvaluator evaluator = new FacesFlowEvaluator();
-        FacesFlowDispatcher dispatcher = new FacesFlowDispatcher();
-        FacesFlowErrorReporter errorReporter = new FacesFlowErrorReporter();
+        StateFlowEvaluator evaluator = new StateFlowEvaluator();
+        StateFlowDispatcher dispatcher = new StateFlowDispatcher();
+        StateFlowErrorReporter errorReporter = new StateFlowErrorReporter();
 
         errorReporter.getTags().putAll(scxml.getTags());
 
@@ -288,7 +288,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     private SCXMLExecutor newExecutor(SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException {
 
-        FacesFlowErrorReporter errorReporter = (FacesFlowErrorReporter) parent.getErrorReporter();
+        StateFlowErrorReporter errorReporter = (StateFlowErrorReporter) parent.getErrorReporter();
         errorReporter.getTags().putAll(scxml.getTags());
 
         SCXMLExecutor executor = new SCXMLExecutor(parent, invokeId, scxml);

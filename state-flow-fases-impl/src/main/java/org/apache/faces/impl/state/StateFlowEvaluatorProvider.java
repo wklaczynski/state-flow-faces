@@ -23,9 +23,9 @@ import org.apache.scxml.model.SCXML;
  *
  * @author Waldemar Kłaczyński
  */
-public class FacesFlowEvaluatorProvider implements EvaluatorProvider {
+public class StateFlowEvaluatorProvider implements EvaluatorProvider {
 
-    public static final String SUPPORTED_DATA_MODEL = "http://xmlns.ssoft.org/flow/scxml";
+    public static final String SUPPORTED_DATA_MODEL = "http://xmlns.apache.org/faces/scxml";
 
     @Override
     public String getSupportedDatamodel() {
@@ -34,12 +34,12 @@ public class FacesFlowEvaluatorProvider implements EvaluatorProvider {
 
     @Override
     public Evaluator getEvaluator() {
-        return new FacesFlowEvaluator();
+        return new StateFlowEvaluator();
     }
 
     @Override
     public Evaluator getEvaluator(SCXML document) {
-        return new FacesFlowEvaluator();
+        return new StateFlowEvaluator();
     }
 
 }

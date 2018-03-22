@@ -31,13 +31,13 @@ import org.apache.scxml.PathResolver;
  *
  * @author Waldemar Kłaczyński
  */
-public class FacesURLResolver implements PathResolver, Serializable {
+public class StateFlowURLResolver implements PathResolver, Serializable {
 
     private final String root;
     private transient String base;
     private transient String contextPath;
 
-    public FacesURLResolver(String root) {
+    public StateFlowURLResolver(String root) {
         this.root = root;
     }
 
@@ -77,7 +77,7 @@ public class FacesURLResolver implements PathResolver, Serializable {
             path = parent;
         }
         path = localPath(context, path);
-        return new FacesURLResolver(path);
+        return new StateFlowURLResolver(path);
     }
 
     private String localPath(FacesContext context, String path) {

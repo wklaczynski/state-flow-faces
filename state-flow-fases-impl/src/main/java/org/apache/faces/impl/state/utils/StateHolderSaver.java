@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.state.utils;
+package org.apache.faces.impl.state.utils;
 
 import java.io.Serializable;
 import java.lang.reflect.Modifier;

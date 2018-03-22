@@ -23,7 +23,7 @@ import javax.el.ELException;
 import javax.el.ELResolver;
 import javax.xml.transform.TransformerException;
 import org.apache.xpath.XPathAPI;
-import static org.apache.faces.impl.state.FacesFlowConstants.LOCAL_XPATH_RESOLVER;
+import static org.apache.faces.impl.state.StateFlowConstants.LOCAL_XPATH_RESOLVER;
 import org.apache.faces.impl.state.config.StateWebConfiguration;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

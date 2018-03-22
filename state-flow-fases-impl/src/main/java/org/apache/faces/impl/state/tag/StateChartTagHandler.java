@@ -41,7 +41,7 @@ import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
 import javax.faces.view.facelets.TagHandler;
 import org.apache.scxml.model.SCXML;
-import org.apache.faces.impl.state.FacesURLResolver;
+import org.apache.faces.impl.state.StateFlowURLResolver;
 import org.apache.faces.impl.state.el.VariableMapperWrapper;
 import org.apache.faces.impl.state.log.FlowLogger;
 import static org.apache.faces.impl.state.tag.AbstractFlowTagHandler.CURRENT_FLOW_OBJECT;
@@ -144,7 +144,7 @@ public class StateChartTagHandler extends TagHandler {
         FacesContext fc = ctx.getFacesContext();
         PathResolver baseResolver = (PathResolver) fc.getExternalContext().getApplicationMap().get(BASE_PATH_RESOLVER);
         if (baseResolver == null) {
-            baseResolver = new FacesURLResolver("/");
+            baseResolver = new StateFlowURLResolver("/");
             fc.getExternalContext().getApplicationMap().put(BASE_PATH_RESOLVER, baseResolver);
         }
 

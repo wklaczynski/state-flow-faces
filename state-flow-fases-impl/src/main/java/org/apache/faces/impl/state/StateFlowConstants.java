@@ -20,7 +20,7 @@ package org.apache.faces.impl.state;
  *
  * @author Waldemar Kłaczyński
  */
-public class FacesFlowConstants {
+public class StateFlowConstants {
 
     public final static String STATE_FLOW_PREFIX = "org.apache.faces.";
     

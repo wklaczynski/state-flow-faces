@@ -47,7 +47,7 @@ import org.apache.faces.impl.state.log.WebMessage;
 /**
  * Custom error reporter that log execution errors.
  */
-public class FacesFlowErrorReporter implements ErrorReporter, Serializable {
+public class StateFlowErrorReporter implements ErrorReporter, Serializable {
 
     /**
      * Serial version UID.
@@ -62,7 +62,7 @@ public class FacesFlowErrorReporter implements ErrorReporter, Serializable {
     /**
      * Constructor.
      */
-    public FacesFlowErrorReporter() {
+    public StateFlowErrorReporter() {
         super();
         this.tags = new HashMap<>();
     }

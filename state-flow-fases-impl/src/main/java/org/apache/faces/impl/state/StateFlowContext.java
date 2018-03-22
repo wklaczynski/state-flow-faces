@@ -28,7 +28,7 @@ import org.apache.scxml.SCXMLSystemContext;
  * Simple Context wrapping a map of variables.
  *
  */
-public final class FacesFlowContext implements Context, Serializable {
+public final class StateFlowContext implements Context, Serializable {
 
     /** Serial version UID. */
     private static final long serialVersionUID = 1L;
@@ -45,7 +45,7 @@ public final class FacesFlowContext implements Context, Serializable {
      * Constructor.
      *
      */
-    public FacesFlowContext() {
+    public StateFlowContext() {
         this(null, null);
     }
 
@@ -54,7 +54,7 @@ public final class FacesFlowContext implements Context, Serializable {
      *
      * @param parent A parent Context, can be null
      */
-    public FacesFlowContext(final Context parent) {
+    public StateFlowContext(final Context parent) {
         this(parent, null);
     }
 
@@ -64,7 +64,7 @@ public final class FacesFlowContext implements Context, Serializable {
      * @param parent A parent Context, can be null
      * @param initialVars A pre-populated initial variables map
      */
-    public FacesFlowContext(final Context parent, final Map<String, Object> initialVars) {
+    public StateFlowContext(final Context parent, final Map<String, Object> initialVars) {
         this.parent = parent;
         this.systemContext = parent instanceof SCXMLSystemContext ?
                 (SCXMLSystemContext) parent : parent != null ? parent.getSystemContext() : null;

@@ -38,8 +38,8 @@ import static org.apache.faces.state.StateFlowHandler.STATECHART_FACET_NAME;
 import org.apache.scxml.model.EnterableState;
 import org.apache.scxml.model.SCXML;
 import org.apache.scxml.model.TransitionalState;
-import static org.apache.faces.impl.state.FacesFlowConstants.STATE_CHART_DEFAULT_PARAM_NAME;
-import static org.apache.faces.impl.state.FacesFlowConstants.STATE_CHART_REQUEST_PARAM_NAME;
+import static org.apache.faces.impl.state.StateFlowConstants.STATE_CHART_DEFAULT_PARAM_NAME;
+import static org.apache.faces.impl.state.StateFlowConstants.STATE_CHART_REQUEST_PARAM_NAME;
 import org.apache.faces.impl.state.config.StateWebConfiguration;
 import org.apache.faces.impl.state.CompositeContext;
 

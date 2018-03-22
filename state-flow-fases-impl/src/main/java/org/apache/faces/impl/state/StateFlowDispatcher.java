@@ -45,7 +45,7 @@ import org.apache.scxml.model.ActionExecutionError;
  * counterparts for the &quot;scxml&quot; <code>type</code>.</p>
  *
  */
-public class FacesFlowDispatcher implements EventDispatcher, Serializable {
+public class StateFlowDispatcher implements EventDispatcher, Serializable {
 
     /**
      * Serial version UID.
@@ -129,8 +129,8 @@ public class FacesFlowDispatcher implements EventDispatcher, Serializable {
     }
 
     @Override
-    public FacesFlowDispatcher newInstance() {
-        return new FacesFlowDispatcher();
+    public StateFlowDispatcher newInstance() {
+        return new StateFlowDispatcher();
     }
 
     /**
