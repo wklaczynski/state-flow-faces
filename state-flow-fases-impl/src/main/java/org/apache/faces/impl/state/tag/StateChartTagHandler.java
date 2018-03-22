@@ -164,7 +164,7 @@ public class StateChartTagHandler extends TagHandler {
             ctx.setFunctionMapper(forig);
         }
 
-        chart.setTags(new HashMap<>(tags));
+        chart.getAttributes().put("faces-tag-info", new HashMap<>(tags));
 
         ModelUpdater updater = new ModelUpdater(tags);
         updater.updateSCXML(chart);

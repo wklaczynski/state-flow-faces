@@ -271,7 +271,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         StateFlowDispatcher dispatcher = new StateFlowDispatcher();
         StateFlowErrorReporter errorReporter = new StateFlowErrorReporter();
 
-        errorReporter.getTags().putAll(scxml.getTags());
+        Map tags = (Map) scxml.getAttributes().get("faces-tag-info");
+        errorReporter.getTags().putAll(new HashMap<>(tags));
 
         SCXMLExecutor executor = new SCXMLExecutor(evaluator, dispatcher, errorReporter);
         executor.setStateMachine(scxml);
@@ -289,7 +290,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     private SCXMLExecutor newExecutor(SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException {
 
         StateFlowErrorReporter errorReporter = (StateFlowErrorReporter) parent.getErrorReporter();
-        errorReporter.getTags().putAll(scxml.getTags());
+
+        Map tags = (Map) scxml.getAttributes().get("faces-tag-info");
+        errorReporter.getTags().putAll(new HashMap<>(tags));
 
         SCXMLExecutor executor = new SCXMLExecutor(parent, invokeId, scxml);
         executor.addListener(scxml, new StateFlowCDIListener());
