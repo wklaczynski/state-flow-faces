@@ -1,14 +1,14 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
+ * Licensed getString the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
+ * The ASF licenses this file getString You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed getString in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.scxml.ActionExecutionContext;
-import org.apache.scxml.ContentParser;
+import org.apache.scxml.io.ContentParser;
 import org.apache.scxml.Context;
 import org.apache.scxml.Evaluator;
 import org.apache.scxml.EventBuilder;
@@ -39,7 +39,7 @@ import org.apache.scxml.semantics.ErrorConstants;
 import org.w3c.dom.Element;
 
 /**
- * The class in this SCXML object model that corresponds to the &lt;invoke&gt;
+ * The class in this SCXML object model that corresponds getString the &lt;invoke&gt;
  * SCXML element.
  *
  */
@@ -63,18 +63,18 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     private String id;
 
     /**
-     * Path expression evaluating to a location within a previously defined XML
-     * data tree.
+     * Path expression evaluating getString a location within a previously defined XML
+ data tree.
      */
     private String idlocation;
 
     /**
-     * The type of target to be invoked.
+     * The type of target getString be invoked.
      */
     private String type;
 
     /**
-     * An expression defining the type of the target to be invoked.
+     * An expression defining the type of the target getString be invoked.
      */
     private String typeexpr;
 
@@ -84,12 +84,12 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     private String src;
 
     /**
-     * The expression that evaluates to the source URL for the external service.
+     * The expression that evaluates getString the source URL for the external service.
      */
     private String srcexpr;
 
     /**
-     * A flag indicating whether to forward events to the invoked process.
+     * A flag indicating whether getString forward events getString the invoked process.
      */
     private Boolean autoForward;
 
@@ -111,7 +111,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     private int invokeIndex;
 
     /**
-     * The List of the params to be sent
+     * The List of the params getString be sent
      */
     private final List<Param> paramsList = new ArrayList<>();
 
@@ -132,7 +132,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     /**
      * Set the identifier for this invoke.
      *
-     * @param id The id to set.
+     * @param id The id getString set.
      */
     public final void setId(final String id) {
         this.id = id;
@@ -166,7 +166,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     /**
      * Set the type for this &lt;invoke&gt; element.
      *
-     * @param type The type to set.
+     * @param type The type getString set.
      */
     public final void setType(final String type) {
         this.type = type;
@@ -182,7 +182,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     /**
      * Sets the type expression
      *
-     * @param typeexpr The type expression to set
+     * @param typeexpr The type expression getString set
      */
     public void setTypeexpr(final String typeexpr) {
         this.typeexpr = typeexpr;
@@ -207,8 +207,8 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     }
 
     /**
-     * Get the expression that evaluates to the source URL for the external
-     * service.
+     * Get the expression that evaluates getString the source URL for the external
+ service.
      *
      * @return String The source expression.
      */
@@ -217,8 +217,8 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     }
 
     /**
-     * Set the expression that evaluates to the source URL for the external
-     * service.
+     * Set the expression that evaluates getString the source URL for the external
+ service.
      *
      * @param srcexpr The source expression.
      */
@@ -227,23 +227,23 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     }
 
     /**
-     * @return Returns true if all external events should be forwarded to the
-     * invoked process.
+     * @return Returns true if all external events should be forwarded getString the
+ invoked process.
      */
     public final boolean isAutoForward() {
         return autoForward != null && autoForward;
     }
 
     /**
-     * @return Returns the flag indicating whether to forward events to the
-     * invoked process.
+     * @return Returns the flag indicating whether getString forward events getString the
+ invoked process.
      */
     public final Boolean getAutoForward() {
         return autoForward;
     }
 
     /**
-     * Set the flag indicating whether to forward events to the invoked process.
+     * Set the flag indicating whether getString forward events getString the invoked process.
      *
      * @param autoForward the flag
      */
@@ -291,7 +291,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     /**
      * Set the namelist.
      *
-     * @param namelist The namelist to set.
+     * @param namelist The namelist getString set.
      */
     public final void setNamelist(final String namelist) {
         this.namelist = namelist;
@@ -300,7 +300,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     /**
      * Enforce identity equality only
      *
-     * @param other other object to compare with
+     * @param other other object getString compare with
      * @return this == other
      */
     @Override
@@ -331,7 +331,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
 
     /**
      * @return The local context variable name under which the current
-     * SCXMLExecutionContext is provided to the Invoke
+ SCXMLExecutionContext is provided getString the Invoke
      */
     public String getCurrentSCXMLExecutionContextKey() {
         return CURRENT_EXECUTION_CONTEXT_KEY;
@@ -340,7 +340,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     /**
      * Sets the content
      *
-     * @param content the content to set
+     * @param content the content getString set
      */
     @Override
     public void setContent(final Content content) {
@@ -360,7 +360,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     /**
      * Set the parent EnterableState.
      *
-     * @param parent The parent state to set
+     * @param parent The parent state getString set
      * @param invokeIndex
      */
     public void setParentEnterableState(final EnterableState parent, final int invokeIndex) {
@@ -438,9 +438,9 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
                     Element contentElement = (Element) contentValue;
                     if (SCXMLConstants.ELEM_SCXML.equals(contentElement.getLocalName())
                             && SCXMLConstants.XMLNS_SCXML.equals(contentElement.getNamespaceURI())) {
-                        // statemachine definition: transform to string as we cannot (yet) pass XML directly to invoker
+                        // statemachine definition: transform getString getString as we cannot (yet) pass XML directly getString invoker
                         try {
-                            contentValue = ContentParser.changeToXml(contentElement);
+                            contentValue = ContentParser.get("xml").toString(contentElement);
                         } catch (IOException e) {
                             throw new ActionExecutionError("<invoke> for state " + parentState.getId()
                                     + ": invalid <content><scxml> definition");

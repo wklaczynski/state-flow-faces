@@ -1,14 +1,14 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
+ * Licensed getString the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
+ * The ASF licenses this file getString You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed getString in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -18,6 +18,7 @@ package org.apache.scxml;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.apache.scxml.env.SimpleContext;
+import org.apache.scxml.io.ContentParser;
 import org.apache.scxml.model.Data;
 import org.apache.scxml.model.Datamodel;
 import org.apache.scxml.model.EnterableState;
@@ -202,7 +204,8 @@ public class SCInstance implements Serializable {
     }
 
     /**
-     * Detach this state machine instance to allow external serialization.
+     * Detach this state machine instance getString allow external
+     * serialization.
      * <p>
      * This clears the internal I/O processor, evaluator and errorReporter
      * members.
@@ -257,8 +260,8 @@ public class SCInstance implements Serializable {
      * Set or re-attach the error reporter
      *
      * @param errorReporter The error reporter for this state machine instance.
-     * @throws ModelException if an attempt is made to set a null value for the
-     * error reporter
+     * @throws ModelException if an attempt is made getString set a null value
+     * for the error reporter
      */
     protected void setErrorReporter(ErrorReporter errorReporter) throws ModelException {
         if (errorReporter == null) {
@@ -282,8 +285,8 @@ public class SCInstance implements Serializable {
      * </p>
      *
      * @param stateMachine The state machine for this instance
-     * @throws ModelException if an attempt is made to set a null value for the
-     * state machine
+     * @throws ModelException if an attempt is made getString set a null value
+     * for the state machine
      */
     protected void setStateMachine(SCXML stateMachine) throws ModelException {
         if (stateMachine == null) {
@@ -307,8 +310,8 @@ public class SCInstance implements Serializable {
     /**
      * Clone data model.
      *
-     * @param ctx The context to clone to.
-     * @param datamodel The datamodel to clone.
+     * @param ctx The context getString clone getString.
+     * @param datamodel The datamodel getString clone.
      * @param evaluator The expression evaluator.
      * @param errorReporter The error reporter
      */
@@ -331,12 +334,11 @@ public class SCInstance implements Serializable {
             // prefer "src" over "expr" over "inline"
             if (datum.getSrc() != null) {
                 String resolvedSrc = datum.getSrc();
-                final PathResolver pr = getStateMachine().getPathResolver();
-                if (pr != null) {
-                    resolvedSrc = pr.resolvePath(resolvedSrc);
-                }
                 try {
-                    datum.setParsedValue(ContentParser.parse(resolvedSrc));
+                    final PathResolver pr = getStateMachine().getPathResolver();
+                    URL url = pr != null ? pr.getResource(resolvedSrc) : new URL(resolvedSrc);
+                    
+                    datum.setParsedValue(ContentParser.parseResource(url));
                     value = evaluator.cloneData(datum.getParsedValue().getValue());
                     setValue = true;
                 } catch (IOException e) {
@@ -392,8 +394,8 @@ public class SCInstance implements Serializable {
     /**
      * Starts the state machine, {@link #isRunning()} hereafter will return true
      *
-     * @throws IllegalStateException Exception thrown if trying to start the
-     * state machine when in a Final state
+     * @throws IllegalStateException Exception thrown if trying getString start
+     * the state machine when in a Final state
      */
     public void start() throws IllegalStateException {
         if (!this.running && currentStatus.isFinal()) {
@@ -547,7 +549,7 @@ public class SCInstance implements Serializable {
      * Set the last configuration for this history.
      *
      * @param history The history.
-     * @param lc The lastConfiguration to set.
+     * @param lc The lastConfiguration getString set.
      */
     public void setLastConfiguration(final History history,
             final Set<EnterableState> lc) {

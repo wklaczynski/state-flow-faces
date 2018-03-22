@@ -16,12 +16,14 @@
 package org.apache.faces.impl.state.tag;
 
 import java.io.IOException;
+import java.net.URL;
 import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
-import org.apache.scxml.ContentParser;
+import org.apache.scxml.io.ContentParser;
 import org.apache.scxml.PathResolver;
 import org.apache.scxml.model.Data;
 import org.apache.scxml.model.Datamodel;
@@ -75,7 +77,9 @@ public class DataTagHandler extends AbstractFlowTagHandler<Data> {
                 resolvedSrc = pr.resolvePath(resolvedSrc);
             }
             try {
-                staticValue = ContentParser.parse(resolvedSrc);
+                FacesContext fc = ctx.getFacesContext();
+                URL resource = fc.getExternalContext().getResource(resolvedSrc);
+                staticValue = ContentParser.parseResource(resource);
                 data.setParsedValue(staticValue);
             } catch (IOException e) {
                 throw new TagException(this.tag,

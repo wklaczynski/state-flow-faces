@@ -16,9 +16,14 @@
 package org.apache.faces.impl.state;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.faces.FacesException;
+import javax.faces.application.Resource;
+import javax.faces.application.ResourceHandler;
 import javax.faces.context.FacesContext;
 import org.apache.scxml.PathResolver;
 
@@ -43,19 +48,41 @@ public class StateFlowURLResolver implements PathResolver, Serializable {
 
     @Override
     public String resolvePath(String path) {
-        if(path.contains(":")) {
-            return path;
-        }
-        
         FacesContext context = FacesContext.getCurrentInstance();
         if (path.startsWith("/")) {
             path = context.getExternalContext().getRealPath(path);
         } else {
-            if (contextPath == null) {
-                contextPath = context.getExternalContext().getRealPath(root);
+            if (path.contains(":")) {
+                String resourceId = (String) path;
+                String libraryName = null;
+                String resourceName = null;
+
+                int end = 0, start = 0;
+                if (-1 != (end = resourceId.lastIndexOf(":"))) {
+                    resourceName = resourceId.substring(end + 1);
+                    if (-1 != (start = resourceId.lastIndexOf(":", end - 1))) {
+                        libraryName = resourceId.substring(start + 1, end);
+                    } else {
+                        libraryName = resourceId.substring(0, end);
+                    }
+                }
+
+                Resource res = null;
+                if (libraryName != null) {
+                    ResourceHandler rh = context.getApplication().getResourceHandler();
+                    res = rh.createResource(resourceName, libraryName);
+                }
+                if (res == null) {
+                    throw new FacesException(String.format("(resource not found %s)", path));
+                }
+                path = res.getURL().getFile();
+            } else {
+                if (contextPath == null) {
+                    contextPath = context.getExternalContext().getRealPath(root);
+                }
+                Path pth = Paths.get(contextPath);
+                path = pth.resolve(path).normalize().toString();
             }
-            Path pth = Paths.get(contextPath);
-            path = pth.resolve(path).normalize().toString();
         }
         return localPath(context, path);
     }
@@ -66,7 +93,7 @@ public class StateFlowURLResolver implements PathResolver, Serializable {
 
         FacesContext context = FacesContext.getCurrentInstance();
         path = context.getExternalContext().getRealPath(path);
-        
+
         Path pth = Paths.get(path);
         File file = pth.toFile();
         if (file.isFile()) {
@@ -86,6 +113,13 @@ public class StateFlowURLResolver implements PathResolver, Serializable {
         }
         String result = path.replaceFirst(base, "");
         return result;
+    }
+
+    @Override
+    public URL getResource(String path) throws IOException {
+        FacesContext context = FacesContext.getCurrentInstance();
+        path = resolvePath(path);
+        return context.getExternalContext().getResource(path);
     }
 
 }

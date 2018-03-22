@@ -16,6 +16,9 @@
  */
 package org.apache.scxml;
 
+import java.io.IOException;
+import java.net.URL;
+
 /**
  * Interface for a component that may be used by the SCXML engines
  * to resolve context sensitive paths.
@@ -31,6 +34,15 @@ public interface PathResolver {
      */
     String resolvePath(String ctxPath);
 
+    /**
+     * Return resource URL this context sensitive path to an absolute URL.
+     *
+     * @param ctxPath Context sensitive path, can be a relative URL
+     * @return Resolved resource (an absolute URL) or <code>null</code>
+     * @throws java.io.IOException
+     */
+    URL getResource(String ctxPath) throws IOException;
+    
     /**
      * Get a PathResolver rooted at this context sensitive path.
      *
