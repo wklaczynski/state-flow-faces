@@ -276,6 +276,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         SCXMLExecutor executor = new SCXMLExecutor(evaluator, dispatcher, errorReporter);
         executor.setStateMachine(scxml);
+        executor.addListener(scxml, new StateFlowCDIListener());
 
         for (Map.Entry<String, Class<? extends Invoker>> entry : customInvokers.entrySet()) {
             executor.registerInvokerClass(entry.getKey(), entry.getValue());
@@ -297,12 +298,17 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         SCXMLExecutor executor = new SCXMLExecutor(parent, invokeId, scxml);
         executor.addListener(scxml, new StateFlowCDIListener());
 
+        for (Map.Entry<String, Class<? extends Invoker>> entry : customInvokers.entrySet()) {
+            executor.registerInvokerClass(entry.getKey(), entry.getValue());
+        }
+        
+        
         if (parent != null) {
             Context rootCtx = executor.getRootContext();
             rootCtx.setLocal("scxml_has_parent", true);
         }
 
-        return null;
+        return executor;
     }
 
     @Override

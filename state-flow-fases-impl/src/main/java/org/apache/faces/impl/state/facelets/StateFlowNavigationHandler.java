@@ -66,7 +66,7 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
                 handler.close(context);
                 wrappedNavigationHandler.handleNavigation(context, fromAction, outcome);
             } else {
-                SCXMLExecutor executor = handler.getRootExecutor(context);
+                SCXMLExecutor executor = handler.getExecutor(context);
                 try {
                     TriggerEvent ev = new EventBuilder(OUTCOME_EVENT_PREFIX + outcome, TriggerEvent.SIGNAL_EVENT).build();
                     executor.triggerEvent(ev);
