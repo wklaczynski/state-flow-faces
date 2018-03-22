@@ -34,13 +34,11 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.faces.application.ProjectStage;
 import javax.faces.component.UIComponent;
-import org.apache.scxml.PathResolver;
 import javax.faces.view.facelets.CompositeFaceletHandler;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.FaceletException;
 import javax.faces.view.facelets.FaceletHandler;
 import javax.faces.view.facelets.Tag;
-import javax.faces.view.facelets.TagAttributeException;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
 import javax.faces.view.facelets.TagHandler;
@@ -50,6 +48,7 @@ import org.apache.scxml.model.SCXML;
 import org.apache.scxml.model.State;
 import org.apache.scxml.model.TransitionalState;
 import org.apache.faces.impl.state.log.FlowLogger;
+import org.apache.faces.impl.state.utils.Util;
 
 /**
  *
@@ -177,7 +176,7 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         } catch (FaceletException th) {
             throw th;
         } catch (Throwable th) {
-            throw new TagException(tag, th);
+            throw new TagException(tag, Util.getErrorMessage(th),  th);
         }
     }
 
