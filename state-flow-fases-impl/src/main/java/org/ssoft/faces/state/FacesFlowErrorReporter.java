@@ -101,9 +101,9 @@ public class FacesFlowErrorReporter implements ErrorReporter, Serializable {
 
         StringBuffer msg = new StringBuffer();
         if (tattr != null) {
-            msg.append(tattr).append(". ");
+            msg.append(tattr).append(" ");
         } else if (tag != null) {
-            msg.append(tag).append(". ");
+            msg.append(tag).append(" ");
         }
 
         if (null != errCode) {

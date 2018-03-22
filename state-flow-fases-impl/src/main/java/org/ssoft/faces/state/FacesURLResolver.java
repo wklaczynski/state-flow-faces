@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ssoft.faces.state.impl;
+package org.ssoft.faces.state;
 
 import java.io.File;
 import java.io.Serializable;
@@ -43,6 +43,10 @@ public class FacesURLResolver implements PathResolver, Serializable {
 
     @Override
     public String resolvePath(String path) {
+        if(path.contains(":")) {
+            return path;
+        }
+        
         FacesContext context = FacesContext.getCurrentInstance();
         if (path.startsWith("/")) {
             path = context.getExternalContext().getRealPath(path);
