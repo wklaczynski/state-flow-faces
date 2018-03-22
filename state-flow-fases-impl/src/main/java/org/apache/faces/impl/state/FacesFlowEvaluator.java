@@ -25,7 +25,7 @@ import javax.el.FunctionMapper;
 import javax.el.ValueExpression;
 import javax.el.VariableMapper;
 import javax.faces.context.FacesContext;
-import org.apache.faces.state.faces.StateFlowHandler;
+import org.apache.faces.state.StateFlowHandler;
 import org.apache.scxml.Context;
 import org.apache.scxml.SCXMLExecutor;
 import org.apache.scxml.SCXMLExpressionException;

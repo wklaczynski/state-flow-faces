@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import org.apache.faces.state.faces.StateFlowHandler;
+import org.apache.faces.state.StateFlowHandler;
 import org.apache.scxml.EventBuilder;
 import org.apache.scxml.SCXMLExecutor;
 import org.apache.scxml.SCXMLIOProcessor;

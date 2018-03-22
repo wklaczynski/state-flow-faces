@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.faces.context.FacesContext;
-import org.apache.faces.state.faces.StateFlowHandler;
+import org.apache.faces.state.StateFlowHandler;
 import org.apache.scxml.Context;
 import org.apache.scxml.SCXMLExecutor;
 import org.apache.scxml.model.TransitionTarget;

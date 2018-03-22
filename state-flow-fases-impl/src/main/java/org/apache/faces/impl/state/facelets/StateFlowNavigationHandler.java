@@ -26,7 +26,7 @@ import javax.faces.context.FacesContext;
 import org.apache.scxml.EventBuilder;
 import org.apache.scxml.SCXMLExecutor;
 import org.apache.scxml.TriggerEvent;
-import org.apache.faces.state.faces.StateFlowHandler;
+import org.apache.faces.state.StateFlowHandler;
 import org.apache.scxml.model.ModelException;
 import static org.apache.faces.impl.state.invokers.ViewInvoker.OUTCOME_EVENT_PREFIX;
 

@@ -25,7 +25,7 @@ import javax.faces.event.PostConstructCustomScopeEvent;
 import javax.faces.event.ScopeContext;
 import org.apache.scxml.Context;
 import org.apache.scxml.SCXMLExecutor;
-import org.apache.faces.state.faces.StateFlowHandler;
+import org.apache.faces.state.StateFlowHandler;
 
 /**
  *

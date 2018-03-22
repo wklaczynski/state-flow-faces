@@ -44,7 +44,7 @@ import org.apache.faces.impl.state.utils.Util;
 import org.apache.faces.state.annotation.FlowAction;
 import org.apache.faces.state.annotation.FlowInvoker;
 import org.apache.faces.state.component.UIStateChartRoot;
-import org.apache.faces.state.faces.StateFlowHandler;
+import org.apache.faces.state.StateFlowHandler;
 import org.apache.scxml.model.Action;
 import org.apache.scxml.model.ModelException;
 import org.apache.scxml.model.SCXML;

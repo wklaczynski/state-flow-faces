@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.state.faces;
+package org.apache.faces.state;
 
 import java.util.Map;
 import javax.faces.context.FacesContext;

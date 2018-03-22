@@ -41,7 +41,7 @@ import javax.faces.render.RenderKit;
 import javax.faces.render.ResponseStateManager;
 import org.apache.faces.state.annotation.Statefull;
 import org.apache.faces.state.component.UIStateChartRoot;
-import static org.apache.faces.state.faces.StateFlowHandler.STATECHART_FACET_NAME;
+import static org.apache.faces.state.StateFlowHandler.STATECHART_FACET_NAME;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
 import org.apache.scxml.Context;
