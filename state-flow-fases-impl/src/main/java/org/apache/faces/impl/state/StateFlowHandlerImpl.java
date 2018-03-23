@@ -159,7 +159,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     @Override
     public SCXMLExecutor getCurrentExecutor(FacesContext context) {
-        SCXMLExecutor executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);;
+        SCXMLExecutor executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);
         if (executor == null) {
             executor = getRootExecutor(context);
         }
