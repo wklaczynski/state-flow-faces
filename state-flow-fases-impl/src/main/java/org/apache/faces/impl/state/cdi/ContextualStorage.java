@@ -28,7 +28,6 @@ import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.PassivationCapable;
 import javax.faces.context.FacesContext;
-import org.apache.scxml.model.Action;
 import org.apache.faces.impl.state.utils.Util;
 
 /**
@@ -167,7 +166,7 @@ public class ContextualStorage implements Serializable {
         passivationCapable = (boolean) in.readObject();
         contextualInstances = (Map<Object, ContextualInstanceInfo<?>>) in.readObject();
 
-        beanManager = Util.getCdiBeanManager(FacesContext.getCurrentInstance());
+        beanManager = CdiUtil.getCdiBeanManager(FacesContext.getCurrentInstance());
     }
 
 }

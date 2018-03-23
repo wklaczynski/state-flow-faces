@@ -25,7 +25,6 @@ import javax.faces.event.PostConstructCustomScopeEvent;
 import javax.faces.event.ScopeContext;
 import org.apache.scxml.Context;
 import org.apache.scxml.SCXMLExecutor;
-import org.apache.faces.state.StateFlowHandler;
 
 /**
  *
@@ -220,21 +219,15 @@ public class StateFlowScopesELResolver extends ELResolver {
         return null;
     }
 
-    private SCXMLExecutor getExecutor() {
-        FacesContext fc = FacesContext.getCurrentInstance();
-        StateFlowHandler handler = StateFlowHandler.getInstance();
-        return handler.getExecutor(fc);
-    }
-
-    private DialogScope getDialogScope(ELContext elContext) {
+    private DialogScope getDialogScope(ELContext context) {
         DialogScope attrScope = null;
-        SCXMLExecutor executor = getExecutor();
+        SCXMLExecutor executor = (SCXMLExecutor) context.getContext(SCXMLExecutor.class);
         if (executor != null) {
-            Context context = executor.getRootContext();
-            attrScope = (DialogScope) context.get(DIALOG_PARAM_MAP);
+            Context ctx = executor.getGlobalContext();
+            attrScope = (DialogScope) ctx.get(DIALOG_PARAM_MAP);
             if (attrScope == null) {
                 attrScope = new DialogScope();
-                context.set(DIALOG_PARAM_MAP, attrScope);
+                ctx.set(DIALOG_PARAM_MAP, attrScope);
                 attrScope.onCreate();
             }
         }
@@ -244,10 +237,6 @@ public class StateFlowScopesELResolver extends ELResolver {
     private DialogParams getDialogParams(ELContext context) {
         DialogParams attrScope = null;
         SCXMLExecutor executor = (SCXMLExecutor) context.getContext(SCXMLExecutor.class);
-        if (executor == null) {
-            executor = getExecutor();
-        }
-
         if (executor != null) {
             attrScope = new DialogParams(executor);
         }

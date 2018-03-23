@@ -40,11 +40,9 @@ import javax.faces.context.PartialViewContext;
 import javax.faces.render.RenderKit;
 import javax.faces.render.ResponseStateManager;
 import org.apache.faces.state.component.UIStateChartRoot;
-import static org.apache.faces.state.StateFlowHandler.STATECHART_FACET_NAME;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
 import org.apache.scxml.Context;
-import org.apache.scxml.EventBuilder;
 import org.apache.scxml.SCXMLExecutor;
 import org.apache.scxml.SCXMLIOProcessor;
 import org.apache.scxml.TriggerEvent;
@@ -52,6 +50,11 @@ import org.apache.scxml.invoke.Invoker;
 import org.apache.scxml.invoke.InvokerException;
 import org.apache.scxml.model.SCXML;
 import org.apache.faces.impl.state.utils.SharedUtils;
+import static org.apache.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
+import static org.apache.faces.state.StateFlow.FACES_RESTORE_VIEW;
+import static org.apache.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
+import static org.apache.faces.state.StateFlow.STATECHART_FACET_NAME;
+import org.apache.scxml.EventBuilder;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -63,7 +66,6 @@ public class ViewInvoker implements Invoker, Serializable {
 
     public static final String VIEW_PARAMS_MAP = "___@@@ParamsMap____";
     public static final String FACES_VIEW_STATE = "com.sun.faces.FACES_VIEW_STATE";
-    public static final String OUTCOME_EVENT_PREFIX = "view.action.";
 
     /**
      * Serial version UID.
@@ -355,9 +357,28 @@ public class ViewInvoker implements Invoker, Serializable {
             return;
         }
 
-        if (event.getType() == TriggerEvent.SIGNAL_EVENT && event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
+        if (event.getType() == TriggerEvent.CALL_EVENT && event.getName().equals(FACES_RESTORE_VIEW)) {
+            if (viewId.equals(event.getSendId())) {
+
+                FacesContext context = FacesContext.getCurrentInstance();
+                context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
+
+                context.getELContext().putContext(SCXMLExecutor.class, executor);
+
+//                if (executor != null) {
+//                    Context stateContext = getStateContext(context, executor);
+//                    context.getELContext().putContext(Context.class, stateContext);
+//                    context.getELContext().putContext(SCXMLExecutor.class, executor);
+//                }
+            }
+            return;
+        }
+
+        if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
             String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
-            executor.addEvent(new EventBuilder("cancel.invoke." + invokeId, TriggerEvent.CANCEL_EVENT).build());
+            EventBuilder evb = new EventBuilder("view.action." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
+            evb.sendId(invokeId);
+            executor.addEvent(evb.build());
         }
     }
 
@@ -376,12 +397,9 @@ public class ViewInvoker implements Invoker, Serializable {
             getViewParamsContext(context).putAll(params);
         }
 
-        executor.addEvent(new EventBuilder("cancel.invoke." + invokeId, TriggerEvent.CANCEL_EVENT).build());
-
         ExternalContext ec = context.getExternalContext();
         Context stateContext = executor.getRootContext();
-        
-        
+
         Map<String, String> parameterMap = ec.getRequestParameterMap();
         for (Map.Entry<String, String> entry : parameterMap.entrySet()) {
             stateContext.setLocal(entry.getKey(), entry.getValue());

@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.state.events;
+package org.apache.faces.state.annotation;
 
-import org.apache.scxml.model.EnterableState;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.enterprise.context.NormalScope;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class FlowOnEntryEvent {
-
-    private final EnterableState target;
-
-    public FlowOnEntryEvent(EnterableState target) {
-        this.target = target;
-    }
-
-    public EnterableState getTarget() {
-        return target;
-    }
+@NormalScope
+@Inherited
+@Documented
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
+@Retention(value = RetentionPolicy.RUNTIME)
+public @interface StateScoped {
 }

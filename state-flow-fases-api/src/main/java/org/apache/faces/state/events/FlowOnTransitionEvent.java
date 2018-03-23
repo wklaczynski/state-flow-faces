@@ -24,14 +24,16 @@ import org.apache.scxml.model.TransitionTarget;
  */
 public class FlowOnTransitionEvent {
 
-    TransitionTarget from;
-    TransitionTarget to;
-    Transition transition;
+    private final TransitionTarget from;
+    private final TransitionTarget to;
+    private final Transition transition;
+    private final String event;
 
-    public FlowOnTransitionEvent(TransitionTarget from, TransitionTarget to, Transition transition) {
+    public FlowOnTransitionEvent(TransitionTarget from, TransitionTarget to, Transition transition, String event) {
         this.from = from;
         this.to = to;
         this.transition = transition;
+        this.event = event;
     }
 
     public TransitionTarget getFrom() {
@@ -46,4 +48,9 @@ public class FlowOnTransitionEvent {
         return transition;
     }
 
+    public String getEvent() {
+        return event;
+    }
+
+    
 }

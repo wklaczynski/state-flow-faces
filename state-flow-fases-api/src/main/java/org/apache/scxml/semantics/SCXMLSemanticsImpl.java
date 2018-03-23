@@ -1079,7 +1079,8 @@ public class SCXMLSemanticsImpl implements SCXMLSemantics {
      */
     public void processInvokes(final SCXMLExecutionContext exctx, final TriggerEvent event) throws ModelException {
         for (Map.Entry<Invoke, String> entry : exctx.getInvokeIds().entrySet()) {
-            if (entry.getValue().equals(event.getInvokeId())) {
+            if (event.getType() == TriggerEvent.CALL_EVENT ||
+                    entry.getValue().equals(event.getInvokeId())) {
                 Invoke invoke = entry.getKey();
                 Finalize finalize = invoke.getFinalize();
                 if (finalize != null) {

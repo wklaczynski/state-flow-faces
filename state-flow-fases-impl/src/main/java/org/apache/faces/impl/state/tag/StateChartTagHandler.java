@@ -31,9 +31,6 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import org.apache.scxml.PathResolver;
 import org.apache.faces.state.component.UIStateChartRoot;
-import static org.apache.faces.state.StateFlowHandler.BUILD_STATE_MACHINE_HINT;
-import static org.apache.faces.state.StateFlowHandler.DEFAULT_STATECHART_NAME;
-import static org.apache.faces.state.StateFlowHandler.STATECHART_FACET_NAME;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagAttribute;
@@ -49,6 +46,9 @@ import static org.apache.faces.impl.state.tag.AbstractFlowTagHandler.TAG_MAP;
 import static org.apache.faces.impl.state.tag.AbstractFlowTagHandler.getElement;
 import static org.apache.faces.impl.state.tag.AbstractFlowTagHandler.popElement;
 import static org.apache.faces.impl.state.tag.AbstractFlowTagHandler.pushElement;
+import static org.apache.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
+import static org.apache.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
+import static org.apache.faces.state.StateFlow.STATECHART_FACET_NAME;
 
 /**
  *

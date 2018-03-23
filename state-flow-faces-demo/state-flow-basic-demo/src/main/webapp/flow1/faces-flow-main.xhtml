@@ -41,15 +41,11 @@
         </x:state> 
 
         <x:state id="show-client"> 
-            <x:invoke id="show-client-state" type="scxml" src="faces-flow-show-client.xhtml">
+            <x:invoke id="show-client-scxml" type="scxml" src="faces-flow-show-client.xhtml">
                 <x:param name="id"  expr="#{param.clid}"/>
             </x:invoke>
             <x:transition event="error.execution" target="main"/>
-
-            <x:transition event="show-client-state.invoke.failed" target="main"/>
-            <x:transition event="show-client-state.invoke.done" target="main">
-                
-            </x:transition>
+            <x:transition event="done.invoke.show-client" target="main"/>
         </x:state>      
         
         <x:state id="error"> 

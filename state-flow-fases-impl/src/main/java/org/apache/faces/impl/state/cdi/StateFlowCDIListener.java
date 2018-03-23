@@ -27,7 +27,6 @@ import org.apache.scxml.model.Parallel;
 import org.apache.scxml.model.State;
 import org.apache.scxml.model.Transition;
 import org.apache.scxml.model.TransitionTarget;
-import org.apache.faces.impl.state.utils.Util;
 
 /**
  *
@@ -41,8 +40,8 @@ public class StateFlowCDIListener implements SCXMLListener, Serializable {
     @Override
     public void onEntry(EnterableState tt) {
         FacesContext fc = FacesContext.getCurrentInstance();
-        if (Util.isCdiAvailable(fc)) {
-            BeanManager bm = Util.getCdiBeanManager(fc);
+        if (CdiUtil.isCdiAvailable(fc)) {
+            BeanManager bm = CdiUtil.getCdiBeanManager(fc);
             bm.fireEvent(new FlowOnEntryEvent(tt));
             
             if(tt instanceof State) {
@@ -58,17 +57,17 @@ public class StateFlowCDIListener implements SCXMLListener, Serializable {
     @Override
     public void onTransition(TransitionTarget from, TransitionTarget to, Transition t, String event) {
         FacesContext fc = FacesContext.getCurrentInstance();
-        if (Util.isCdiAvailable(fc)) {
-            BeanManager bm = Util.getCdiBeanManager(fc);
-            bm.fireEvent(new FlowOnTransitionEvent(from, to, t));
+        if (CdiUtil.isCdiAvailable(fc)) {
+            BeanManager bm = CdiUtil.getCdiBeanManager(fc);
+            bm.fireEvent(new FlowOnTransitionEvent(from, to, t, event));
         }
     }
 
     @Override
     public void onExit(EnterableState tt) {
         FacesContext fc = FacesContext.getCurrentInstance();
-        if (Util.isCdiAvailable(fc)) {
-            BeanManager bm = Util.getCdiBeanManager(fc);
+        if (CdiUtil.isCdiAvailable(fc)) {
+            BeanManager bm = CdiUtil.getCdiBeanManager(fc);
             bm.fireEvent(new FlowOnExitEvent(tt));
             
             if(tt instanceof State) {

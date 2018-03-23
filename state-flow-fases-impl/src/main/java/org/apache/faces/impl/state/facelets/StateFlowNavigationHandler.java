@@ -23,12 +23,12 @@ import javax.faces.application.ConfigurableNavigationHandler;
 import javax.faces.application.NavigationCase;
 import javax.faces.application.NavigationHandler;
 import javax.faces.context.FacesContext;
+import static org.apache.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import org.apache.scxml.EventBuilder;
 import org.apache.scxml.SCXMLExecutor;
 import org.apache.scxml.TriggerEvent;
 import org.apache.faces.state.StateFlowHandler;
 import org.apache.scxml.model.ModelException;
-import static org.apache.faces.impl.state.invokers.ViewInvoker.OUTCOME_EVENT_PREFIX;
 
 /**
  *
@@ -57,7 +57,7 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
 
     @Override
     public void handleNavigation(FacesContext context, String fromAction, String outcome) {
-            StateFlowHandler handler = StateFlowHandler.getInstance();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
         if (handler.isActive(context)) {
             if (outcome == null) {
                 return;
@@ -66,16 +66,18 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
                 handler.close(context);
                 wrappedNavigationHandler.handleNavigation(context, fromAction, outcome);
             } else {
-                SCXMLExecutor executor = handler.getExecutor(context);
+                EventBuilder eb = new EventBuilder(
+                        OUTCOME_EVENT_PREFIX + outcome,
+                        TriggerEvent.CALL_EVENT);
+
+                SCXMLExecutor root = handler.getRootExecutor(context);
                 try {
-                    TriggerEvent ev = new EventBuilder(OUTCOME_EVENT_PREFIX + outcome, TriggerEvent.SIGNAL_EVENT).build();
-                    executor.triggerEvent(ev);
+                    TriggerEvent ev = eb.build();
+                    root.triggerEvent(ev);
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
-                    //logger.log(Level.SEVERE, ex.getMessage(), ex);
                 }
-                executor = handler.getRootExecutor(context);
-                if (executor.getStatus().isFinal()) {
+                if (root.getStatus().isFinal()) {
                     handler.close(context);
                 }
             }

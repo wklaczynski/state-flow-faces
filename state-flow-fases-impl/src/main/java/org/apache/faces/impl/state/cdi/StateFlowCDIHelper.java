@@ -13,23 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.state.events;
+package org.apache.faces.impl.state.cdi;
 
-import org.apache.scxml.model.EnterableState;
+import org.apache.scxml.SCXMLExecutor;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class FlowOnEntryEvent {
+public class StateFlowCDIHelper {
 
-    private final EnterableState target;
-
-    public FlowOnEntryEvent(EnterableState target) {
-        this.target = target;
+    public static void executorEntered(SCXMLExecutor executor) {
+        StateChartScopeCDIContex.executorEntered(executor);
+        
+        
+        
     }
-
-    public EnterableState getTarget() {
-        return target;
+    
+    public static void executorExited(SCXMLExecutor executor) {
+        StateChartScopeCDIContex.executorExited(executor);
+        
     }
+    
+    
+    
+    
 }

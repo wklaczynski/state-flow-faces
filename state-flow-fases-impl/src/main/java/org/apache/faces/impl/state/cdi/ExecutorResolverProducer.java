@@ -16,33 +16,30 @@
 package org.apache.faces.impl.state.cdi;
 
 import javax.faces.context.FacesContext;
-import org.apache.scxml.PathResolver;
 import org.apache.faces.state.annotation.StateChartScoped;
 import org.apache.faces.state.StateFlowHandler;
 import org.apache.scxml.SCXMLExecutor;
-import org.apache.scxml.model.SCXML;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class PathResolverProducer extends CdiProducer<PathResolver> {
+public class ExecutorResolverProducer extends CdiProducer<SCXMLExecutor> {
 
     /**
      * Serialization version
      */
     private static final long serialVersionUID = 1L;
 
-    public PathResolverProducer() {
+    public ExecutorResolverProducer() {
 
         super.name("scxmlScope")
                 .scope(StateChartScoped.class)
-                .beanClassAndType(PathResolver.class)
+                .beanClassAndType(SCXMLExecutor.class)
                 .create((e) -> {
                     StateFlowHandler fh = StateFlowHandler.getInstance();
                     SCXMLExecutor executor = fh.getExecutor(FacesContext.getCurrentInstance());
-                    SCXML stateMachine = executor.getStateMachine();
-                    return stateMachine != null ? stateMachine.getPathResolver() : null;
+                    return executor;
                 });
     }
 

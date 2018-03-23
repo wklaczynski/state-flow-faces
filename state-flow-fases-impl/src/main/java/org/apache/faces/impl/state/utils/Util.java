@@ -31,12 +31,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.FacesException;
 import javax.faces.application.StateManager;
 import javax.faces.context.FacesContext;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import org.apache.faces.impl.state.StateFlowConstants;
 import org.apache.faces.impl.state.log.FlowLogger;
 
@@ -50,118 +47,6 @@ public class Util {
      * Stores the logger.
      */
     public static final Logger log = FlowLogger.APPLICATION.getLogger();
-
-    public static boolean isCdiOneOneOrGreater() {
-
-        // The following try/catch is a hack to discover
-        // if CDI 1.1 or greater is available
-        boolean result = false;
-        try {
-            Class.forName("javax.enterprise.context.Initialized");
-            result = true;
-        } catch (ClassNotFoundException ignored) {
-            if (log.isLoggable(Level.FINE)) {
-                log.log(Level.FINE, "Dected CDI 1.0", ignored);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Is CDI 1.1 or later
-     *
-     * @param facesContext the Faces context.
-     * @return true if CDI 1.1 or later, false otherwise.
-     */
-    public static boolean isCdiOneOneOrLater(FacesContext facesContext) {
-        boolean result = false;
-
-        if (facesContext != null && facesContext.getAttributes().containsKey(StateFlowConstants.CDI_1_1_OR_LATER)) {
-            result = (Boolean) facesContext.getAttributes().get(StateFlowConstants.CDI_1_1_OR_LATER);
-        } else if (facesContext != null && facesContext.getExternalContext().getApplicationMap().containsKey(StateFlowConstants.CDI_1_1_OR_LATER)) {
-            result = facesContext.getExternalContext().getApplicationMap().containsKey(StateFlowConstants.CDI_1_1_OR_LATER);
-        } else {
-            try {
-                Class.forName("javax.enterprise.context.Initialized");
-                result = true;
-            } catch (ClassNotFoundException ignored) {
-                if (log.isLoggable(Level.FINEST)) {
-                    log.log(Level.FINEST, "Detected CDI 1.0", ignored);
-                }
-            }
-
-            if (facesContext != null) {
-                facesContext.getAttributes().put(StateFlowConstants.CDI_1_1_OR_LATER, result);
-                facesContext.getExternalContext().getApplicationMap().put(StateFlowConstants.CDI_1_1_OR_LATER, result);
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Get the CDI bean manager.
-     *
-     * @param facesContext the Faces context to consult
-     * @return the CDI bean manager.
-     */
-    public static BeanManager getCdiBeanManager(FacesContext facesContext) {
-        BeanManager result = null;
-
-        if (facesContext != null && facesContext.getAttributes().containsKey(StateFlowConstants.CDI_BEAN_MANAGER)) {
-            result = (BeanManager) facesContext.getAttributes().get(StateFlowConstants.CDI_BEAN_MANAGER);
-        } else if (facesContext != null && facesContext.getExternalContext().getApplicationMap().containsKey(StateFlowConstants.CDI_BEAN_MANAGER)) {
-            result = (BeanManager) facesContext.getExternalContext().getApplicationMap().get(StateFlowConstants.CDI_BEAN_MANAGER);
-        } else {
-            try {
-                InitialContext initialContext = new InitialContext();
-                result = (BeanManager) initialContext.lookup("java:comp/BeanManager");
-            } catch (NamingException ne) {
-                try {
-                    InitialContext initialContext = new InitialContext();
-                    result = (BeanManager) initialContext.lookup("java:comp/env/BeanManager");
-                } catch (NamingException ne2) {
-                }
-            }
-
-            if (result == null && facesContext != null) {
-                Map<String, Object> applicationMap = facesContext.getExternalContext().getApplicationMap();
-                result = (BeanManager) applicationMap.get("org.jboss.weld.environment.servlet.javax.enterprise.inject.spi.BeanManager");
-            }
-
-            if (result != null && facesContext != null) {
-                facesContext.getAttributes().put(StateFlowConstants.CDI_BEAN_MANAGER, result);
-                facesContext.getExternalContext().getApplicationMap().put(StateFlowConstants.CDI_BEAN_MANAGER, result);
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Is CDI available.
-     *
-     * @param facesContext the Faces context to consult.
-     * @return true if available, false otherwise.
-     */
-    public static boolean isCdiAvailable(FacesContext facesContext) {
-        boolean result;
-
-        if (facesContext != null && facesContext.getAttributes().containsKey(StateFlowConstants.CDI_AVAILABLE)) {
-            result = (Boolean) facesContext.getAttributes().get(StateFlowConstants.CDI_AVAILABLE);
-        } else if (facesContext != null && facesContext.getExternalContext().getApplicationMap().containsKey(StateFlowConstants.CDI_AVAILABLE)) {
-            result = (Boolean) facesContext.getExternalContext().getApplicationMap().get(StateFlowConstants.CDI_AVAILABLE);
-        } else {
-            result = getCdiBeanManager(facesContext) != null;
-
-            if (result && facesContext != null) {
-                facesContext.getAttributes().put(StateFlowConstants.CDI_AVAILABLE, result);
-                facesContext.getExternalContext().getApplicationMap().put(StateFlowConstants.CDI_AVAILABLE, result);
-            }
-        }
-
-        return result;
-    }
 
     public static ClassLoader getCurrentLoader(Object fallbackClass) {
         ClassLoader loader = getContextClassLoader();

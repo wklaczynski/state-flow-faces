@@ -15,7 +15,7 @@
  */
 package org.apache.faces.state.events;
 
-import org.apache.scxml.model.TransitionTarget;
+import org.apache.scxml.model.EnterableState;
 
 /**
  *
@@ -23,13 +23,13 @@ import org.apache.scxml.model.TransitionTarget;
  */
 public class FlowOnExitEvent {
 
-    TransitionTarget target;
+    private final EnterableState target;
 
-    public FlowOnExitEvent(TransitionTarget target) {
+    public FlowOnExitEvent(EnterableState target) {
         this.target = target;
     }
 
-    public TransitionTarget getTarget() {
+    public EnterableState getTarget() {
         return target;
     }
 

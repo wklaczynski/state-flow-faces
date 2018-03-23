@@ -141,8 +141,8 @@ public class SubInvoker implements Invoker, Serializable {
      */
     @Override
     public void parentEvent(final TriggerEvent event) throws InvokerException {
-        if (!cancelled) {
-
+        if (cancelled) {
+            return;
         }
 
         FacesContext fc = FacesContext.getCurrentInstance();
@@ -154,6 +154,12 @@ public class SubInvoker implements Invoker, Serializable {
             boolean doneBefore = executor.getStatus().isFinal();
 
             executor.addEvent(event);
+
+            try {
+                executor.triggerEvents();
+            } catch (Throwable me) {
+                throw new InvokerException(me);
+            }
 
             if (!doneBefore && executor.getStatus().isFinal()) {
 

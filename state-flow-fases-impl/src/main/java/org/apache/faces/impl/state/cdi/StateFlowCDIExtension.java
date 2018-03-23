@@ -39,7 +39,7 @@ public class StateFlowCDIExtension implements Extension {
     public static final Logger log = FlowLogger.CDI.getLogger();
 
     public StateFlowCDIExtension() {
-        cdiOneOneOrGreater = Util.isCdiOneOneOrGreater();
+        cdiOneOneOrGreater = CdiUtil.isCdiOneOneOrGreater();
     }
 
     public void beforeBean(@Observes final BeforeBeanDiscovery event, BeanManager beanManager) {
@@ -57,7 +57,8 @@ public class StateFlowCDIExtension implements Extension {
 
         event.addContext(new StateChartScopeCDIContex(beanManager));
 
-        //event.addBean(new PathResolverProducer());
+//        event.addBean(new PathResolverProducer());
+//        event.addBean(new ExecutorResolverProducer());
 
         if (cdiOneOneOrGreater) {
             Class clazz;

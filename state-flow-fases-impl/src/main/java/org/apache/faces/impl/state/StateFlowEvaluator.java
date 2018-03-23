@@ -16,6 +16,7 @@
 package org.apache.faces.impl.state;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import javax.el.CompositeELResolver;
 import javax.el.ELContext;
@@ -25,17 +26,17 @@ import javax.el.FunctionMapper;
 import javax.el.ValueExpression;
 import javax.el.VariableMapper;
 import javax.faces.context.FacesContext;
-import org.apache.faces.state.StateFlowHandler;
 import org.apache.scxml.Context;
 import org.apache.scxml.SCXMLExecutor;
 import org.apache.scxml.SCXMLExpressionException;
 import org.apache.scxml.env.AbstractBaseEvaluator;
-import org.apache.scxml.model.SCXML;
 import static org.apache.faces.impl.state.StateFlowEvaluatorProvider.SUPPORTED_DATA_MODEL;
 import org.apache.faces.impl.state.el.BuiltinFunctionMapper;
 import org.apache.faces.impl.state.el.CompositeFunctionMapper;
 import org.apache.faces.impl.state.el.DefaultVariableMapper;
 import org.apache.faces.impl.state.el.FlowELResolver;
+import org.apache.scxml.SCXMLIOProcessor;
+import org.apache.scxml.SCXMLSystemContext;
 
 /**
  *
@@ -47,8 +48,6 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     public static final String FLOW_EL_CONTEXT_KEY = "javax.faces.FLOW_CONTEXT_KEY".intern();
     public static final String FLOW_ISTANCE_KEY = "javax.faces.FLOW_CONTEXT_KEY".intern();
 
-    private final transient ThreadLocal<SCXML> sccashe;
-    private final transient ThreadLocal<SCXMLExecutor> excashe;
     private final transient ThreadLocal<ContextWrapper> eccashe;
 
     private transient ContextWrapper ec;
@@ -56,8 +55,6 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
 
     public StateFlowEvaluator() {
         super();
-        sccashe = new ThreadLocal<>();
-        excashe = new ThreadLocal<>();
         eccashe = new ThreadLocal<>();
     }
 
@@ -74,18 +71,8 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     private <V> V wrap(Context ctx, Callable<V> call) throws SCXMLExpressionException {
         FacesContext fc = FacesContext.getCurrentInstance();
 
-        SCXMLExecutor executor = excashe.get();
-        if (executor == null) {
-            StateFlowHandler fh = StateFlowHandler.getInstance();
-            executor = fh.getExecutor(fc);
-            excashe.set(executor);
-        }
-
-        SCXML stateChart = sccashe.get();
-        if (stateChart == null) {
-            stateChart = executor.getStateMachine();
-            sccashe.set(stateChart);
-        }
+        Map<String, SCXMLIOProcessor> ioProcessors = (Map<String, SCXMLIOProcessor>) ctx.get(SCXMLSystemContext.IOPROCESSORS_KEY);
+        SCXMLExecutor executor = (SCXMLExecutor) ioProcessors.get(SCXMLIOProcessor.INTERNAL_EVENT_PROCESSOR);
 
         if (ef == null) {
             ef = fc.getApplication().getExpressionFactory();
@@ -98,11 +85,8 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
         }
 
         ec.putContext(Context.class, ctx);
-        ec.putContext(SCXMLExecutor.class, ctx);
-        if (stateChart != null) {
-            ec.putContext(SCXML.class, stateChart);
-        }
 
+        ec.putContext(SCXMLExecutor.class, executor);
         ec.putContext(FacesContext.class, fc);
         try {
             return call.call();

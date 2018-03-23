@@ -577,7 +577,7 @@ public final class SCXMLExecutor implements SCXMLIOProcessor {
         while (exctx.isRunning() && (evt = externalEventQueue.poll()) != null) {
             eventStep(evt);
         }
-    }
+     }
 
     protected void eventStep(TriggerEvent event) throws ModelException {
         semantics.nextStep(exctx, event);

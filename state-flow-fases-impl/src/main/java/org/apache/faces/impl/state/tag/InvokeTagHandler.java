@@ -50,6 +50,7 @@ public class InvokeTagHandler extends AbstractFlowTagHandler<Invoke> {
         Invoke target = new Invoke();
         decorate(ctx, parent, target);
 
+        target.setAutoForward(Boolean.TRUE);
         
         target.setType(type.getValue());
         target.setSrc(src.getValue());

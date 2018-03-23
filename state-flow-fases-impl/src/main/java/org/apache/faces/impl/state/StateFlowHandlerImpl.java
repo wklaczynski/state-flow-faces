@@ -40,7 +40,6 @@ import org.apache.scxml.invoke.Invoker;
 import org.apache.scxml.model.CustomAction;
 import javax.servlet.ServletContext;
 import static org.apache.faces.impl.state.StateFlowConstants.ANNOTATED_CLASSES;
-import org.apache.faces.impl.state.utils.Util;
 import org.apache.faces.state.component.UIStateChartRoot;
 import org.apache.faces.state.StateFlowHandler;
 import org.apache.scxml.model.Action;
@@ -49,12 +48,20 @@ import org.apache.scxml.model.SCXML;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
 import static org.apache.faces.impl.state.StateFlowConstants.STATE_FLOW_STACK;
+import org.apache.faces.impl.state.cdi.CdiUtil;
 import org.apache.faces.impl.state.cdi.StateChartScopeCDIContex;
+import org.apache.faces.impl.state.cdi.StateFlowCDIHelper;
 import org.apache.faces.impl.state.cdi.StateFlowCDIListener;
 import org.apache.faces.impl.state.invokers.SubInvoker;
 import org.apache.faces.impl.state.invokers.ViewInvoker;
+import static org.apache.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
+import static org.apache.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
+import static org.apache.faces.state.StateFlow.STATECHART_FACET_NAME;
+import static org.apache.faces.state.StateFlow.STATE_MACHINE_HINT;
 import org.apache.faces.state.annotation.StateChartInvoker;
 import org.apache.faces.state.annotation.StateChartAction;
+import org.apache.scxml.env.SimpleSCXMLListener;
+import org.apache.scxml.model.EnterableState;
 
 /**
  *
@@ -152,120 +159,36 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     @Override
     public SCXMLExecutor getExecutor(FacesContext context) {
-        FlowDeque fs = getFlowStack(context, false);
-        if (fs == null) {
-            return null;
-        }
-
-        Stack<SCXMLExecutor> stack = fs.getExecutors();
-
-        if (stack.isEmpty()) {
-            return null;
-        }
-
-        SCXMLExecutor result = stack.peek();
-
-        return result;
-    }
-
-    @Override
-    public SCXMLExecutor getExecutor(FacesContext context, SCXMLExecutor parent) {
-        FlowDeque fs = getFlowStack(context, false);
-        if (fs == null) {
-            return null;
-        }
-
-        Stack<SCXMLExecutor> stack = fs.getExecutors();
-
-        if (stack.isEmpty()) {
-            return null;
-        }
-
-        SCXMLExecutor result = null;
-
-        if (parent == null) {
-            return getRootExecutor(context);
-        }
-
-        for (int i = stack.size() - 1; i > 0; i--) {
-            if (stack.get(i - 1) == parent) {
-                result = stack.get(i);
-                break;
-            }
-        }
-
-        return result;
+        SCXMLExecutor executor = (SCXMLExecutor) context.getELContext().getContext(SCXMLExecutor.class);
+        return executor;
     }
 
     @Override
     public SCXMLExecutor getRootExecutor(FacesContext context) {
-        FlowDeque fs = getFlowStack(context, false);
+        FlowDeque fs = getFlowDeque(context, false);
         if (fs == null) {
             return null;
         }
 
-        Stack<SCXMLExecutor> stack = fs.getExecutors();
-        Stack<Integer> roots = fs.getRoots();
-
-        if (!roots.isEmpty()) {
-            Integer id = roots.peek();
-            return stack.get(id);
-        } else {
-            return null;
-        }
-    }
-
-    public Stack<SCXMLExecutor> getExecutorStack(FacesContext context) {
-        FlowDeque fs = getFlowStack(context, false);
-        if (fs == null) {
-            return null;
-        }
-
-        Stack<SCXMLExecutor> stack = fs.getExecutors();
-        return stack;
-    }
-
-    public void pushExecutor(FacesContext context, SCXMLExecutor executor) {
-        FlowDeque fs = getFlowStack(context, true);
-        Stack<SCXMLExecutor> stack = fs.getExecutors();
-        Stack<Integer> roots = fs.getRoots();
+        Stack<SCXMLExecutor> stack = fs.getRoots();
         if (stack.isEmpty()) {
-            roots.push(0);
-        }
-        stack.push(executor);
-    }
-
-    public void popExecutor(FacesContext context) {
-        FlowDeque fs = getFlowStack(context, false);
-        if (fs == null) {
-            return;
+            return null;
         }
 
-        Stack<SCXMLExecutor> stack = fs.getExecutors();
-        Stack<Integer> roots = fs.getRoots();
-
-        int id = stack.size() - 1;
-        while (roots.peek() > id) {
-            roots.pop();
-        }
-        stack.pop();
-        if (stack.isEmpty()) {
-            roots.clear();
-        }
+        return stack.peek();
     }
 
     @Override
     public boolean isActive(FacesContext context) {
-        FlowDeque fs = getFlowStack(context, false);
+        FlowDeque fs = getFlowDeque(context, false);
         if (fs == null) {
             return false;
         }
-
-        Stack<SCXMLExecutor> stack = fs.getExecutors();
+        Stack<SCXMLExecutor> stack = fs.getRoots();
         return stack != null && !stack.isEmpty();
     }
 
-    private SCXMLExecutor newRootExecutor(FacesContext context, String invokeId, SCXML scxml) throws ModelException {
+    private SCXMLExecutor newRootExecutor(FacesContext context, SCXML scxml) throws ModelException {
 
         StateFlowEvaluator evaluator = new StateFlowEvaluator();
         StateFlowDispatcher dispatcher = new StateFlowDispatcher();
@@ -278,6 +201,17 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         executor.setStateMachine(scxml);
         executor.addListener(scxml, new StateFlowCDIListener());
 
+        executor.addListener(scxml, new SimpleSCXMLListener(true) {
+            @Override
+            public void onExit(EnterableState state) {
+                super.onExit(state);
+                if (!executor.isRunning()) {
+                    FacesContext fc = FacesContext.getCurrentInstance();
+                    close(fc, executor);
+                }
+            }
+        });
+
         for (Map.Entry<String, Class<? extends Invoker>> entry : customInvokers.entrySet()) {
             executor.registerInvokerClass(entry.getKey(), entry.getValue());
         }
@@ -288,7 +222,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         return executor;
     }
 
-    private SCXMLExecutor newExecutor(SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException {
+    private SCXMLExecutor newSlaveExecutor(SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException {
 
         StateFlowErrorReporter errorReporter = (StateFlowErrorReporter) parent.getErrorReporter();
 
@@ -297,12 +231,21 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         SCXMLExecutor executor = new SCXMLExecutor(parent, invokeId, scxml);
         executor.addListener(scxml, new StateFlowCDIListener());
+        executor.addListener(scxml, new SimpleSCXMLListener(true) {
+            @Override
+            public void onExit(EnterableState state) {
+                super.onExit(state);
+                if (!executor.isRunning()) {
+                    FacesContext context = FacesContext.getCurrentInstance();
+                    close(context, executor);
+                }
+            }
+        });
 
         for (Map.Entry<String, Class<? extends Invoker>> entry : customInvokers.entrySet()) {
             executor.registerInvokerClass(entry.getKey(), entry.getValue());
         }
-        
-        
+
         if (parent != null) {
             Context rootCtx = executor.getRootContext();
             rootCtx.setLocal("scxml_has_parent", true);
@@ -312,52 +255,45 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public SCXMLExecutor execute(SCXMLExecutor parent, String invokeId, SCXML scxml, Map<String, Object> params) {
-        return execute(parent, invokeId, scxml, params, false);
+    public SCXMLExecutor execute(SCXML scxml, Map<String, Object> params) {
+        return execute(null, null, scxml, params);
     }
 
     @Override
-    public SCXMLExecutor execute(SCXML scxml, Map<String, Object> params) {
-        return execute(null, KEY, scxml, params, true);
-    }
-
-    private SCXMLExecutor execute(SCXMLExecutor parent, String stateId, SCXML scxml, Map<String, Object> params, boolean root) {
+    public SCXMLExecutor execute(SCXMLExecutor parent, String invokeId, SCXML scxml, Map<String, Object> params) {
         try {
+            boolean root = parent == null;
             FacesContext context = FacesContext.getCurrentInstance();
 
-            FlowDeque fs = getFlowStack(context, true);
+            FlowDeque fs = getFlowDeque(context, true);
 
-            Stack<SCXMLExecutor> stack = fs.getExecutors();
-            Stack<Integer> roots = fs.getRoots();
+            Stack<SCXMLExecutor> stack = fs.getRoots();
 
             SCXMLExecutor executor;
             if (root) {
-                executor = newRootExecutor(context, stateId, scxml);
+                executor = newRootExecutor(context, scxml);
+                stack.push(executor);
             } else {
-                executor = newExecutor(parent, stateId, scxml);
+                executor = newSlaveExecutor(parent, invokeId, scxml);
             }
 
             Context rootCtx = executor.getEvaluator().newContext(null);
             executor.setRootContext(rootCtx);
 
-            pushExecutor(context, executor);
-            if (root) {
-                int rid = stack.size() - 1;
-                if (roots.peek() != rid) {
-                    roots.push(rid);
-                }
-                StateChartScopeCDIContex.flowExecutorEntered(executor);
-            }
+            StateFlowCDIHelper.executorEntered(executor);
 
             try {
                 executor.go(params);
                 executor.triggerEvents();
             } catch (ModelException me) {
+                close(context, executor);
                 throw new FacesException(me);
             }
-            if (executor.getStatus().isFinal()) {
-                close(context, parent);
+
+            if (!executor.isRunning()) {
+                close(context, executor);
             }
+
             return executor;
         } catch (Throwable ex) {
             throw new IllegalStateException(ex);
@@ -365,55 +301,51 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public void close(FacesContext context, SCXMLExecutor to) {
-        if (!isActive(context)) {
-            throw new IllegalStateException("Instance SCXML has not yet been started");
-        }
+    public void close(FacesContext context, SCXMLExecutor executor) {
+        FlowDeque fs = getFlowDeque(context, true);
+        Stack<SCXMLExecutor> stack = fs.getRoots();
 
-        boolean chroot = false;
+        if (!stack.isEmpty() && stack.contains(executor)) {
 
-        FlowDeque fs = getFlowStack(context, true);
-        Stack<SCXMLExecutor> stack = fs.getExecutors();
-        Stack<Integer> roots = fs.getRoots();
-
-        SCXMLExecutor executor = stack.pop();
-        SCXMLExecutor parent = null;
-
-        while (!stack.empty()) {
-            parent = stack.peek();
-            if (parent == to) {
-                break;
+            if (executor == null) {
+                executor = stack.get(0);
             }
-            executor = stack.pop();
-            parent = null;
+
+            SCXMLExecutor last = stack.pop();
+            while (!stack.empty()) {
+                if (last == executor) {
+                    break;
+                }
+                StateChartScopeCDIContex.executorExited(last);
+                last = stack.peek();
+            }
+
+            if (stack.isEmpty()) {
+                closeFlowDeque(context);
+                return;
+            }
+
+            if (executor == null) {
+                executor = stack.get(0);
+            }
         }
 
-        int id = stack.size() - 1;
-        while (roots.peek() > id) {
-            roots.pop();
-            chroot = true;
+        if (executor.getParentSCXMLIOProcessor() != null) {
+            executor.getParentSCXMLIOProcessor().close();
         }
 
-        if (parent == null) {
-            closeFlowStack(context);
-            FacesContext fc = FacesContext.getCurrentInstance();
-            if (Util.isCdiAvailable(fc)) {
-                BeanManager bm = Util.getCdiBeanManager(fc);
+        StateFlowCDIHelper.executorExited(executor);
+        
+        if (stack.isEmpty()) {
+            closeFlowDeque(context);
+            if (CdiUtil.isCdiAvailable(context)) {
+                BeanManager bm = CdiUtil.getCdiBeanManager(context);
                 bm.fireEvent(new FlowOnFinalEvent());
             }
-
-        } else if (!chroot) {
-            executor.getParentSCXMLIOProcessor().close();
-
-//                String event = "root" + ".executor.stop";
-//                TriggerEvent ev = new EventBuilder(event, TriggerEvent.SIGNAL_EVENT).build();
-//                executor.triggerEvents();
         }
-
-        StateChartScopeCDIContex.flowExecutorExited(executor);
     }
 
-    private FlowDeque getFlowStack(FacesContext context, boolean create) {
+    private FlowDeque getFlowDeque(FacesContext context, boolean create) {
 
         FlowDeque result = (FlowDeque) context.getAttributes()
                 .get(STATE_FLOW_STACK);
@@ -465,7 +397,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         return result;
     }
 
-    private void closeFlowStack(FacesContext context) {
+    private void closeFlowDeque(FacesContext context) {
         ExternalContext extContext = context.getExternalContext();
         ClientWindow clientWindow = extContext.getClientWindow();
         if (clientWindow != null && clientWindow.isClientWindowRenderModeEnabled(context)) {
@@ -483,7 +415,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     @Override
     public void writeState(FacesContext context) {
 
-        FlowDeque flowStack = getFlowStack(context, false);
+        FlowDeque flowStack = getFlowDeque(context, false);
         if (flowStack == null) {
             return;
         }
@@ -518,8 +450,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         Object states[] = new Object[2];
 
-        Stack<SCXMLExecutor> executors = flowDeque.getExecutors();
-        Stack<Integer> roots = flowDeque.getRoots();
+        Stack<SCXMLExecutor> executors = flowDeque.getRoots();
+        //Stack<Integer> roots = flowDeque.getRoots();
 
         if (null != executors && executors.size() > 0) {
             Object[] attached = new Object[executors.size()];
@@ -543,15 +475,14 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             states[0] = attached;
         }
 
-        if (null != roots && roots.size() > 0) {
-            Object[] attached = new Object[roots.size()];
-            int i = 0;
-            for (Integer root : roots) {
-                attached[i++] = root;
-            }
-            states[1] = attached;
-        }
-
+//        if (null != roots && roots.size() > 0) {
+//            Object[] attached = new Object[roots.size()];
+//            int i = 0;
+//            for (Integer root : roots) {
+//                attached[i++] = root;
+//            }
+//            states[1] = attached;
+//        }
         return states;
     }
 
@@ -589,17 +520,16 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                         context.getAttributes().remove(STATE_MACHINE_HINT);
                     }
 
-                    result.getExecutors().add(executor);
+                    result.getRoots().add(executor);
                 }
             }
 
-            if (blocks[1] != null) {
-                Object[] entries = (Object[]) blocks[1];
-                for (Object entry : entries) {
-                    result.getRoots().add((Integer) entry);
-                }
-            }
-
+//            if (blocks[1] != null) {
+//                Object[] entries = (Object[]) blocks[1];
+//                for (Object entry : entries) {
+//                    result.getRoots().add((Integer) entry);
+//                }
+//            }
         }
 
         return result;
@@ -608,12 +538,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     private static class FlowDeque implements Serializable {
 
         private final Stack<SCXMLExecutor> executors;
-        private final Stack<Integer> roots;
         private final String key;
 
         public FlowDeque(final String sessionKey) {
             executors = new Stack<>();
-            roots = new Stack<>();
             this.key = sessionKey;
         }
 
@@ -621,12 +549,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return key;
         }
 
-        public Stack<SCXMLExecutor> getExecutors() {
+        public Stack<SCXMLExecutor> getRoots() {
             return executors;
-        }
-
-        public Stack<Integer> getRoots() {
-            return roots;
         }
 
     }

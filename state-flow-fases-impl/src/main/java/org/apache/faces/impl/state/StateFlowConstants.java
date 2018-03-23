@@ -35,7 +35,6 @@ public class StateFlowConstants {
     public final static String ORYGINAL_SCXML_DEFAULT_SUFIX = ".scxml";
 
     public final static String STATE_CHART_DEFAULT_PARAM_NAME = "flow";
-    
 
     public static final String ANNOTATED_CLASSES = STATE_FLOW_PREFIX + "AnnotatedClasses";
     

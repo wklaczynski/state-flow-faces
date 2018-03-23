@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
@@ -32,15 +33,19 @@ import org.apache.scxml.Context;
 import org.apache.scxml.SCXMLExecutor;
 import org.apache.faces.state.component.UIStateChartRoot;
 import org.apache.faces.state.StateFlowHandler;
-import static org.apache.faces.state.StateFlowHandler.DEFAULT_STATECHART_NAME;
-import static org.apache.faces.state.StateFlowHandler.SKIP_START_STATE_MACHINE_HINT;
-import static org.apache.faces.state.StateFlowHandler.STATECHART_FACET_NAME;
 import org.apache.scxml.model.EnterableState;
 import org.apache.scxml.model.SCXML;
 import org.apache.scxml.model.TransitionalState;
 import static org.apache.faces.impl.state.StateFlowConstants.STATE_CHART_DEFAULT_PARAM_NAME;
 import static org.apache.faces.impl.state.StateFlowConstants.STATE_CHART_REQUEST_PARAM_NAME;
 import org.apache.faces.impl.state.config.StateWebConfiguration;
+import static org.apache.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
+import static org.apache.faces.state.StateFlow.FACES_RESTORE_VIEW;
+import static org.apache.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
+import static org.apache.faces.state.StateFlow.STATECHART_FACET_NAME;
+import org.apache.scxml.EventBuilder;
+import org.apache.scxml.TriggerEvent;
+import org.apache.scxml.model.ModelException;
 
 /**
  *
@@ -53,13 +58,21 @@ public class StateFlowPhaseListener implements PhaseListener {
         FacesContext context = event.getFacesContext();
         if (event.getPhaseId() == PhaseId.RESTORE_VIEW) {
             restoreStateFlow(context);
-            
+
             StateFlowHandler fh = StateFlowHandler.getInstance();
-            SCXMLExecutor executor = fh.getExecutor(context);
-            if (executor != null) {
-                Context stateContext = getStateContext(context, executor);
-                context.getELContext().putContext(Context.class, stateContext);
-                context.getELContext().putContext(SCXMLExecutor.class, executor);
+            if (fh.isActive(context)) {
+
+                SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
+                rootExecutor.addEvent(new EventBuilder(
+                        FACES_RESTORE_VIEW, TriggerEvent.CALL_EVENT)
+                        .sendId(context.getViewRoot().getViewId())
+                        .build());
+                
+                try {
+                    rootExecutor.triggerEvents();
+                } catch (ModelException ex) {
+                    throw new FacesException(ex);
+                }
             }
         }
 
@@ -68,8 +81,6 @@ public class StateFlowPhaseListener implements PhaseListener {
     @Override
     public void beforePhase(PhaseEvent event) {
         FacesContext context = event.getFacesContext();
-        if (event.getPhaseId() != PhaseId.RESTORE_VIEW) {
-        }
         if (event.getPhaseId() == PhaseId.RENDER_RESPONSE) {
             StateFlowHandler.getInstance().writeState(context);
         }
@@ -80,11 +91,11 @@ public class StateFlowPhaseListener implements PhaseListener {
             final SCXMLExecutor executor) {
 
         CompositeContext result = new CompositeContext(executor.getGlobalContext());
-        
+
         Iterator<EnterableState> iterator = executor.getStatus().getActiveStates().iterator();
         while (iterator.hasNext()) {
             EnterableState enterable = iterator.next();
-            if(enterable instanceof TransitionalState) {
+            if (enterable instanceof TransitionalState) {
                 Context context = executor.getSCInstance().getContext(enterable);
                 result.add(context);
             }
