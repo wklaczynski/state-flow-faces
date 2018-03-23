@@ -35,6 +35,7 @@ import org.apache.faces.impl.state.el.BuiltinFunctionMapper;
 import org.apache.faces.impl.state.el.CompositeFunctionMapper;
 import org.apache.faces.impl.state.el.DefaultVariableMapper;
 import org.apache.faces.impl.state.el.FlowELResolver;
+import static org.apache.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import org.apache.scxml.SCXMLIOProcessor;
 import org.apache.scxml.SCXMLSystemContext;
 
@@ -71,9 +72,6 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     private <V> V wrap(Context ctx, Callable<V> call) throws SCXMLExpressionException {
         FacesContext fc = FacesContext.getCurrentInstance();
 
-        Map<String, SCXMLIOProcessor> ioProcessors = (Map<String, SCXMLIOProcessor>) ctx.get(SCXMLSystemContext.IOPROCESSORS_KEY);
-        SCXMLExecutor executor = (SCXMLExecutor) ioProcessors.get(SCXMLIOProcessor.INTERNAL_EVENT_PROCESSOR);
-
         if (ef == null) {
             ef = fc.getApplication().getExpressionFactory();
         }
@@ -84,9 +82,17 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             eccashe.set(ec);
         }
 
-        ec.putContext(Context.class, ctx);
+        Map<String, SCXMLIOProcessor> ioProcessors = (Map<String, SCXMLIOProcessor>) ctx.get(SCXMLSystemContext.IOPROCESSORS_KEY);
+        String sessionId = (String) ctx.get(SCXMLSystemContext.SESSIONID_KEY);
+        if (ioProcessors.containsKey(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX + sessionId)) {
+            SCXMLExecutor executor = (SCXMLExecutor) ioProcessors.get(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX + sessionId);
+            fc.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
+            ec.putContext(SCXMLExecutor.class, executor);
+        } else {
+            fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
+        }
 
-        ec.putContext(SCXMLExecutor.class, executor);
+        ec.putContext(Context.class, ctx);
         ec.putContext(FacesContext.class, fc);
         try {
             return call.call();

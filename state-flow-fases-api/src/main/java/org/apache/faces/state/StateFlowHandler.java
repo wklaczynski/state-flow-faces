@@ -44,7 +44,7 @@ public abstract class StateFlowHandler {
     
     public abstract SCXMLExecutor execute(SCXMLExecutor parent, String invokeId, SCXML scxml, Map<String, Object> params);
 
-    public abstract SCXMLExecutor getExecutor(FacesContext context);
+    public abstract SCXMLExecutor getCurrentExecutor(FacesContext context);
     
     public void close(FacesContext context) {
         close(context, null);

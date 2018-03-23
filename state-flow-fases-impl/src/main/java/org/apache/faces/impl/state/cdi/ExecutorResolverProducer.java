@@ -38,7 +38,7 @@ public class ExecutorResolverProducer extends CdiProducer<SCXMLExecutor> {
                 .beanClassAndType(SCXMLExecutor.class)
                 .create((e) -> {
                     StateFlowHandler fh = StateFlowHandler.getInstance();
-                    SCXMLExecutor executor = fh.getExecutor(FacesContext.getCurrentInstance());
+                    SCXMLExecutor executor = fh.getCurrentExecutor(FacesContext.getCurrentInstance());
                     return executor;
                 });
     }

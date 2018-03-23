@@ -24,7 +24,6 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.BeforeBeanDiscovery;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessBean;
-import org.apache.faces.impl.state.utils.Util;
 import org.apache.faces.state.annotation.StateChartScoped;
 import org.apache.faces.impl.state.log.FlowLogger;
 
@@ -55,7 +54,7 @@ public class StateFlowCDIExtension implements Extension {
 
     public void afterBean(@Observes final AfterBeanDiscovery event, BeanManager beanManager) {
 
-        event.addContext(new StateChartScopeCDIContex(beanManager));
+        event.addContext(new StateChartCDIContex());
 
 //        event.addBean(new PathResolverProducer());
 //        event.addBean(new ExecutorResolverProducer());

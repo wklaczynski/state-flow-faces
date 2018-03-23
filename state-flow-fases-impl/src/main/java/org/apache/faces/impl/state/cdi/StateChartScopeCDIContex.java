@@ -58,7 +58,7 @@ public class StateChartScopeCDIContex extends AbstractContext {
         FacesContext fc = FacesContext.getCurrentInstance();
         ExternalContext ec = fc.getExternalContext();
         
-        SCXMLExecutor executor = StateFlowHandler.getInstance().getExecutor(fc);
+        SCXMLExecutor executor = StateFlowHandler.getInstance().getCurrentExecutor(fc);
         ContextualStorage contextualStorage;
         if (executor != null) {
             Context context = executor.getRootContext();
@@ -94,7 +94,7 @@ public class StateChartScopeCDIContex extends AbstractContext {
     @Override
     public boolean isActive() {
         FacesContext fc = FacesContext.getCurrentInstance();
-        SCXMLExecutor executor = StateFlowHandler.getInstance().getExecutor(fc);
+        SCXMLExecutor executor = StateFlowHandler.getInstance().getCurrentExecutor(fc);
         boolean result = executor != null;
         if (!result) {
             ExternalContext ec = fc.getExternalContext();

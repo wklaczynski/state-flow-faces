@@ -40,7 +40,7 @@ public class PathResolverProducer extends CdiProducer<PathResolver> {
                 .beanClassAndType(PathResolver.class)
                 .create((e) -> {
                     StateFlowHandler fh = StateFlowHandler.getInstance();
-                    SCXMLExecutor executor = fh.getExecutor(FacesContext.getCurrentInstance());
+                    SCXMLExecutor executor = fh.getCurrentExecutor(FacesContext.getCurrentInstance());
                     SCXML stateMachine = executor.getStateMachine();
                     return stateMachine != null ? stateMachine.getPathResolver() : null;
                 });

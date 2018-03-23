@@ -49,12 +49,12 @@ import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
 import static org.apache.faces.impl.state.StateFlowConstants.STATE_FLOW_STACK;
 import org.apache.faces.impl.state.cdi.CdiUtil;
-import org.apache.faces.impl.state.cdi.StateChartScopeCDIContex;
 import org.apache.faces.impl.state.cdi.StateFlowCDIHelper;
 import org.apache.faces.impl.state.cdi.StateFlowCDIListener;
 import org.apache.faces.impl.state.invokers.SubInvoker;
 import org.apache.faces.impl.state.invokers.ViewInvoker;
 import static org.apache.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
+import static org.apache.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
 import static org.apache.faces.state.StateFlow.STATECHART_FACET_NAME;
 import static org.apache.faces.state.StateFlow.STATE_MACHINE_HINT;
@@ -158,8 +158,11 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public SCXMLExecutor getExecutor(FacesContext context) {
-        SCXMLExecutor executor = (SCXMLExecutor) context.getELContext().getContext(SCXMLExecutor.class);
+    public SCXMLExecutor getCurrentExecutor(FacesContext context) {
+        SCXMLExecutor executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);;
+        if (executor == null) {
+            executor = getRootExecutor(context);
+        }
         return executor;
     }
 
@@ -316,7 +319,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 if (last == executor) {
                     break;
                 }
-                StateChartScopeCDIContex.executorExited(last);
+                StateFlowCDIHelper.executorExited(last);
                 last = stack.peek();
             }
 
@@ -335,7 +338,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
 
         StateFlowCDIHelper.executorExited(executor);
-        
+
         if (stack.isEmpty()) {
             closeFlowDeque(context);
             if (CdiUtil.isCdiAvailable(context)) {

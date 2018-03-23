@@ -166,7 +166,7 @@ public class SubInvoker implements Invoker, Serializable {
 //                FlowContext ctx = executor.getRootContext();
 //                if (ctx.has("@result")) {
 //                    FlowContext result = (FlowContext) ctx.get("@result");
-//                    FlowStatus pstatus = instance.getExecutor().getCurrentStatus();
+//                    FlowStatus pstatus = instance.getCurrentExecutor().getCurrentStatus();
 //                    State pstate = (State) pstatus.getStates().iterator().next();
 //                    FlowContext pcontext = instance.getContext(pstate);
 //                    pcontext.setLocal("@result", result);
