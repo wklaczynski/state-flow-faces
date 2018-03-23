@@ -86,7 +86,6 @@ public class ViewInvoker implements Invoker, Serializable {
      */
     private boolean cancelled;
 
-    private String stateStore;
     private String control;
     private String viewId;
 
@@ -162,11 +161,6 @@ public class ViewInvoker implements Invoker, Serializable {
                 }
             }
 
-            if (options.containsKey("store")) {
-                stateStore = (String) options.get("store");
-            } else {
-                stateStore = "parallel";
-            }
             boolean trans = false;
             if (options.containsKey("transient")) {
                 Object val = options.get("transient");
