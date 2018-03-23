@@ -51,6 +51,7 @@ import org.apache.scxml.invoke.InvokerException;
 import org.apache.scxml.model.SCXML;
 import org.apache.faces.impl.state.utils.SharedUtils;
 import static org.apache.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
+import static org.apache.faces.state.StateFlow.FACES_RENDER_VIEW;
 import static org.apache.faces.state.StateFlow.FACES_RESTORE_VIEW;
 import static org.apache.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.faces.state.StateFlow.STATECHART_FACET_NAME;
@@ -357,12 +358,13 @@ public class ViewInvoker implements Invoker, Serializable {
             return;
         }
 
-        if (event.getType() == TriggerEvent.CALL_EVENT && event.getName().equals(FACES_RESTORE_VIEW)) {
+        if (event.getType() == TriggerEvent.CALL_EVENT && (
+                event.getName().equals(FACES_RESTORE_VIEW) ||
+                event.getName().equals(FACES_RENDER_VIEW)
+                )) {
             if (viewId.equals(event.getSendId())) {
-
                 FacesContext context = FacesContext.getCurrentInstance();
                 context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
-
                 context.getELContext().putContext(SCXMLExecutor.class, executor);
 
 //                if (executor != null) {
@@ -375,10 +377,12 @@ public class ViewInvoker implements Invoker, Serializable {
         }
 
         if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
-            String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
-            EventBuilder evb = new EventBuilder("view.action." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
-            evb.sendId(invokeId);
-            executor.addEvent(evb.build());
+            if (viewId.equals(event.getSendId())) {
+                String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
+                EventBuilder evb = new EventBuilder("view.action." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
+                evb.sendId(invokeId);
+                executor.addEvent(evb.build());
+            }
         }
     }
 

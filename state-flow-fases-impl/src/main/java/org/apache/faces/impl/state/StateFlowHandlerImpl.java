@@ -333,10 +333,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
         }
 
-        if (executor.getParentSCXMLIOProcessor() != null) {
-            executor.getParentSCXMLIOProcessor().close();
-        }
-
         StateFlowCDIHelper.executorExited(executor);
 
         if (stack.isEmpty()) {

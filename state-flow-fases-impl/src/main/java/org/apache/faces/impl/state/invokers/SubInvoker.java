@@ -23,6 +23,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import org.apache.faces.state.StateFlowHandler;
 import org.apache.scxml.EventBuilder;
+import org.apache.scxml.ParentSCXMLIOProcessor;
 import org.apache.scxml.SCXMLExecutor;
 import org.apache.scxml.SCXMLIOProcessor;
 import org.apache.scxml.TriggerEvent;
@@ -182,7 +183,12 @@ public class SubInvoker implements Invoker, Serializable {
     @Override
     public void cancel() throws InvokerException {
         cancelled = true;
-        executor.getParentSCXMLIOProcessor().close();
-        executor.addEvent(new EventBuilder("cancel.invoke." + invokeId, TriggerEvent.CANCEL_EVENT).build());
+        if (executor.getParentSCXMLIOProcessor() != null) {
+            ParentSCXMLIOProcessor ioProcessor = executor.getParentSCXMLIOProcessor();
+            if (!ioProcessor.isClosed()) {
+                executor.addEvent(new EventBuilder("cancel.invoke." + invokeId, TriggerEvent.CANCEL_EVENT).build());
+                ioProcessor.close();
+            }
+        }
     }
 }

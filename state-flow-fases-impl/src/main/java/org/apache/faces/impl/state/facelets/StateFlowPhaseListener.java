@@ -40,6 +40,7 @@ import static org.apache.faces.impl.state.StateFlowConstants.STATE_CHART_DEFAULT
 import static org.apache.faces.impl.state.StateFlowConstants.STATE_CHART_REQUEST_PARAM_NAME;
 import org.apache.faces.impl.state.config.StateWebConfiguration;
 import static org.apache.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
+import static org.apache.faces.state.StateFlow.FACES_RENDER_VIEW;
 import static org.apache.faces.state.StateFlow.FACES_RESTORE_VIEW;
 import static org.apache.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
 import static org.apache.faces.state.StateFlow.STATECHART_FACET_NAME;
@@ -82,6 +83,23 @@ public class StateFlowPhaseListener implements PhaseListener {
     public void beforePhase(PhaseEvent event) {
         FacesContext context = event.getFacesContext();
         if (event.getPhaseId() == PhaseId.RENDER_RESPONSE) {
+            
+            StateFlowHandler fh = StateFlowHandler.getInstance();
+            if (fh.isActive(context)) {
+
+                SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
+                rootExecutor.addEvent(new EventBuilder(
+                        FACES_RENDER_VIEW, TriggerEvent.CALL_EVENT)
+                        .sendId(context.getViewRoot().getViewId())
+                        .build());
+                
+                try {
+                    rootExecutor.triggerEvents();
+                } catch (ModelException ex) {
+                    throw new FacesException(ex);
+                }
+            }
+            
             StateFlowHandler.getInstance().writeState(context);
         }
     }
