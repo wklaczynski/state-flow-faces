@@ -21,6 +21,7 @@ import javax.faces.context.FacesContext;
 import org.apache.faces.state.events.OnEntryEvent;
 import org.apache.faces.state.events.OnExitEvent;
 import org.apache.faces.state.events.OnTransitionEvent;
+import org.apache.scxml.SCXMLExecutor;
 import org.apache.scxml.SCXMLListener;
 import org.apache.scxml.model.EnterableState;
 import org.apache.scxml.model.Parallel;
@@ -34,7 +35,10 @@ import org.apache.scxml.model.TransitionTarget;
  */
 public class StateFlowCDIListener implements SCXMLListener, Serializable {
 
-    public StateFlowCDIListener() {
+    private final SCXMLExecutor executor;
+
+    public StateFlowCDIListener(SCXMLExecutor executor) {
+        this.executor = executor;
     }
 
     @Override
@@ -42,7 +46,7 @@ public class StateFlowCDIListener implements SCXMLListener, Serializable {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (CdiUtil.isCdiAvailable(fc)) {
             BeanManager bm = CdiUtil.getCdiBeanManager(fc);
-            bm.fireEvent(new OnEntryEvent(tt));
+            bm.fireEvent(new OnEntryEvent(executor, tt));
             
             if(tt instanceof State) {
                 State state = (State) tt;
@@ -59,7 +63,7 @@ public class StateFlowCDIListener implements SCXMLListener, Serializable {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (CdiUtil.isCdiAvailable(fc)) {
             BeanManager bm = CdiUtil.getCdiBeanManager(fc);
-            bm.fireEvent(new OnTransitionEvent(from, to, t, event));
+            bm.fireEvent(new OnTransitionEvent(executor, from, to, t, event));
         }
     }
 
@@ -68,7 +72,7 @@ public class StateFlowCDIListener implements SCXMLListener, Serializable {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (CdiUtil.isCdiAvailable(fc)) {
             BeanManager bm = CdiUtil.getCdiBeanManager(fc);
-            bm.fireEvent(new OnExitEvent(tt));
+            bm.fireEvent(new OnExitEvent(executor, tt));
             
             if(tt instanceof State) {
                 State state = (State) tt;

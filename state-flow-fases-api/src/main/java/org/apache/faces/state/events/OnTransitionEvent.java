@@ -15,6 +15,7 @@
  */
 package org.apache.faces.state.events;
 
+import org.apache.scxml.SCXMLExecutor;
 import org.apache.scxml.model.Transition;
 import org.apache.scxml.model.TransitionTarget;
 
@@ -24,16 +25,22 @@ import org.apache.scxml.model.TransitionTarget;
  */
 public class OnTransitionEvent {
 
+    private final SCXMLExecutor executor;
     private final TransitionTarget from;
     private final TransitionTarget to;
     private final Transition transition;
     private final String event;
 
-    public OnTransitionEvent(TransitionTarget from, TransitionTarget to, Transition transition, String event) {
+    public OnTransitionEvent(SCXMLExecutor executor, TransitionTarget from, TransitionTarget to, Transition transition, String event) {
+        this.executor = executor;
         this.from = from;
         this.to = to;
         this.transition = transition;
         this.event = event;
+    }
+
+    public SCXMLExecutor getExecutor() {
+        return executor;
     }
 
     public TransitionTarget getFrom() {

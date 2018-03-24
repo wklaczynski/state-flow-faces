@@ -42,6 +42,7 @@ import javax.faces.render.ResponseStateManager;
 import org.apache.faces.state.component.UIStateChartRoot;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
+import org.apache.faces.impl.state.StateFlowContext;
 import org.apache.scxml.Context;
 import org.apache.scxml.SCXMLExecutor;
 import org.apache.scxml.SCXMLIOProcessor;
@@ -56,6 +57,7 @@ import static org.apache.faces.state.StateFlow.FACES_RESTORE_VIEW;
 import static org.apache.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.scxml.EventBuilder;
+import org.apache.scxml.env.EffectiveContextMap;
 import org.apache.scxml.model.EnterableState;
 import org.apache.scxml.model.TransitionalState;
 
@@ -374,11 +376,12 @@ public class ViewInvoker implements Invoker, Serializable {
                 || event.getName().equals(FACES_RENDER_VIEW))) {
             if (viewId.equals(event.getSendId())) {
                 FacesContext context = FacesContext.getCurrentInstance();
+                
                 context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
                 context.getELContext().putContext(SCXMLExecutor.class, executor);
 
                 Context stateContext = getStateContext(context, executor);
-                context.getELContext().putContext(Context.class, stateContext);
+                context.getELContext().putContext(Context.class,  getEffectiveContext(stateContext));
             }
             return;
         }
@@ -393,6 +396,12 @@ public class ViewInvoker implements Invoker, Serializable {
         }
     }
 
+
+    protected StateFlowContext getEffectiveContext(final Context nodeCtx) {
+        return new StateFlowContext(nodeCtx, new EffectiveContextMap(nodeCtx));
+    }
+    
+    
     private static Context getStateContext(
             final FacesContext fc,
             final SCXMLExecutor executor) {

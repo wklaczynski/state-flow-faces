@@ -16,38 +16,26 @@
  */
 package org.apache.scxml.env;
 
-import java.io.Serializable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.scxml.SCXMLListener;
 import org.apache.scxml.model.EnterableState;
 import org.apache.scxml.model.Transition;
 import org.apache.scxml.model.TransitionTarget;
 
-
-
 /**
- * Simple SCXML Listener that logs execution.
+ * An abstract adapter class for the <code>SXCMLListener</code> interface.
+ * This class exists as a convenience for creating listener objects, and as
+ * such all the methods in this class are empty.
+ *
+ * @since 0.7
  */
-public class SimpleSCXMLListener implements SCXMLListener, Serializable {
+public abstract class AbstractSCXMLListener implements SCXMLListener {
 
-    /** Serial version UID. */
-    private static final long serialVersionUID = 1L;
-    /** Implementation independent log category. */
-    protected static final Logger log = Logger.getLogger("javax.faces.state");
-
-    public SimpleSCXMLListener() {
-    }
-    
     /**
-     * @param state
      * @see SCXMLListener#onEntry(EnterableState)
      */
     @Override
     public void onEntry(final EnterableState state) {
-        if (log.isLoggable(Level.INFO)) {
-            log.log(Level.INFO, "enter {0}", LogUtils.getTTPath(state));
-        }
+        // empty
     }
 
     /**
@@ -55,19 +43,16 @@ public class SimpleSCXMLListener implements SCXMLListener, Serializable {
      */
     @Override
     public void onExit(final EnterableState state) {
-        if (log.isLoggable(Level.INFO)) {
-            log.log(Level.INFO, "exit {0}", LogUtils.getTTPath(state));
-        }
+        // empty
     }
 
     /**
 * @see SCXMLListener#onTransition(TransitionTarget,TransitionTarget,Transition,String)
      */
     @Override
-    public void onTransition(final TransitionTarget from, final TransitionTarget to, final Transition transition, String event) {
-        if (log.isLoggable(Level.INFO)) {
-            log.log(Level.INFO, "transition {0}", LogUtils.transToString(from, to, transition, event));
-        }
+    public void onTransition(final TransitionTarget from,
+            final TransitionTarget to, final Transition transition, final String event) {
+        // empty
     }
 
 }

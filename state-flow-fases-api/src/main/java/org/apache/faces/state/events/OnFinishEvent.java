@@ -15,13 +15,22 @@
  */
 package org.apache.faces.state.events;
 
+import org.apache.scxml.SCXMLExecutor;
+
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class OnFinalFlowEvent {
+public class OnFinishEvent {
+    
+    private final SCXMLExecutor executor;
 
-    public OnFinalFlowEvent() {
+    public OnFinishEvent(SCXMLExecutor executor) {
+        this.executor = executor;
+    }
+
+    public SCXMLExecutor getExecutor() {
+        return executor;
     }
 
 }

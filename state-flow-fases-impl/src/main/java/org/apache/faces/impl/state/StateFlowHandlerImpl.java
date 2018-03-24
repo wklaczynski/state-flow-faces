@@ -37,7 +37,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.lifecycle.ClientWindow;
 import org.apache.scxml.Context;
 import org.apache.scxml.SCXMLExecutor;
-import org.apache.faces.state.events.OnFinalFlowEvent;
+import org.apache.faces.state.events.OnFinishEvent;
 import org.apache.scxml.invoke.Invoker;
 import org.apache.scxml.model.CustomAction;
 import javax.servlet.ServletContext;
@@ -64,6 +64,7 @@ import static org.apache.faces.state.StateFlow.STATECHART_FACET_NAME;
 import static org.apache.faces.state.StateFlow.STATE_MACHINE_HINT;
 import org.apache.faces.state.annotation.StateChartInvoker;
 import org.apache.faces.state.annotation.StateChartAction;
+import org.apache.scxml.env.AbstractSCXMLListener;
 import org.apache.scxml.env.SimpleSCXMLListener;
 import org.apache.scxml.model.EnterableState;
 
@@ -220,18 +221,20 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         SCXMLExecutor executor = new SCXMLExecutor(evaluator, dispatcher, errorReporter);
         executor.setStateMachine(scxml);
-        executor.addListener(scxml, new StateFlowCDIListener());
+        executor.addListener(scxml, new StateFlowCDIListener(executor));
 
         if (context.getApplication().getProjectStage() == ProjectStage.Production) {
             executor.setCheckLegalConfiguration(false);
         } else {
             executor.setCheckLegalConfiguration(true);
+            if (isLogstep()) {
+                executor.addListener(scxml, new SimpleSCXMLListener());
+            }
         }
 
-        executor.addListener(scxml, new SimpleSCXMLListener(isLogstep()) {
+        executor.addListener(scxml, new AbstractSCXMLListener() {
             @Override
             public void onExit(EnterableState state) {
-                super.onExit(state);
                 if (!executor.isRunning()) {
                     FacesContext fc = FacesContext.getCurrentInstance();
                     close(fc, executor);
@@ -257,23 +260,26 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         errorReporter.getTags().putAll(new HashMap<>(tags));
 
         SCXMLExecutor executor = new SCXMLExecutor(parent, invokeId, scxml);
-        executor.addListener(scxml, new StateFlowCDIListener());
-        executor.addListener(scxml, new SimpleSCXMLListener(isLogstep()) {
+        executor.addListener(scxml, new StateFlowCDIListener(executor));
+
+        if (context.getApplication().getProjectStage() == ProjectStage.Production) {
+            executor.setCheckLegalConfiguration(false);
+        } else {
+            executor.setCheckLegalConfiguration(true);
+            if (isLogstep()) {
+                executor.addListener(scxml, new SimpleSCXMLListener());
+            }
+        }
+
+        executor.addListener(scxml, new AbstractSCXMLListener() {
             @Override
             public void onExit(EnterableState state) {
-                super.onExit(state);
                 if (!executor.isRunning()) {
                     FacesContext context = FacesContext.getCurrentInstance();
                     close(context, executor);
                 }
             }
         });
-
-        if (context.getApplication().getProjectStage() == ProjectStage.Production) {
-            executor.setCheckLegalConfiguration(false);
-        } else {
-            executor.setCheckLegalConfiguration(true);
-        }
 
         for (Map.Entry<String, Class<? extends Invoker>> entry : customInvokers.entrySet()) {
             executor.registerInvokerClass(entry.getKey(), entry.getValue());
@@ -358,7 +364,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     closeFlowDeque(context);
                     if (CdiUtil.isCdiAvailable(context)) {
                         BeanManager bm = CdiUtil.getCdiBeanManager(context);
-                        bm.fireEvent(new OnFinalFlowEvent());
+                        bm.fireEvent(new OnFinishEvent(executor));
                     }
                     return;
                 }

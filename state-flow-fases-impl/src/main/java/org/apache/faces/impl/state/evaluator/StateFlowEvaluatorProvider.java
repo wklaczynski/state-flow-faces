@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state;
+package org.apache.faces.impl.state.evaluator;
 
-import org.apache.faces.impl.state.evaluator.StateFlowEvaluator;
 import org.apache.scxml.Evaluator;
 import org.apache.scxml.EvaluatorProvider;
 import org.apache.scxml.model.SCXML;

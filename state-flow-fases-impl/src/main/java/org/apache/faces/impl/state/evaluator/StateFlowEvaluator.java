@@ -32,11 +32,12 @@ import org.apache.scxml.Context;
 import org.apache.scxml.SCXMLExecutor;
 import org.apache.scxml.SCXMLExpressionException;
 import org.apache.scxml.env.AbstractBaseEvaluator;
-import static org.apache.faces.impl.state.StateFlowEvaluatorProvider.SUPPORTED_DATA_MODEL;
+import static org.apache.faces.impl.state.evaluator.StateFlowEvaluatorProvider.SUPPORTED_DATA_MODEL;
 import org.apache.faces.impl.state.utils.Util;
 import static org.apache.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import org.apache.scxml.SCXMLIOProcessor;
 import org.apache.scxml.SCXMLSystemContext;
+import org.apache.scxml.env.EffectiveContextMap;
 
 /**
  *
@@ -91,6 +92,8 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
         }
 
+        ctx = getEffectiveContext(ctx);
+        
         ec.putContext(Context.class, ctx);
         ec.putContext(FacesContext.class, fc);
         try {
@@ -152,6 +155,10 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
         return new StateFlowContext(parent);
     }
 
+    protected StateFlowContext getEffectiveContext(final Context nodeCtx) {
+        return new StateFlowContext(nodeCtx, new EffectiveContextMap(nodeCtx));
+    }
+    
     public class ContextWrapper extends ELContext implements Serializable {
 
         private final ELContext ctx;

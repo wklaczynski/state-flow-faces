@@ -15,6 +15,7 @@
  */
 package org.apache.faces.state.events;
 
+import org.apache.scxml.SCXMLExecutor;
 import org.apache.scxml.model.EnterableState;
 
 /**
@@ -23,13 +24,21 @@ import org.apache.scxml.model.EnterableState;
  */
 public class OnEntryEvent {
 
+    private final SCXMLExecutor executor;
+    
     private final EnterableState target;
 
-    public OnEntryEvent(EnterableState target) {
+    public OnEntryEvent(SCXMLExecutor executor, EnterableState target) {
+        this.executor = executor;
         this.target = target;
     }
 
     public EnterableState getTarget() {
         return target;
     }
+
+    public SCXMLExecutor getExecutor() {
+        return executor;
+    }
+    
 }
