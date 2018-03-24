@@ -176,7 +176,7 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         } catch (FaceletException th) {
             throw th;
         } catch (Throwable th) {
-            throw new TagException(tag, Util.getErrorMessage(th),  th);
+            throw new TagException(tag, Util.getErrorMessage(th), th);
         }
     }
 
@@ -269,21 +269,24 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         if (currentFlow instanceof SCXML) {
             SCXML chat = (SCXML) currentFlow;
             if (chat.getChildren().contains(child)) {
-                throw new TagException(this.tag, "transition target already defined!");
+                throw new TagException(this.tag, "transition target already defined.");
             }
             chat.addChild(child);
         } else if (currentFlow instanceof State) {
             State target = (State) currentFlow;
             if (target.getChildren().contains(child)) {
-                throw new TagException(this.tag, "transition target already defined!");
+                throw new TagException(this.tag, "transition target already defined.");
             }
             target.addChild(child);
         } else if (currentFlow instanceof Parallel) {
             Parallel target = (Parallel) currentFlow;
-            if (target.getChildren().contains(child)) {
-                throw new TagException(this.tag, "transition target already defined!");
+            if (!(child instanceof TransitionalState)) {
+                throw new TagException(this.tag, "transition target in <parallel> must be transition state type <state> or <prallel>.");
             }
-            target.getChildren().add(child);
+            if (target.getChildren().contains(child)) {
+                throw new TagException(this.tag, "transition target already defined.");
+            }
+            target.addChild((TransitionalState) child);
         } else {
             throw new TagException(this.tag, "can not stored this element on parent element!");
         }
@@ -295,11 +298,11 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         if (currentFlow instanceof TransitionalState) {
             TransitionalState target = (TransitionalState) currentFlow;
             if (target.getHistory().contains(child)) {
-                throw new TagException(this.tag, "transition target already defined!");
+                throw new TagException(this.tag, "transition target already defined.");
             }
             target.addHistory(child);
         } else {
-            throw new TagException(this.tag, "can not stored history element on parent element!");
+            throw new TagException(this.tag, "can not stored history element on parent element.");
         }
 
     }
@@ -313,7 +316,7 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
             TransitionalState target = (TransitionalState) currentFlow;
             return prefix + target.getChildren().size();
         } else {
-            throw new TagException(this.tag, "can not support generate unique id this element on parent element!");
+            throw new TagException(this.tag, "can not support generate unique id this element on parent element.");
         }
     }
 
@@ -322,7 +325,7 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         if (!(tid == null && tid.isEmpty())) {
             SCXML chart = getElement(parent, SCXML.class);
             if (chart.getTargets().containsKey(target.getId())) {
-                throw new TagException(this.tag, "transition target already defined!");
+                throw new TagException(this.tag, "transition target already defined.");
             }
             chart.addTarget(target);
         }
@@ -337,7 +340,7 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
             TransitionalState target = (TransitionalState) currentFlow;
             target.addTransition(transition);
         } else {
-            throw new TagException(this.tag, "can not stored this element on parent element!");
+            throw new TagException(this.tag, "can not stored this element on parent element.");
         }
     }
 
@@ -352,7 +355,7 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
             ifaction.addAction(action);
             action.setParent(ifaction.getParent());
         } else {
-            throw new TagException(this.tag, "can not stored this element on parent element!");
+            throw new TagException(this.tag, "can not stored this element on parent element.");
         }
     }
 

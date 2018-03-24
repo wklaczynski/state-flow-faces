@@ -221,6 +221,12 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         executor.setStateMachine(scxml);
         executor.addListener(scxml, new StateFlowCDIListener());
 
+        if (context.getApplication().getProjectStage() == ProjectStage.Production) {
+            executor.setCheckLegalConfiguration(false);
+        } else {
+            executor.setCheckLegalConfiguration(true);
+        }
+
         executor.addListener(scxml, new SimpleSCXMLListener(isLogstep()) {
             @Override
             public void onExit(EnterableState state) {
@@ -242,7 +248,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         return executor;
     }
 
-    private SCXMLExecutor newSlaveExecutor(SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException {
+    private SCXMLExecutor newSlaveExecutor(FacesContext context, SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException {
 
         StateFlowErrorReporter errorReporter = (StateFlowErrorReporter) parent.getErrorReporter();
 
@@ -261,6 +267,12 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 }
             }
         });
+
+        if (context.getApplication().getProjectStage() == ProjectStage.Production) {
+            executor.setCheckLegalConfiguration(false);
+        } else {
+            executor.setCheckLegalConfiguration(true);
+        }
 
         for (Map.Entry<String, Class<? extends Invoker>> entry : customInvokers.entrySet()) {
             executor.registerInvokerClass(entry.getKey(), entry.getValue());
@@ -294,7 +306,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 executor = newRootExecutor(context, scxml);
                 stack.push(executor);
             } else {
-                executor = newSlaveExecutor(parent, invokeId, scxml);
+                executor = newSlaveExecutor(context, parent, invokeId, scxml);
             }
 
             Context rootCtx = executor.getEvaluator().newContext(null);
