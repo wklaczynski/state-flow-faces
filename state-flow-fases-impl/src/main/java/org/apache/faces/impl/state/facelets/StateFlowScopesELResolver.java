@@ -67,14 +67,14 @@ public class StateFlowScopesELResolver extends ELResolver {
             DialogParams scope = (DialogParams) base;
             result = scope.get(property.toString());
             if (result == null) {
-                notf("chart", property);
+                //notf("chart", property);
             }
             context.setPropertyResolved(true);
         } else if (base instanceof StateParams) {
             StateParams scope = (StateParams) base;
             result = scope.get(property.toString());
             if (result == null) {
-                notf("state", property);
+                //notf("state", property);
             }
             context.setPropertyResolved(true);
         } else if (base instanceof DialogScope) {

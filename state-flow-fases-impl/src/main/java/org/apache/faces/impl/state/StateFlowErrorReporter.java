@@ -30,7 +30,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.FaceletException;
 import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagAttribute;
-import javax.faces.view.facelets.TagAttributeException;
 import org.apache.scxml.ErrorReporter;
 import org.apache.scxml.model.Data;
 import org.apache.scxml.model.EnterableState;
@@ -122,7 +121,7 @@ public class StateFlowErrorReporter implements ErrorReporter, Serializable {
                     break;
                 case ErrorConstants.UNKNOWN_ACTION:
                     //executeActionList
-                    msg.append("Action: ").append(errCtx.getClass().getName());
+                    msg.append("action: ").append(errCtx.getClass().getName());
                     break;
                 case ErrorConstants.ILLEGAL_CONFIG:
                     //isLegalConfig
@@ -156,25 +155,20 @@ public class StateFlowErrorReporter implements ErrorReporter, Serializable {
                 case ErrorConstants.EXPRESSION_ERROR:
                     if (errCtx instanceof Executable) {
                         TransitionTarget parent = ((Executable) errCtx).getParent();
-                        if (tag != null) {
-                            msg.append(tag.getAttributes().get("expr"));
-                            msg.append("Expression error inside ").append(LogUtils.getTTPath(parent));
-                        } else {
-                            msg.append("Expression error inside ").append(LogUtils.getTTPath(parent));
-                        }
+                        msg.append("expression error inside ").append(LogUtils.getTTPath(parent));
                     } else if (errCtx instanceof Data) {
                         // Data expression error
-                        msg.append("Expression error for data element with id ").append(((Data) errCtx).getId());
+                        msg.append("expression error for data element with id ").append(((Data) errCtx).getId());
                     } else if (errCtx instanceof SCXML) {
                         // Global Script
-                        msg.append("Expression error inside the global script");
+                        msg.append("expression error inside the global script");
                     }
                     break;
                 default:
                     break;
             }
 
-            msg.append(". (");
+            msg.append(", (");
             msg.append(errDetail).append(")");
 
         } else {
@@ -210,7 +204,11 @@ public class StateFlowErrorReporter implements ErrorReporter, Serializable {
             }
             WebMessage.error(fc, errorMessage.toString());
         } else {
-            throw new FacesException(errorMessage.toString(), cause);
+            if (cause instanceof FacesException) {
+                throw (FacesException) cause;
+            } else {
+                throw new FaceletException(errorMessage.toString(), cause);
+            }
         }
     }
 

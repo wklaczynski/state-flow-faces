@@ -48,65 +48,65 @@ final class ModelUpdater {
     /**
      * Error message when SCXML document specifies an illegal initial state.
      */
-    private static final String ERR_SCXML_NO_INIT = "No SCXML child state "
-            + "with ID \"{0}\" found; illegal initial state for SCXML document";
+    private static final String ERR_SCXML_NO_INIT = "no SCXML child state "
+            + "with id \"{0}\" found; illegal initial state for SCXML document.";
 
     /**
      * Error message when SCXML document specifies an illegal initial state.
      */
-    private static final String ERR_UNSUPPORTED_INIT = "Initial attribute or element not supported for "
-            + "atomic {0}";
+    private static final String ERR_UNSUPPORTED_INIT = "initial attribute or element not supported for "
+            + "atomic {0}.";
 
     /**
      * Error message when a state element specifies an initial state which
      * is not a direct descendent.
      */
-    private static final String ERR_STATE_BAD_INIT = "Initial state "
+    private static final String ERR_STATE_BAD_INIT = "initial state "
             + "null or not a descendant of {0}";
 
     /**
      * Error message when a referenced history state cannot be found.
      */
-    private static final String ERR_STATE_NO_HIST = "Referenced history state"
-            + " null for {0}";
+    private static final String ERR_STATE_NO_HIST = "referenced history state"
+            + " null for {0}.";
 
     /**
      * Error message when a shallow history state is not a child state.
      */
     private static final String ERR_STATE_BAD_SHALLOW_HIST = "History state"
-            + " for shallow history is not child for {0}";
+            + " for shallow history is not child for {0}.";
 
     /**
      * Error message when a deep history state is not a descendent state.
      */
     private static final String ERR_STATE_BAD_DEEP_HIST = "History state"
-            + " for deep history is not descendant for {0}";
+            + " for deep history is not descendant for {0}.";
 
     /**
      * Transition target is not a legal IDREF (not found).
      */
     private static final String ERR_TARGET_NOT_FOUND =
-            "Transition target with ID \"{0}\" not found";
+            "transition target with id \"{0}\" not found.";
 
     /**
      * Transition targets do not form a legal configuration.
      */
     private static final String ERR_ILLEGAL_TARGETS =
-            "Transition targets \"{0}\" do not satisfy the requirements for"
-                    + " target regions belonging to a <parallel>";
+            "transition targets \"{0}\" do not satisfy the requirements for"
+                    + " target regions belonging to a <parallel>.";
 
     /**
      * Simple states should not contain a history.
      */
     private static final String ERR_HISTORY_SIMPLE_STATE =
-            "Simple {0} contains history elements";
+            "simple {0} contains history elements.";
 
     /**
      * History does not specify a default transition target.
      */
     private static final String ERR_HISTORY_NO_DEFAULT =
-            "No default target specified for history with ID \"{0}\""
-                    + " belonging to {1}";
+            "no default target specified for history with id \"{0}\""
+                    + " belonging to {1}.";
 
     /**
      * Error message when an &lt;invoke&gt; specifies both "src" and "srcexpr"
@@ -384,7 +384,7 @@ final class ModelUpdater {
                 String id = ids.nextToken();
                 TransitionTarget tt = targets.get(id);
                 if (tt == null) {
-                    logAndThrowModelError(tt, ERR_TARGET_NOT_FOUND, new Object[] {
+                    logAndThrowModelError(transition, ERR_TARGET_NOT_FOUND, new Object[] {
                             id });
                 }
                 tts.add(tt);

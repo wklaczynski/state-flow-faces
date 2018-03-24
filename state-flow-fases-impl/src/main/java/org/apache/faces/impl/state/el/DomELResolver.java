@@ -72,7 +72,12 @@ public class DomELResolver extends ELResolver {
         if(!isEnabled()) {
             return null;
         }
-        return getValue(context, base, property).getClass();
+        Object value = getValue(context, base, property);
+        if(value != null) {
+            return value.getClass();
+        } else {
+            return null;
+        }
     }
 
     @Override

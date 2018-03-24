@@ -51,12 +51,12 @@ public final class LogUtils {
      *                the SCXML document
      */
     public static String getTTPath(final TransitionTarget tt) {
-        StringBuilder sb = new StringBuilder("/");
+        StringBuilder sb = new StringBuilder("\"");
         for (int i = 0; i < tt.getNumberOfAncestors(); i++) {
             sb.append(tt.getAncestor(i).getId());
-            sb.append("/");
+            sb.append(":");
         }
-        sb.append(tt.getId());
+        sb.append(tt.getId()).append("\"");
         return sb.toString();
     }
 
