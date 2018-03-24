@@ -19,9 +19,9 @@ package org.apache.faces.state.events;
  *
  * @author Waldemar Kłaczyński
  */
-public class FlowOnFinalEvent {
+public class OnFinalFlowEvent {
 
-    public FlowOnFinalEvent() {
+    public OnFinalFlowEvent() {
     }
 
 }

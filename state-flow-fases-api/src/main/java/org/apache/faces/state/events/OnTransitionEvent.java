@@ -22,14 +22,14 @@ import org.apache.scxml.model.TransitionTarget;
  *
  * @author Waldemar Kłaczyński
  */
-public class FlowOnTransitionEvent {
+public class OnTransitionEvent {
 
     private final TransitionTarget from;
     private final TransitionTarget to;
     private final Transition transition;
     private final String event;
 
-    public FlowOnTransitionEvent(TransitionTarget from, TransitionTarget to, Transition transition, String event) {
+    public OnTransitionEvent(TransitionTarget from, TransitionTarget to, Transition transition, String event) {
         this.from = from;
         this.to = to;
         this.transition = transition;

@@ -21,16 +21,15 @@ import org.apache.scxml.model.EnterableState;
  *
  * @author Waldemar Kłaczyński
  */
-public class FlowOnExitEvent {
+public class OnEntryEvent {
 
     private final EnterableState target;
 
-    public FlowOnExitEvent(EnterableState target) {
+    public OnEntryEvent(EnterableState target) {
         this.target = target;
     }
 
     public EnterableState getTarget() {
         return target;
     }
-
 }

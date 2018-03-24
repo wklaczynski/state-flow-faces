@@ -37,7 +37,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.lifecycle.ClientWindow;
 import org.apache.scxml.Context;
 import org.apache.scxml.SCXMLExecutor;
-import org.apache.faces.state.events.FlowOnFinalEvent;
+import org.apache.faces.state.events.OnFinalFlowEvent;
 import org.apache.scxml.invoke.Invoker;
 import org.apache.scxml.model.CustomAction;
 import javax.servlet.ServletContext;
@@ -358,7 +358,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     closeFlowDeque(context);
                     if (CdiUtil.isCdiAvailable(context)) {
                         BeanManager bm = CdiUtil.getCdiBeanManager(context);
-                        bm.fireEvent(new FlowOnFinalEvent());
+                        bm.fireEvent(new OnFinalFlowEvent());
                     }
                     return;
                 }

@@ -18,9 +18,9 @@ package org.apache.faces.impl.state.cdi;
 import java.io.Serializable;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.context.FacesContext;
-import org.apache.faces.state.events.FlowOnEntryEvent;
-import org.apache.faces.state.events.FlowOnExitEvent;
-import org.apache.faces.state.events.FlowOnTransitionEvent;
+import org.apache.faces.state.events.OnEntryEvent;
+import org.apache.faces.state.events.OnExitEvent;
+import org.apache.faces.state.events.OnTransitionEvent;
 import org.apache.scxml.SCXMLListener;
 import org.apache.scxml.model.EnterableState;
 import org.apache.scxml.model.Parallel;
@@ -42,7 +42,7 @@ public class StateFlowCDIListener implements SCXMLListener, Serializable {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (CdiUtil.isCdiAvailable(fc)) {
             BeanManager bm = CdiUtil.getCdiBeanManager(fc);
-            bm.fireEvent(new FlowOnEntryEvent(tt));
+            bm.fireEvent(new OnEntryEvent(tt));
             
             if(tt instanceof State) {
                 State state = (State) tt;
@@ -59,7 +59,7 @@ public class StateFlowCDIListener implements SCXMLListener, Serializable {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (CdiUtil.isCdiAvailable(fc)) {
             BeanManager bm = CdiUtil.getCdiBeanManager(fc);
-            bm.fireEvent(new FlowOnTransitionEvent(from, to, t, event));
+            bm.fireEvent(new OnTransitionEvent(from, to, t, event));
         }
     }
 
@@ -68,7 +68,7 @@ public class StateFlowCDIListener implements SCXMLListener, Serializable {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (CdiUtil.isCdiAvailable(fc)) {
             BeanManager bm = CdiUtil.getCdiBeanManager(fc);
-            bm.fireEvent(new FlowOnExitEvent(tt));
+            bm.fireEvent(new OnExitEvent(tt));
             
             if(tt instanceof State) {
                 State state = (State) tt;
