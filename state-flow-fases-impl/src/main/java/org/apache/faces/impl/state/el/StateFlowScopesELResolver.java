@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.facelets;
+package org.apache.faces.impl.state.el;
 
 import java.beans.FeatureDescriptor;
 import java.io.Serializable;

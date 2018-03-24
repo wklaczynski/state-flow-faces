@@ -20,9 +20,7 @@
     
             
     <application>
-        <el-resolver>org.apache.faces.impl.state.facelets.StateFlowELResolver</el-resolver>
-        <el-resolver>org.apache.faces.impl.state.facelets.StateFlowScopesELResolver</el-resolver>
-        <el-resolver>org.apache.faces.impl.state.el.DomELResolver</el-resolver>
+        <el-resolver>org.apache.faces.impl.state.el.StateFlowELResolver</el-resolver>
         <navigation-handler>org.apache.faces.impl.state.facelets.StateFlowNavigationHandler</navigation-handler>
     </application>
     

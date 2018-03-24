@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.facelets;
+package org.apache.faces.impl.state.el;
 
 import java.beans.FeatureDescriptor;
 import java.io.Serializable;
@@ -29,7 +29,7 @@ import org.apache.faces.impl.state.invokers.ViewParamsContext;
  *
  * @author Waldemar Kłaczyński
  */
-public class StateFlowELResolver extends ELResolver implements Serializable {
+public class ViewParamELResolver extends ELResolver implements Serializable {
 
     @Override
     public Object getValue(ELContext context, Object base, Object property) {

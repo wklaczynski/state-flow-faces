@@ -15,6 +15,7 @@
  */
 package org.apache.faces.impl.state;
 
+import org.apache.faces.impl.state.evaluator.StateFlowEvaluator;
 import org.apache.scxml.Evaluator;
 import org.apache.scxml.EvaluatorProvider;
 import org.apache.scxml.model.SCXML;

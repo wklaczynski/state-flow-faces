@@ -137,7 +137,7 @@ public class ViewInvoker implements Invoker, Serializable {
             ExternalContext ec = fc.getExternalContext();
             ViewHandler vh = fc.getApplication().getViewHandler();
 
-            getViewParamsContext(fc).putAll(params);
+//            getViewParamsContext(fc).putAll(params);
 
             NavigationCase navCase = findNavigationCase(fc, url);
             viewId = url;
@@ -200,25 +200,6 @@ public class ViewInvoker implements Invoker, Serializable {
                 }
             }
 
-            SCXML stateChart = null;
-            UIViewRoot viewRoot = null;
-            ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(fc, viewId);
-            ViewMetadata metadata = null;
-            if (vdl != null) {
-                metadata = vdl.getViewMetadata(fc, viewId);
-
-                if (metadata != null) {
-                    viewRoot = metadata.createMetadataView(fc);
-                    UIComponent facet = viewRoot.getFacet(STATECHART_FACET_NAME);
-                    if (facet != null) {
-                        UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent("main");
-                        if (uichart != null) {
-                            stateChart = uichart.getStateChart();
-                        }
-                    }
-                }
-            }
-
             PartialViewContext pvc = fc.getPartialViewContext();
             if (pvc != null && pvc.isAjaxRequest()) {
                 Map<String, List<String>> param = new HashMap<>();
@@ -251,30 +232,45 @@ public class ViewInvoker implements Invoker, Serializable {
                 ec.redirect(redirect);
                 fc.responseComplete();
             } else {
+                UIViewRoot viewRoot;
+                
                 if (viewState != null) {
                     fc.getAttributes().put(FACES_VIEW_STATE, viewState);
                     viewRoot = vh.restoreView(fc, viewId);
+
+                    applyParams(fc, viewRoot, params);
+
                     fc.setViewRoot(viewRoot);
                     fc.setProcessingEvents(true);
                     vh.initView(fc);
                 } else {
+                    SCXML stateChart = null;
+                    viewRoot = null;
+                    ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(fc, viewId);
+                    ViewMetadata metadata = null;
+                    if (vdl != null) {
+                        metadata = vdl.getViewMetadata(fc, viewId);
+
+                        if (metadata != null) {
+                            viewRoot = metadata.createMetadataView(fc);
+                            UIComponent facet = viewRoot.getFacet(STATECHART_FACET_NAME);
+                            if (facet != null) {
+                                UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent("main");
+                                if (uichart != null) {
+                                    stateChart = uichart.getStateChart();
+                                }
+                            }
+                        }
+                    }
+
+                    applyParams(fc, viewRoot, params);
+
                     if (viewRoot != null) {
                         if (!ViewMetadata.hasMetadata(viewRoot)) {
                             fc.renderResponse();
-                        } else {
-                            VisitContext vc = VisitContext.createVisitContext(fc);
-                            viewRoot.visitTree(vc, (VisitContext context, UIComponent target) -> {
-
-                                if (target instanceof UIViewParameter) {
-                                    UIViewParameter parametr = (UIViewParameter) target;
-                                    String name = parametr.getName();
-                                    //parametr.setSubmittedValue(viewState);
-                                }
-
-                                return VisitResult.ACCEPT;
-                            });
                         }
                     }
+
                     if (vdl == null || metadata == null) {
                         fc.renderResponse();
                     }
@@ -296,6 +292,26 @@ public class ViewInvoker implements Invoker, Serializable {
         } finally {
             fc.setProcessingEvents(oldProcessingEvents);
         }
+    }
+
+    private void applyParams(FacesContext context, UIViewRoot viewRoot, Map<String, Object> params) {
+        if (viewRoot != null) {
+            if (ViewMetadata.hasMetadata(viewRoot)) {
+                VisitContext vc = VisitContext.createVisitContext(context);
+                viewRoot.visitTree(vc, (VisitContext ivc, UIComponent target) -> {
+
+                    if (target instanceof UIViewParameter) {
+                        UIViewParameter parametr = (UIViewParameter) target;
+                        String name = parametr.getName();
+                        if (params.containsKey(name)) {
+                            parametr.setSubmittedValue(params.get(name));
+                        }
+                    }
+                    return VisitResult.ACCEPT;
+                });
+            }
+        }
+
     }
 
     private void clearViewMapIfNecessary(UIViewRoot root, String newId) {
@@ -320,16 +336,16 @@ public class ViewInvoker implements Invoker, Serializable {
 
     }
 
-    private ViewParamsContext getViewParamsContext(FacesContext fc) {
-        ExternalContext ec = fc.getExternalContext();
-        ViewParamsContext viewParamsContext = (ViewParamsContext) ec.getRequestMap().get(ViewParamsContext.class.getName());
-        if (viewParamsContext == null) {
-            viewParamsContext = new ViewParamsContext();
-            ec.getRequestMap().put(ViewParamsContext.class.getName(), viewParamsContext);
-        }
-        return viewParamsContext;
-
-    }
+//    private ViewParamsContext getViewParamsContext(FacesContext fc) {
+//        ExternalContext ec = fc.getExternalContext();
+//        ViewParamsContext viewParamsContext = (ViewParamsContext) ec.getRequestMap().get(ViewParamsContext.class.getName());
+//        if (viewParamsContext == null) {
+//            viewParamsContext = new ViewParamsContext();
+//            ec.getRequestMap().put(ViewParamsContext.class.getName(), viewParamsContext);
+//        }
+//        return viewParamsContext;
+//
+//    }
 
     protected NavigationCase findNavigationCase(FacesContext context, String outcome) {
         ConfigurableNavigationHandler navigationHandler = (ConfigurableNavigationHandler) context.getApplication().getNavigationHandler();
@@ -403,12 +419,6 @@ public class ViewInvoker implements Invoker, Serializable {
 
         cancelled = true;
 
-        UIViewRoot view = context.getViewRoot();
-        Map params = (Map) view.getViewMap(true).get(VIEW_PARAMS_MAP);
-        if (params != null) {
-            getViewParamsContext(context).putAll(params);
-        }
-
         ExternalContext ec = context.getExternalContext();
         Context stateContext = executor.getRootContext();
 
@@ -433,6 +443,5 @@ public class ViewInvoker implements Invoker, Serializable {
                 storeContext.setLocal(stateKey + "LastViewId", lastViewId);
             }
         }
-        getViewParamsContext(context).clear();
     }
 }

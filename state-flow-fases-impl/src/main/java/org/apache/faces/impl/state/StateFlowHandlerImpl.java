@@ -15,6 +15,7 @@
  */
 package org.apache.faces.impl.state;
 
+import org.apache.faces.impl.state.evaluator.StateFlowEvaluator;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;

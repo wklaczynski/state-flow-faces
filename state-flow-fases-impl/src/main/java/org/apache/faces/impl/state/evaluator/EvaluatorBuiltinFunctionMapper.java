@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.el;
+package org.apache.faces.impl.state.evaluator;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -25,12 +25,12 @@ import org.apache.faces.impl.state.log.FlowLogger;
  *
  * @author Waldemar Kłaczyński
  */
-public class BuiltinFunctionMapper extends FunctionMapper implements Serializable {
+public class EvaluatorBuiltinFunctionMapper extends FunctionMapper implements Serializable {
 
         private static final long serialVersionUID = 1L;
         public static final Logger log = FlowLogger.FLOW.getLogger();
 
-        public BuiltinFunctionMapper() {
+        public EvaluatorBuiltinFunctionMapper() {
             super();
         }
 

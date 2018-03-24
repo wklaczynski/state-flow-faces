@@ -23,8 +23,6 @@ import javax.el.ELException;
 import javax.el.ELResolver;
 import javax.xml.transform.TransformerException;
 import org.apache.xpath.XPathAPI;
-import static org.apache.faces.impl.state.StateFlowConstants.LOCAL_XPATH_RESOLVER;
-import org.apache.faces.impl.state.config.StateWebConfiguration;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -41,21 +39,8 @@ public class DomELResolver extends ELResolver {
         super();
     }
     
-    private boolean isEnabled() {
-        if(enabled == null) {
-            StateWebConfiguration swc = StateWebConfiguration.getInstance();
-            String option = swc.getOptionValue(LOCAL_XPATH_RESOLVER, "true");
-            enabled = Boolean.parseBoolean(option);
-        }
-        return enabled;
-    }
-    
-    
     @Override
     public Class<?> getCommonPropertyType(ELContext context, Object base) {
-        if(!isEnabled()) {
-            return null;
-        }
         if (base instanceof NodeList) {
             return Integer.class;
         }
@@ -69,9 +54,6 @@ public class DomELResolver extends ELResolver {
 
     @Override
     public Class<?> getType(ELContext context, Object base, Object property) {
-        if(!isEnabled()) {
-            return null;
-        }
         Object value = getValue(context, base, property);
         if(value != null) {
             return value.getClass();
@@ -82,9 +64,6 @@ public class DomELResolver extends ELResolver {
 
     @Override
     public Object getValue(ELContext context, Object base, Object property) {
-        if(!isEnabled()) {
-            return null;
-        }
         if (property == null) {
             return null;
         }
@@ -182,9 +161,6 @@ public class DomELResolver extends ELResolver {
 
     @Override
     public void setValue(ELContext context, Object base, Object property, Object value) {
-        if(!isEnabled()) {
-            return;
-        }
         // we don't modify the DOM
     }
 

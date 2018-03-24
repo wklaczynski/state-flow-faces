@@ -26,7 +26,7 @@ limitations under the License.
             Tests if an input state name is in current stats.
         </description>
         <function-name>in</function-name>
-        <function-class>org.apache.faces.impl.state.el.FacesFlowBuiltin</function-class>
+        <function-class>org.apache.faces.impl.state.tag.FacesFlowBuiltin</function-class>
         <function-signature>boolean isMember(java.lang.String)</function-signature>
     </function>
 

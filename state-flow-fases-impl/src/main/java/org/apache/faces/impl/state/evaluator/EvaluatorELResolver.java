@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.el;
+package org.apache.faces.impl.state.evaluator;
 
 import java.beans.FeatureDescriptor;
 import java.io.Serializable;
@@ -29,7 +29,7 @@ import org.apache.scxml.SCXMLExecutor;
  *
  * @author Waldemar Kłaczyński
  */
-public class FlowELResolver extends ELResolver implements Serializable {
+public class EvaluatorELResolver extends ELResolver implements Serializable {
 
     public static final String STATE_RESULT_NAME = "result";
 

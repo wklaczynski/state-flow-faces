@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state;
+package org.apache.faces.impl.state.evaluator;
 
+import org.apache.faces.impl.state.el.CompositeFunctionMapper;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -26,15 +27,12 @@ import javax.el.FunctionMapper;
 import javax.el.ValueExpression;
 import javax.el.VariableMapper;
 import javax.faces.context.FacesContext;
+import org.apache.faces.impl.state.StateFlowContext;
 import org.apache.scxml.Context;
 import org.apache.scxml.SCXMLExecutor;
 import org.apache.scxml.SCXMLExpressionException;
 import org.apache.scxml.env.AbstractBaseEvaluator;
 import static org.apache.faces.impl.state.StateFlowEvaluatorProvider.SUPPORTED_DATA_MODEL;
-import org.apache.faces.impl.state.el.BuiltinFunctionMapper;
-import org.apache.faces.impl.state.el.CompositeFunctionMapper;
-import org.apache.faces.impl.state.el.DefaultVariableMapper;
-import org.apache.faces.impl.state.el.FlowELResolver;
 import org.apache.faces.impl.state.utils.Util;
 import static org.apache.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import org.apache.scxml.SCXMLIOProcessor;
@@ -167,13 +165,13 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
 
             this.varMapper = ctx.getVariableMapper();
             if (varMapper == null) {
-                this.varMapper = new DefaultVariableMapper();
+                this.varMapper = new EvaluatorVariableMapper();
             }
 
-            this.fnMapper = new CompositeFunctionMapper(new BuiltinFunctionMapper(), ctx.getFunctionMapper());
+            this.fnMapper = new CompositeFunctionMapper(new EvaluatorBuiltinFunctionMapper(), ctx.getFunctionMapper());
 
             this.elResolver = new CompositeELResolver();
-            this.elResolver.add(new FlowELResolver());
+            this.elResolver.add(new EvaluatorELResolver());
             this.elResolver.add(ctx.getELResolver());
 
         }
