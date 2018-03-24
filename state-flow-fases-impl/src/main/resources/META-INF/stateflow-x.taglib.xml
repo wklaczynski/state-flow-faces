@@ -247,6 +247,22 @@ limitations under the License.
         </attribute>
     </tag>
     <tag>
+        <tag-name>donedata</tag-name>
+        <description><![CDATA[A wrapper element holding data to be returned when a <final> state is entered.]]></description>
+        <handler-class>org.apache.faces.impl.state.tag.DoneDataTagHandler</handler-class>
+    </tag>
+    <tag>
+        <tag-name>content</tag-name>
+        <description><![CDATA[A container element holding data to be passed to an external service.]]></description>
+        <handler-class>org.apache.faces.impl.state.tag.ContentTagHandler</handler-class>
+        <attribute>
+            <description><![CDATA[A value expression. See 5.9.3 Legal Data Values and Value Expressions for details.]]></description>
+            <name>expr</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
         <tag-name>param</tag-name>
         <description><![CDATA[The <param> tag provides a general way of identifying a key and a dynamically calculated value which can be passed to an external service or included in an event.]]></description>
         <handler-class>org.apache.faces.impl.state.tag.ParamTagHandler</handler-class>
@@ -269,6 +285,18 @@ limitations under the License.
             <type>java.lang.String</type>
         </attribute>
     </tag>
+    <tag>
+        <tag-name>script</tag-name>
+        <description><![CDATA[The <script> element adds scripting capability to the state machine.]]></description>
+        <handler-class>org.apache.faces.impl.state.tag.ScriptTagHandler</handler-class>
+        <attribute>
+            <description><![CDATA[Gives the location from which the script should be downloaded.]]></description>
+            <name>src</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    
     
     <!--External Communications-->
     <tag>

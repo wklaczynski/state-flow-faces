@@ -16,55 +16,39 @@
 package org.apache.faces.impl.state.tag;
 
 import java.io.IOException;
-import java.util.List;
 import javax.faces.component.UIComponent;
-import org.apache.scxml.model.Invoke;
-import org.apache.scxml.model.Param;
-import org.apache.scxml.model.Send;
 import javax.faces.view.facelets.FaceletContext;
-import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
+import javax.faces.view.facelets.TagException;
 import org.apache.scxml.model.DoneData;
-import org.apache.scxml.model.ParamsContainer;
+import org.apache.scxml.model.Final;
 import org.apache.scxml.model.SCXML;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class ParamTagHandler extends AbstractFlowTagHandler<Param> {
+public class DoneDataTagHandler extends AbstractFlowTagHandler<DoneData> {
 
-    protected final TagAttribute name;
-    protected final TagAttribute expr;
-    
-    public ParamTagHandler(TagConfig config) {
-        super(config, Param.class);
+    public DoneDataTagHandler(TagConfig config) {
+        super(config, DoneData.class);
         
-        in("invoke", Invoke.class);
-        in("send", Send.class);
-        in("donedata", DoneData.class);
-        
-        this.name = this.getRequiredAttribute("name");
-        this.expr = this.getRequiredAttribute("expr");
+        in("final", Final.class);
     }
-
+    
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
-        List<Param> params = null;
-        if(parentElement instanceof ParamsContainer) {
-            ParamsContainer pc = (ParamsContainer) parentElement;
-            params = pc.getParams();
+        Final continer = (Final) parentElement;
+        if(continer.getDoneData()!= null) {
+            throw new TagException(this.tag, "already defined in this element!");
         }
         
-        Param param = new Param();
-        decorate(ctx, parent, param);
-
-        param.setName(name.getValue());
-        param.setExpr(expr.getValue());
+        DoneData donedata = new DoneData();
+        decorate(ctx, parent, donedata);
         
-        applyNext(ctx, parent, param);
+        applyNext(ctx, parent, donedata);
         
-        params.add(param);
+        continer.setDoneData(donedata);
     }
-
+    
 }

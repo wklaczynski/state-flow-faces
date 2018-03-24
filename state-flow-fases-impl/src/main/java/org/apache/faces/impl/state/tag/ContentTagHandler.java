@@ -16,55 +16,55 @@
 package org.apache.faces.impl.state.tag;
 
 import java.io.IOException;
-import java.util.List;
 import javax.faces.component.UIComponent;
-import org.apache.scxml.model.Invoke;
-import org.apache.scxml.model.Param;
-import org.apache.scxml.model.Send;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
-import org.apache.scxml.model.DoneData;
-import org.apache.scxml.model.ParamsContainer;
+import javax.faces.view.facelets.TagException;
+import org.apache.scxml.model.ParsedValue;
 import org.apache.scxml.model.SCXML;
+import org.apache.scxml.model.Content;
+import org.apache.scxml.model.ContentContainer;
+import org.apache.scxml.model.DoneData;
+import org.apache.scxml.model.Invoke;
+import org.apache.scxml.model.Send;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class ParamTagHandler extends AbstractFlowTagHandler<Param> {
+public class ContentTagHandler extends AbstractFlowTagHandler<Content> {
 
-    protected final TagAttribute name;
     protected final TagAttribute expr;
-    
-    public ParamTagHandler(TagConfig config) {
-        super(config, Param.class);
-        
-        in("invoke", Invoke.class);
-        in("send", Send.class);
+
+    private ParsedValue staticValue;
+
+    public ContentTagHandler(TagConfig config) {
+        super(config, Content.class);
+
         in("donedata", DoneData.class);
-        
-        this.name = this.getRequiredAttribute("name");
-        this.expr = this.getRequiredAttribute("expr");
+        in("send", Send.class);
+        in("invoke", Invoke.class);
+
+        this.expr = this.getAttribute("expr");
     }
 
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
-        List<Param> params = null;
-        if(parentElement instanceof ParamsContainer) {
-            ParamsContainer pc = (ParamsContainer) parentElement;
-            params = pc.getParams();
+        ContentContainer continer = (ContentContainer) parentElement;
+        if(continer.getContent() != null) {
+            throw new TagException(this.tag, "already defined in this element!");
         }
         
-        Param param = new Param();
-        decorate(ctx, parent, param);
+        Content data = new Content();
+        decorate(ctx, parent, data);
 
-        param.setName(name.getValue());
-        param.setExpr(expr.getValue());
-        
-        applyNext(ctx, parent, param);
-        
-        params.add(param);
+        data.setExpr(expr != null ? expr.getValue() : null);
+
+        applyNext(ctx, parent, data);
+
+        continer.setContent(data);
+
     }
 
 }

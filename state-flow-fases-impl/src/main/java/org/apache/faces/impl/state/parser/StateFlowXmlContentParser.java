@@ -48,7 +48,7 @@ public class StateFlowXmlContentParser extends ContentParser {
 
     @Override
     public String getType() {
-        return "json";
+        return "xml";
     }
 
     @Override

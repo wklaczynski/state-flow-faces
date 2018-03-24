@@ -10,8 +10,8 @@
         <x:datamodel>
             <x:data id="chart_title" expr="Test Multiple State Flow Process"/>
             <x:data id="chart_view" expr="/flow1/faces-flow-test.xhtml"/>
+            <x:data id="test_data">I'm here.</x:data> 
         </x:datamodel>
-
 
         <x:state id="start">
             <x:onentry>
@@ -27,13 +27,6 @@
 
 
         <x:parallel id="show">
-            <x:onentry>
-                <x:log expr="I'm starting parallel"/>
-            </x:onentry>
-            <x:onexit>
-                <x:log expr="I'm finishing parallel"/>
-            </x:onexit>
-
             <x:state id="test-view">
                 <x:invoke type="view" src="TestPage.xhtml"/>
 
@@ -62,7 +55,7 @@
             <x:invoke type="scxml" src="/common/error.scxml">
                 <x:finalize/>
             </x:invoke>
-            
+
             <x:transition event="error.invoke.cancel" target="cancel"/>
             <x:transition event="error.invoke.failed" target="cancel"/>
         </x:state>      

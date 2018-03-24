@@ -79,9 +79,6 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
                 }
-                if (root.getStatus().isFinal()) {
-                    handler.close(context);
-                }
             }
         } else {
             wrappedNavigationHandler.handleNavigation(context, fromAction, outcome);

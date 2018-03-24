@@ -15,6 +15,7 @@
  */
 package org.apache.faces.impl.state.parser;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import org.apache.scxml.io.ContentParser;
@@ -34,7 +35,9 @@ public class StateFlowJsonContentParser extends ContentParser {
 
     public StateFlowJsonContentParser() {
         super();
-        this.jsonObjectMapper = null;
+        this.jsonObjectMapper = new ObjectMapper();
+        jsonObjectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+        jsonObjectMapper.configure(JsonParser.Feature.ALLOW_YAML_COMMENTS, true);
     }
 
     @Override

@@ -16,55 +16,55 @@
 package org.apache.faces.impl.state.tag;
 
 import java.io.IOException;
-import java.util.List;
 import javax.faces.component.UIComponent;
-import org.apache.scxml.model.Invoke;
-import org.apache.scxml.model.Param;
-import org.apache.scxml.model.Send;
+import org.apache.scxml.model.Finalize;
+import org.apache.scxml.model.If;
+import org.apache.scxml.model.OnEntry;
+import org.apache.scxml.model.OnExit;
+import org.apache.scxml.model.Transition;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
-import org.apache.scxml.model.DoneData;
-import org.apache.scxml.model.ParamsContainer;
 import org.apache.scxml.model.SCXML;
+import org.apache.scxml.model.Script;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class ParamTagHandler extends AbstractFlowTagHandler<Param> {
+public class ScriptTagHandler extends AbstractFlowTagHandler<Script> {
 
-    protected final TagAttribute name;
-    protected final TagAttribute expr;
+    protected final TagAttribute src;
     
-    public ParamTagHandler(TagConfig config) {
-        super(config, Param.class);
+    public ScriptTagHandler(TagConfig config) {
+        super(config, Script.class);
         
-        in("invoke", Invoke.class);
-        in("send", Send.class);
-        in("donedata", DoneData.class);
+        in("onentry", OnEntry.class);
+        in("onexit", OnExit.class);
+        in("transition", Transition.class);
+        in("finalize", Finalize.class);
+        in("if", If.class);
+
+        top("onentry", OnEntry.class);
+        top("onexit", OnExit.class);
+        top("transition", Transition.class);
+        top("finalize", Finalize.class);
         
-        this.name = this.getRequiredAttribute("name");
-        this.expr = this.getRequiredAttribute("expr");
+        this.src = this.getAttribute("src");
     }
 
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
-        List<Param> params = null;
-        if(parentElement instanceof ParamsContainer) {
-            ParamsContainer pc = (ParamsContainer) parentElement;
-            params = pc.getParams();
+        Script action = new Script();
+        decorate(ctx, parent, action);
+        
+        if (src != null) {
+            action.setSrc(src.getValue());
         }
-        
-        Param param = new Param();
-        decorate(ctx, parent, param);
 
-        param.setName(name.getValue());
-        param.setExpr(expr.getValue());
-        
-        applyNext(ctx, parent, param);
-        
-        params.add(param);
+        applyNext(ctx, parent, action);
+
+        addAction(ctx, parent, action);
     }
 
 }

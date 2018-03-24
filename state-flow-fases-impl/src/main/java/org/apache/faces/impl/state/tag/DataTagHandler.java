@@ -16,20 +16,16 @@
 package org.apache.faces.impl.state.tag;
 
 import java.io.IOException;
-import java.net.URL;
 import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
-import org.apache.scxml.io.ContentParser;
 import org.apache.scxml.PathResolver;
 import org.apache.scxml.model.Data;
 import org.apache.scxml.model.Datamodel;
 import org.apache.scxml.model.ParsedValue;
 import org.apache.scxml.model.SCXML;
-import org.apache.faces.impl.state.utils.Util;
 
 /**
  *
@@ -60,32 +56,25 @@ public class DataTagHandler extends AbstractFlowTagHandler<Data> {
 
         data.setId(id.getValue());
 
-        data.setExpr(expr != null ? expr.getValue() : null);
-
-        applyNext(ctx, parent, data);
-
         if (src != null) {
             data.setSrc(src.getValue());
         }
 
         if (isProductionMode(ctx) && staticValue != null) {
             data.setParsedValue(staticValue);
+        } else if (expr != null) {
+            data.setExpr(expr.getValue());
         } else if (src != null) {
             String resolvedSrc = src.getValue();
             final PathResolver pr = chart.getPathResolver();
             if (pr != null) {
                 resolvedSrc = pr.resolvePath(resolvedSrc);
             }
-            try {
-                FacesContext fc = ctx.getFacesContext();
-                URL resource = fc.getExternalContext().getResource(resolvedSrc);
-                staticValue = ContentParser.parseResource(resource);
-                data.setParsedValue(staticValue);
-            } catch (IOException e) {
-                throw new TagException(this.tag,
-                        String.format("can not build data %s.", Util.getErrorMessage(e)));
-            }
-
+            staticValue = getParsedValue(ctx, parent, resolvedSrc);
+            data.setParsedValue(staticValue);
+        } else {
+            staticValue = getBodyValue(ctx, parent);
+            data.setParsedValue(staticValue);
         }
 
         Datamodel datamodel = (Datamodel) parentElement;

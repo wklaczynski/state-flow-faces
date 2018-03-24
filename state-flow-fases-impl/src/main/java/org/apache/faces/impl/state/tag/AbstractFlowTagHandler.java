@@ -15,6 +15,7 @@
  */
 package org.apache.faces.impl.state.tag;
 
+import com.sun.faces.facelets.compiler.UIInstructions;
 import org.apache.scxml.model.If;
 import org.apache.scxml.model.Initial;
 import org.apache.scxml.model.Transition;
@@ -23,6 +24,7 @@ import org.apache.scxml.model.History;
 import org.apache.scxml.model.Action;
 import org.apache.scxml.model.TransitionTarget;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -34,6 +36,8 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.faces.application.ProjectStage;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIPanel;
+import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.CompositeFaceletHandler;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.FaceletException;
@@ -49,6 +53,8 @@ import org.apache.scxml.model.State;
 import org.apache.scxml.model.TransitionalState;
 import org.apache.faces.impl.state.log.FlowLogger;
 import org.apache.faces.impl.state.utils.Util;
+import org.apache.scxml.io.ContentParser;
+import org.apache.scxml.model.ParsedValue;
 
 /**
  *
@@ -204,6 +210,72 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
             popElement(parent, CURRENT_FLOW_OBJECT);
             popElement(parent, getType());
         }
+    }
+
+    public ParsedValue getParsedValue(FaceletContext ctx, UIComponent parent, String url) throws IOException {
+        ParsedValue result = null;
+        try {
+            FacesContext fc = ctx.getFacesContext();
+            URL resource = fc.getExternalContext().getResource(url);
+            result = ContentParser.parseResource(resource);
+        } catch (IOException e) {
+            throw new TagException(this.tag,
+                    String.format("can not build data %s.", Util.getErrorMessage(e)));
+        }
+        return result;
+    }
+
+    public ParsedValue getBodyValue(FaceletContext ctx, UIComponent parent) throws IOException {
+        ParsedValue result = null;
+        UIPanel panel = new UIPanel();
+        try {
+            parent.getChildren().add(panel);
+            nextHandler.apply(ctx, panel);
+
+            String body = null;
+            for (UIComponent child : panel.getChildren()) {
+                if (child instanceof UIInstructions) {
+                    UIInstructions uii = (UIInstructions) child;
+                    String sbody = ContentParser.trimContent(uii.toString().trim());
+                    boolean script = false;
+                    int ind = sbody.indexOf("<script");
+                    if (ind >= 0) {
+                        ind = sbody.indexOf(">", ind);
+                        if (ind >= 0) {
+                            script = true;
+                            sbody = sbody.substring(ind + 1).trim();
+                        }
+                        ind = sbody.lastIndexOf("</script");
+                        if (ind >= 0) {
+                            sbody = sbody.substring(0, ind).trim();
+                        }
+                    }
+
+                    if (script) {
+                        if (!(sbody.startsWith("{") || sbody.startsWith("["))) {
+                            sbody = "{" + sbody + "}";
+                        }
+                    }
+
+                    if (sbody.startsWith("<xml") && sbody.endsWith("</xml>")) {
+                        sbody = "<?xml version=\"1.0\"?>" + sbody;
+                    }
+
+                    body = sbody;
+                    break;
+                }
+            }
+
+            if (body != null) {
+                result = ContentParser.parseContent(body);
+            }
+        } catch (IOException e) {
+            throw new TagException(this.tag,
+                    String.format("can not build body. (%s)", Util.getErrorMessage(e)));
+        } finally {
+            parent.getChildren().remove(panel);
+        }
+        return result;
     }
 
     public static final void pushElement(UIComponent parent, String name, Object element) {

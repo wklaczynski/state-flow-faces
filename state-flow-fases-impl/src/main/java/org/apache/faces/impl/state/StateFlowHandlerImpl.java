@@ -338,39 +338,43 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         FlowDeque fs = getFlowDeque(context, true);
         Stack<SCXMLExecutor> stack = fs.getRoots();
 
-        if (!stack.isEmpty() && stack.contains(executor)) {
+        if (!stack.isEmpty()) {
 
             if (executor == null) {
                 executor = stack.get(0);
             }
 
-            SCXMLExecutor last = stack.pop();
-            while (!stack.empty()) {
-                if (last == executor) {
-                    break;
+            if (stack.contains(executor)) {
+                SCXMLExecutor last = stack.pop();
+                while (!stack.empty()) {
+                    if (last == executor) {
+                        break;
+                    }
+                    StateFlowCDIHelper.executorExited(last);
+                    last = stack.peek();
                 }
-                StateFlowCDIHelper.executorExited(last);
-                last = stack.peek();
-            }
 
-            if (stack.isEmpty()) {
-                closeFlowDeque(context);
-                return;
-            }
+                if (stack.isEmpty()) {
+                    closeFlowDeque(context);
+                    if (CdiUtil.isCdiAvailable(context)) {
+                        BeanManager bm = CdiUtil.getCdiBeanManager(context);
+                        bm.fireEvent(new FlowOnFinalEvent());
+                    }
+                    return;
+                }
 
-            if (executor == null) {
-                executor = stack.get(0);
+                if (executor == null) {
+                    executor = stack.get(0);
+                }
             }
         }
 
-        StateFlowCDIHelper.executorExited(executor);
+        if (executor != null) {
+            StateFlowCDIHelper.executorExited(executor);
+        }
 
         if (stack.isEmpty()) {
             closeFlowDeque(context);
-            if (CdiUtil.isCdiAvailable(context)) {
-                BeanManager bm = CdiUtil.getCdiBeanManager(context);
-                bm.fireEvent(new FlowOnFinalEvent());
-            }
         }
     }
 
