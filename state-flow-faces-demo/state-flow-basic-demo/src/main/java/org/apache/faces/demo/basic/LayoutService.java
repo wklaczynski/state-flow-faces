@@ -16,10 +16,12 @@
 package org.apache.faces.demo.basic;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Observes;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import org.apache.faces.state.events.OnEntryEvent;
 import org.apache.faces.state.events.OnExitEvent;
@@ -53,13 +55,17 @@ public class LayoutService {
     public void stateChartOnTransitionEvent(@Observes OnTransitionEvent event) {
 
     }
-    
-    
+
     public void goToMainPage() {
         try {
-            String redirectPath = "/index.xhtml";
             FacesContext fc = FacesContext.getCurrentInstance();
-            fc.getExternalContext().redirect(redirectPath);
+            ExternalContext ec = fc.getExternalContext();
+
+            String actionURL = fc.getApplication().
+                    getViewHandler().getActionURL(fc, "/index.xhtml");
+
+            String redirectPath = ec.encodeRedirectURL(actionURL, new HashMap<>());
+            ec.redirect(redirectPath);
         } catch (IOException ex) {
             log.log(Level.SEVERE, null, ex);
         }
