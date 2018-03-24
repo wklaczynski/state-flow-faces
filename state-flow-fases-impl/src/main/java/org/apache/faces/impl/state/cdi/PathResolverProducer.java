@@ -35,7 +35,7 @@ public class PathResolverProducer extends CdiProducer<PathResolver> {
 
     public PathResolverProducer() {
 
-        super.name("scxmlScope")
+        super.name("scxmlParhResolver")
                 .scope(StateChartScoped.class)
                 .beanClassAndType(PathResolver.class)
                 .create((e) -> {

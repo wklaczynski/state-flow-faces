@@ -56,8 +56,8 @@ public class StateFlowCDIExtension implements Extension {
 
         event.addContext(new StateChartCDIContext());
 
-//        event.addBean(new PathResolverProducer());
-//        event.addBean(new ExecutorResolverProducer());
+        event.addBean(new PathResolverProducer());
+        event.addBean(new ExecutorResolverProducer());
 
         if (cdiOneOneOrGreater) {
             Class clazz;
