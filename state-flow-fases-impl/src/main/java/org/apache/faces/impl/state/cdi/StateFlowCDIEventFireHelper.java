@@ -16,8 +16,6 @@
 package org.apache.faces.impl.state.cdi;
 
 import org.apache.scxml.SCXMLExecutor;
-import org.apache.scxml.model.Parallel;
-import org.apache.scxml.model.State;
 
 /**
  *
@@ -28,13 +26,5 @@ public interface StateFlowCDIEventFireHelper {
     void fireExecutorInitializedEvent(SCXMLExecutor executor);
 
     void fireExecutorDestroyedEvent(SCXMLExecutor executor);
-    
-    void fireStateInitializedEvent(State state);
-
-    void fireStateDestroyedEvent(State state);
-    
-    void fireParallelInitializedEvent(Parallel parallel);
-
-    void fireParallelDestroyedEvent(Parallel parallel);
 
 }

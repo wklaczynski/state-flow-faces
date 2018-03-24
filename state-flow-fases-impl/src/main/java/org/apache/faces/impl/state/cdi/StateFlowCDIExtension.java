@@ -54,7 +54,7 @@ public class StateFlowCDIExtension implements Extension {
 
     public void afterBean(@Observes final AfterBeanDiscovery event, BeanManager beanManager) {
 
-        event.addContext(new StateChartCDIContex());
+        event.addContext(new StateChartCDIContext());
 
 //        event.addBean(new PathResolverProducer());
 //        event.addBean(new ExecutorResolverProducer());

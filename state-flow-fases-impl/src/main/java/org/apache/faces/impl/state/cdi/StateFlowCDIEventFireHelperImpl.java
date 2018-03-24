@@ -20,11 +20,7 @@ import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import org.apache.faces.state.annotation.StateChartScoped;
-import org.apache.faces.state.annotation.StateScoped;
-import org.apache.faces.state.annotation.ParallelScoped;
 import org.apache.scxml.SCXMLExecutor;
-import org.apache.scxml.model.Parallel;
-import org.apache.scxml.model.State;
 
 public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHelper {
 
@@ -35,22 +31,6 @@ public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHel
     @Destroyed(StateChartScoped.class)
     Event<SCXMLExecutor> stateChartScopeDestroyedEvent;
 
-    @Inject
-    @Initialized(StateScoped.class)
-    Event<State> stateScopeInitializedEvent;
-    
-    @Inject
-    @Destroyed(StateScoped.class)
-    Event<State> stateScopeDestroyedEvent;
-
-    @Inject
-    @Initialized(ParallelScoped.class)
-    Event<Parallel> parallelScopeInitializedEvent;
-    
-    @Inject
-    @Destroyed(ParallelScoped.class)
-    Event<Parallel> parallelScopeDestroyedEvent;
-
     @Override
     public void fireExecutorInitializedEvent(SCXMLExecutor executor) {
         stateChartScopeInitializedEvent.fire(executor);
@@ -59,26 +39,6 @@ public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHel
     @Override
     public void fireExecutorDestroyedEvent(SCXMLExecutor executor) {
         stateChartScopeDestroyedEvent.fire(executor);
-    }
-
-    @Override
-    public void fireStateInitializedEvent(State state) {
-        stateScopeInitializedEvent.fire(state);
-}
-
-    @Override
-    public void fireStateDestroyedEvent(State state) {
-        stateScopeDestroyedEvent.fire(state);
-    }
-
-    @Override
-    public void fireParallelInitializedEvent(Parallel parallel) {
-        parallelScopeInitializedEvent.fire(parallel);
-    }
-
-    @Override
-    public void fireParallelDestroyedEvent(Parallel parallel) {
-        parallelScopeDestroyedEvent.fire(parallel);
     }
 
 }

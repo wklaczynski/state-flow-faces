@@ -33,7 +33,7 @@ public class ExecutorResolverProducer extends CdiProducer<SCXMLExecutor> {
 
     public ExecutorResolverProducer() {
 
-        super.name("scxmlScope")
+        super.name("scxmlExecutor")
                 .scope(StateChartScoped.class)
                 .beanClassAndType(SCXMLExecutor.class)
                 .create((e) -> {

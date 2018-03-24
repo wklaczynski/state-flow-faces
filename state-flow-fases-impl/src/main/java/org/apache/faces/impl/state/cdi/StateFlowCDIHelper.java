@@ -24,14 +24,14 @@ import org.apache.scxml.SCXMLExecutor;
 public class StateFlowCDIHelper {
 
     public static void executorEntered(SCXMLExecutor executor) {
-        StateChartCDIContex.executorEntered(executor);
+        StateChartCDIContext.executorEntered(executor);
         
         
         
     }
     
     public static void executorExited(SCXMLExecutor executor) {
-        StateChartCDIContex.executorExited(executor);
+        StateChartCDIContext.executorExited(executor);
         
     }
     

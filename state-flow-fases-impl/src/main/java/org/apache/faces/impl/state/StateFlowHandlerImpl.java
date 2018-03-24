@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.FacesException;
+import javax.faces.application.ProjectStage;
 import javax.faces.application.ViewHandler;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
@@ -47,10 +48,12 @@ import org.apache.scxml.model.ModelException;
 import org.apache.scxml.model.SCXML;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
+import static org.apache.faces.impl.state.StateFlowConstants.STATE_CHART_LOGSTEP_PARAM_NAME;
 import static org.apache.faces.impl.state.StateFlowConstants.STATE_FLOW_STACK;
 import org.apache.faces.impl.state.cdi.CdiUtil;
 import org.apache.faces.impl.state.cdi.StateFlowCDIHelper;
 import org.apache.faces.impl.state.cdi.StateFlowCDIListener;
+import org.apache.faces.impl.state.config.StateWebConfiguration;
 import org.apache.faces.impl.state.invokers.SubInvoker;
 import org.apache.faces.impl.state.invokers.ViewInvoker;
 import static org.apache.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
@@ -72,13 +75,13 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     private static final Logger log = Logger.getLogger(StateFlowHandler.class.getName());
     private List<CustomAction> customActions = Collections.synchronizedList(new ArrayList<>());
     private final Map<String, Class<? extends Invoker>> customInvokers = Collections.synchronizedMap(new HashMap<>());
-    private final ServletContext ctx;
 
     public static final String LOGICAL_FLOW_MAP = StateFlowHandlerImpl.class.getName() + ".LogicalFlowMap";
 
+    private Boolean logstep;
+
     public StateFlowHandlerImpl(ServletContext ctx) {
         super();
-        this.ctx = ctx;
 
         customInvokers.put("view", ViewInvoker.class);
         customInvokers.put("scxml", SubInvoker.class);
@@ -97,6 +100,20 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 customInvokers.put(a.value(), (Class<Invoker>) javaClass);
             }
         }
+    }
+
+    private boolean isLogstep() {
+        if (logstep == null) {
+            FacesContext fc = FacesContext.getCurrentInstance();
+            if (fc.getApplication().getProjectStage() == ProjectStage.Production) {
+                logstep = Boolean.FALSE;
+            } else {
+                StateWebConfiguration wcfg = StateWebConfiguration.getInstance();
+                String pname = wcfg.getOptionValue(STATE_CHART_LOGSTEP_PARAM_NAME, "false");
+                logstep = Boolean.parseBoolean(pname);
+            }
+        }
+        return logstep;
     }
 
     @Override
@@ -204,7 +221,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         executor.setStateMachine(scxml);
         executor.addListener(scxml, new StateFlowCDIListener());
 
-        executor.addListener(scxml, new SimpleSCXMLListener(true) {
+        executor.addListener(scxml, new SimpleSCXMLListener(isLogstep()) {
             @Override
             public void onExit(EnterableState state) {
                 super.onExit(state);
@@ -234,7 +251,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         SCXMLExecutor executor = new SCXMLExecutor(parent, invokeId, scxml);
         executor.addListener(scxml, new StateFlowCDIListener());
-        executor.addListener(scxml, new SimpleSCXMLListener(true) {
+        executor.addListener(scxml, new SimpleSCXMLListener(isLogstep()) {
             @Override
             public void onExit(EnterableState state) {
                 super.onExit(state);

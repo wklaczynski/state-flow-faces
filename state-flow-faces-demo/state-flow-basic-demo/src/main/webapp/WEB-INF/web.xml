@@ -21,6 +21,10 @@
         <param-name>org.apache.faces.STATE_CHART_REQUEST_PARAM_NAME</param-name>
         <param-value>flow</param-value>
     </context-param>
+    <context-param>
+        <param-name>org.apache.faces.STATE_CHART_LOGSTEP</param-name>
+        <param-value>true</param-value>
+    </context-param>
     
     <context-param>
         <param-name>javax.faces.CONFIG_FILES</param-name>

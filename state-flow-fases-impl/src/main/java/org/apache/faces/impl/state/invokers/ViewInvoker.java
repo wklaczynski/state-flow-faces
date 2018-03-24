@@ -56,6 +56,8 @@ import static org.apache.faces.state.StateFlow.FACES_RESTORE_VIEW;
 import static org.apache.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.scxml.EventBuilder;
+import org.apache.scxml.model.EnterableState;
+import org.apache.scxml.model.TransitionalState;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -352,20 +354,15 @@ public class ViewInvoker implements Invoker, Serializable {
             return;
         }
 
-        if (event.getType() == TriggerEvent.CALL_EVENT && (
-                event.getName().equals(FACES_RESTORE_VIEW) ||
-                event.getName().equals(FACES_RENDER_VIEW)
-                )) {
+        if (event.getType() == TriggerEvent.CALL_EVENT && (event.getName().equals(FACES_RESTORE_VIEW)
+                || event.getName().equals(FACES_RENDER_VIEW))) {
             if (viewId.equals(event.getSendId())) {
                 FacesContext context = FacesContext.getCurrentInstance();
                 context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
                 context.getELContext().putContext(SCXMLExecutor.class, executor);
 
-//                if (executor != null) {
-//                    Context stateContext = getStateContext(context, executor);
-//                    context.getELContext().putContext(Context.class, stateContext);
-//                    context.getELContext().putContext(SCXMLExecutor.class, executor);
-//                }
+                Context stateContext = getStateContext(context, executor);
+                context.getELContext().putContext(Context.class, stateContext);
             }
             return;
         }
@@ -378,6 +375,23 @@ public class ViewInvoker implements Invoker, Serializable {
                 executor.addEvent(evb.build());
             }
         }
+    }
+
+    private static Context getStateContext(
+            final FacesContext fc,
+            final SCXMLExecutor executor) {
+
+        CompositeContext result = new CompositeContext(executor.getGlobalContext());
+
+        Iterator<EnterableState> iterator = executor.getStatus().getActiveStates().iterator();
+        while (iterator.hasNext()) {
+            EnterableState enterable = iterator.next();
+            if (enterable instanceof TransitionalState) {
+                Context context = executor.getSCInstance().getContext(enterable);
+                result.add(context);
+            }
+        }
+        return result;
     }
 
     /**

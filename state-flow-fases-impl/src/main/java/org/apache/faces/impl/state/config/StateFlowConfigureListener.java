@@ -22,8 +22,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 import org.apache.faces.impl.state.StateFlowHandlerImpl;
-import org.apache.faces.impl.state.cdi.StateChartCDIContex;
-import org.apache.faces.impl.state.cdi.StateChartScopeCDIContex;
+import org.apache.faces.impl.state.cdi.StateChartCDIContext;
 
 /**
  *
@@ -52,7 +51,7 @@ public class StateFlowConfigureListener implements ServletContextListener, HttpS
 
     @Override
     public void sessionDestroyed(HttpSessionEvent se) {
-        StateChartCDIContex.sessionDestroyed(se);
+        StateChartCDIContext.sessionDestroyed(se);
     }
 
 }

@@ -17,7 +17,6 @@ package org.apache.faces.impl.state.facelets;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -29,13 +28,10 @@ import javax.faces.context.Flash;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
-import org.apache.scxml.Context;
 import org.apache.scxml.SCXMLExecutor;
 import org.apache.faces.state.component.UIStateChartRoot;
 import org.apache.faces.state.StateFlowHandler;
-import org.apache.scxml.model.EnterableState;
 import org.apache.scxml.model.SCXML;
-import org.apache.scxml.model.TransitionalState;
 import static org.apache.faces.impl.state.StateFlowConstants.STATE_CHART_DEFAULT_PARAM_NAME;
 import static org.apache.faces.impl.state.StateFlowConstants.STATE_CHART_REQUEST_PARAM_NAME;
 import org.apache.faces.impl.state.config.StateWebConfiguration;
@@ -102,23 +98,6 @@ public class StateFlowPhaseListener implements PhaseListener {
             
             StateFlowHandler.getInstance().writeState(context);
         }
-    }
-
-    private static Context getStateContext(
-            final FacesContext fc,
-            final SCXMLExecutor executor) {
-
-        CompositeContext result = new CompositeContext(executor.getGlobalContext());
-
-        Iterator<EnterableState> iterator = executor.getStatus().getActiveStates().iterator();
-        while (iterator.hasNext()) {
-            EnterableState enterable = iterator.next();
-            if (enterable instanceof TransitionalState) {
-                Context context = executor.getSCInstance().getContext(enterable);
-                result.add(context);
-            }
-        }
-        return result;
     }
 
     @Override
