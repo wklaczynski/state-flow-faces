@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<f:metadata
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:x="http://xmlns.apache.org/faces/scxml"
+    xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+    >
+    <x:scxml id="main" initial="start">
+
+        <x:datamodel>
+            <x:data id="chart_title" expr="Test State Flow Process"/>
+            <x:data id="chart_view" expr="/flow1/faces-flow-test.xhtml"/>
+        </x:datamodel>
+
+
+        <x:state id="start">
+            <x:onentry>
+                <x:if cond="#{main.prepare()}">
+                    <x:raise event="start.prepare.success"/>
+                    <x:else/>
+                    <x:raise event="start.prepare.failed"/>
+                </x:if>
+            </x:onentry>
+            <x:transition event="start.prepare.success" target="show"/>
+            <x:transition event="start.prepare.failed" target="cancel"/>
+        </x:state>
+
+
+        <x:parallel id="show">
+            <x:onentry>
+                <x:log expr="I'm starting parallel"/>
+            </x:onentry>
+            <x:onexit>
+                <x:log expr="I'm finishing parallel"/>
+            </x:onexit>
+
+            <x:state id="test-view">
+                <x:invoke type="view" src="TestPage.xhtml"/>
+
+                <x:transition event="error.execution" target="error"/>
+
+                <x:transition event="view.action.accept" target="success"/>
+                <x:transition event="view.action.cancel" target="cancel"/>
+            </x:state>
+
+            <x:state id="test-process">
+                <x:initial>
+                    <x:transition target="test-process-1"/>
+                </x:initial>
+
+                <x:state id="test-process-1">
+                    <x:transition event="view.action.next" target="test-process-2"/>
+                </x:state>     
+
+                <x:state id="test-process-2">
+                    <x:transition event="view.action.next" target="test-process-1"/>
+                </x:state>             
+            </x:state> 
+        </x:parallel>
+
+        <x:state id="error"> 
+            <x:invoke type="scxml" src="/common/error.scxml">
+                <x:finalize/>
+            </x:invoke>
+            
+            <x:transition event="error.invoke.cancel" target="cancel"/>
+            <x:transition event="error.invoke.failed" target="cancel"/>
+        </x:state>      
+
+        <x:final id="cancel">
+        </x:final>
+
+        <x:final id="success">
+        </x:final>
+
+    </x:scxml>    
+
+</f:metadata>

@@ -11,6 +11,8 @@
             <x:data id="hasback" expr="#{scxml_has_parent == true}"/>
             <x:data id="chart_title" expr="State Flow Faces from Faces Metadata"/>
             <x:data id="chart_view" expr="/flow1/faces-flow-main.xhtml"/>
+
+            <x:data id="assignedTest2" expr="no tested"/>
             
             <x:data id="book" src="/test/data.xml"/>
         </x:datamodel>
@@ -28,26 +30,44 @@
         </x:state>
 
         <x:state id="main">
-            <x:datamodel>
-                <x:data id="book1" src="../test/data.xml"/>
-                <x:data id="book2" src="xml:data.xml"/>
-            </x:datamodel>
-
             <x:invoke type="view" src="MainPage.xhtml"/>
             <x:transition event="error.execution" target="main"/>
-            
+
             <x:transition event="view.action.show" target="show-client"/>
             <x:transition event="view.action.exit" target="exit"/>
+            <x:transition event="view.action.assign" target="assing-test"/>
+            <x:transition event="view.action.clear" target="clear-test"/>
         </x:state> 
+
+        <x:state id="assing-test">
+            <x:onentry>
+                <x:assign 
+                    location="#{main.assignedTest1}" 
+                    expr="#{book['client[last()]/phone[@type=\'mobile\']']}"
+                    />
+                <x:raise event="assing-test.finish"/>
+            </x:onentry>
+            <x:transition event="assing-test.finish" target="main"/>
+        </x:state> 
+
+        <x:state id="clear-test">
+            <x:onentry>
+                <x:assign location="#{main.assignedTest1}"/>
+                <x:raise event="clear-test.finish"/>
+            </x:onentry>
+            <x:transition event="clear-test.finish" target="main"/>
+        </x:state> 
+
 
         <x:state id="show-client"> 
             <x:invoke type="scxml" src="faces-flow-show-client.xhtml">
-                <x:param name="id"  expr="#{param.clid}"/>
+                <x:param name="clientId" expr="#{param.clid}"/>
+                <x:param name="clientName" expr="#{book['client[@id=\'1\']/phone[@type=\'mobile\']']}"/>
             </x:invoke>
             <x:transition event="error.execution" target="main"/>
             <x:transition event="done.invoke.show-client" target="main"/>
         </x:state>      
-        
+
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml">
                 <x:finalize/>
@@ -56,9 +76,9 @@
         </x:state>      
 
         <x:final id="exit">
-            
+
         </x:final>
-        
+
 
     </x:scxml>    
 

@@ -10,23 +10,27 @@
         <x:datamodel>
             <x:data id="chart_title" expr="Show Client State Flow Process"/>
             <x:data id="chart_view" expr="/flow1/faces-flow-show-client.xhtml"/>
+            <x:data id="clientId"/>
+            <x:data id="clientName"/>
+            <x:data id="clientSurname"/>
+            <x:data id="clientHomePhone"/>
+            <x:data id="clientMobilePhone"/>
         </x:datamodel>
 
 
         <x:state id="start">
             <x:onentry>
-                <x:if cond="#{main.prepare()}">
+                <x:if cond="#{client.prepare()}">
                     <x:raise event="main.prepare.success"/>
                     <x:else/>
                     <x:raise event="main.prepare.failed"/>
                 </x:if>
             </x:onentry>
-            <x:transition event="main.prepare.success" target="show-client"/>
+            <x:transition event="main.prepare.success" target="show"/>
             <x:transition event="main.prepare.failed" target="exit"/>
         </x:state>
 
-
-        <x:state id="show-client">
+        <x:state id="show">
             <x:onentry>
                 <x:log expr="I'm starting show-client"/>
             </x:onentry>
@@ -41,67 +45,6 @@
             <x:transition event="view.action.accept" target="success"/>
             <x:transition event="view.action.cancel" target="cancel"/>
         </x:state>
-
-
-        <!--x:parallel id="showa">
-            <x:onentry>
-                <x:log expr="I'm starting parallel"/>
-            </x:onentry>
-            <x:onexit>
-                <x:log expr="I'm finishing parallel"/>
-            </x:onexit>
-
-            <x:state id="showa-client">
-                <x:onentry>
-                    <x:log expr="I'm starting show-client"/>
-                </x:onentry>
-                <x:onexit>
-                    <x:log expr="I'm finishing show-client"/>
-                </x:onexit>
-
-                <x:invoke type="view" src="ShowClientPage.xhtml"/>
-
-                <x:transition event="error.execution" target="error"/>
-
-                <x:transition event="view.action.accept" target="success"/>
-                <x:transition event="view.action.cancel" target="cancel"/>
-            </x:state>
-
-            <x:state id="showa-process">
-                <x:onentry>
-                    <x:log expr="I'm starting show-process"/>
-                </x:onentry>
-                <x:onexit>
-                    <x:log expr="I'm finishing show-process"/>
-                </x:onexit>
-
-                <x:initial>
-                    <x:transition target="showa-process-1"/>
-                </x:initial>
-
-                <x:state id="showa-process-1">
-                    <x:onentry>
-                        <x:log expr="I'm starting show-process-1"/>
-                    </x:onentry>
-                    <x:onexit>
-                        <x:log expr="I'm finishing show-process-1"/>
-                    </x:onexit>
-
-                    <x:transition event="view.action.next" target="showa-process-2"/>
-                </x:state>     
-
-                <x:state id="showa-process-2">
-                    <x:onentry>
-                        <x:log expr="I'm starting show-process-2"/>
-                    </x:onentry>
-                    <x:onexit>
-                        <x:log expr="I'm finishing show-process-2"/>
-                    </x:onexit>
-
-                    <x:transition event="view.action.next" target="showa-process-1"/>
-                </x:state>             
-            </x:state> 
-        </x:parallel-->
 
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml">

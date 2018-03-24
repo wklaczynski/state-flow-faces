@@ -1,8 +1,7 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
     <h:head>
         <title>Test State Flow Faces</title>
         <h:outputStylesheet library="css" name="demo-style.css"  />
@@ -22,8 +21,28 @@
                 <hr/>
 
                 <h:panelGroup >
-                    <h3>Get data from parent state chat flow process.</h3>
+                    <h3>Get data from parent state chat flow process by client id: #{scxml.clientId}.</h3>
                     <p/>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td><b>Name: </b></td>
+                                <td>#{scxml.clientName}</td>
+                            </tr>
+                            <tr>
+                                <td><b>Surname: </b></td>
+                                <td>#{scxml.clientSurname}</td>
+                            </tr>
+                            <tr>
+                                <td><b>Mobile Phone: </b></td>
+                                <td>#{scxml.clientMobilePhone}</td>
+                            </tr>
+                            <tr>
+                                <td><b>Home Phone: </b></td>
+                                <td>#{scxml.clientHomePhone}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </h:panelGroup>
                 <h:panelGroup >
                     <hr/>

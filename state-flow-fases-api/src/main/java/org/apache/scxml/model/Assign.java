@@ -121,6 +121,7 @@ public class Assign extends Action implements ParsedValueContainer {
      *
      * @return The assign value
      */
+    @Override
     public final ParsedValue getParsedValue() {
         return assignValue;
     }

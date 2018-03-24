@@ -27,12 +27,31 @@ import org.apache.faces.state.annotation.StateChartScoped;
 @Named("main")
 public class MainBean implements Serializable {
     
+    private String assignedTest1 = "";
+    private String assignedTest2 = "";
+    
     public boolean prepare() {
         return true;
     }
     
     public String getBeanTitle() {
         return "Main Bean";
+    }
+
+    public String getAssignedTest1() {
+        return assignedTest1;
+    }
+
+    public void setAssignedTest1(String assignedTest1) {
+        this.assignedTest1 = assignedTest1;
+    }
+
+    public String getAssignedTest2() {
+        return assignedTest2;
+    }
+
+    public void setAssignedTest2(String assignedTest2) {
+        this.assignedTest2 = assignedTest2;
     }
     
     

@@ -31,53 +31,9 @@
                     <h3>Test assigned data in owned &lt;scxml&gt; state flow faces.</h3>
                     <p/>
                     <h4>Data assigned of root context in &lt;scxml&gt; tag content.</h4>
-                    <h:dataTable 
-                        value="#{scxml.book.client}"
-                        var="cvar"
-                        styleClass="order-table"
-                        headerClass="order-table-header"
-                        rowClasses="order-table-odd-row,order-table-even-row"                        
-                        >
-                        <h:column>
-                            <f:facet name="header">Id</f:facet>
-                                #{cvar.id}
-                        </h:column> 
-                        <h:column>
-                            <f:facet name="header">Name</f:facet>
-                                #{cvar.name}
-                        </h:column> 
-                        <h:column>
-                            <f:facet name="header">Surname</f:facet>
-                                #{cvar.surname}
-                        </h:column> 
-                        <h:column>
-                            <f:facet name="header">Mobile Phone</f:facet>
-                                #{cvar['phone[@type=\'mobile\']']}
-                        </h:column> 
-                        <h:column>
-                            <f:facet name="header">Home Phone</f:facet>
-                                #{cvar['phone[@type=\'home\']']}
-                        </h:column> 
-                        <h:column>
-                            <f:facet name="header">Actions</f:facet>
-                            <h:panelGrid columns="3">
-                                <h:commandButton action="show" value="Show">
-                                    <f:param name="clid" value="#{cvar.id}"/>
-                                </h:commandButton>
-                                <h:commandButton action="change" value="Change">
-                                    <f:param name="clid" value="#{cvar.id}"/>
-                                </h:commandButton>
-                            </h:panelGrid>
-                        </h:column> 
-                    </h:dataTable>
                     <p/>
                     <h4>Reading data assigned in &lt;scxml&gt;, when use el query witch XPath.</h4>
                     <p/>
-                    I'm reading the last phone from  data "book" in root datamodel. Result: #{scxml.book['client[last()]/phone[@type=\'mobile\']']}
-                    <p/><pre>use xpath query: &quot;\#{scxml.book['client[last()]/phone[@type='mobile']']}&quot;</pre>
-                    <p/>
-                    I'm reading the first phone from data "book" in root datamodel. Result: #{scxml.book.client['0']['phone[@type=\'mobile\']']}
-                    <p/><pre>use xpath query: &quot;\#{scxml.book.client['0']['phone[@type='mobile']']}&quot;</pre>
                 </h:panelGroup>
                 <h:panelGroup id="asign-test">
                     <hr/>
