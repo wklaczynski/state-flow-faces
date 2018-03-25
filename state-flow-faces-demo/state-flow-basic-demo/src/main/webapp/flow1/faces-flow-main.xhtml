@@ -63,12 +63,12 @@
 
         <x:state id="show-client"> 
             <x:onentry>
-                <x:var name="selectedId" expr="#{param.clid}"/>
+                <x:var name="selected" expr="#{book.client['@id'][param.clid]}"/>
             </x:onentry>
             <x:invoke type="scxml" src="faces-flow-show-client.xhtml">
-                <x:param name="clientId" expr="#{param.clid}"/>
-                <x:param name="clientName" expr="#{book.client[param.clid].name.textContent}"/>
-                <x:param name="clientMobilePhone" expr="#{book.client['@id'][param.clid].phone['@type=\'mobile\''].textContent}"/>
+                <x:param name="clientId" expr="#{selected.id.$text}"/>
+                <x:param name="clientName" expr="#{selected.name.$text}"/>
+                <x:param name="clientMobilePhone" expr=".phone['@type=\'mobile\''].textContent}"/>
             </x:invoke>
             <x:transition event="error.execution" target="main"/>
             <x:transition event="done.invoke.show-client" target="main"/>

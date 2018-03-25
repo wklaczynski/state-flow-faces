@@ -47,32 +47,32 @@
                         >
                         <h:column>
                             <f:facet name="header">Id</f:facet>
-                                #{cvar.$attr.id.textContent}
+                                #{cvar.id}
                         </h:column> 
                         <h:column>
                             <f:facet name="header">Name</f:facet>
-                                #{cvar.name.textContent}
+                                #{cvar.name.$text}
                         </h:column> 
                         <h:column>
                             <f:facet name="header">Surname</f:facet>
-                                #{cvar.surname.textContent}
+                                #{cvar.surname.$text}
                         </h:column> 
                         <h:column>
                             <f:facet name="header">Mobile Phone</f:facet>
-                                #{cvar['phone[@type=\'mobile\']'].textContent}
+                                #{cvar['phone[@type=\'mobile\']'].$text}
                         </h:column> 
                         <h:column>
                             <f:facet name="header">Home Phone</f:facet>
-                                #{cvar['phone[@type=\'home\']'].textContent}
+                                #{cvar['phone[@type=\'home\']'].$text}
                         </h:column> 
                         <h:column>
                             <f:facet name="header">Actions</f:facet>
                             <h:panelGrid columns="3">
                                 <h:commandButton action="show" value="Show">
-                                    <f:param name="clid" value="#{cvar.$attr.id.textContent}"/>
+                                    <f:param name="clid" value="#{cvar.$attr.id.$text}"/>
                                 </h:commandButton>
                                 <h:commandButton action="change" value="Change">
-                                    <f:param name="clid" value="#{cvar.$attr.id.textContent}"/>
+                                    <f:param name="clid" value="#{cvar.$attr.id.$text}"/>
                                 </h:commandButton>
                             </h:panelGrid>
                         </h:column> 

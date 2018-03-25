@@ -266,36 +266,32 @@ public class XPathELResolver extends ELResolver {
                 if (null != xpathString) {
                     switch (xpathString) {
                         case "attributes":
-                            return node.getAttributes();
                         case "$attr":
                             return node.getAttributes();
                         case "nodeValue":
+                        case "$value":
                             return node.getNodeValue();
                         case "nodeName":
-                            return node.getNodeName();
                         case "$name":
                             return node.getNodeName();
                         case "nodeType":
-                            return node.getNodeType();
                         case "$type":
                             return node.getNodeType();
                         case "namespaceURI":
-                            return node.getNamespaceURI();
                         case "namespace":
+                        case "$ns":
                             return node.getNamespaceURI();
                         case "localName":
-                            return node.getLocalName();
                         case "$lname":
+                        case "$ln":
                             return node.getLocalName();
                         case "prefix":
                             return node.getPrefix();
                         case "textContent":
-                            return node.getTextContent();
-                        case "$content":
+                        case "$text":
                             return node.getTextContent();
                         case "childNodes":
-                            return new XPathNodeList(node.getChildNodes());
-                        case "&child":
+                        case "$child":
                             return new XPathNodeList(node.getChildNodes());
                     }
                     return selectNodes(context, base, xpathString);
@@ -370,25 +366,22 @@ public class XPathELResolver extends ELResolver {
         if (base instanceof Node) {
             Node baseNode = (Node) base;
             if (hasChildElements(baseNode)) {
-                XPathNodeList c = getChildrenByTagName(baseNode, expression);
+                XPathNodeList c = getChildrenByTagName(baseNode, query);
                 if (c != null) {
                     return c;
                 }
             }
         }
-        
+
         if (base instanceof Element) {
             Element el = (Element) base;
-            if (el.hasAttribute(expression)) {
-                if (context != null) {
-                    context.setPropertyResolved(true);
-                }
-                return el.getAttribute(query);
+            if (el.hasAttribute(query)) {
+                return el.getAttributes().getNamedItem(query);
             }
         }
 
         XPathVariableResolver jxvr = new JSTLXPathVariableResolver(context);
-        Node contextNode = adaptParamsForXalan(base, expression.trim());
+        Node contextNode = adaptParamsForXalan(base, query.trim());
         expression = modifiedXPath.get();
 
         String type = "NODESET";
@@ -580,7 +573,7 @@ public class XPathELResolver extends ELResolver {
         }
         return false;
     }
-    
+
     private XPathNodeList getChildrenByTagName(Node el, String tagChildName) {
         XPathNodeList l = new XPathNodeList();
         NodeList children = el.getChildNodes();
@@ -595,8 +588,7 @@ public class XPathELResolver extends ELResolver {
         }
         return l.isEmpty() ? null : l;
     }
-    
-    
+
     private boolean containsOnlyAlphaNumeric(String s) {
         for (int i = 0, n = s.length(); i < n; i++) {
             if (!Character.isLetterOrDigit(s.codePointAt(i))) {
