@@ -15,10 +15,13 @@
  */
 package org.apache.faces.state;
 
+import java.util.List;
 import java.util.Map;
 import javax.faces.context.FacesContext;
 import static org.apache.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
 import org.apache.scxml.SCXMLExecutor;
+import org.apache.scxml.invoke.Invoker;
+import org.apache.scxml.model.CustomAction;
 import org.apache.scxml.model.ModelException;
 import org.apache.scxml.model.SCXML;
 
@@ -36,6 +39,10 @@ public abstract class StateFlowHandler {
         return handler;
     }
 
+    public abstract List<CustomAction> getCustomActions();
+    
+    public abstract Map<String, Class<? extends Invoker>> getCustomInvokers();
+    
     public abstract SCXMLExecutor getRootExecutor(FacesContext context);
 
     public abstract boolean isActive(FacesContext context);

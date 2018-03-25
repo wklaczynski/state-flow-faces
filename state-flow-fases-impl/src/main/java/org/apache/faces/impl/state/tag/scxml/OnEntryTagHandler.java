@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.tag;
+package org.apache.faces.impl.state.tag.scxml;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
 import org.apache.scxml.model.Final;
-import org.apache.scxml.model.OnExit;
+import org.apache.scxml.model.OnEntry;
 import org.apache.scxml.model.Parallel;
 import org.apache.scxml.model.State;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagConfig;
+import org.apache.faces.impl.state.tag.AbstractFlowTagHandler;
 import org.apache.scxml.model.EnterableState;
 import org.apache.scxml.model.SCXML;
 
@@ -30,10 +31,10 @@ import org.apache.scxml.model.SCXML;
  *
  * @author Waldemar Kłaczyński
  */
-public class OnExitTagHandler extends AbstractFlowTagHandler<OnExit> {
+public class OnEntryTagHandler extends AbstractFlowTagHandler<OnEntry> {
 
-    public OnExitTagHandler(TagConfig config) {
-        super(config, OnExit.class);
+    public OnEntryTagHandler(TagConfig config) {
+        super(config, OnEntry.class);
 
         in("parallel", Parallel.class);
         in("state", State.class);
@@ -44,12 +45,12 @@ public class OnExitTagHandler extends AbstractFlowTagHandler<OnExit> {
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         EnterableState target = (EnterableState) parentElement;
         decorate(ctx, parent, target);
-
-        OnExit executable = new OnExit();
+        
+        OnEntry executable = new OnEntry();
 
         applyNext(ctx, parent, executable);
 
-        target.addOnExit(executable);
+        target.addOnEntry(executable);
     }
 
 }

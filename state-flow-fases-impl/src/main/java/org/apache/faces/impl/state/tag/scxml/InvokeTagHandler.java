@@ -13,42 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.tag;
+package org.apache.faces.impl.state.tag.scxml;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import org.apache.scxml.model.Initial;
+import org.apache.scxml.model.Invoke;
 import org.apache.scxml.model.State;
 import javax.faces.view.facelets.FaceletContext;
+import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
-import javax.faces.view.facelets.TagException;
+import org.apache.faces.impl.state.tag.AbstractFlowTagHandler;
 import org.apache.scxml.model.SCXML;
+import org.apache.scxml.model.TransitionalState;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class InitialTagHandler extends AbstractFlowTagHandler<Initial> {
+public class InvokeTagHandler extends AbstractFlowTagHandler<Invoke> {
 
-    public InitialTagHandler(TagConfig config) {
-        super(config, Initial.class);
-        
+    protected final TagAttribute type;
+    protected final TagAttribute src;
+    protected final TagAttribute id;
+
+    public InvokeTagHandler(TagConfig config) {
+        super(config, Invoke.class);
+
         in("state", State.class);
+
+        this.type = this.getRequiredAttribute("type");
+        this.src = this.getRequiredAttribute("src");
+        this.id = this.getAttribute("id");
     }
 
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
-        State state = (State) parentElement;
-        if(state.getInitial()!= null) {
-            throw new TagException(this.tag, "already defined in this element!");
-        }
-
-        Initial target = new Initial();
+        Invoke target = new Invoke();
         decorate(ctx, parent, target);
 
-        applyNext(ctx, parent, target);
+        target.setAutoForward(Boolean.TRUE);
         
-        state.setInitial(target);
+        target.setType(type.getValue());
+        target.setSrc(src.getValue());
+        
+        target.setId(id != null ? id.getValue() : null);
+
+        applyNext(ctx, parent, target);
+
+        TransitionalState state = (TransitionalState) parentElement;
+        state.addInvoke(target);
     }
 
 }

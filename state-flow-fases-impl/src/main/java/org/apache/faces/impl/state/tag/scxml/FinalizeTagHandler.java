@@ -13,43 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.tag;
+package org.apache.faces.impl.state.tag.scxml;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import org.apache.scxml.model.Final;
-import org.apache.scxml.model.OnEntry;
-import org.apache.scxml.model.Parallel;
+import org.apache.scxml.model.Finalize;
+import org.apache.scxml.model.Invoke;
 import org.apache.scxml.model.State;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagConfig;
-import org.apache.scxml.model.EnterableState;
+import javax.faces.view.facelets.TagException;
+import org.apache.faces.impl.state.tag.AbstractFlowTagHandler;
 import org.apache.scxml.model.SCXML;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class OnEntryTagHandler extends AbstractFlowTagHandler<OnEntry> {
+public class FinalizeTagHandler extends AbstractFlowTagHandler<Finalize> {
 
-    public OnEntryTagHandler(TagConfig config) {
-        super(config, OnEntry.class);
+    public FinalizeTagHandler(TagConfig config) {
+        super(config, Finalize.class);
 
-        in("parallel", Parallel.class);
-        in("state", State.class);
-        in("final", Final.class);
+        in("invoke", Invoke.class);
     }
 
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
-        EnterableState target = (EnterableState) parentElement;
-        decorate(ctx, parent, target);
+        Invoke invoke = (Invoke) parentElement;
+
+        if(invoke.getFinalize() != null) {
+            throw new TagException(this.tag, "already defined in this element!");
+        }
         
-        OnEntry executable = new OnEntry();
+        Finalize executable = new Finalize();
+        decorate(ctx, parent, executable);
+        
+        State state = getElement(parent, State.class);
+        executable.setParent(state);
 
         applyNext(ctx, parent, executable);
 
-        target.addOnEntry(executable);
+        invoke.setFinalize(executable);
     }
 
 }

@@ -13,32 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.tag;
+package org.apache.faces.impl.state.tag.scxml;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
 import org.apache.scxml.model.Finalize;
 import org.apache.scxml.model.If;
-import org.apache.scxml.model.Log;
 import org.apache.scxml.model.OnEntry;
 import org.apache.scxml.model.OnExit;
 import org.apache.scxml.model.Transition;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
+import org.apache.faces.impl.state.tag.AbstractFlowTagHandler;
 import org.apache.scxml.model.SCXML;
+import org.apache.scxml.model.Script;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class LogTagHandler extends AbstractFlowTagHandler<Log> {
+public class ScriptTagHandler extends AbstractFlowTagHandler<Script> {
 
-    protected final TagAttribute label;
-    protected final TagAttribute expr;
+    protected final TagAttribute src;
     
-    public LogTagHandler(TagConfig config) {
-        super(config, Log.class);
+    public ScriptTagHandler(TagConfig config) {
+        super(config, Script.class);
         
         in("onentry", OnEntry.class);
         in("onexit", OnExit.class);
@@ -51,21 +51,20 @@ public class LogTagHandler extends AbstractFlowTagHandler<Log> {
         top("transition", Transition.class);
         top("finalize", Finalize.class);
         
-        this.label = this.getAttribute("label");
-        this.expr = this.getAttribute("expr");
+        this.src = this.getAttribute("src");
     }
 
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
-        Log action = new Log();
+        Script action = new Script();
         decorate(ctx, parent, action);
+        
+        if (src != null) {
+            action.setSrc(src.getValue());
+        }
 
-        action.setLabel(label != null ? label.getValue() : null);
-        
-        action.setExpr(expr.getValue());
-        
         applyNext(ctx, parent, action);
-        
+
         addAction(ctx, parent, action);
     }
 

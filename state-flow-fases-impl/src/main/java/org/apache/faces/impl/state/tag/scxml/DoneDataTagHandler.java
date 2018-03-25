@@ -13,46 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.tag;
+package org.apache.faces.impl.state.tag.scxml;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import org.apache.scxml.model.Parallel;
-import org.apache.scxml.model.State;
 import javax.faces.view.facelets.FaceletContext;
-import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
+import javax.faces.view.facelets.TagException;
+import org.apache.faces.impl.state.tag.AbstractFlowTagHandler;
+import org.apache.scxml.model.DoneData;
+import org.apache.scxml.model.Final;
 import org.apache.scxml.model.SCXML;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class StateTagHandler extends AbstractFlowTagHandler<State> {
+public class DoneDataTagHandler extends AbstractFlowTagHandler<DoneData> {
 
-    protected final TagAttribute id;
-
-    public StateTagHandler(TagConfig config) {
-        super(config, State.class);
-
-        in("scxml", SCXML.class);
-        in("parallel", Parallel.class);
-        in("state", State.class);
-
-        this.id = this.getRequiredAttribute("id");
+    public DoneDataTagHandler(TagConfig config) {
+        super(config, DoneData.class);
+        
+        in("final", Final.class);
     }
-
+    
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
-        State state = new State();
-        decorate(ctx, parent, state);
-
-        state.setId(id.getValue(ctx));
-
-        applyNext(ctx, parent, state);
-
-        addChild(ctx, parent, state);
-        addTransitionTarget(ctx, parent, state);
+        Final continer = (Final) parentElement;
+        if(continer.getDoneData()!= null) {
+            throw new TagException(this.tag, "already defined in this element!");
+        }
+        
+        DoneData donedata = new DoneData();
+        decorate(ctx, parent, donedata);
+        
+        applyNext(ctx, parent, donedata);
+        
+        continer.setDoneData(donedata);
     }
-
+    
 }

@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.tag;
+package org.apache.faces.impl.state.tag.scxml;
 
+import org.apache.faces.impl.state.tag.*;
 import java.io.IOException;
 import javax.faces.component.UIComponent;
 import org.apache.scxml.model.History;

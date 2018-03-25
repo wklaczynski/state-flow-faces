@@ -13,58 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.tag;
+package org.apache.faces.impl.state.tag.scxml;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import org.apache.scxml.model.Finalize;
-import org.apache.scxml.model.If;
-import org.apache.scxml.model.OnEntry;
-import org.apache.scxml.model.OnExit;
-import org.apache.scxml.model.Transition;
+import org.apache.scxml.model.Parallel;
+import org.apache.scxml.model.State;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
+import org.apache.faces.impl.state.tag.AbstractFlowTagHandler;
 import org.apache.scxml.model.SCXML;
-import org.apache.scxml.model.Script;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class ScriptTagHandler extends AbstractFlowTagHandler<Script> {
+public class ParallelTagHandler extends AbstractFlowTagHandler<Parallel> {
 
-    protected final TagAttribute src;
+    protected final TagAttribute id;
     
-    public ScriptTagHandler(TagConfig config) {
-        super(config, Script.class);
+    public ParallelTagHandler(TagConfig config) {
+        super(config, Parallel.class);
         
-        in("onentry", OnEntry.class);
-        in("onexit", OnExit.class);
-        in("transition", Transition.class);
-        in("finalize", Finalize.class);
-        in("if", If.class);
-
-        top("onentry", OnEntry.class);
-        top("onexit", OnExit.class);
-        top("transition", Transition.class);
-        top("finalize", Finalize.class);
+        in("scxml", SCXML.class);
+        in("state", State.class);
         
-        this.src = this.getAttribute("src");
+        this.id = this.getAttribute("id");
     }
 
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
-        Script action = new Script();
-        decorate(ctx, parent, action);
+        Parallel parallel = new Parallel();
+        decorate(ctx, parent, parallel);
         
-        if (src != null) {
-            action.setSrc(src.getValue());
+        String cid;
+        if(id != null) {
+            cid = id.getValue();
+        } else {
+            cid = generateUniqueId(ctx, parent, parallel, "parallel_");
         }
-
-        applyNext(ctx, parent, action);
-
-        addAction(ctx, parent, action);
+        parallel.setId(cid);
+        
+        applyNext(ctx, parent, parallel);
+        
+        addTransitionTarget(ctx, parent, parallel);
+        
+        addChild(ctx, parent, parallel);
     }
 
 }

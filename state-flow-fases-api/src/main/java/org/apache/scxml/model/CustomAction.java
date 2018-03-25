@@ -16,6 +16,7 @@
  */
 package org.apache.scxml.model;
 
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -75,6 +76,10 @@ public class CustomAction {
      * The implementation of this custom action.
      */
     private Class<? extends Action> actionClass;
+    
+    
+    private Map<String, Object> metadata;
+    
 
     /**
      * Constructor, if the namespace or local name is null or empty,
@@ -136,5 +141,27 @@ public class CustomAction {
     public String getNamespaceURI() {
         return namespaceURI;
     }
+    
+    /**
+     * Get the metadata definitions specified on action element. May be
+     * <code>null</code>.
+     *
+     * @return The metadata definitions specified on the action element, may
+     * be
+     * <code>null</code>.
+     */
+    public final Map<String, Object> getMetadata() {
+        return metadata;
+    }
+
+    /**
+     * Set the namespace definitions specified on the action element.
+     *
+     * @param metadata The metadata definitions specified on the action element.
+     */
+    public final void setMetadata(final Map<String, Object> metadata) {
+        this.metadata = metadata;
+    }
+    
 }
 

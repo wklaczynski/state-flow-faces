@@ -128,7 +128,7 @@ public class SCXML implements Serializable, Observable {
      */
     private long ttNextId;
 
-    private Map<String, Object> attributes;
+    private Map<String, Object> metadata;
 
     /**
      * Constructor.
@@ -136,7 +136,7 @@ public class SCXML implements Serializable, Observable {
     public SCXML() {
         this.children = new ArrayList<>();
         this.targets = new HashMap<>();
-        this.attributes = new HashMap<>();
+        this.metadata = new HashMap<>();
     }
 
     /**
@@ -329,25 +329,24 @@ public class SCXML implements Serializable, Observable {
     }
 
     /**
-     * Get the attributes definitions specified on the all SCXML element. May be
+     * Get the metadata definitions specified on the all SCXML element. May be
      * <code>null</code>.
      *
-     * @return The attributes definitions specified on the all SCXML element,
-     * may be
+     * @return The metadata definitions specified on the all SCXML element, may
+     * be
      * <code>null</code>.
      */
-    public final Map<String, Object> getAttributes() {
-        return attributes;
+    public final Map<String, Object> getMetadata() {
+        return metadata;
     }
 
     /**
      * Set the namespace definitions specified on the SCXML element.
      *
-     * @param attributes The attributes definitions specified on the SCXML
-     * element.
+     * @param metadata The metadata definitions specified on the SCXML element.
      */
-    public final void setAttributes(final Map<String, Object> attributes) {
-        this.attributes = attributes;
+    public final void setMetadata(final Map<String, Object> metadata) {
+        this.metadata = metadata;
     }
 
     /**

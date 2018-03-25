@@ -23,6 +23,8 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 import org.apache.faces.impl.state.StateFlowHandlerImpl;
 import org.apache.faces.impl.state.cdi.StateChartCDIContext;
+import org.apache.faces.impl.state.facelets.TagHandlerDelegateFactoryImpl;
+import org.apache.faces.state.tag.TagHandlerDelegateFactory;
 
 /**
  *
@@ -37,6 +39,9 @@ public class StateFlowConfigureListener implements ServletContextListener, HttpS
         StateFlowHandlerImpl flowHandlerImpl = new StateFlowHandlerImpl(context);
         context.setAttribute(StateFlowHandler.KEY, flowHandlerImpl);
 
+        TagHandlerDelegateFactory delegateFactoryImpl = new TagHandlerDelegateFactoryImpl();
+        context.setAttribute(TagHandlerDelegateFactory.KEY, delegateFactoryImpl);
+        
     }
 
     @Override

@@ -13,37 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.tag;
+package org.apache.faces.impl.state.tag.scxml;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import org.apache.scxml.model.Else;
+import org.apache.scxml.model.Finalize;
 import org.apache.scxml.model.If;
+import org.apache.scxml.model.OnEntry;
+import org.apache.scxml.model.OnExit;
+import org.apache.scxml.model.Raise;
+import org.apache.scxml.model.Transition;
 import javax.faces.view.facelets.FaceletContext;
+import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
+import org.apache.faces.impl.state.tag.AbstractFlowTagHandler;
 import org.apache.scxml.model.SCXML;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class ElseTagHandler extends AbstractFlowTagHandler<Else> {
+public class RaiseTagHandler extends AbstractFlowTagHandler<Raise> {
 
-    public ElseTagHandler(TagConfig config) {
-        super(config, Else.class);
-
+    protected final TagAttribute event;
+    
+    public RaiseTagHandler(TagConfig config) {
+        super(config, Raise.class);
+        
+        in("onentry", OnEntry.class);
+        in("onexit", OnExit.class);
+        in("transition", Transition.class);
+        in("finalize", Finalize.class);
         in("if", If.class);
+
+        top("onentry", OnEntry.class);
+        top("onexit", OnExit.class);
+        top("transition", Transition.class);
+        top("finalize", Finalize.class);
+        
+        this.event = this.getRequiredAttribute("event");
     }
 
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
-        Else action = new Else();
+        Raise action = new Raise();
         decorate(ctx, parent, action);
+
+        action.setEvent(event.getValue());
 
         applyNext(ctx, parent, action);
 
-        If aif = (If) parentElement;
-        aif.addAction(action);
+        addAction(ctx, parent, action);
     }
 
 }

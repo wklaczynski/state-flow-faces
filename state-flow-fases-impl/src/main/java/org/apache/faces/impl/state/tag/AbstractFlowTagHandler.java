@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.faces.application.ProjectStage;
@@ -54,6 +55,7 @@ import org.apache.scxml.model.TransitionalState;
 import org.apache.faces.impl.state.log.FlowLogger;
 import org.apache.faces.impl.state.utils.Util;
 import org.apache.scxml.io.ContentParser;
+import org.apache.scxml.model.CustomAction;
 import org.apache.scxml.model.ParsedValue;
 
 /**
@@ -193,6 +195,13 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
     }
 
     protected void applyNext(FaceletContext ctx, UIComponent parent, Object element) throws IOException {
+        applyNext(ctx, tag, type, parent, element, () -> {
+            nextHandler.apply(ctx, parent);
+            return null;
+        });
+    }
+
+    public static void applyNext(FaceletContext ctx, Tag tag, Class type, UIComponent parent, Object element, Callable call) throws IOException {
         Map<String, Object> elementMap = (Map<String, Object>) getElement(parent, ELEMENT_MAP);
         if (elementMap != null) {
             elementMap.put(tag.toString(), element);
@@ -202,16 +211,26 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
             tagMap.put(element, tag);
         }
 
-        pushElement(parent, getType(), element);
+        pushElement(parent, type, element);
         pushElement(parent, CURRENT_FLOW_OBJECT, element);
         try {
-            this.nextHandler.apply(ctx, parent);
+            call.call();
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException(e);
         } finally {
             popElement(parent, CURRENT_FLOW_OBJECT);
-            popElement(parent, getType());
+            popElement(parent, type);
         }
     }
 
+    
+    public static List<CustomAction> getCustomActions(FaceletContext ctx, UIComponent parent) {
+        List<CustomAction> customActions = (List<CustomAction>) getElement(parent, CURRENT_FLOW_OBJECT);
+        return customActions;
+    }
+    
     public ParsedValue getParsedValue(FaceletContext ctx, UIComponent parent, String url) throws IOException {
         ParsedValue result = null;
         try {

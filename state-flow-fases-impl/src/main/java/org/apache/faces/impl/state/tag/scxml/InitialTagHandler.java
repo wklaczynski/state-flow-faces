@@ -13,44 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.tag;
+package org.apache.faces.impl.state.tag.scxml;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import org.apache.scxml.model.ElseIf;
-import org.apache.scxml.model.If;
+import org.apache.scxml.model.Initial;
+import org.apache.scxml.model.State;
 import javax.faces.view.facelets.FaceletContext;
-import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
+import javax.faces.view.facelets.TagException;
+import org.apache.faces.impl.state.tag.AbstractFlowTagHandler;
 import org.apache.scxml.model.SCXML;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class ElseIfTagHandler extends AbstractFlowTagHandler<ElseIf> {
+public class InitialTagHandler extends AbstractFlowTagHandler<Initial> {
 
-    protected final TagAttribute cond;
-
-    public ElseIfTagHandler(TagConfig config) {
-        super(config, ElseIf.class);
-
-        in("if", If.class);
-
-        this.cond = this.getRequiredAttribute("cond");
+    public InitialTagHandler(TagConfig config) {
+        super(config, Initial.class);
+        
+        in("state", State.class);
     }
 
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
-        ElseIf action = new ElseIf();
-        decorate(ctx, parent, action);
+        State state = (State) parentElement;
+        if(state.getInitial()!= null) {
+            throw new TagException(this.tag, "already defined in this element!");
+        }
 
-        action.setCond(cond.getValue());
+        Initial target = new Initial();
+        decorate(ctx, parent, target);
 
-        applyNext(ctx, parent, action);
-
-        If aif = (If) parentElement;
-        aif.addAction(aif);
+        applyNext(ctx, parent, target);
+        
+        state.setInitial(target);
     }
 
 }

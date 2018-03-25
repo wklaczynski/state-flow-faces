@@ -26,7 +26,7 @@ limitations under the License.
             Tests if an input state name is in current stats.
         </description>
         <function-name>in</function-name>
-        <function-class>org.apache.faces.impl.state.tag.FacesFlowBuiltin</function-class>
+        <function-class>org.apache.faces.impl.state.tag.scxml.FacesFlowBuiltin</function-class>
         <function-signature>boolean isMember(java.lang.String)</function-signature>
     </function>
 
@@ -34,7 +34,7 @@ limitations under the License.
     <tag>
         <tag-name>scxml</tag-name>
         <description><![CDATA[The top-level wrapper element, which carries version information. The actual state machine consists of its children. Note that only one of the children is active at any one time. See 3.11 Legal State Configurations and Specifications for details.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.StateChartTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.StateChartTagHandler</handler-class>
         <attribute>
             <description><![CDATA[The name of this state machine. It is for purely informational purposes.]]></description>
             <name>id</name>
@@ -51,7 +51,7 @@ limitations under the License.
     <tag>
         <tag-name>state</tag-name>
         <description><![CDATA[Holds the representation of a state.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.StateTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.StateTagHandler</handler-class>
         <attribute>
             <description><![CDATA[The identifier for this state. See 3.14 IDs for details.]]></description>
             <name>id</name>
@@ -62,7 +62,7 @@ limitations under the License.
     <tag>
         <tag-name>parallel</tag-name>
         <description><![CDATA[The <parallel> element encapsulates a set of child states which are simultaneously active when the parent element is active.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.ParallelTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.ParallelTagHandler</handler-class>
         <attribute>
             <description><![CDATA[The identifier for this state. See 3.14 IDs for details.]]></description>
             <name>id</name>
@@ -73,7 +73,7 @@ limitations under the License.
     <tag>
         <tag-name>transition</tag-name>
         <description><![CDATA[Transitions between states are triggered by events and conditionalized via guard conditions. They may contain executable content, which is executed when the transition is taken.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.TransitionTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.TransitionTagHandler</handler-class>
         <attribute>
             <description><![CDATA[A list of designators of events that trigger this transition. See 3.13 Selecting and Executing Transitions for details on how transitions are selected and executed. See E Schema for the definition of the datatype.]]></description>
             <name>event</name>
@@ -102,12 +102,12 @@ limitations under the License.
     <tag>
         <tag-name>initial</tag-name>
         <description><![CDATA[This element represents the default initial state for a complex <state> element (i.e. one containing child <state> or <parallel> elements.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.InitialTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.InitialTagHandler</handler-class>
     </tag>
     <tag>
         <tag-name>final</tag-name>
         <description><![CDATA[<final> represents a final state of an <scxml> or compound <state> element.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.FinalTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.FinalTagHandler</handler-class>
         <attribute>
             <description><![CDATA[The identifier for this state. See 3.14 IDs for details.]]></description>
             <name>id</name>
@@ -118,17 +118,17 @@ limitations under the License.
     <tag>
         <tag-name>onentry</tag-name>
         <description><![CDATA[A wrapper element containing executable content to be executed when the state is entered.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.OnEntryTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.OnEntryTagHandler</handler-class>
     </tag>
     <tag>
         <tag-name>onexit</tag-name>
         <description><![CDATA[A wrapper element containing executable content to be executed when the state is exited]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.OnExitTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.OnExitTagHandler</handler-class>
     </tag>
     <tag>
         <tag-name>history</tag-name>
         <description><![CDATA[The <history> pseudo-state allows a state machine to remember its state configuration. A <transition> taking the <history> state as its target will return the state machine to this recorded configuration.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.HistoryTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.HistoryTagHandler</handler-class>
         <attribute>
             <description><![CDATA[Identifier for this pseudo-state. See 3.14 IDs for details.]]></description>
             <name>id</name>
@@ -147,7 +147,7 @@ limitations under the License.
     <tag>
         <tag-name>raise</tag-name>
         <description><![CDATA[The <raise> element raises an event in the current SCXML session. Note that the event will not be processed until the current block of executable content has completed and all events that are already in the internal event queue have been processed. For example, suppose the <raise> element occurs first in the <onentry> handler of state S followed by executable content elements ec1 and ec2. If event e1 is already in the internal event queue when S is entered, the event generated by <raise> will not be processed until ec1 and ec2 have finished execution and e1 has been processed.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.RaiseTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.RaiseTagHandler</handler-class>
         <attribute>
             <description><![CDATA[Specifies the name of the event. This will be matched against the 'event' attribute of transitions.]]></description>
             <name>event</name>
@@ -158,7 +158,7 @@ limitations under the License.
     <tag>
         <tag-name>if</tag-name>
         <description><![CDATA[<if> is a container for conditionally executed elements.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.IfTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.IfTagHandler</handler-class>
         <attribute>
             <description><![CDATA[A boolean expression. See 5.9.1 Conditional Expressions for details.]]></description>
             <name>cond</name>
@@ -169,7 +169,7 @@ limitations under the License.
     <tag>
         <tag-name>elseif</tag-name>
         <description><![CDATA[<elseif> is an empty element that partitions the content of an <if>, and provides a condition that determines whether the partition is executed.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.ElseIfTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.ElseIfTagHandler</handler-class>
         <attribute>
             <description><![CDATA[A boolean expression. See 5.9.1 Conditional Expressions for details.]]></description>
             <name>cond</name>
@@ -180,12 +180,12 @@ limitations under the License.
     <tag>
         <tag-name>else</tag-name>
         <description><![CDATA[<else> is an empty element that partitions the content of an <if>. It is equivalent to an <elseif> with a "cond" that always evaluates to true.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.ElseTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.ElseTagHandler</handler-class>
     </tag>
     <tag>
         <tag-name>log</tag-name>
         <description><![CDATA[<log> allows an application to generate a logging or debug message.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.LogTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.LogTagHandler</handler-class>
         <attribute>
             <description><![CDATA[A character string with an implementation-dependent interpretation. It is intended to provide meta-data about the log string specified by 'expr'.]]></description>
             <name>label</name>
@@ -204,12 +204,12 @@ limitations under the License.
     <tag>
         <tag-name>datamodel</tag-name>
         <description><![CDATA[<datamodel> is a wrapper element which encapsulates any number of <data> elements, each of which defines a single data object. The exact nature of the data object depends on the data model language used.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.DataModelTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.DataModelTagHandler</handler-class>
     </tag>
     <tag>
         <tag-name>data</tag-name>
         <description><![CDATA[The <data> element is used to declare and populate portions of the data model.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.DataTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.DataTagHandler</handler-class>
         <attribute>
             <description><![CDATA[The identifier for this state. See 3.14 IDs for details.]]></description>
             <name>id</name>
@@ -232,7 +232,7 @@ limitations under the License.
     <tag>
         <tag-name>assign</tag-name>
         <description><![CDATA[The <assign> element is used to modify the data model.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.AssignTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.AssignTagHandler</handler-class>
         <attribute>
             <description><![CDATA[The location in the data model into which to insert the new value. See 5.9.2 Location Expressions for details.]]></description>
             <name>location</name>
@@ -249,12 +249,12 @@ limitations under the License.
     <tag>
         <tag-name>donedata</tag-name>
         <description><![CDATA[A wrapper element holding data to be returned when a <final> state is entered.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.DoneDataTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.DoneDataTagHandler</handler-class>
     </tag>
     <tag>
         <tag-name>content</tag-name>
         <description><![CDATA[A container element holding data to be passed to an external service.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.ContentTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.ContentTagHandler</handler-class>
         <attribute>
             <description><![CDATA[A value expression. See 5.9.3 Legal Data Values and Value Expressions for details.]]></description>
             <name>expr</name>
@@ -265,7 +265,7 @@ limitations under the License.
     <tag>
         <tag-name>param</tag-name>
         <description><![CDATA[The <param> tag provides a general way of identifying a key and a dynamically calculated value which can be passed to an external service or included in an event.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.ParamTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.ParamTagHandler</handler-class>
         <attribute>
             <description><![CDATA[The name of the key.]]></description>
             <name>name</name>
@@ -288,7 +288,7 @@ limitations under the License.
     <tag>
         <tag-name>script</tag-name>
         <description><![CDATA[The <script> element adds scripting capability to the state machine.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.ScriptTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.ScriptTagHandler</handler-class>
         <attribute>
             <description><![CDATA[Gives the location from which the script should be downloaded.]]></description>
             <name>src</name>
@@ -302,7 +302,7 @@ limitations under the License.
     <tag>
         <tag-name>send</tag-name>
         <description><![CDATA[<send> is used to send events and data to external systems, including external SCXML Interpreters, or to raise events in the current SCXML session.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.SendTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.SendTagHandler</handler-class>
         <attribute>
             <description><![CDATA[A string indicating the name of message being generated. See E Schema for details on the data type.]]></description>
             <name>event</name>
@@ -343,7 +343,7 @@ limitations under the License.
     <tag>
         <tag-name>cancel</tag-name>
         <description><![CDATA[The <cancel> element is used to cancel a delayed <send> event. The SCXML Processor MUST NOT allow <cancel> to affect events that were not raised in the same session. The Processor SHOULD make its best attempt to cancel all delayed events with the specified id. Note, however, that it can not be guaranteed to succeed, for example if the event has already been delivered by the time the <cancel> tag executes.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.CancelTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.CancelTagHandler</handler-class>
         <attribute>
             <description><![CDATA[The ID of the event(s) to be cancelled. If multiple delayed events have this sendid, the Processor will cancel them all.]]></description>
             <name>sendid</name>
@@ -354,7 +354,7 @@ limitations under the License.
     <tag>
         <tag-name>invoke</tag-name>
         <description><![CDATA[The <invoke> element is used to create an instance of an external service.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.InvokeTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.InvokeTagHandler</handler-class>
         <attribute>
             <description><![CDATA[A URI specifying the type of the external service. See below for details.]]></description>
             <name>type</name>
@@ -377,9 +377,27 @@ limitations under the License.
     <tag>
         <tag-name>finalize</tag-name>
         <description><![CDATA[The <finalize> element enables an invoking session to update its data model with data contained in events returned by the invoked session. <finalize> contains executable content that is executed whenever the external service returns an event after the <invoke> has been executed. This content is applied before the system looks for transitions that match the event. Within the executable content, the system variable '_event' can be used to refer to the data contained in the event which is being processed.In the case of parallel states, only the finalize code in the original invoking state is executed.]]></description>
-        <handler-class>org.apache.faces.impl.state.tag.FinalizeTagHandler</handler-class>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.FinalizeTagHandler</handler-class>
     </tag>
 
-        
+
+    <!--Custom action unspecfied SCXML-->
+    <tag>
+        <tag-name>var</tag-name>
+        <description><![CDATA[The <var> element is used to modify the data model.]]></description>
+        <handler-class>org.apache.faces.state.tag.CustomActionHandler</handler-class>
+        <attribute>
+            <description><![CDATA[The name in the data model into which to insert the new value. See 5.9.2 Location Expressions for details.]]></description>
+            <name>name</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description><![CDATA[An expression returning the value to be assigned. See 5.9.3 Legal Data Values and Value Expressions for details.]]></description>
+            <name>expr</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
                         
 </facelet-taglib>

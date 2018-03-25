@@ -13,28 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.state.tag;
+package org.apache.faces.impl.state.facelets;
 
-import javax.faces.FacesWrapper;
 import javax.faces.view.facelets.TagHandlerDelegate;
+import org.apache.faces.state.tag.CustomActionHandler;
+import org.apache.faces.state.tag.TagHandlerDelegateFactory;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public abstract class TagHandlerDelegateFactory implements FacesWrapper<TagHandlerDelegateFactory> {
-
-    public static final String KEY = "javax.faces.state.TagHandlerDelegateFactory";
-    
-    public TagHandlerDelegateFactory() {
-    }
+public class TagHandlerDelegateFactoryImpl extends TagHandlerDelegateFactory {
 
     @Override
-    public TagHandlerDelegateFactory getWrapped() {
-        return null;
+    public TagHandlerDelegate createStateFlowActionDelegate(CustomActionHandler owner) {
+        TagHandlerDelegate delegate = new CustomActionHandlerDelegateImpl(owner);
+        return delegate;
     }
     
-    public abstract TagHandlerDelegate createStateFlowActionDelegate(CustomActionHandler owner);
-
-
 }

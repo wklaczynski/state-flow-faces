@@ -75,7 +75,7 @@ import org.apache.scxml.model.EnterableState;
 public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     private static final Logger log = Logger.getLogger(StateFlowHandler.class.getName());
-    private List<CustomAction> customActions = Collections.synchronizedList(new ArrayList<>());
+    private final List<CustomAction> customActions = Collections.synchronizedList(new ArrayList<>());
     private final Map<String, Class<? extends Invoker>> customInvokers = Collections.synchronizedMap(new HashMap<>());
 
     public static final String LOGICAL_FLOW_MAP = StateFlowHandlerImpl.class.getName() + ".LogicalFlowMap";
@@ -164,16 +164,14 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     }
 
+    @Override
     public List<CustomAction> getCustomActions() {
-        return customActions;
+        return Collections.unmodifiableList(customActions);
     }
 
-    public void setCustomActions(List<CustomAction> customActions) {
-        this.customActions = customActions;
-    }
-
+    @Override
     public Map<String, Class<? extends Invoker>> getCustomInvokers() {
-        return customInvokers;
+        return Collections.unmodifiableMap(customInvokers);
     }
 
     @Override
@@ -216,7 +214,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         StateFlowDispatcher dispatcher = new StateFlowDispatcher();
         StateFlowErrorReporter errorReporter = new StateFlowErrorReporter();
 
-        Map tags = (Map) scxml.getAttributes().get("faces-tag-info");
+        Map tags = (Map) scxml.getMetadata().get("faces-tag-info");
         errorReporter.getTags().putAll(new HashMap<>(tags));
 
         SCXMLExecutor executor = new SCXMLExecutor(evaluator, dispatcher, errorReporter);
@@ -256,7 +254,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         StateFlowErrorReporter errorReporter = (StateFlowErrorReporter) parent.getErrorReporter();
 
-        Map tags = (Map) scxml.getAttributes().get("faces-tag-info");
+        Map tags = (Map) scxml.getMetadata().get("faces-tag-info");
         errorReporter.getTags().putAll(new HashMap<>(tags));
 
         SCXMLExecutor executor = new SCXMLExecutor(parent, invokeId, scxml);

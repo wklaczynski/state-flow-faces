@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.tag;
+package org.apache.faces.impl.state.tag.scxml;
 
 import com.sun.faces.el.ELContextImpl;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,8 +48,11 @@ import static org.apache.faces.impl.state.tag.AbstractFlowTagHandler.getElement;
 import static org.apache.faces.impl.state.tag.AbstractFlowTagHandler.popElement;
 import static org.apache.faces.impl.state.tag.AbstractFlowTagHandler.pushElement;
 import static org.apache.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
+import static org.apache.faces.state.StateFlow.CUSTOM_ACTIONS_HINT;
 import static org.apache.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
 import static org.apache.faces.state.StateFlow.STATECHART_FACET_NAME;
+import org.apache.faces.state.StateFlowHandler;
+import org.apache.scxml.model.CustomAction;
 
 /**
  *
@@ -156,22 +160,26 @@ public class StateChartTagHandler extends TagHandler {
         VariableMapper corig = ctx.getVariableMapper();
         ctx.setVariableMapper(new VariableMapperWrapper(corig));
 
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        List<CustomAction> customActions = handler.getCustomActions();
+        
         Map<Object, Tag> tags = new HashMap<>();
         try {
-            build(ctx, uichart, chart, tags, resolver);
+            build(ctx, uichart, chart, tags, resolver, customActions);
         } finally {
             ctx.setVariableMapper(corig);
             ctx.setFunctionMapper(forig);
         }
 
-        chart.getAttributes().put("faces-tag-info", new HashMap<>(tags));
+        chart.getMetadata().put("faces-tag-info", new HashMap<>(tags));
 
         ModelUpdater updater = new ModelUpdater(tags);
         updater.updateSCXML(chart);
 
     }
 
-    protected void build(FaceletContext ctx, UIComponent parent, SCXML chart, Map<Object, Tag> tags, PathResolver resolver) throws IOException {
+    protected void build(FaceletContext ctx, UIComponent parent, SCXML chart, Map<Object, Tag> tags, PathResolver resolver, List<CustomAction> customActions) throws IOException {
+        pushElement(parent, CUSTOM_ACTIONS_HINT, customActions);
         pushElement(parent, TAG_MAP, tags);
         pushElement(parent, SCXML.class, chart);
         pushElement(parent, PathResolver.class, resolver);
@@ -183,6 +191,7 @@ public class StateChartTagHandler extends TagHandler {
             popElement(parent, PathResolver.class);
             popElement(parent, SCXML.class);
             popElement(parent, TAG_MAP);
+            popElement(parent, CUSTOM_ACTIONS_HINT);
         }
     }
 

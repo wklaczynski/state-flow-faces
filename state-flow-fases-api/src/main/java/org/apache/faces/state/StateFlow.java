@@ -25,6 +25,8 @@ public class StateFlow {
 
     public static final String STATE_MACHINE_HINT = "javax.faces.flow.STATE_MACHINE_HINT";
 
+    public static final String CUSTOM_ACTIONS_HINT = "javax.faces.flow.CUSTOM_ACTIONS_HINT";
+
     public static final String CURRENT_EXECUTOR_HINT = "javax.faces.flow.CURRENT_EXECUTOR_HINT";
     
     public static final String STATEFLOW_COMPONENT_NAME = "javax_faces_stateflow";
