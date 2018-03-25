@@ -37,7 +37,7 @@ import org.apache.scxml.system.EventVariable;
 public class EvaluatorELResolver extends ELResolver implements Serializable {
 
     public static final String DONE_DATA_NAME = "@done";
-    public static final String RESULT_DATA_NAME = "@param";
+    public static final String PARAM_DATA_NAME = "@param";
     public static final String EVENT_VAR_NAME = "@event";
 
     private static final Set<String> writeprotect = new HashSet<>(Arrays.asList(
@@ -63,7 +63,7 @@ public class EvaluatorELResolver extends ELResolver implements Serializable {
                     break;
                 }
                 case DONE_DATA_NAME:
-                case RESULT_DATA_NAME: {
+                case PARAM_DATA_NAME: {
                     result = getDoneData(context);
                     if (result != null) {
                         context.setPropertyResolved(true);
@@ -114,7 +114,7 @@ public class EvaluatorELResolver extends ELResolver implements Serializable {
                     break;
                 }
                 case DONE_DATA_NAME:
-                case RESULT_DATA_NAME: {
+                case PARAM_DATA_NAME: {
                     Object doneData = getDoneData(context);
                     if (doneData != null) {
                         context.setPropertyResolved(true);
@@ -155,7 +155,7 @@ public class EvaluatorELResolver extends ELResolver implements Serializable {
             if (null != property) {
                 switch (property.toString()) {
                     case DONE_DATA_NAME:
-                    case RESULT_DATA_NAME: {
+                    case PARAM_DATA_NAME: {
                         context.setPropertyResolved(true);
                         String message = "Read Only Property";
                         message = message + " base " + base + " property " + property;
@@ -195,7 +195,7 @@ public class EvaluatorELResolver extends ELResolver implements Serializable {
             switch (property.toString()) {
                 case EVENT_VAR_NAME:
                 case DONE_DATA_NAME:
-                case RESULT_DATA_NAME: {
+                case PARAM_DATA_NAME: {
                     context.setPropertyResolved(true);
                     return true;
                 }
