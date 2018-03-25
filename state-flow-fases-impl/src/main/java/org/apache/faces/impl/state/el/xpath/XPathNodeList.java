@@ -42,6 +42,10 @@ public class XPathNodeList extends AbstractList<Node> {
         nodes.add(n);
     }
 
+    public XPathNodeList() {
+        nodes = new ArrayList<>();
+    }
+    
     public XPathNodeList(Object o) {
         nodes = new ArrayList<>();
         if (o instanceof NodeList) {
@@ -64,5 +68,23 @@ public class XPathNodeList extends AbstractList<Node> {
     public int size() {
         return nodes.size();
     }
+
+    @Override
+    public void add(int index, Node element) {
+        nodes.add(index, element);
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        return nodes.remove(o);
+    }
+
+    @Override
+    public Node remove(int index) {
+        return nodes.remove(index);
+    }
+
+    
+    
 
 }

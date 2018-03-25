@@ -62,7 +62,7 @@ public class XPathELResolver extends ELResolver {
     private static DocumentBuilder db = null;
     private static Document d = null;
 
-    String modifiedXPath = null;
+    private final ThreadLocal<String> modifiedXPath = new ThreadLocal<>();
 
     static {
         XPATH_FACTORY = XPathFactory.newInstance();
@@ -156,6 +156,11 @@ public class XPathELResolver extends ELResolver {
                     }
                     return list.get(index);
                 }
+            } else if (base instanceof XPathNodeMap) {
+                context.setPropertyResolved(true);
+                XPathNodeMap map = (XPathNodeMap) base;
+                Object result = selectObject(context, map, (String) property);
+                return result;
             } else if (base instanceof NamedNodeMap) {
                 Node result = getFromNodeMap(context, (NamedNodeMap) base, property);
                 return result;
@@ -305,6 +310,17 @@ public class XPathELResolver extends ELResolver {
                 } else {
                     return selectNodes(context, base, xpathString);
                 }
+            } else if (base instanceof XPathNodeMap) {
+                XPathNodeMap map = (XPathNodeMap) base;
+                XPathNodeList list = map.get(xpathString);
+                if (list == null || list.isEmpty()) {
+                    return null;
+                }
+                if (list.size() == 1) {
+                    return list.get(0);
+                } else {
+                    return list;
+                }
             } else if (base instanceof NodeList) {
                 NodeList list = (NodeList) base;
                 if (list.getLength() == 1) {
@@ -318,11 +334,41 @@ public class XPathELResolver extends ELResolver {
     }
 
     public Object selectNodes(ELContext context, Object base, String expression) throws ELException {
-
         staticInit();
+
+        String query = expression.trim();
+        if (base instanceof XPathNodeList) {
+            XPathNodeList nlist = (XPathNodeList) base;
+
+            if (query.equals("first()")) {
+                return nlist.get(0);
+            } else if (query.equals("last()")) {
+                return nlist.get(nlist.size() - 1);
+            } else if (query.startsWith("@")) {
+                query = query.substring(1);
+                String aname = query;
+                if (containsOnlyAlphaNumeric(aname)) {
+                    XPathNodeMap map = new XPathNodeMap();
+                    for (Node node : nlist) {
+                        Element el = (Element) node;
+                        if (el.hasAttribute(aname)) {
+                            String attribute = el.getAttribute(aname);
+                            XPathNodeList lnodes = map.get(attribute);
+                            if (lnodes == null) {
+                                lnodes = new XPathNodeList();
+                                map.put(attribute, lnodes);
+                            }
+                            lnodes.add(node);
+                        }
+                    }
+                    return map;
+                }
+            }
+        }
+
         XPathVariableResolver jxvr = new JSTLXPathVariableResolver(context);
         Node contextNode = adaptParamsForXalan(base, expression.trim());
-        expression = modifiedXPath;
+        expression = modifiedXPath.get();
 
         String type = "NODESET";
         String typens = "http://www.w3.org/1999/XSL/Transform";
@@ -431,12 +477,18 @@ public class XPathELResolver extends ELResolver {
     protected Node adaptParamsForXalan(Object base, String xpath) {
         Node boundDocument = null;
 
-        modifiedXPath = xpath;
+        modifiedXPath.set(xpath);
         String origXPath = xpath;
         boolean whetherOrigXPath = true;
 
         try {
             Object varObject = base;
+
+            if (xpath.startsWith("first()")
+                    || xpath.startsWith("last()")
+                    || xpath.startsWith("@")) {
+                xpath = "[" + xpath + "]";
+            }
 
             if (Class.forName("org.w3c.dom.Document").isInstance(varObject)) {
                 Document document = ((Document) varObject);
@@ -453,7 +505,11 @@ public class XPathELResolver extends ELResolver {
                         doc.appendChild(importedNode);
                         boundDocument = doc;
                         if (whetherOrigXPath) {
-                            xpath = "/*" + xpath;
+                            if (xpath.startsWith("[")) {
+                                xpath = "//*" + xpath;
+                            } else {
+                                xpath = "/*" + xpath;
+                            }
                         }
                     } else {
                         Object myObject = jstlNodeList.get(0);
@@ -474,7 +530,11 @@ public class XPathELResolver extends ELResolver {
                     }
                     boundDocument = newDocument;
 
-                    xpath = "/*" + xpath;
+                    if (xpath.startsWith("[")) {
+                        xpath = "//*" + xpath;
+                    } else {
+                        xpath = "/*" + xpath;
+                    }
                 }
             } else if (Class.forName("org.w3c.dom.Node").isInstance(varObject)) {
                 boundDocument = (Node) varObject;
@@ -486,8 +546,17 @@ public class XPathELResolver extends ELResolver {
             log.log(Level.SEVERE, "adaptParamsForXalan error.", cnf);
         }
 
-        modifiedXPath = xpath;
+        modifiedXPath.set(xpath);
         return boundDocument;
+    }
+
+    private boolean containsOnlyAlphaNumeric(String s) {
+        for (int i = 0, n = s.length(); i < n; i++) {
+            if (!Character.isLetterOrDigit(s.codePointAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }
