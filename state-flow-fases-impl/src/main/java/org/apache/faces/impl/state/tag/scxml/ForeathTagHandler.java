@@ -19,7 +19,6 @@ import java.io.IOException;
 import javax.faces.component.UIComponent;
 import org.apache.scxml.model.Finalize;
 import org.apache.scxml.model.If;
-import org.apache.scxml.model.Log;
 import org.apache.scxml.model.OnEntry;
 import org.apache.scxml.model.OnExit;
 import org.apache.scxml.model.Transition;
@@ -27,19 +26,21 @@ import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
 import org.apache.faces.impl.state.tag.AbstractFlowTagHandler;
+import org.apache.scxml.model.Foreach;
 import org.apache.scxml.model.SCXML;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class LogTagHandler extends AbstractFlowTagHandler<Log> {
+public class ForeathTagHandler extends AbstractFlowTagHandler<Foreach> {
 
-    protected final TagAttribute label;
-    protected final TagAttribute expr;
+    protected final TagAttribute array;
+    protected final TagAttribute item;
+    protected final TagAttribute index;
     
-    public LogTagHandler(TagConfig config) {
-        super(config, Log.class);
+    public ForeathTagHandler(TagConfig config) {
+        super(config, Foreach.class);
         
         in("onentry", OnEntry.class);
         in("onexit", OnExit.class);
@@ -52,18 +53,19 @@ public class LogTagHandler extends AbstractFlowTagHandler<Log> {
         top("transition", Transition.class);
         top("finalize", Finalize.class);
         
-        this.label = this.getAttribute("label");
-        this.expr = this.getAttribute("expr");
+        this.array = this.getRequiredAttribute("array");
+        this.item = this.getRequiredAttribute("item");
+        this.index = this.getAttribute("index");
     }
 
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
-        Log action = new Log();
+        Foreach action = new Foreach();
         decorate(ctx, parent, action);
 
-        action.setLabel(label != null ? label.getValue() : null);
-        
-        action.setExpr(expr != null ? expr.getValue() : null);
+        action.setArray(array.getValue());
+        action.setItem(item.getValue());
+        action.setIndex(index != null ? index.getValue() : null);
         
         applyNext(ctx, parent, action);
         

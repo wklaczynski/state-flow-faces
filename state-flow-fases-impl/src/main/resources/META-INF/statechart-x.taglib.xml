@@ -21,6 +21,15 @@ limitations under the License.
     version="2.0">
     <namespace>http://xmlns.apache.org/faces/scxml</namespace>
         
+    <function>
+        <description>
+            Tests if an input state name is in current stats.
+        </description>
+        <function-name>in</function-name>
+        <function-class>org.apache.faces.impl.state.tag.FacesFlowBuiltin</function-class>
+        <function-signature>boolean isMember(java.lang.String)</function-signature>
+    </function>
+        
     <!--Core Constructs-->
     <tag>
         <tag-name>scxml</tag-name>
@@ -172,6 +181,29 @@ limitations under the License.
         <tag-name>else</tag-name>
         <description><![CDATA[<else> is an empty element that partitions the content of an <if>. It is equivalent to an <elseif> with a "cond" that always evaluates to true.]]></description>
         <handler-class>org.apache.faces.impl.state.tag.scxml.ElseTagHandler</handler-class>
+    </tag>
+    <tag>
+        <tag-name>foreach</tag-name>
+        <description><![CDATA[The <foreach> element allows an SCXML application to iterate through a collection in the data model and to execute the actions contained within it for each item in the collection.]]></description>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.ForeathTagHandler</handler-class>
+        <attribute>
+            <description><![CDATA[The <foreach> element will iterate over a shallow copy of this collection.]]></description>
+            <name>array</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description><![CDATA[A variable that stores a different item of the collection in each iteration of the loop.]]></description>
+            <name>item</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description><![CDATA[A variable that stores the current iteration index upon each iteration of the foreach loop.]]></description>
+            <name>index</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
     <tag>
         <tag-name>log</tag-name>
@@ -370,5 +402,25 @@ limitations under the License.
         <description><![CDATA[The <finalize> element enables an invoking session to update its data model with data contained in events returned by the invoked session. <finalize> contains executable content that is executed whenever the external service returns an event after the <invoke> has been executed. This content is applied before the system looks for transitions that match the event. Within the executable content, the system variable '_event' can be used to refer to the data contained in the event which is being processed.In the case of parallel states, only the finalize code in the original invoking state is executed.]]></description>
         <handler-class>org.apache.faces.impl.state.tag.scxml.FinalizeTagHandler</handler-class>
     </tag>
+    
+    <!--Custom action unspecfied SCXML-->
+    <tag>
+        <tag-name>var</tag-name>
+        <description><![CDATA[The <var> element is used to modify the data model.]]></description>
+        <handler-class>org.apache.faces.state.tag.CustomActionHandler</handler-class>
+        <attribute>
+            <description><![CDATA[The name in the data model into which to insert the new value. See 5.9.2 Location Expressions for details.]]></description>
+            <name>name</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description><![CDATA[An expression returning the value to be assigned. See 5.9.3 Legal Data Values and Value Expressions for details.]]></description>
+            <name>expr</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    
                         
 </facelet-taglib>
