@@ -27,7 +27,6 @@
                     <h:messages/> 
                 </h:panelGroup>
                 <h:panelGroup id="asign-test">
-                    <hr/>
                     <h3>Test data manipulation in executed states.</h3>
                     <p/>
                     Data assigned in:
@@ -37,7 +36,7 @@
                     <pre>2. Change data when using &lt;var name="assignedTest2" expr="\#{book['client[first()]/phone[@type=\'home\']']}" &gt;</pre>
                     <b>Value:</b> #{scxml.assignedTest2}
                     <p/>
-                    <h:panelGrid cellspacing="4" columns="2" style="bottom: 0px">
+                    <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
                         <h:commandButton action="assign" value="Run Test">
                             <f:ajax render="asign-test"/>
                         </h:commandButton>
@@ -54,7 +53,7 @@
                 </h:panelGroup>
                 <h:panelGroup id="navigation">
                     <h:panelGroup layout="block" style=" text-align: left;">
-                        <h:panelGrid cellspacing="4" columns="2" style="bottom: 0px">
+                        <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
                             <h:commandButton
                                 action="cancel"
                                 value="Cancel"

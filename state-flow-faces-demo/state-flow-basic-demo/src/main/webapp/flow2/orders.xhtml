@@ -3,6 +3,7 @@
 <f:metadata
     xmlns:f="http://xmlns.jcp.org/jsf/core"
     xmlns:x="http://xmlns.apache.org/faces/scxml"
+    xmlns:fx="http://xmlns.apache.org/faces/scfx"
     xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
     >
     <x:scxml initial="start">
@@ -13,7 +14,7 @@
 
         <x:state id="start">
             <x:onentry>
-                <x:if cond="#{x:in('start')}">
+                <x:if cond="#{fx:in('start')}">
                 </x:if>
                 <x:if cond="#{orders.prepare()}">
                     <x:raise event="main.prepare.success"/>

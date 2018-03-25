@@ -22,6 +22,9 @@ limitations under the License.
     <datamodel>
         <data id="hasback" expr="#{scxml_has_parent == true}"/>
         <data id="chart_title" expr="State Flow Faces from SCXML file"/>
+        <data id="chart_view" expr="/flow1/faces-flow-main.scxml"/>
+        <data id="assignedTest2" expr="no tested"/>
+        <data id="book" src="/test/data.xml"/>
     </datamodel>
     
     <state id="start">
@@ -37,9 +40,45 @@ limitations under the License.
     </state>
 
     <state id="main">
-        <invoke type="view" src="StartPage.xhtml"/>
+        <invoke type="view" src="MainPage.xhtml"/>
+        <transition event="error.execution" target="main"/>
+
+        <transition event="view.action.show" target="show-client"/>
+        <transition event="view.action.exit" target="exit"/>
+        <transition event="view.action.assign" target="assing-test"/>
+        <transition event="view.action.clear" target="clear-test"/>
     </state> 
-    
+
+    <state id="assing-test">
+        <onentry>
+            <assign 
+                location="#{main.assignedTest1}" 
+                expr="#{book['client[last()]/phone[@type=\'mobile\']']}"
+            />
+            <raise event="assing-test.finish"/>
+        </onentry>
+        <transition event="assing-test.finish" target="main"/>
+    </state> 
+
+    <state id="clear-test">
+        <onentry>
+            <assign location="#{main.assignedTest1}"/>
+            <raise event="clear-test.finish"/>
+        </onentry>
+        <transition event="clear-test.finish" target="main"/>
+    </state> 
+
+
+    <state id="show-client"> 
+        <invoke type="scxml" src="faces-flow-show-client.xhtml">
+            <param name="clientId" expr="#{param.clid}"/>
+            <param name="clientName" expr="#{book['client[@id=\'1\']/phone[@type=\'mobile\']']}"/>
+        </invoke>
+        <transition event="error.execution" target="main"/>
+        <transition event="done.invoke.show-client" target="main"/>
+    </state>      
+
+
     <state id="error"> 
         <invoke type="scxml" src="/common/error.scxml">
             <finalize/>
