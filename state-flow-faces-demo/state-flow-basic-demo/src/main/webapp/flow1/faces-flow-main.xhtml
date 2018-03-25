@@ -65,7 +65,7 @@
             <x:onentry>
                 <x:var name="selected" expr="#{book.client['@id'][param.clid]}"/>
             </x:onentry>
-            <x:invoke type="scxml" src="faces-flow-show-client.xhtml">
+            <x:invoke type="scxml" src="faces-flow-client-show.xhtml">
                 <x:param name="clientId" expr="#{selected.id.$text}"/>
                 <x:param name="clientName" expr="#{selected.name.$text}"/>
                 <x:param name="clientSurname" expr="#{selected.surname.$text}"/>

@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <f:metadata>
+        <f:viewParam name="editable"/>
+    </f:metadata>
+    
+    <h:head>
+        <title>Test State Flow Faces</title>
+        <h:outputStylesheet library="css" name="demo-style.css"  />
+    </h:head>
+    <h:body>
+        <h1>#{scxml.chart_title}</h1>
+        <hr/>
+        <h:form>
+            <h:panelGroup rendered="#{empty scxml.chart_title}">
+                <h2>Hello, I'm not starting from flow faces :(</h2>
+                <hr/>
+            </h:panelGroup>
+            <h:panelGroup>
+                <h3>Hello, I'm in next state in new state chat &lt;scxml id="main"&gt;: "#{scxml.chart_view}"</h3>
+                <p/>
+                <b>Used bean:</b> <i>"#{client.beanTitle}"</i> in chart scope, this bean can not see data from parent execution.
+                <hr/>
+
+                <h:panelGroup >
+                    <h3>Get data from parent state chat flow process by client id: #{scxml.clientId}.</h3>
+                    <p/>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td><b>Name: </b></td>
+                                <td>#{scxml.clientName}</td>
+                            </tr>
+                            <tr>
+                                <td><b>Surname: </b></td>
+                                <td>#{scxml.clientSurname}</td>
+                            </tr>
+                            <tr>
+                                <td><b>Mobile Phone: </b></td>
+                                <td>#{scxml.clientMobilePhone}</td>
+                            </tr>
+                            <tr>
+                                <td><b>Home Phone: </b></td>
+                                <td>#{scxml.clientHomePhone}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </h:panelGroup>
+                <h:panelGroup >
+                    <hr/>
+                </h:panelGroup>
+                <h:panelGroup id="navigation">
+                    <h:panelGroup layout="block" style=" text-align: left;">
+                        <h:panelGrid cellspacing="4" columns="2" style="bottom: 0px">
+                            <h:commandButton
+                                action="accept"
+                                value="OK"
+                                immediate="true"/>
+                            <h:commandButton
+                                action="cancel"
+                                value="Cancel"
+                                immediate="false"/>
+                        </h:panelGrid>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </h:panelGroup>
+            <h:panelGroup>
+                <h:messages/> 
+            </h:panelGroup>
+        </h:form>
+    </h:body>
+
+</html>
+

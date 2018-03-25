@@ -9,7 +9,7 @@
 
         <x:datamodel>
             <x:data id="chart_title" expr="Show Client State Flow Process"/>
-            <x:data id="chart_view" expr="/flow1/faces-flow-show-client.xhtml"/>
+            <x:data id="chart_view" expr="/flow1/faces-flow-client-show.xhtml"/>
             <x:data id="clientId"/>
             <x:data id="clientName"/>
             <x:data id="clientSurname"/>
@@ -38,7 +38,7 @@
                 <x:log expr="I'm finishing show-client"/>
             </x:onexit>
 
-            <x:invoke type="view" src="ShowClientPage.xhtml">
+            <x:invoke type="view" src="ClientShowPage.xhtml">
                 <x:param name="editable" expr="true"/>
             </x:invoke>
 
