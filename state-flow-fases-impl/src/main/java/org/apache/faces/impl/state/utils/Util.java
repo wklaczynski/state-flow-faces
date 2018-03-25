@@ -18,6 +18,8 @@ package org.apache.faces.impl.state.utils;
 import com.sun.faces.util.LRUMap;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -250,5 +252,46 @@ public class Util {
         }
         
     }
+    
+    public static String readResource(final URL resourceURL) throws IOException {
+        try (InputStream in = resourceURL.openStream()) {
+            int bufferSize = 1024;
+            char[] buffer = new char[bufferSize];
+            StringBuilder out = new StringBuilder();
+            Reader reader = new InputStreamReader(in, "UTF-8");
+            for (;;) {
+                int rsz = reader.read(buffer, 0, buffer.length);
+                if (rsz < 0) {
+                    break;
+                }
+                out.append(buffer, 0, rsz);
+            }
+            String content = out.toString();
+            return content;
+        }
+    }
+    
+    public static String trimContent(final String content) {
+        if (content != null) {
+            int start = 0;
+            int length = content.length();
+            while (start < length && isWhiteSpace(content.charAt(start))) {
+                start++;
+            }
+            while (length > start && isWhiteSpace(content.charAt(length - 1))) {
+                length--;
+            }
+            if (start == length) {
+                return "";
+            }
+            return content.substring(start, length);
+        }
+        return null;
+    }
+    
+    public static boolean isWhiteSpace(final char c) {
+        return c == ' ' || c == '\n' || c == '\t' || c == '\r';
+    }
+    
     
 }

@@ -183,6 +183,29 @@ limitations under the License.
         <handler-class>org.apache.faces.impl.state.tag.scxml.ElseTagHandler</handler-class>
     </tag>
     <tag>
+        <tag-name>foreach</tag-name>
+        <description><![CDATA[The <foreach> element allows an SCXML application to iterate through a collection in the data model and to execute the actions contained within it for each item in the collection.]]></description>
+        <handler-class>org.apache.faces.impl.state.tag.scxml.ForeathTagHandler</handler-class>
+        <attribute>
+            <description><![CDATA[The <foreach> element will iterate over a shallow copy of this collection.]]></description>
+            <name>array</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description><![CDATA[A variable that stores a different item of the collection in each iteration of the loop.]]></description>
+            <name>item</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description><![CDATA[A variable that stores the current iteration index upon each iteration of the foreach loop.]]></description>
+            <name>index</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
         <tag-name>log</tag-name>
         <description><![CDATA[<log> allows an application to generate a logging or debug message.]]></description>
         <handler-class>org.apache.faces.impl.state.tag.scxml.LogTagHandler</handler-class>
