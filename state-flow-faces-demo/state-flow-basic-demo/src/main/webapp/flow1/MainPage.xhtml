@@ -47,32 +47,32 @@
                         >
                         <h:column>
                             <f:facet name="header">Id</f:facet>
-                                #{cvar.id}
+                                #{cvar.$attr.id.textContent}
                         </h:column> 
                         <h:column>
                             <f:facet name="header">Name</f:facet>
-                                #{cvar.name}
+                                #{cvar.name.textContent}
                         </h:column> 
                         <h:column>
                             <f:facet name="header">Surname</f:facet>
-                                #{cvar.surname}
+                                #{cvar.surname.textContent}
                         </h:column> 
                         <h:column>
                             <f:facet name="header">Mobile Phone</f:facet>
-                                #{cvar['phone[@type=\'mobile\']']}
+                                #{cvar['phone[@type=\'mobile\']'].textContent}
                         </h:column> 
                         <h:column>
                             <f:facet name="header">Home Phone</f:facet>
-                                #{cvar['phone[@type=\'home\']']}
+                                #{cvar['phone[@type=\'home\']'].textContent}
                         </h:column> 
                         <h:column>
                             <f:facet name="header">Actions</f:facet>
                             <h:panelGrid columns="3">
                                 <h:commandButton action="show" value="Show">
-                                    <f:param name="clid" value="#{cvar.id}"/>
+                                    <f:param name="clid" value="#{cvar.id.textContent}"/>
                                 </h:commandButton>
                                 <h:commandButton action="change" value="Change">
-                                    <f:param name="clid" value="#{cvar.id}"/>
+                                    <f:param name="clid" value="#{cvar.id.textContent}"/>
                                 </h:commandButton>
                             </h:panelGrid>
                         </h:column> 
@@ -80,21 +80,21 @@
                     <p/>
                     <h4>Reading data assigned in &lt;scxml&gt;, when use el query witch XPath.</h4>
                     <p/>
-                    I'm reading the last phone from  data "book" in root datamodel. Result: #{scxml.book['client[last()]/phone[@type=\'mobile\']']}
-                    <p/><pre>use xpath query: &quot;\#{scxml.book['client[last()]/phone[@type='mobile']']}&quot;</pre>
+                    I'm reading the last phone from  data "book" in root datamodel. Result: #{scxml.book['client[last()]/phone[@type=\'mobile\']'].textContent}
+                    <p/><pre>use xpath query: &quot;\#{scxml.book['client[last()]/phone[@type='mobile']'].textContent}&quot;</pre>
                     <p/>
-                    I'm reading the first phone from data "book" in root datamodel. Result: #{scxml.book.client['0']['phone[@type=\'mobile\']']}
-                    <p/><pre>use xpath query: &quot;\#{scxml.book.client['0']['phone[@type='mobile']']}&quot;</pre>
+                    I'm reading the first phone from data "book" in root datamodel. Result: #{scxml.book.client['0']['phone[@type=\'mobile\']'].textContent}
+                    <p/><pre>use xpath query: &quot;\#{scxml.book.client['0']['phone[@type='mobile']'].textContent}&quot;</pre>
                 </h:panelGroup>
                 <h:panelGroup id="asign-test">
                     <hr/>
                     <h3>Test data manipulation in executed states.</h3>
                     <p/>
                     Data assigned in:
-                    <pre>1. Change data when using &lt;assign location="\#{main.assignedTest1}" expr="\#{book['client[last()]/phone[@type=\'mobile\']']}" &gt;</pre>
+                    <pre>1. Change data when using &lt;assign location="\#{main.assignedTest1}" expr="\#{book['client[last()]/phone[@type=\'mobile\']'].textContent}" &gt;</pre>
                     <b>Value:</b> #{main.assignedTest1}
                     <p/>
-                    <pre>2. Change data when using &lt;var name="assignedTest2" expr="\#{book['client[first()]/phone[@type=\'home\']']}" &gt;</pre>
+                    <pre>2. Change data when using &lt;var name="assignedTest2" expr="\#{book['client[first()]/phone[@type=\'home\']'].textContent}" &gt;</pre>
                     <b>Value:</b> #{scxml.assignedTest2}
                     <p/>
                     <h:panelGrid cellspacing="4" columns="2" style="bottom: 0px">

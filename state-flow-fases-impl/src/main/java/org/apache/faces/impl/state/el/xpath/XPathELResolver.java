@@ -54,9 +54,7 @@ public class XPathELResolver extends ELResolver {
      * Log.
      */
     public static final Logger log = FlowLogger.FLOW.getLogger();
-    
-    
-    private static final String XPATH_FACTORY_CLASS_NAME = "org.apache.taglibs.standard.tag.common.xml.JSTLXPathFactory";
+
     private static XPathFactory XPATH_FACTORY;
     private static HashMap exprCache;
 
@@ -67,17 +65,6 @@ public class XPathELResolver extends ELResolver {
     String modifiedXPath = null;
 
     static {
-//        if (System.getSecurityManager() != null) {
-//            AccessController.doPrivileged(new PrivilegedAction() {
-//                @Override
-//                public Object run() {
-//                    System.setProperty(XPathFactory.DEFAULT_PROPERTY_NAME + ":" + XPathFactory.DEFAULT_OBJECT_MODEL_URI, XPATH_FACTORY_CLASS_NAME);
-//                    return null;
-//                }
-//            });
-//        } else {
-//            System.setProperty(XPathFactory.DEFAULT_PROPERTY_NAME + ":" + XPathFactory.DEFAULT_OBJECT_MODEL_URI, XPATH_FACTORY_CLASS_NAME);
-//        }
         XPATH_FACTORY = XPathFactory.newInstance();
     }
 
@@ -116,31 +103,10 @@ public class XPathELResolver extends ELResolver {
                 return result.getClass();
 
             } else if (base instanceof NamedNodeMap) {
-                context.setPropertyResolved(true);
-                NamedNodeMap map = (NamedNodeMap) base;
-                int index = toIndex(property);
-                if (index < 0) {
-                    String name = property.toString();
-                    String ns = null;
-                    int sep = name.indexOf(":");
-                    if (sep > 0) {
-                        ns = name.substring(0, sep - 1);
-                        name = name.substring(sep);
-                    }
-                    Node result;
-                    if (ns != null) {
-                        result = map.getNamedItem(name);
-                    } else {
-                        result = map.getNamedItem(name);
-                    }
-                    if (result == null) {
-                        throw new PropertyNotFoundException();
-                    }
+                Node result = getFromNodeMap(context, (NamedNodeMap) base, property);
+                if (result != null) {
                     return result.getClass();
                 } else {
-                    if (index >= map.getLength()) {
-                        throw new PropertyNotFoundException();
-                    }
                     return Node.class;
                 }
             } else if (base instanceof NodeList) {
@@ -191,33 +157,8 @@ public class XPathELResolver extends ELResolver {
                     return list.get(index);
                 }
             } else if (base instanceof NamedNodeMap) {
-                context.setPropertyResolved(true);
-                NamedNodeMap map = (NamedNodeMap) base;
-                int index = toIndex(property);
-                if (index < 0) {
-                    String name = property.toString();
-                    String ns = null;
-                    int sep = name.indexOf(":");
-                    if (sep > 0) {
-                        ns = name.substring(0, sep - 1);
-                        name = name.substring(sep);
-                    }
-                    Node result;
-                    if (ns != null) {
-                        result = map.getNamedItem(name);
-                    } else {
-                        result = map.getNamedItem(name);
-                    }
-                    if (result == null) {
-                        throw new PropertyNotFoundException();
-                    }
-                    return result.getClass();
-                } else {
-                    if (index >= map.getLength()) {
-                        throw new PropertyNotFoundException();
-                    }
-                    return Node.class;
-                }
+                Node result = getFromNodeMap(context, (NamedNodeMap) base, property);
+                return result;
             } else if (base instanceof NodeList) {
                 context.setPropertyResolved(true);
                 NodeList list = (NodeList) base;
@@ -321,25 +262,38 @@ public class XPathELResolver extends ELResolver {
                     switch (xpathString) {
                         case "attributes":
                             return node.getAttributes();
+                        case "$attr":
+                            return node.getAttributes();
                         case "nodeValue":
                             return node.getNodeValue();
                         case "nodeName":
                             return node.getNodeName();
+                        case "$name":
+                            return node.getNodeName();
                         case "nodeType":
+                            return node.getNodeType();
+                        case "$type":
                             return node.getNodeType();
                         case "namespaceURI":
                             return node.getNamespaceURI();
+                        case "namespace":
+                            return node.getNamespaceURI();
                         case "localName":
+                            return node.getLocalName();
+                        case "$lname":
                             return node.getLocalName();
                         case "prefix":
                             return node.getPrefix();
                         case "textContent":
                             return node.getTextContent();
+                        case "$content":
+                            return node.getTextContent();
                         case "childNodes":
                             return new XPathNodeList(node.getChildNodes());
-                        default:
-                            return selectNodes(context, base, xpathString);
+                        case "&child":
+                            return new XPathNodeList(node.getChildNodes());
                     }
+                    return selectNodes(context, base, xpathString);
                 }
             } else if (base instanceof XPathNodeList) {
                 XPathNodeList list = (XPathNodeList) base;
@@ -407,6 +361,35 @@ public class XPathELResolver extends ELResolver {
             }
         } catch (XPathExpressionException ex) {
             throw new ELException(ex.toString(), ex);
+        }
+    }
+
+    public Node getFromNodeMap(ELContext context, NamedNodeMap map, Object property) {
+        context.setPropertyResolved(true);
+        int index = toIndex(property);
+        if (index < 0) {
+            String name = property.toString();
+            String ns = null;
+            int sep = name.indexOf(":");
+            if (sep > 0) {
+                ns = name.substring(0, sep - 1);
+                name = name.substring(sep);
+            }
+            Node result;
+            if (ns != null) {
+                result = map.getNamedItem(name);
+            } else {
+                result = map.getNamedItem(name);
+            }
+            if (result == null) {
+                throw new PropertyNotFoundException();
+            }
+            return result;
+        } else {
+            if (index >= map.getLength()) {
+                throw new PropertyNotFoundException();
+            }
+            return null;
         }
     }
 

@@ -31,7 +31,7 @@
             <x:invoke type="view" src="MainPage.xhtml">
                 <x:param name="page_description" expr="Page description from scxml."/>
             </x:invoke>
-            
+
             <x:transition event="error.execution" target="main"/>
 
             <x:transition event="view.action.show" target="show-client"/>
@@ -44,7 +44,7 @@
             <x:onentry>
                 <x:assign 
                     location="#{main.assignedTest1}" 
-                    expr="#{book['client[last()]/phone[@type=\'mobile\']']}"
+                    expr="#{book['client[last()]/phone[@type=\'mobile\']'].textContent}"
                     />
                 <x:raise event="assing-test.finish"/>
             </x:onentry>
@@ -64,7 +64,7 @@
         <x:state id="show-client"> 
             <x:invoke type="scxml" src="faces-flow-show-client.xhtml">
                 <x:param name="clientId" expr="#{param.clid}"/>
-                <x:param name="clientName" expr="#{book['client[@id=\'1\']/phone[@type=\'mobile\']']}"/>
+                <x:param name="clientName" expr="#{book.client['@id'][param.clid].phone['@type=`mobile`']}"/>
             </x:invoke>
             <x:transition event="error.execution" target="main"/>
             <x:transition event="done.invoke.show-client" target="main"/>

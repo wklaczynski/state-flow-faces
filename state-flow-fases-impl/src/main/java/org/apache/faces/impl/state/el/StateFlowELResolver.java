@@ -18,6 +18,7 @@ package org.apache.faces.impl.state.el;
 import javax.el.CompositeELResolver;
 import static org.apache.faces.impl.state.StateFlowConstants.LOCAL_XPATH_RESOLVER;
 import org.apache.faces.impl.state.config.StateWebConfiguration;
+import org.apache.faces.impl.state.el.xpath.XPathELResolver;
 
 /**
  *
@@ -33,7 +34,7 @@ public final class StateFlowELResolver extends CompositeELResolver {
         
         String olxr = swc.getOptionValue(LOCAL_XPATH_RESOLVER, "true");
         if(Boolean.parseBoolean(olxr)) {
-            add(new DomELResolver());
+            add(new XPathELResolver());
         }
     }
 

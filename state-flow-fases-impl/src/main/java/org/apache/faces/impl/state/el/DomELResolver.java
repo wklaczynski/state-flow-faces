@@ -18,6 +18,7 @@ package org.apache.faces.impl.state.el;
 import java.beans.FeatureDescriptor;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import javax.el.ELContext;
 import javax.el.ELException;
 import javax.el.ELResolver;
@@ -38,7 +39,7 @@ public class DomELResolver extends ELResolver {
     public DomELResolver() {
         super();
     }
-    
+
     @Override
     public Class<?> getCommonPropertyType(ELContext context, Object base) {
         if (base instanceof NodeList) {
@@ -55,7 +56,7 @@ public class DomELResolver extends ELResolver {
     @Override
     public Class<?> getType(ELContext context, Object base, Object property) {
         Object value = getValue(context, base, property);
-        if(value != null) {
+        if (value != null) {
             return value.getClass();
         } else {
             return null;
@@ -68,7 +69,7 @@ public class DomELResolver extends ELResolver {
             return null;
         }
         // get the property as a string
-        String propertyAsString = property.toString();
+        String propertyAsString = normalize(property.toString());
 
         if (base instanceof ListOfNodes) {
             // if the base object is a list of nodes, the property must be an index
@@ -81,9 +82,7 @@ public class DomELResolver extends ELResolver {
             } else {
                 base = ((ListOfNodes) base).get(0);
             }
-        }
-
-        if (base instanceof NodeList && !(base instanceof Node)) {
+        } else if (base instanceof NodeList && !(base instanceof Node)) {
             // if the base object is a DOM NodeList, the property must be an index
             int index = getPropertyAsIndex(property);
             if (index >= 0) {
@@ -94,6 +93,12 @@ public class DomELResolver extends ELResolver {
             } else {
                 base = ((NodeList) base).item(0);
             }
+        } else if (base instanceof MapOfNodes) {
+            if (context != null) {
+                context.setPropertyResolved(true);
+            }
+            MapOfNodes map = (MapOfNodes) base;
+            return map.get(propertyAsString);
         }
 
         if (base instanceof Node) {
@@ -106,12 +111,12 @@ public class DomELResolver extends ELResolver {
                     NodeList nodeList = XPathAPI.selectNodeList(baseNode, propertyAsString);
 
                     ListOfNodes list = new ListOfNodes();
-                    
+
                     for (int i = 0; i < nodeList.getLength(); i++) {
                         Node node = nodeList.item(i);
                         list.add(node);
                     }
-                    
+
                     // if we found a node then we consider the expression resolved
                     if (!list.isEmpty()) {
                         if (context != null) {
@@ -195,6 +200,11 @@ public class DomELResolver extends ELResolver {
         return true;
     }
 
+    private String normalize(String s) {
+        s = s.replaceAll("`", "'");
+        return s;
+    }
+
     /**
      * @param el the element to search for children with a given tag name
      * @param tagChildName the tag name
@@ -230,18 +240,103 @@ public class DomELResolver extends ELResolver {
         return false;
     }
 
+    private Object getChildrenByQuery(Object base, String query) {
+        ListOfNodes list = null;
+        if (base instanceof NodeList) {
+            NodeList nodeList = (NodeList) base;
+            list = new ListOfNodes();
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node node = nodeList.item(i);
+                list.add(node);
+            }
+        } else if (base instanceof ListOfNodes) {
+            list = (ListOfNodes) base;
+        }
+        Object result = null;
+        if (list != null) {
+            result = getChildFromNodeListByQuery(list, query);
+        }
+
+        return null;
+    }
+
+    private Object getChildFromNodeListByQuery(ListOfNodes list, String query) {
+        if (list.isEmpty()) {
+            return null;
+        }
+        query = query.trim();
+        if (query.equals("first()")) {
+            return list.get(0);
+        } else if (query.equals("last()")) {
+            return list.get(list.size() - 1);
+        } else if (query.startsWith("@")) {
+            query = query.substring(1);
+            String aname = query;
+            if (!containsOnlyAlphaNumeric(aname)) {
+                return null;
+            }
+            MapOfNodes map = new MapOfNodes();
+            for (Node node : list) {
+                Element el = (Element) node;
+                if (el.hasAttribute(aname)) {
+                    ListOfNodes lnodes = map.get(aname);
+                    if (lnodes == null) {
+                        lnodes = new ListOfNodes();
+                        map.put(aname, lnodes);
+                    }
+                    lnodes.add(node);
+                }
+            }
+
+            return map;
+        } else {
+            Node first = list.get(0);
+            Node parent = first.getParentNode();
+            String tname = first.getLocalName();
+            if (query.startsWith("/")) {
+
+            } else if (query.startsWith("first()")
+                    || query.startsWith("last()")
+                    || query.startsWith("@")) {
+                query = tname + "[" + query + "]";
+            }
+            try {
+                NodeList nodeList = XPathAPI.selectNodeList(parent, query);
+
+                ListOfNodes result = new ListOfNodes();
+
+                for (int i = 0; i < nodeList.getLength(); i++) {
+                    Node node = nodeList.item(i);
+                    list.add(node);
+                }
+
+                return result;
+
+            } catch (TransformerException te) {
+                throw new ELException(String.format("(Cannot compile XPath %s.)", query), te);
+            }
+
+        }
+    }
+
     /**
      * Encapsulates a list of nodes to give EL the opportunity to work with as
      * with a normal collection. Also it evaluates to a string, as the first
      * node text content.
      */
-    @SuppressWarnings("serial")
     private static class ListOfNodes extends ArrayList<Node> {
+
+        public ListOfNodes() {
+        }
 
         @Override
         public String toString() {
             return get(0).getTextContent();
         }
+    }
+
+    private static class MapOfNodes extends LinkedHashMap<String, ListOfNodes> {
+
     }
 
 }
