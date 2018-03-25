@@ -364,6 +364,27 @@ public class XPathELResolver extends ELResolver {
                     return map;
                 }
             }
+            query = expression.trim();
+        }
+
+        if (base instanceof Node) {
+            Node baseNode = (Node) base;
+            if (hasChildElements(baseNode)) {
+                XPathNodeList c = getChildrenByTagName(baseNode, expression);
+                if (c != null) {
+                    return c;
+                }
+            }
+        }
+        
+        if (base instanceof Element) {
+            Element el = (Element) base;
+            if (el.hasAttribute(expression)) {
+                if (context != null) {
+                    context.setPropertyResolved(true);
+                }
+                return el.getAttribute(query);
+            }
         }
 
         XPathVariableResolver jxvr = new JSTLXPathVariableResolver(context);
@@ -550,6 +571,32 @@ public class XPathELResolver extends ELResolver {
         return boundDocument;
     }
 
+    private boolean hasChildElements(Node el) {
+        NodeList children = el.getChildNodes();
+        for (int i = 0, n = children.getLength(); i < n; i++) {
+            if (children.item(i) instanceof Element) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private XPathNodeList getChildrenByTagName(Node el, String tagChildName) {
+        XPathNodeList l = new XPathNodeList();
+        NodeList children = el.getChildNodes();
+        for (int i = 0, n = children.getLength(); i < n; i++) {
+            Node c = children.item(i);
+            if (c instanceof Element) {
+                Element ce = (Element) c;
+                if (tagChildName.equals(ce.getTagName())) {
+                    l.add(ce);
+                }
+            }
+        }
+        return l.isEmpty() ? null : l;
+    }
+    
+    
     private boolean containsOnlyAlphaNumeric(String s) {
         for (int i = 0, n = s.length(); i < n; i++) {
             if (!Character.isLetterOrDigit(s.codePointAt(i))) {
