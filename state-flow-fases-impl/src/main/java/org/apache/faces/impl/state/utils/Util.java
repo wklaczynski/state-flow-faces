@@ -243,4 +243,12 @@ public class Util {
         return result;
     }
 
+    public static void notNull(String varname, Object var) {
+
+        if (var == null) {
+            throw new NullPointerException(String.format("valuue %s can not be null.", varname));
+        }
+        
+    }
+    
 }

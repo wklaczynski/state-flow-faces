@@ -67,6 +67,7 @@ import org.apache.faces.state.annotation.StateChartAction;
 import org.apache.scxml.env.AbstractSCXMLListener;
 import org.apache.scxml.env.SimpleSCXMLListener;
 import org.apache.scxml.model.EnterableState;
+import org.apache.scxml.model.Var;
 
 /**
  *
@@ -87,6 +88,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         customInvokers.put("view", ViewInvoker.class);
         customInvokers.put("scxml", SubInvoker.class);
+        
+        customActions.add(new CustomAction("http://xmlns.apache.org/faces/scfx", "var", Var.class));
+        
 
         Set<Class<?>> annotatedClasses = (Set<Class<?>>) ctx.getAttribute(ANNOTATED_CLASSES);
         for (Class<?> type : annotatedClasses) {

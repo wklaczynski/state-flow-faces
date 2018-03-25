@@ -26,15 +26,6 @@
                 <h:panelGroup>
                     <h:messages/> 
                 </h:panelGroup>
-
-                <h:panelGroup >
-                    <h3>Test assigned data in owned &lt;scxml&gt; state flow faces.</h3>
-                    <p/>
-                    <h4>Data assigned of root context in &lt;scxml&gt; tag content.</h4>
-                    <p/>
-                    <h4>Reading data assigned in &lt;scxml&gt;, when use el query witch XPath.</h4>
-                    <p/>
-                </h:panelGroup>
                 <h:panelGroup id="asign-test">
                     <hr/>
                     <h3>Test data manipulation in executed states.</h3>
@@ -51,6 +42,9 @@
                             <f:ajax render="asign-test"/>
                         </h:commandButton>
                         <h:commandButton action="clear" value="Clear Test">
+                            <f:ajax render="asign-test"/>
+                        </h:commandButton>
+                        <h:commandButton action="calculate" value="Calculate Test">
                             <f:ajax render="asign-test"/>
                         </h:commandButton>
                     </h:panelGrid>

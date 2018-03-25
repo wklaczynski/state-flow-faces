@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2018 Waldemar Kłaczyński.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<facelet-taglib
+    xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facelettaglibrary_2_0.xsd"
+    version="2.0">
+    <namespace>http://xmlns.apache.org/faces/scfx</namespace>
+        
+    <function>
+        <description>
+            Tests if an input state name is in current stats.
+        </description>
+        <function-name>in</function-name>
+        <function-class>org.apache.faces.impl.state.tag.FacesFlowBuiltin</function-class>
+        <function-signature>boolean isMember(java.lang.String)</function-signature>
+    </function>
+
+    <!--Custom action unspecfied SCXML-->
+    <tag>
+        <tag-name>var</tag-name>
+        <description><![CDATA[The <var> element is used to modify the data model.]]></description>
+        <handler-class>org.apache.faces.state.tag.CustomActionHandler</handler-class>
+        <attribute>
+            <description><![CDATA[The name in the data model into which to insert the new value. See 5.9.2 Location Expressions for details.]]></description>
+            <name>name</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description><![CDATA[An expression returning the value to be assigned. See 5.9.3 Legal Data Values and Value Expressions for details.]]></description>
+            <name>expr</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+                        
+</facelet-taglib>

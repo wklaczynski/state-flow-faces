@@ -3,6 +3,7 @@
 <f:metadata
     xmlns:f="http://xmlns.jcp.org/jsf/core"
     xmlns:x="http://xmlns.apache.org/faces/scxml"
+    xmlns:fx="http://xmlns.apache.org/faces/scfx"
     xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
     >
     <x:scxml id="main" initial="start">
@@ -34,6 +35,10 @@
 
                 <x:transition event="view.action.accept" target="success"/>
                 <x:transition event="view.action.cancel" target="cancel"/>
+                
+                <x:transition event="view.action.calculate">
+                    <fx:var name="test" expr="#{main.assignedTest1}"/>
+                </x:transition>
             </x:state>
 
             <x:state id="test-process">

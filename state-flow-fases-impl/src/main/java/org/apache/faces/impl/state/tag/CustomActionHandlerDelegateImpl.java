@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.facelets;
+package org.apache.faces.impl.state.tag;
 
-import com.sun.faces.facelets.tag.MetaRulesetImpl;
 import com.sun.faces.util.Util;
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,7 +25,6 @@ import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.MetaRuleset;
 import javax.faces.view.facelets.TagException;
 import javax.faces.view.facelets.TagHandlerDelegate;
-import org.apache.faces.impl.state.tag.AbstractFlowTagHandler;
 import static org.apache.faces.impl.state.tag.AbstractFlowTagHandler.CURRENT_FLOW_OBJECT;
 import static org.apache.faces.impl.state.tag.AbstractFlowTagHandler.getElement;
 import org.apache.faces.state.tag.CustomActionHandler;
@@ -51,7 +49,7 @@ public class CustomActionHandlerDelegateImpl extends TagHandlerDelegate {
     @Override
     public MetaRuleset createMetaRuleset(Class type) {
         Util.notNull("type", type);
-        MetaRuleset m = new MetaRulesetImpl(owner.getTag(), type);
+        MetaRuleset m = new FlowMetaRulesetImpl(owner.getTag(), type);
         return m.ignore("binding").ignore("disabled").ignore("for");
     }
 
@@ -86,7 +84,7 @@ public class CustomActionHandlerDelegateImpl extends TagHandlerDelegate {
         }
 
         if (customAction == null) {
-            throw new TagException(owner.getTag(), String.format("action <%s> from %s is not registered.", aname, anamespace));
+            throw new TagException(owner.getTag(), String.format("action %s from %s is not registered.", aname, anamespace));
         }
 
         MetaRuleset ruleset;

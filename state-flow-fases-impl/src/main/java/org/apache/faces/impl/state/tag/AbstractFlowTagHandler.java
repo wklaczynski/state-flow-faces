@@ -35,6 +35,7 @@ import java.util.Stack;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import javax.faces.FacesException;
 import javax.faces.application.ProjectStage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
@@ -54,6 +55,7 @@ import org.apache.scxml.model.State;
 import org.apache.scxml.model.TransitionalState;
 import org.apache.faces.impl.state.log.FlowLogger;
 import org.apache.faces.impl.state.utils.Util;
+import static org.apache.faces.state.StateFlow.CUSTOM_ACTIONS_HINT;
 import org.apache.scxml.io.ContentParser;
 import org.apache.scxml.model.CustomAction;
 import org.apache.scxml.model.ParsedValue;
@@ -215,7 +217,7 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         pushElement(parent, CURRENT_FLOW_OBJECT, element);
         try {
             call.call();
-        } catch (IOException e) {
+        } catch (FacesException | IOException e) {
             throw e;
         } catch (Exception e) {
             throw new IOException(e);
@@ -227,7 +229,7 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
 
     
     public static List<CustomAction> getCustomActions(FaceletContext ctx, UIComponent parent) {
-        List<CustomAction> customActions = (List<CustomAction>) getElement(parent, CURRENT_FLOW_OBJECT);
+        List<CustomAction> customActions = (List<CustomAction>) getElement(parent, CUSTOM_ACTIONS_HINT);
         return customActions;
     }
     

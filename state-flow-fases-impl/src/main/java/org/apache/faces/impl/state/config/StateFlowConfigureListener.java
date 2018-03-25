@@ -23,7 +23,7 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 import org.apache.faces.impl.state.StateFlowHandlerImpl;
 import org.apache.faces.impl.state.cdi.StateChartCDIContext;
-import org.apache.faces.impl.state.facelets.TagHandlerDelegateFactoryImpl;
+import org.apache.faces.impl.state.tag.TagHandlerDelegateFactoryImpl;
 import org.apache.faces.state.tag.TagHandlerDelegateFactory;
 
 /**

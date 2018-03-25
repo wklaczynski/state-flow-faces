@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.facelets;
+package org.apache.faces.impl.state.tag;
 
+import org.apache.faces.impl.state.tag.CustomActionHandlerDelegateImpl;
 import javax.faces.view.facelets.TagHandlerDelegate;
 import org.apache.faces.state.tag.CustomActionHandler;
 import org.apache.faces.state.tag.TagHandlerDelegateFactory;
