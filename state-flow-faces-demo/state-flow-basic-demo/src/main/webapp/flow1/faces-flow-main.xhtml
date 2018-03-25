@@ -3,6 +3,7 @@
 <f:metadata
     xmlns:f="http://xmlns.jcp.org/jsf/core"
     xmlns:x="http://xmlns.apache.org/faces/scxml"
+    xmlns:fx="http://xmlns.apache.org/faces/scfx"
     xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
     >
     <x:scxml id="main" initial="start">
@@ -11,9 +12,8 @@
             <x:data id="hasback" expr="#{scxml_has_parent == true}"/>
             <x:data id="chart_title" expr="State Flow Faces from Faces Metadata"/>
             <x:data id="chart_view" expr="/flow1/faces-flow-main.xhtml"/>
-
             <x:data id="assignedTest2" expr="no tested"/>
-
+            <x:data id="assignedRasult" expr="no result"/>
             <x:data id="book" src="/test/data.xml"/>
         </x:datamodel>
 
@@ -58,7 +58,8 @@
                 <x:assign location="#{main.assignedTest1}"/>
                 <x:raise event="clear-test.finish"/>
             </x:onentry>
-            <x:transition event="clear-test.finish" target="main"/>
+            <x:transition event="clear-test.finish" target="main">
+            </x:transition>
         </x:state> 
 
 

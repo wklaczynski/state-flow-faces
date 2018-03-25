@@ -108,7 +108,7 @@ public class SimpleDispatcher implements EventDispatcher, Serializable {
      * The <code>Map</code> of active <code>Timer</code>s, keyed by &lt;send&gt;
      * element <code>id</code>s.
      */
-    private final Map<String, Timer> timers = Collections.synchronizedMap(new HashMap<String, Timer>());
+    private final Map<String, Timer> timers = Collections.synchronizedMap(new HashMap<>());
 
     /**
      * Get the log instance.
