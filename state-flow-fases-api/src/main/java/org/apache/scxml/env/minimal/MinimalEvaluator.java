@@ -88,6 +88,11 @@ public class MinimalEvaluator implements Evaluator, Serializable {
     }
 
     @Override
+    public Object evalMethod(Context ctx, String expr, Class[] pclass, Object[] param) throws SCXMLExpressionException {
+        return null;
+    }
+
+    @Override
     public void evalAssign(final Context ctx, final String location, final Object data) throws SCXMLExpressionException {
         throw new UnsupportedOperationException("Assign expressions are not supported by the \"null\" datamodel");
     }

@@ -39,7 +39,7 @@ public class CancelTagHandler extends AbstractFlowTagHandler<Cancel> {
 
     public CancelTagHandler(TagConfig config) {
         super(config, Cancel.class);
-        
+
         in("onentry", OnEntry.class);
         in("onexit", OnExit.class);
         in("transition", Transition.class);
@@ -59,10 +59,14 @@ public class CancelTagHandler extends AbstractFlowTagHandler<Cancel> {
         Cancel action = new Cancel();
         decorate(ctx, parent, action);
 
-        action.setSendid(sendid.getValue());
-        
+        if (sendid.isLiteral()) {
+            action.setSendid(sendid.getValue());
+        } else {
+            action.setSendidexpr(sendid.getValue());
+        }
+
         applyNext(ctx, parent, action);
-        
+
         addAction(ctx, parent, action);
     }
 

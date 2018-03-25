@@ -15,6 +15,7 @@
  */
 package org.apache.faces.impl.state.evaluator;
 
+import com.sun.faces.facelets.el.ELText;
 import org.apache.faces.impl.state.el.CompositeFunctionMapper;
 import java.io.Serializable;
 import java.util.Map;
@@ -24,6 +25,7 @@ import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.el.ExpressionFactory;
 import javax.el.FunctionMapper;
+import javax.el.MethodExpression;
 import javax.el.ValueExpression;
 import javax.el.VariableMapper;
 import javax.faces.context.FacesContext;
@@ -93,7 +95,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
         }
 
         ctx = getEffectiveContext(ctx);
-        
+
         ec.putContext(Context.class, ctx);
         ec.putContext(FacesContext.class, fc);
         try {
@@ -114,12 +116,16 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     @Override
     public void evalAssign(Context ctx, String location, Object data) throws SCXMLExpressionException {
         wrap(ctx, location, () -> {
-            if (data == null) {
-                ValueExpression ve = ef.createValueExpression(ec, location, Object.class);
-                ve.setValue(ec, null);
+            if (ELText.isLiteral(location)) {
+                ctx.set(location, data);
             } else {
-                ValueExpression ve = ef.createValueExpression(ec, location, data.getClass());
-                ve.setValue(ec, data);
+                if (data == null) {
+                    ValueExpression ve = ef.createValueExpression(ec, location, Object.class);
+                    ve.setValue(ec, null);
+                } else {
+                    ValueExpression ve = ef.createValueExpression(ec, location, data.getClass());
+                    ve.setValue(ec, data);
+                }
             }
             return null;
         });
@@ -143,6 +149,14 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     }
 
     @Override
+    public Object evalMethod(Context ctx, String expr, Class[] pclass, Object[] param) throws SCXMLExpressionException {
+        return wrap(ctx, expr, () -> {
+            MethodExpression me = ef.createMethodExpression(ec, resolve(ctx, expr), Object.class, pclass);
+            return me.invoke(ec, param);
+        });
+    }
+    
+    @Override
     public Object evalScript(Context ctx, String script) throws SCXMLExpressionException {
         return wrap(ctx, script, () -> {
             ValueExpression ve = ef.createValueExpression(ec, resolve(ctx, script), Object.class);
@@ -158,7 +172,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     protected StateFlowContext getEffectiveContext(final Context nodeCtx) {
         return new StateFlowContext(nodeCtx, new EffectiveContextMap(nodeCtx));
     }
-    
+
     public class ContextWrapper extends ELContext implements Serializable {
 
         private final ELContext ctx;

@@ -39,6 +39,7 @@ public class ContentTagHandler extends AbstractFlowTagHandler<Content> {
     protected final TagAttribute expr;
 
     private ParsedValue staticValue;
+    private boolean resolved;
 
     public ContentTagHandler(TagConfig config) {
         super(config, Content.class);
@@ -53,16 +54,20 @@ public class ContentTagHandler extends AbstractFlowTagHandler<Content> {
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         ContentContainer continer = (ContentContainer) parentElement;
-        if(continer.getContent() != null) {
+        if (continer.getContent() != null) {
             throw new TagException(this.tag, "already defined in this element!");
         }
-        
+
         Content data = new Content();
         decorate(ctx, parent, data);
 
-        data.setExpr(expr != null ? expr.getValue() : null);
-
-        applyNext(ctx, parent, data);
+        if (expr != null) {
+            data.setExpr(expr.getValue());
+        } else if (!resolved || !isProductionMode(ctx)) {
+            staticValue = getParsedBodyValue(ctx, parent);
+            data.setParsedValue(staticValue);
+        }
+        resolved = true;
 
         continer.setContent(data);
 

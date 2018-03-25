@@ -423,4 +423,129 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         return found.iterator();
     }
 
+    public String getResourceScript(FaceletContext ctx, UIComponent parent, String url) throws IOException {
+        String result = null;
+        try {
+            FacesContext fc = ctx.getFacesContext();
+            URL resource = fc.getExternalContext().getResource(url);
+            result = Util.readResource(resource);
+        } catch (IOException e) {
+            throw new TagException(this.tag,
+                    String.format("can not build data %s.", Util.getErrorMessage(e)));
+        }
+        return result;
+    }
+
+    public String getBodyScript(FaceletContext ctx, UIComponent parent) throws IOException {
+        String result = null;
+        UIPanel panel = new UIPanel();
+        try {
+            parent.getChildren().add(panel);
+            nextHandler.apply(ctx, panel);
+
+            String body = null;
+            for (UIComponent child : panel.getChildren()) {
+                if (child instanceof UIInstructions) {
+                    UIInstructions uii = (UIInstructions) child;
+                    String sbody = Util.trimContent(uii.toString().trim());
+                    boolean script = false;
+                    int ind = sbody.indexOf("<script");
+                    if (ind >= 0) {
+                        ind = sbody.indexOf(">", ind);
+                        if (ind >= 0) {
+                            script = true;
+                            sbody = sbody.substring(ind + 1).trim();
+                        }
+                        ind = sbody.lastIndexOf("</script");
+                        if (ind >= 0) {
+                            sbody = sbody.substring(0, ind).trim();
+                        }
+                    }
+
+                    if (script) {
+                        body = sbody;
+                    }
+                    break;
+                }
+            }
+
+            if (body != null) {
+                result = body;
+            }
+        } catch (IOException e) {
+            throw new TagException(this.tag,
+                    String.format("can not build body. (%s)", Util.getErrorMessage(e)));
+        } finally {
+            parent.getChildren().remove(panel);
+        }
+        return result;
+    }
+    
+    
+    public ParsedValue getParsedResorceValue(FaceletContext ctx, UIComponent parent, String url) throws IOException {
+        ParsedValue result = null;
+        try {
+            FacesContext fc = ctx.getFacesContext();
+            URL resource = fc.getExternalContext().getResource(url);
+            result = ContentParser.parseResource(resource);
+        } catch (IOException e) {
+            throw new TagException(this.tag,
+                    String.format("can not build data %s.", Util.getErrorMessage(e)));
+        }
+        return result;
+    }
+
+    public ParsedValue getParsedBodyValue(FaceletContext ctx, UIComponent parent) throws IOException {
+        ParsedValue result = null;
+        UIPanel panel = new UIPanel();
+        try {
+            parent.getChildren().add(panel);
+            nextHandler.apply(ctx, panel);
+
+            String body = null;
+            for (UIComponent child : panel.getChildren()) {
+                if (child instanceof UIInstructions) {
+                    UIInstructions uii = (UIInstructions) child;
+                    String sbody = ContentParser.trimContent(uii.toString().trim());
+                    boolean script = false;
+                    int ind = sbody.indexOf("<script");
+                    if (ind >= 0) {
+                        ind = sbody.indexOf(">", ind);
+                        if (ind >= 0) {
+                            script = true;
+                            sbody = sbody.substring(ind + 1).trim();
+                        }
+                        ind = sbody.lastIndexOf("</script");
+                        if (ind >= 0) {
+                            sbody = sbody.substring(0, ind).trim();
+                        }
+                    }
+
+                    if (script) {
+                        if (!(sbody.startsWith("{") || sbody.startsWith("["))) {
+                            sbody = "{" + sbody + "}";
+                        }
+                    }
+
+                    if (sbody.startsWith("<xml") && sbody.endsWith("</xml>")) {
+                        sbody = "<?xml version=\"1.0\"?>" + sbody;
+                    }
+
+                    body = sbody;
+                    break;
+                }
+            }
+
+            if (body != null) {
+                result = ContentParser.parseContent(body);
+            }
+        } catch (IOException e) {
+            throw new TagException(this.tag,
+                    String.format("can not build body. (%s)", Util.getErrorMessage(e)));
+        } finally {
+            parent.getChildren().remove(panel);
+        }
+        return result;
+    }
+    
 }

@@ -74,6 +74,20 @@ public interface Evaluator {
     Boolean evalCond(Context ctx, String expr)
     throws SCXMLExpressionException;
 
+    
+    /**
+     * Evaluate a method
+     *
+     * @param ctx variable context
+     * @param expr expression
+     * @param pclass method params class
+     * @param param method params
+     * @return the result of the evaluation
+     * @throws SCXMLExpressionException A malformed expression exception
+     */
+    Object evalMethod(Context ctx, String expr, Class[] pclass, Object[] param)
+            throws SCXMLExpressionException;
+    
     /**
      * Assigns data to a location
      *
