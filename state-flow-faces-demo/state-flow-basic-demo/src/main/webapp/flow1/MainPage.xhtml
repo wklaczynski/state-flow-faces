@@ -69,10 +69,10 @@
                             <f:facet name="header">Actions</f:facet>
                             <h:panelGrid columns="3">
                                 <h:commandButton action="show" value="Show">
-                                    <f:param name="clid" value="#{cvar.id.textContent}"/>
+                                    <f:param name="clid" value="#{cvar.$attr.id.textContent}"/>
                                 </h:commandButton>
                                 <h:commandButton action="change" value="Change">
-                                    <f:param name="clid" value="#{cvar.id.textContent}"/>
+                                    <f:param name="clid" value="#{cvar.$attr.id.textContent}"/>
                                 </h:commandButton>
                             </h:panelGrid>
                         </h:column> 

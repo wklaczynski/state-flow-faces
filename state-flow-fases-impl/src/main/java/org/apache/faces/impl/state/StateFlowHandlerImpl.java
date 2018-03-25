@@ -89,7 +89,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         customInvokers.put("view", ViewInvoker.class);
         customInvokers.put("scxml", SubInvoker.class);
         
-        customActions.add(new CustomAction("http://xmlns.apache.org/faces/scfx", "var", Var.class));
+        customActions.add(new CustomAction("http://xmlns.apache.org/faces/scxml", "var", Var.class));
         
 
         Set<Class<?>> annotatedClasses = (Set<Class<?>>) ctx.getAttribute(ANNOTATED_CLASSES);

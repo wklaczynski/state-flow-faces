@@ -388,8 +388,16 @@ public class ViewInvoker implements Invoker, Serializable {
 
         if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
             if (viewId.equals(event.getSendId())) {
+                FacesContext context = FacesContext.getCurrentInstance();
+                ExternalContext ec = context.getExternalContext();
+
+                Map<String, String> params = new HashMap<>();
+                params.putAll(ec.getRequestParameterMap());
+                
                 String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
                 EventBuilder evb = new EventBuilder("view.action." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
+                
+                evb.data(params);
                 evb.sendId(invokeId);
                 executor.addEvent(evb.build());
             }

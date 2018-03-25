@@ -38,7 +38,9 @@
                 <x:log expr="I'm finishing show-client"/>
             </x:onexit>
 
-            <x:invoke type="view" src="ShowClientPage.xhtml"/>
+            <x:invoke type="view" src="ShowClientPage.xhtml">
+                <x:param name="editable" expr="true"/>
+            </x:invoke>
 
             <x:transition event="error.execution" target="error"/>
 

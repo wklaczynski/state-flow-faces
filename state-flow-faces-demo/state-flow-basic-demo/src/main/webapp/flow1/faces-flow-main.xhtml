@@ -62,6 +62,9 @@
 
 
         <x:state id="show-client"> 
+            <x:onentry>
+                <x:var name="selectedId" expr="#{param.clid}"/>
+            </x:onentry>
             <x:invoke type="scxml" src="faces-flow-show-client.xhtml">
                 <x:param name="clientId" expr="#{param.clid}"/>
                 <x:param name="clientName" expr="#{book.client[param.clid].name.textContent}"/>

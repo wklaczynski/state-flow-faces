@@ -37,7 +37,7 @@ import org.apache.scxml.system.EventVariable;
 public class EvaluatorELResolver extends ELResolver implements Serializable {
 
     public static final String DONE_DATA_NAME = "@done";
-    public static final String RESULT_DATA_NAME = "@result";
+    public static final String RESULT_DATA_NAME = "@param";
     public static final String EVENT_VAR_NAME = "@event";
 
     private static final Set<String> writeprotect = new HashSet<>(Arrays.asList(
