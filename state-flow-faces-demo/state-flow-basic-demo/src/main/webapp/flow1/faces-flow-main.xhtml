@@ -68,7 +68,9 @@
             <x:invoke type="scxml" src="faces-flow-show-client.xhtml">
                 <x:param name="clientId" expr="#{selected.id.$text}"/>
                 <x:param name="clientName" expr="#{selected.name.$text}"/>
-                <x:param name="clientMobilePhone" expr=".phone['@type=\'mobile\''].textContent}"/>
+                <x:param name="clientSurname" expr="#{selected.surname.$text}"/>
+                <x:param name="clientMobilePhone" expr="#{selected.phone['@type=\'mobile\''].$text}"/>
+                <x:param name="clientHomePhone" expr="#{selected.phone['@type=\'home\''].$text}"/>
             </x:invoke>
             <x:transition event="error.execution" target="main"/>
             <x:transition event="done.invoke.show-client" target="main"/>
