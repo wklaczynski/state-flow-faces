@@ -13,7 +13,7 @@
             <x:data id="chart_view" expr="/flow1/faces-flow-main.xhtml"/>
 
             <x:data id="assignedTest2" expr="no tested"/>
-            
+
             <x:data id="book" src="/test/data.xml"/>
         </x:datamodel>
 
@@ -30,7 +30,10 @@
         </x:state>
 
         <x:state id="main">
-            <x:invoke type="view" src="MainPage.xhtml"/>
+            <x:invoke type="view" src="MainPage.xhtml">
+                <x:param name="page_description" expr="Page description from scxml."/>
+            </x:invoke>
+            
             <x:transition event="error.execution" target="main"/>
 
             <x:transition event="view.action.show" target="show-client"/>

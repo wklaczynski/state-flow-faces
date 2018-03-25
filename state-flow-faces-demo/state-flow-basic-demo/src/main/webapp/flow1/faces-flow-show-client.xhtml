@@ -58,21 +58,13 @@
         </x:final>
 
         <x:final id="cancel">
-            <x:onentry>
-                <x:log expr="I'm starting cancel"/>
-            </x:onentry>
-            <x:onexit>
-                <x:log expr="I'm finishing cancel"/>
-            </x:onexit>
+            
         </x:final>
 
         <x:final id="success">
-            <x:onentry>
-                <x:log expr="I'm starting success"/>
-            </x:onentry>
-            <x:onexit>
-                <x:log expr="I'm finishing success"/>
-            </x:onexit>
+            <x:donedata>
+                <x:param name="responce" expr="success"/>
+            </x:donedata>
         </x:final>
 
     </x:scxml>    

@@ -3,6 +3,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:f="http://xmlns.jcp.org/jsf/core">
+    
+    <f:metadata>
+        <f:viewParam name="page_description"/>
+    </f:metadata>
+    
     <h:head>
         <title>Main State Flow Faces</title>
         <h:outputStylesheet library="css" name="demo-style.css"  />
@@ -22,6 +27,8 @@
                 Assigned data and navigation is from &lt;scxml&gt; and current &lt;state&gt;.
                 <p/>
                 <b>Used bean:</b> <i>"#{main.beanTitle}"</i>  in chart scope.
+                <p/>
+                <b>View Param:</b> <i>"#{page_description}"</i>  mapped from scxml invoke param.
                 <hr/>
                 <h:panelGroup>
                     <h:messages/> 

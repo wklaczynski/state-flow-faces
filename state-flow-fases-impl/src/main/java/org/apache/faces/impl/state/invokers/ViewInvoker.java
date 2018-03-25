@@ -306,7 +306,7 @@ public class ViewInvoker implements Invoker, Serializable {
                         UIViewParameter parametr = (UIViewParameter) target;
                         String name = parametr.getName();
                         if (params.containsKey(name)) {
-                            parametr.setSubmittedValue(params.get(name));
+                            parametr.setValue(params.get(name));
                         }
                     }
                     return VisitResult.ACCEPT;

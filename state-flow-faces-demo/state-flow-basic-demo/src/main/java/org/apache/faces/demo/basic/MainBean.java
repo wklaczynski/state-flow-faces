@@ -29,6 +29,7 @@ public class MainBean implements Serializable {
     
     private String assignedTest1 = "";
     private String assignedTest2 = "";
+    private String description = "";
     
     public boolean prepare() {
         return true;
@@ -38,6 +39,14 @@ public class MainBean implements Serializable {
         return "Main Bean";
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
     public String getAssignedTest1() {
         return assignedTest1;
     }
