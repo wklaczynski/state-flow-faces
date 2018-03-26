@@ -36,7 +36,7 @@ import static org.apache.faces.impl.state.StateFlowConstants.STATE_CHART_DEFAULT
 import static org.apache.faces.impl.state.StateFlowConstants.STATE_CHART_REQUEST_PARAM_NAME;
 import org.apache.faces.impl.state.config.StateWebConfiguration;
 import static org.apache.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
-import static org.apache.faces.state.StateFlow.FACES_PROCESS_VALIDATIONS;
+import static org.apache.faces.state.StateFlow.FACES_PHASE_EVENT_PREFIX;
 import static org.apache.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
 import static org.apache.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.scxml.EventBuilder;
@@ -60,8 +60,8 @@ public class StateFlowPhaseListener implements PhaseListener {
 
                 SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
 
-                String name = FACES_PROCESS_VALIDATIONS
-                        + event.getPhaseId().getName().toLowerCase();;
+                String name = FACES_PHASE_EVENT_PREFIX
+                        + event.getPhaseId().getName().toLowerCase();
 
                 EventBuilder eb = new EventBuilder(
                         name, TriggerEvent.CALL_EVENT);
@@ -91,8 +91,8 @@ public class StateFlowPhaseListener implements PhaseListener {
             StateFlowHandler fh = StateFlowHandler.getInstance();
             if (fh.isActive(context)) {
 
-                String name = FACES_PROCESS_VALIDATIONS
-                        + event.getPhaseId().getName().toLowerCase();;
+                String name = FACES_PHASE_EVENT_PREFIX
+                        + event.getPhaseId().getName().toLowerCase();
 
                 EventBuilder eb = new EventBuilder(
                         name, TriggerEvent.CALL_EVENT);

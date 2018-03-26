@@ -43,8 +43,9 @@ public class StateFlow {
     
     public static final String FACES_PHASE_EVENT_PREFIX = "faces.phase.";
 
-    public static final String FACES_RESTORE_VIEW = FACES_PHASE_EVENT_PREFIX + "restore";
-
+    public static final String FACES_RESTORE_VIEW = FACES_PHASE_EVENT_PREFIX + 
+            PhaseId.RESTORE_VIEW.getName().toLowerCase();
+    
     public static final String FACES_RENDER_VIEW = FACES_PHASE_EVENT_PREFIX + 
             PhaseId.RENDER_RESPONSE.getName().toLowerCase();
 

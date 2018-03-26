@@ -52,8 +52,7 @@ import org.apache.scxml.invoke.InvokerException;
 import org.apache.scxml.model.SCXML;
 import org.apache.faces.impl.state.utils.SharedUtils;
 import static org.apache.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
-import static org.apache.faces.state.StateFlow.FACES_RENDER_VIEW;
-import static org.apache.faces.state.StateFlow.FACES_RESTORE_VIEW;
+import static org.apache.faces.state.StateFlow.FACES_PHASE_EVENT_PREFIX;
 import static org.apache.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.scxml.EventBuilder;
@@ -372,8 +371,8 @@ public class ViewInvoker implements Invoker, Serializable {
             return;
         }
 
-        if (event.getType() == TriggerEvent.CALL_EVENT && (event.getName().equals(FACES_RESTORE_VIEW)
-                || event.getName().equals(FACES_RENDER_VIEW))) {
+        if (event.getType() == TriggerEvent.CALL_EVENT && (event.getName()
+                .startsWith(FACES_PHASE_EVENT_PREFIX))) {
             if (viewId.equals(event.getSendId())) {
                 FacesContext context = FacesContext.getCurrentInstance();
                 
