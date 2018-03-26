@@ -94,7 +94,7 @@
                 event="done.invoke.update-client" 
                 cond="#{event.data.result == 'success'}" 
                 target="main">
-                <!--x:assign location="#{selected.name.$text}" expr="#{event.data.name}"/-->
+                <x:assign location="#{selected.name.$text}" expr="#{event.data.name}"/>
 
 
             </x:transition> 

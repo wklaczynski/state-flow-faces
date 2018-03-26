@@ -27,6 +27,7 @@ import javax.el.ELContext;
 import javax.el.ELException;
 import javax.el.ELResolver;
 import javax.el.PropertyNotFoundException;
+import javax.el.PropertyNotWritableException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -101,14 +102,41 @@ public class XPathELResolver extends ELResolver {
                     throw new PropertyNotFoundException();
                 }
                 return result.getClass();
-
-            } else if (base instanceof NamedNodeMap) {
-                Node result = getFromNodeMap(context, (NamedNodeMap) base, property);
-                if (result != null) {
+            } else if (base instanceof XPathNodeList) {
+                context.setPropertyResolved(true);
+                XPathNodeList list = (XPathNodeList) base;
+                int index = toIndex(property);
+                if (index < 0) {
+                    Object result = selectObject(context, list, (String) property);
+                    if (result == null) {
+                        throw new PropertyNotFoundException();
+                    }
                     return result.getClass();
                 } else {
-                    return Node.class;
+                    if (index >= list.size()) {
+                        return null;
+                    }
+                    Object result = list.get(index);
+                    if (result == null) {
+                        throw new PropertyNotFoundException();
+                    }
+                    return result.getClass();
                 }
+            } else if (base instanceof XPathNodeMap) {
+                context.setPropertyResolved(true);
+                XPathNodeMap map = (XPathNodeMap) base;
+                Object result = selectObject(context, map, (String) property);
+                if (result == null) {
+                    throw new PropertyNotFoundException();
+                }
+                return result.getClass();
+            } else if (base instanceof NamedNodeMap) {
+                context.setPropertyResolved(true);
+                Node node = (Node) base;
+                Object result = selectObject(context, node, (String) property);
+                if (result == null) {
+                }
+                return result.getClass();
             } else if (base instanceof NodeList) {
                 context.setPropertyResolved(true);
                 NodeList list = (NodeList) base;
@@ -154,7 +182,8 @@ public class XPathELResolver extends ELResolver {
                     if (index >= list.size()) {
                         return null;
                     }
-                    return list.get(index);
+                    Object result = list.get(index);
+                    return result;
                 }
             } else if (base instanceof XPathNodeMap) {
                 context.setPropertyResolved(true);
@@ -175,7 +204,8 @@ public class XPathELResolver extends ELResolver {
                     if (index >= list.getLength()) {
                         return null;
                     }
-                    return list.item(index);
+                    Object result = list.item(index);
+                    return result;
                 }
             }
         }
@@ -189,12 +219,52 @@ public class XPathELResolver extends ELResolver {
             throw new NullPointerException();
         }
 
+        Node result = null;
         if (base != null) {
             if (base instanceof Node) {
-                context.setPropertyResolved(true);
                 Node node = (Node) base;
-
+                result = node;
+            } else if (base instanceof XPathNodeList) {
+                XPathNodeList list = (XPathNodeList) base;
+                if (list.isEmpty()) {
+                    throw new PropertyNotFoundException();
+                }
+                if (list.size() == 1) {
+                    result = list.get(0);
+                }
+            } else if (base instanceof NamedNodeMap) {
+                result = getFromNodeMap(context, (NamedNodeMap) base, property);
+            } else if (base instanceof NodeList) {
+                context.setPropertyResolved(true);
+                NodeList list = (NodeList) base;
+                int index = toIndex(property);
+                if (index < 0) {
+                    result = list.item(0);
+                } else {
+                    if (index < list.getLength()) {
+                        result = list.item(index);
+                    }
+                }
             }
+        }
+
+        if (result != null) {
+            context.setPropertyResolved(true);
+            Node node = (Node) result;
+            switch (property.toString().trim()) {
+                case "nodeValue":
+                case "$value":
+                    node.setNodeValue(val.toString());
+                    break;
+                case "textContent":
+                case "$text":
+                    node.setTextContent(val.toString());
+                    break;
+                default:
+                    throw new PropertyNotWritableException();
+            }
+        } else {
+            throw new PropertyNotFoundException();
         }
     }
 
@@ -205,25 +275,51 @@ public class XPathELResolver extends ELResolver {
             throw new NullPointerException();
         }
 
+        Node result = null;
         if (base != null) {
             if (base instanceof Node) {
-                context.setPropertyResolved(true);
-
-                return false;
+                Node node = (Node) base;
+                result = node;
+            } else if (base instanceof XPathNodeList) {
+                XPathNodeList list = (XPathNodeList) base;
+                if (list.isEmpty()) {
+                    throw new PropertyNotFoundException();
+                }
+                if (list.size() == 1) {
+                    result = list.get(0);
+                }
+            } else if (base instanceof NamedNodeMap) {
+                result = getFromNodeMap(context, (NamedNodeMap) base, property);
             } else if (base instanceof NodeList) {
                 context.setPropertyResolved(true);
                 NodeList list = (NodeList) base;
                 int index = toIndex(property);
                 if (index < 0) {
+                    result = list.item(0);
                 } else {
-                    if (index >= list.getLength()) {
-                        throw new PropertyNotFoundException();
+                    if (index < list.getLength()) {
+                        result = list.item(index);
                     }
-                    return list.getClass() == theUnmodifiableListClass || isReadOnly;
                 }
             }
         }
-        return false;
+
+        if (result != null) {
+            context.setPropertyResolved(true);
+            Node node = (Node) result;
+            switch (property.toString().trim()) {
+                case "nodeValue":
+                case "$value":
+                    return true;
+                case "textContent":
+                case "$text":
+                    return true;
+                default:
+                    return false;
+            }
+        } else {
+            throw new PropertyNotFoundException();
+        }
     }
 
     @Override
@@ -323,6 +419,23 @@ public class XPathELResolver extends ELResolver {
                     return selectObject(context, list.item(0), xpathString);
                 } else {
                     return selectNodes(context, base, xpathString);
+                }
+            }
+        }
+        return null;
+    }
+
+    public Node selectNode(ELContext context, Object base, String xpathString) throws ELException {
+        if (base != null) {
+            if (base instanceof Node) {
+                return (Node) base;
+            } else if (base instanceof XPathNodeList) {
+                XPathNodeList list = (XPathNodeList) base;
+                if (list.isEmpty()) {
+                    return null;
+                }
+                if (list.size() == 1) {
+                    return list.get(0);
                 }
             }
         }
