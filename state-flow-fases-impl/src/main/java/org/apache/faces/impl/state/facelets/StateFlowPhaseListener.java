@@ -36,8 +36,7 @@ import static org.apache.faces.impl.state.StateFlowConstants.STATE_CHART_DEFAULT
 import static org.apache.faces.impl.state.StateFlowConstants.STATE_CHART_REQUEST_PARAM_NAME;
 import org.apache.faces.impl.state.config.StateWebConfiguration;
 import static org.apache.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
-import static org.apache.faces.state.StateFlow.FACES_RENDER_VIEW;
-import static org.apache.faces.state.StateFlow.FACES_RESTORE_VIEW;
+import static org.apache.faces.state.StateFlow.FACES_PROCESS_VALIDATIONS;
 import static org.apache.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
 import static org.apache.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.scxml.EventBuilder;
@@ -60,11 +59,20 @@ public class StateFlowPhaseListener implements PhaseListener {
             if (fh.isActive(context)) {
 
                 SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
+
+                String name = FACES_PROCESS_VALIDATIONS
+                        + event.getPhaseId().getName().toLowerCase();;
+
+                EventBuilder eb = new EventBuilder(
+                        name, TriggerEvent.CALL_EVENT);
+
+                eb.sendId(context.getViewRoot().getViewId());
+
                 rootExecutor.addEvent(new EventBuilder(
-                        FACES_RESTORE_VIEW, TriggerEvent.CALL_EVENT)
+                        name, TriggerEvent.CALL_EVENT)
                         .sendId(context.getViewRoot().getViewId())
                         .build());
-                
+
                 try {
                     rootExecutor.triggerEvents();
                 } catch (ModelException ex) {
@@ -78,24 +86,32 @@ public class StateFlowPhaseListener implements PhaseListener {
     @Override
     public void beforePhase(PhaseEvent event) {
         FacesContext context = event.getFacesContext();
-        if (event.getPhaseId() == PhaseId.RENDER_RESPONSE) {
-            
+
+        if (event.getPhaseId() != PhaseId.RESTORE_VIEW) {
             StateFlowHandler fh = StateFlowHandler.getInstance();
             if (fh.isActive(context)) {
 
+                String name = FACES_PROCESS_VALIDATIONS
+                        + event.getPhaseId().getName().toLowerCase();;
+
+                EventBuilder eb = new EventBuilder(
+                        name, TriggerEvent.CALL_EVENT);
+
+                eb.sendId(context.getViewRoot().getViewId());
+
                 SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
-                rootExecutor.addEvent(new EventBuilder(
-                        FACES_RENDER_VIEW, TriggerEvent.CALL_EVENT)
-                        .sendId(context.getViewRoot().getViewId())
-                        .build());
-                
+                rootExecutor.addEvent(
+                        eb.build());
+
                 try {
                     rootExecutor.triggerEvents();
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
                 }
             }
-            
+        }
+
+        if (event.getPhaseId() == PhaseId.RENDER_RESPONSE) {
             StateFlowHandler.getInstance().writeState(context);
         }
     }

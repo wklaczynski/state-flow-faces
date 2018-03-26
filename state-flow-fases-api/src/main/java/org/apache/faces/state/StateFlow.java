@@ -15,6 +15,8 @@
  */
 package org.apache.faces.state;
 
+import javax.faces.event.PhaseId;
+
 /**
  *
  * @author Waldemar Kłaczyński
@@ -39,10 +41,20 @@ public class StateFlow {
 
     public static final String OUTCOME_EVENT_PREFIX = "faces.view.action.";
     
-    public static final String FACES_PHASE_EVENT_PREFIX = "faces.view.phase.";
+    public static final String FACES_PHASE_EVENT_PREFIX = "faces.phase.";
 
     public static final String FACES_RESTORE_VIEW = FACES_PHASE_EVENT_PREFIX + "restore";
 
-    public static final String FACES_RENDER_VIEW = FACES_PHASE_EVENT_PREFIX + "render";
+    public static final String FACES_RENDER_VIEW = FACES_PHASE_EVENT_PREFIX + 
+            PhaseId.RENDER_RESPONSE.getName().toLowerCase();
+
+    public static final String FACES_INVOKE_APPLICATION = FACES_PHASE_EVENT_PREFIX + 
+            PhaseId.INVOKE_APPLICATION.getName().toLowerCase();
+
+    public static final String FACES_APPLY_REQUEST_VALUES = FACES_PHASE_EVENT_PREFIX + 
+            PhaseId.APPLY_REQUEST_VALUES.getName().toLowerCase();
+
+    public static final String FACES_PROCESS_VALIDATIONS = FACES_PHASE_EVENT_PREFIX + 
+            PhaseId.PROCESS_VALIDATIONS.getName().toLowerCase();
     
 }
