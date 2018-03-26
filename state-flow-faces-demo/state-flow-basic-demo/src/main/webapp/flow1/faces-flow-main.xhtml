@@ -35,6 +35,8 @@
             <x:transition event="error.execution" target="main"/>
 
             <x:transition event="view.action.show" target="show-client"/>
+            <x:transition event="view.action.update" target="update-client"/>
+
             <x:transition event="view.action.exit" target="exit"/>
             <x:transition event="view.action.assign" target="assing-test"/>
             <x:transition event="view.action.clear" target="clear-test"/>
@@ -60,7 +62,6 @@
             </x:transition>
         </x:state> 
 
-
         <x:state id="show-client"> 
             <x:onentry>
                 <x:var name="selected" expr="#{book.client['@id'][param.clid]}"/>
@@ -74,6 +75,25 @@
             </x:invoke>
             <x:transition event="error.execution" target="main"/>
             <x:transition event="done.invoke.show-client" target="main"/>
+        </x:state>      
+
+        <x:state id="update-client"> 
+            <x:onentry>
+                <x:var name="selected" expr="#{book.client['@id'][param.clid]}"/>
+            </x:onentry>
+            <x:invoke type="scxml" src="faces-flow-client-update.xhtml">
+                <x:param name="clientId" expr="#{selected.id.$text}"/>
+                <x:param name="clientName" expr="#{selected.name.$text}"/>
+                <x:param name="clientSurname" expr="#{selected.surname.$text}"/>
+                <x:param name="clientMobilePhone" expr="#{selected.phone['@type=\'mobile\''].$text}"/>
+                <x:param name="clientHomePhone" expr="#{selected.phone['@type=\'home\''].$text}"/>
+            </x:invoke>
+            <x:transition event="error.execution" target="main"/>
+            <x:transition event="done.invoke.update-client" target="main">
+                
+                
+                
+            </x:transition> 
         </x:state>      
 
         <x:state id="error"> 

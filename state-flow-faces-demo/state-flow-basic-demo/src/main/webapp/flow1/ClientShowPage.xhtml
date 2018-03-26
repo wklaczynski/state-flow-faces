@@ -28,36 +28,35 @@
                 <h:panelGroup >
                     <h3>Get data from parent state chat flow process by client id: #{scxml.clientId}.</h3>
                     <p/>
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td><b>Name: </b></td>
-                                <td>#{scxml.clientName}</td>
-                            </tr>
-                            <tr>
-                                <td><b>Surname: </b></td>
-                                <td>#{scxml.clientSurname}</td>
-                            </tr>
-                            <tr>
-                                <td><b>Mobile Phone: </b></td>
-                                <td>#{scxml.clientMobilePhone}</td>
-                            </tr>
-                            <tr>
-                                <td><b>Home Phone: </b></td>
-                                <td>#{scxml.clientHomePhone}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <h:panelGrid columns="2">
+                        <h:outputLabel value="Name: "/>
+                        <h:outputText id="clname" value="#{scxml.clientName}"/>
+                        
+                        <h:outputLabel value="Surname: "/>
+                        <h:outputText id="clsurname" value="#{scxml.clientSurname}"/>
+                        
+                        <h:outputLabel value="Mobile Phone: "/>
+                        <h:outputText id="clmphone" value="#{scxml.clientMobilePhone}"/>
+                        
+                        <h:outputLabel value="Home Phone: "/>
+                        <h:outputText id="clhphone" value="#{scxml.clientHomePhone}"/>
+                    </h:panelGrid>
                 </h:panelGroup>
                 <h:panelGroup >
                     <hr/>
                 </h:panelGroup>
                 <h:panelGroup id="navigation">
                     <h:panelGroup layout="block" style=" text-align: left;">
-                        <h:panelGrid cellspacing="4" columns="2" style="bottom: 0px">
+                        <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
                             <h:commandButton
                                 action="accept"
-                                value="OK"
+                                value="Accept"
+                                rendered="#{scxml.editable}"
+                                immediate="true"/>
+                            <h:commandButton
+                                action="back"
+                                value="Back"
+                                rendered="#{scxml.hasback}"
                                 immediate="true"/>
                             <h:commandButton
                                 action="cancel"
