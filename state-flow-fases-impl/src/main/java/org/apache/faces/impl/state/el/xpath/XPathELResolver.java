@@ -446,11 +446,11 @@ public class XPathELResolver extends ELResolver {
         return null;
     }
 
-    public XPathNodeList findNodes(ELContext context, Object base, String expression) throws ELException {
+    public Object findNodes(ELContext context, Object base, String expression) throws ELException {
         expression = expression.trim();
 
         Node contextNode = adaptParamsForXalan(base, expression);
-        
+
         expression = expression.trim();
 
         if (expression.startsWith("first()")
@@ -462,7 +462,7 @@ public class XPathELResolver extends ELResolver {
         if (expression.startsWith("[")) {
             expression = "self::node()" + expression;
         }
-        
+
         XPathVariableResolver jxvr = new JSTLXPathVariableResolver(context);
 
         String type = "NODESET";
@@ -497,11 +497,12 @@ public class XPathELResolver extends ELResolver {
                 return new XPathNodeList(contextNode, nl);
             } else if (nl instanceof NodeList) {
                 return new XPathNodeList(contextNode, nl);
+            } else {
+                return nl;
             }
         } catch (XPathExpressionException ex) {
             throw new ELException(ex.toString(), ex);
         }
-        return null;
     }
 
     public Object selectNodes(ELContext context, Object base, String expression) throws ELException {
@@ -535,17 +536,20 @@ public class XPathELResolver extends ELResolver {
             }
 
             if (!containsOnlyAlphaNumeric(expression)) {
-                Set<Node> found = new LinkedHashSet<>();
+                Set<Node> result = new LinkedHashSet<>();
 
                 for (Node root : nlist) {
-                    XPathNodeList nodeList = findNodes(context, root, expression);
-                    for (int i = 0; i < nodeList.size(); i++) {
-                        Node node = nodeList.get(i);
-                        found.add(node);
+                    Object found = findNodes(context, root, expression);
+                    if (found instanceof XPathNodeList) {
+                        XPathNodeList nodeList = (XPathNodeList) found;
+                        for (int i = 0; i < nodeList.size(); i++) {
+                            Node node = nodeList.get(i);
+                            result.add(node);
+                        }
                     }
                 }
                 XPathNodeList nodeList = new XPathNodeList(nlist.getParent());
-                nodeList.addAll(found);
+                nodeList.addAll(result);
                 if (!nodeList.isEmpty()) {
                     if (context != null) {
                         context.setPropertyResolved(true);
@@ -562,12 +566,22 @@ public class XPathELResolver extends ELResolver {
 
             if (!containsOnlyAlphaNumeric(expression)) {
 
-                XPathNodeList nodeList = findNodes(context, baseNode, expression);
-                if (!nodeList.isEmpty()) {
-                    if (context != null) {
-                        context.setPropertyResolved(true);
+                Object found = findNodes(context, baseNode, expression);
+                if (found instanceof XPathNodeList) {
+                    XPathNodeList nodeList = (XPathNodeList) found;
+                    if (!nodeList.isEmpty()) {
+                        if (context != null) {
+                            context.setPropertyResolved(true);
+                        }
+                        return nodeList;
                     }
-                    return nodeList;
+                } else {
+                    if (found != null) {
+                        if (context != null) {
+                            context.setPropertyResolved(true);
+                        }
+                        return found;
+                    }
                 }
             }
 
