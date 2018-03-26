@@ -89,11 +89,16 @@
                 <x:param name="clientHomePhone" expr="#{selected.phone['@type=\'home\''].$text}"/>
             </x:invoke>
             <x:transition event="error.execution" target="main"/>
-            <x:transition event="done.invoke.update-client" target="main">
-                
-                
-                
+
+            <x:transition 
+                event="done.invoke.update-client" 
+                cond="#{event.data.result == 'success'}" 
+                target="main">
+                <!--x:assign location="#{selected.name.$text}" expr="#{event.data.name}"/-->
+
+
             </x:transition> 
+            <x:transition event="done.invoke.update-client" target="main"/>
         </x:state>      
 
         <x:state id="error"> 
