@@ -84,10 +84,6 @@ public class EvaluatorELResolver extends ELResolver implements Serializable {
             context.setPropertyResolved(true);
             EventVariableParams scope = (EventVariableParams) base;
             result = scope.get(property.toString());
-            if (result == null) {
-                String message = " base " + base + " property " + property;
-                throw new PropertyNotFoundException(message);
-            }
         }
         return result;
     }

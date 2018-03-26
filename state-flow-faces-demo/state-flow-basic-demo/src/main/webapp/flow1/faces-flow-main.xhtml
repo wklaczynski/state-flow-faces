@@ -92,10 +92,12 @@
 
             <x:transition 
                 event="done.invoke.update-client" 
-                cond="#{event.data.result == 'success'}" 
+                cond="#{event.data.success}" 
                 target="main">
                 <x:assign location="#{selected.name.$text}" expr="#{event.data.name}"/>
-
+                <x:assign location="#{selected.surname.$text}" expr="#{event.data.surname}"/>
+                <x:assign location="#{selected.phone['@type=\'mobile\''].$text}" expr="#{event.data.mobilePhone}"/>
+                <x:assign location="#{selected.phone['@type=\'home\''].$text}" expr="#{event.data.homePhone}"/>
 
             </x:transition> 
             <x:transition event="done.invoke.update-client" target="main"/>
