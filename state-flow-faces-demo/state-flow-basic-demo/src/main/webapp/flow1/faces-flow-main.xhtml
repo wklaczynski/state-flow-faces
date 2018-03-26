@@ -46,7 +46,7 @@
             <x:onentry>
                 <x:assign 
                     location="#{main.assignedTest1}" 
-                    expr="#{book['client[last()]/phone[@type=\'mobile\']'].textContent}"
+                    expr="#{book['client[last()]/phone[@type=\'mobile\']'].$text}"
                     />
                 <x:raise event="assing-test.finish"/>
             </x:onentry>

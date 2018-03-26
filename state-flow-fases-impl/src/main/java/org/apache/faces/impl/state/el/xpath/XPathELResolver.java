@@ -265,8 +265,6 @@ public class XPathELResolver extends ELResolver {
                 default:
                     throw new PropertyNotWritableException();
             }
-        } else {
-            throw new PropertyNotFoundException();
         }
     }
 
