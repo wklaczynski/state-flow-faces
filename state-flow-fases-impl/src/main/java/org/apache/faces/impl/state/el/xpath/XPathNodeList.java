@@ -28,25 +28,15 @@ import org.w3c.dom.NodeList;
 public class XPathNodeList extends AbstractList<Node> {
 
     List<Node> nodes;
+    private final Node parent;
 
-    public XPathNodeList(NodeList nl) {
+    public XPathNodeList(Node parent) {
         nodes = new ArrayList<>();
-        for (int i = 0; i < nl.getLength(); i++) {
-            Node currNode = nl.item(i);
-            nodes.add(i, currNode);
-        }
-    }
-
-    public XPathNodeList(Node n) {
-        nodes = new ArrayList<>();
-        nodes.add(n);
-    }
-
-    public XPathNodeList() {
-        nodes = new ArrayList<>();
+        this.parent = parent;
     }
     
-    public XPathNodeList(Object o) {
+    public XPathNodeList(Node parent, Object o) {
+        this.parent = parent;
         nodes = new ArrayList<>();
         if (o instanceof NodeList) {
             NodeList nl = (NodeList) o;
@@ -57,6 +47,10 @@ public class XPathNodeList extends AbstractList<Node> {
         } else if (o instanceof Node) {
             nodes.add((Node) o);
         }
+    }
+
+    public Node getParent() {
+        return parent;
     }
 
     @Override

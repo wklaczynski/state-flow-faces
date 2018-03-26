@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.el.ELContext;
@@ -32,11 +34,13 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathVariableResolver;
 import org.apache.faces.impl.state.log.FlowLogger;
+import org.apache.xpath.XPathAPI;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -388,7 +392,7 @@ public class XPathELResolver extends ELResolver {
                             return node.getTextContent();
                         case "childNodes":
                         case "$child":
-                            return new XPathNodeList(node.getChildNodes());
+                            return new XPathNodeList(node, node.getChildNodes());
                     }
                     return selectNodes(context, base, xpathString);
                 }
@@ -442,60 +446,24 @@ public class XPathELResolver extends ELResolver {
         return null;
     }
 
-    public Object selectNodes(ELContext context, Object base, String expression) throws ELException {
-        staticInit();
+    public XPathNodeList findNodes(ELContext context, Object base, String expression) throws ELException {
+        expression = expression.trim();
 
-        String query = expression.trim();
-        if (base instanceof XPathNodeList) {
-            XPathNodeList nlist = (XPathNodeList) base;
+        Node contextNode = adaptParamsForXalan(base, expression);
+        
+        expression = expression.trim();
 
-            if (query.equals("first()")) {
-                return nlist.get(0);
-            } else if (query.equals("last()")) {
-                return nlist.get(nlist.size() - 1);
-            } else if (query.startsWith("@")) {
-                query = query.substring(1);
-                String aname = query;
-                if (containsOnlyAlphaNumeric(aname)) {
-                    XPathNodeMap map = new XPathNodeMap();
-                    for (Node node : nlist) {
-                        Element el = (Element) node;
-                        if (el.hasAttribute(aname)) {
-                            String attribute = el.getAttribute(aname);
-                            XPathNodeList lnodes = map.get(attribute);
-                            if (lnodes == null) {
-                                lnodes = new XPathNodeList();
-                                map.put(attribute, lnodes);
-                            }
-                            lnodes.add(node);
-                        }
-                    }
-                    return map;
-                }
-            }
-            query = expression.trim();
+        if (expression.startsWith("first()")
+                || expression.startsWith("last()")
+                || expression.startsWith("@")) {
+            expression = "[" + expression + "]";
         }
 
-        if (base instanceof Node) {
-            Node baseNode = (Node) base;
-            if (hasChildElements(baseNode)) {
-                XPathNodeList c = getChildrenByTagName(baseNode, query);
-                if (c != null) {
-                    return c;
-                }
-            }
+        if (expression.startsWith("[")) {
+            expression = "self::node()" + expression;
         }
-
-        if (base instanceof Element) {
-            Element el = (Element) base;
-            if (el.hasAttribute(query)) {
-                return el.getAttributes().getNamedItem(query);
-            }
-        }
-
+        
         XPathVariableResolver jxvr = new JSTLXPathVariableResolver(context);
-        Node contextNode = adaptParamsForXalan(base, query.trim());
-        expression = modifiedXPath.get();
 
         String type = "NODESET";
         String typens = "http://www.w3.org/1999/XSL/Transform";
@@ -526,15 +494,99 @@ public class XPathELResolver extends ELResolver {
             xpath.setXPathVariableResolver(jxvr);
             Object nl = xpath.evaluate(expression, contextNode, RETUTN_TYPE);
             if (nl instanceof Node) {
-                return new XPathNodeList(nl);
+                return new XPathNodeList(contextNode, nl);
             } else if (nl instanceof NodeList) {
-                return new XPathNodeList(nl);
-            } else {
-                return nl;
+                return new XPathNodeList(contextNode, nl);
             }
         } catch (XPathExpressionException ex) {
             throw new ELException(ex.toString(), ex);
         }
+        return null;
+    }
+
+    public Object selectNodes(ELContext context, Object base, String expression) throws ELException {
+        staticInit();
+
+        if (base instanceof XPathNodeList) {
+            XPathNodeList nlist = (XPathNodeList) base;
+
+            if (expression.equals("first()")) {
+                return nlist.get(0);
+            } else if (expression.equals("last()")) {
+                return nlist.get(nlist.size() - 1);
+            } else if (expression.startsWith("@")) {
+                String aname = expression.substring(1);
+                if (containsOnlyAlphaNumeric(aname)) {
+                    XPathNodeMap map = new XPathNodeMap();
+                    for (Node node : nlist) {
+                        Element el = (Element) node;
+                        if (el.hasAttribute(aname)) {
+                            String attribute = el.getAttribute(aname);
+                            XPathNodeList lnodes = map.get(attribute);
+                            if (lnodes == null) {
+                                lnodes = new XPathNodeList(nlist.getParent());
+                                map.put(attribute, lnodes);
+                            }
+                            lnodes.add(node);
+                        }
+                    }
+                    return map;
+                }
+            }
+
+            if (!containsOnlyAlphaNumeric(expression)) {
+                Set<Node> found = new LinkedHashSet<>();
+
+                for (Node root : nlist) {
+                    XPathNodeList nodeList = findNodes(context, root, expression);
+                    for (int i = 0; i < nodeList.size(); i++) {
+                        Node node = nodeList.get(i);
+                        found.add(node);
+                    }
+                }
+                XPathNodeList nodeList = new XPathNodeList(nlist.getParent());
+                nodeList.addAll(found);
+                if (!nodeList.isEmpty()) {
+                    if (context != null) {
+                        context.setPropertyResolved(true);
+                    }
+                    return nodeList;
+                }
+                return nodeList;
+            }
+
+        }
+
+        if (base instanceof Node) {
+            Node baseNode = (Node) base;
+
+            if (!containsOnlyAlphaNumeric(expression)) {
+
+                XPathNodeList nodeList = findNodes(context, baseNode, expression);
+                if (!nodeList.isEmpty()) {
+                    if (context != null) {
+                        context.setPropertyResolved(true);
+                    }
+                    return nodeList;
+                }
+            }
+
+            if (hasChildElements(baseNode)) {
+                XPathNodeList c = getChildrenByTagName(baseNode, expression);
+                if (c != null) {
+                    return c;
+                }
+            }
+        }
+
+        if (base instanceof Element) {
+            Element el = (Element) base;
+            if (el.hasAttribute(expression)) {
+                return el.getAttributes().getNamedItem(expression);
+            }
+        }
+
+        return null;
     }
 
     public Node getFromNodeMap(ELContext context, NamedNodeMap map, Object property) {
@@ -603,77 +655,19 @@ public class XPathELResolver extends ELResolver {
 
     protected Node adaptParamsForXalan(Object base, String xpath) {
         Node boundDocument = null;
-
-        modifiedXPath.set(xpath);
-        String origXPath = xpath;
-        boolean whetherOrigXPath = true;
-
         try {
             Object varObject = base;
-
-            if (xpath.startsWith("first()")
-                    || xpath.startsWith("last()")
-                    || xpath.startsWith("@")) {
-                xpath = "[" + xpath + "]";
-            }
-
             if (Class.forName("org.w3c.dom.Document").isInstance(varObject)) {
                 Document document = ((Document) varObject);
                 boundDocument = document;
-            } else if (Class.forName(XPathNodeList.class.getName()).isInstance(varObject)) {
-                Document newDocument = getDummyDocument();
-
-                XPathNodeList jstlNodeList = (XPathNodeList) varObject;
-                if (jstlNodeList.size() == 1) {
-                    if (Class.forName("org.w3c.dom.Node").isInstance(jstlNodeList.get(0))) {
-                        Node node = (Node) jstlNodeList.get(0);
-                        Document doc = getDummyDocumentWithoutRoot();
-                        Node importedNode = doc.importNode(node, true);
-                        doc.appendChild(importedNode);
-                        boundDocument = doc;
-                        if (whetherOrigXPath) {
-                            if (xpath.startsWith("[")) {
-                                xpath = "//*" + xpath;
-                            } else {
-                                xpath = "/*" + xpath;
-                            }
-                        }
-                    } else {
-                        Object myObject = jstlNodeList.get(0);
-                        xpath = myObject.toString();
-                        boundDocument = newDocument;
-                    }
-
-                } else {
-
-                    Element dummyroot = newDocument.getDocumentElement();
-                    for (int i = 0; i < jstlNodeList.size(); i++) {
-                        Node currNode = (Node) jstlNodeList.get(i);
-
-                        Node importedNode = newDocument.importNode(currNode, true);
-
-                        dummyroot.appendChild(importedNode);
-
-                    }
-                    boundDocument = newDocument;
-
-                    if (xpath.startsWith("[")) {
-                        xpath = "//*" + xpath;
-                    } else {
-                        xpath = "/*" + xpath;
-                    }
-                }
             } else if (Class.forName("org.w3c.dom.Node").isInstance(varObject)) {
                 boundDocument = (Node) varObject;
             } else {
                 boundDocument = getDummyDocument();
-                xpath = origXPath;
             }
         } catch (ClassNotFoundException cnf) {
             log.log(Level.SEVERE, "adaptParamsForXalan error.", cnf);
         }
-
-        modifiedXPath.set(xpath);
         return boundDocument;
     }
 
@@ -688,18 +682,18 @@ public class XPathELResolver extends ELResolver {
     }
 
     private XPathNodeList getChildrenByTagName(Node el, String tagChildName) {
-        XPathNodeList l = new XPathNodeList();
+        XPathNodeList list = new XPathNodeList(el);
         NodeList children = el.getChildNodes();
         for (int i = 0, n = children.getLength(); i < n; i++) {
-            Node c = children.item(i);
-            if (c instanceof Element) {
-                Element ce = (Element) c;
+            Node element = children.item(i);
+            if (element instanceof Element) {
+                Element ce = (Element) element;
                 if (tagChildName.equals(ce.getTagName())) {
-                    l.add(ce);
+                    list.add(ce);
                 }
             }
         }
-        return l.isEmpty() ? null : l;
+        return list.isEmpty() ? null : list;
     }
 
     private boolean containsOnlyAlphaNumeric(String s) {
