@@ -82,7 +82,7 @@ public class Final extends EnterableState {
     public void setDoneData(final DoneData doneData) {
         this.doneData = doneData;
     }
-    
+
     public Object processDoneData(SCXMLExecutionContext exctx) throws ModelException {
         Object result = null;
         if (doneData != null) {
