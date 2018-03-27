@@ -185,7 +185,7 @@ public class ViewInvoker implements Invoker, Serializable {
 
                 String stateKey = "__@@Invoke:" + invokeId + ":";
 
-                Context stateContext = executor.getRootContext();
+                Context stateContext = executor.getGlobalContext();
                 viewState = stateContext.get(stateKey + "ViewState");
                 String lastViewId = (String) stateContext.get(stateKey + "LastViewId");
                 if (lastViewId != null) {
@@ -435,13 +435,13 @@ public class ViewInvoker implements Invoker, Serializable {
 
         cancelled = true;
 
-        ExternalContext ec = context.getExternalContext();
-        Context stateContext = executor.getRootContext();
-
-        Map<String, String> parameterMap = ec.getRequestParameterMap();
-        for (Map.Entry<String, String> entry : parameterMap.entrySet()) {
-            stateContext.setLocal(entry.getKey(), entry.getValue());
-        }
+//        ExternalContext ec = context.getExternalContext();
+//        Context stateContext = executor.getGlobalContext();
+//
+//        Map<String, String> parameterMap = ec.getRequestParameterMap();
+//        for (Map.Entry<String, String> entry : parameterMap.entrySet()) {
+//            stateContext.setLocal(entry.getKey(), entry.getValue());
+//        }
 
         if (control.equals("statefull")) {
             FacesContext fc = FacesContext.getCurrentInstance();
@@ -451,7 +451,7 @@ public class ViewInvoker implements Invoker, Serializable {
                 RenderKit renderKit = fc.getRenderKit();
                 ResponseStateManager rsm = renderKit.getResponseStateManager();
                 Object viewState = rsm.getState(fc, lastViewId);
-                Context storeContext = executor.getRootContext();
+                Context storeContext = executor.getGlobalContext();
 
                 String stateKey = "__@@Invoke:" + invokeId + ":";
 

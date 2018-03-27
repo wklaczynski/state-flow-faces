@@ -576,34 +576,20 @@ public class SCInstance implements Serializable, StateHolder {
     @Override
     public Object saveState(Context context) {
 
-        Object[] values = new Object[8];
+        Object[] values = new Object[9];
 
         values[0] = singleContext;
         values[1] = initialized;
         values[2] = running;
-        
+
         values[3] = stateConfiguration.saveState(context);
 
-        Context rctx = rootContext;
-        if (rctx != null) {
-            if (rctx instanceof StateHolder) {
-                values[4] = ((StateHolder) rctx).saveState(context);
-            } else {
-                values[4] = saveAttachedState(context, rctx.getVars());
-            }
-        }
-
-        Context sctx = systemContext;
-        if (sctx != null) {
-            if (sctx instanceof StateHolder) {
-                values[5] = ((StateHolder) sctx).saveState(context);
-            } else {
-                values[5] = saveAttachedState(context, sctx.getVars());
-            }
-        }
-
-        values[6] = saveContextsState(context);
-        values[7] = saveHistoriesState(context);
+        //values[4] = saveContext(context, rootContext);
+        values[5] = saveContext(context, globalContext);
+        values[6] = saveContext(context, systemContext);
+        
+        values[7] = saveContextsState(context);
+        values[8] = saveHistoriesState(context);
         return values;
     }
 
@@ -619,31 +605,38 @@ public class SCInstance implements Serializable, StateHolder {
         singleContext = (boolean) values[0];
         initialized = (boolean) values[1];
         running = (boolean) values[2];
-        
+
         stateConfiguration.restoreState(context, values[3]);
 
-        Context rctx = rootContext;
-        if (rctx != null) {
-            if (rctx instanceof StateHolder) {
-                ((StateHolder) rctx).restoreState(context, values[4]);
+        //restoreContext(context, rootContext, values[4]);
+        restoreContext(context, globalContext, values[5]);
+        restoreContext(context, systemContext, values[6]);
+
+        restoreContextsState(context, values[7]);
+        restoreHistoriesState(context, values[8]);
+    }
+    
+    public Object saveContext(Context context, Context ctx) {
+        Object state = null;
+        if (ctx != null) {
+            if (ctx instanceof StateHolder) {
+                state = ((StateHolder) ctx).saveState(context);
             } else {
-                Map vars = (Map) restoreAttachedState(context, values[4]);
-                rctx.getVars().putAll(vars);
+                state = saveAttachedState(context, ctx.getVars());
             }
         }
+        return state;
+    }
 
-        Context sctx = systemContext;
-        if (sctx != null) {
-            if (rctx instanceof StateHolder) {
-                ((StateHolder) sctx).restoreState(context, values[5]);
+    public void restoreContext(Context context, Context ctx, Object state) {
+        if (ctx != null) {
+            if (ctx instanceof StateHolder) {
+                ((StateHolder) ctx).restoreState(context, state);
             } else {
-                Map vars = (Map) restoreAttachedState(context, values[5]);
-                sctx.getVars().putAll(vars);
+                Map vars = (Map) restoreAttachedState(context, state);
+                ctx.getVars().putAll(vars);
             }
         }
-
-        restoreContextsState(context, values[6]);
-        restoreHistoriesState(context, values[7]);
     }
 
     private Object saveContextsState(Context context) {

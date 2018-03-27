@@ -252,7 +252,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             executor.registerInvokerClass(entry.getKey(), entry.getValue());
         }
 
-        Context rootCtx = executor.getRootContext();
+        Context rootCtx = executor.getGlobalContext();
         rootCtx.setLocal("scxml_has_parent", false);
 
         return executor;
@@ -293,7 +293,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
 
         if (parent != null) {
-            Context rootCtx = executor.getRootContext();
+            Context rootCtx = executor.getGlobalContext();
             rootCtx.setLocal("scxml_has_parent", true);
         }
 

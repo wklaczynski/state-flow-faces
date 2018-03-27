@@ -263,6 +263,22 @@ public class StateHolderSaver implements Serializable {
         return saveObjectState(context, instance.getClass(), instance);
     }
     
+    private static boolean serializable(int modifiers) {
+        if(Modifier.isTransient(modifiers)) {
+            return false;
+        }
+        if(Modifier.isStatic(modifiers)) {
+            return false;
+        }
+        if(Modifier.isNative(modifiers)) {
+            return false;
+        }
+        if(Modifier.isAbstract(modifiers)) {
+            return false;
+        }
+        return !Modifier.isVolatile(modifiers);
+    }
+    
     
     public static Object saveObjectState(Context context, Class<?> clazz, Object instance) {
         if (clazz == null) {
@@ -276,7 +292,7 @@ public class StateHolderSaver implements Serializable {
         int i = 0;
         for (Field field : fields) {
             Object entry[] = null;
-            if (!Modifier.isTransient(field.getModifiers())) {
+            if (serializable(field.getModifiers())) {
                 entry = new Object[2];
                 Object value = null;
                 boolean accessibility = field.isAccessible();
@@ -284,7 +300,7 @@ public class StateHolderSaver implements Serializable {
                     field.setAccessible(true);
                     value = field.get(instance);
                 } catch (IllegalArgumentException | IllegalAccessException ex) {
-                    throw new IllegalStateException(String.format("Save statefull field %s error.", field.getName()));
+                    throw new IllegalStateException(String.format("Save statefull field %s error.", field.getName()), ex);
                 } finally {
                     field.setAccessible(accessibility);
                 }
@@ -315,7 +331,7 @@ public class StateHolderSaver implements Serializable {
         Object[] attached = (Object[]) states[0];
         int i = 0;
         for (Field field : fields) {
-            if (!Modifier.isTransient(field.getModifiers())) {
+            if (serializable(field.getModifiers())) {
                 Object[] entry = (Object[]) attached[i];
                 Object value = restoreValueState(context, field.getName(), entry[1]);
                 boolean accessibility = field.isAccessible();
@@ -323,7 +339,7 @@ public class StateHolderSaver implements Serializable {
                     field.setAccessible(true);
                     field.set(instance, value);
                 } catch (IllegalArgumentException | IllegalAccessException ex) {
-                    throw new IllegalStateException(String.format("Restored statefull field %s error.", field.getName()));
+                    throw new IllegalStateException(String.format("Restored statefull field %s error.", field.getName()), ex);
                 } finally {
                     field.setAccessible(accessibility);
                 }

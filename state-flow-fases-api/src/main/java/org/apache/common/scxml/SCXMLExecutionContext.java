@@ -660,7 +660,7 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
                     invoker.setParentSCXMLExecutor(scxmlExecutor);
 
                     if (invoker instanceof StateHolder) {
-                        ((StateHolder) invoker).restoreState(context, values[3]);
+                        ((StateHolder) invoker).restoreState(context, entry[4]);
                     }
                 } else {
                     invoker = (Invoker) entry[4];
