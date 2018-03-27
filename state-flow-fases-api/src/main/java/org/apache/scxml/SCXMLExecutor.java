@@ -16,6 +16,7 @@
  */
 package org.apache.scxml;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -24,7 +25,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static org.apache.scxml.SCXMLConstants.STATE_MACHINE_HINT;
 import org.apache.scxml.invoke.Invoker;
+import org.apache.scxml.io.StateHolder;
 import org.apache.scxml.model.EnterableState;
 import org.apache.scxml.model.ModelException;
 import org.apache.scxml.model.Observable;
@@ -48,7 +51,7 @@ import org.apache.scxml.semantics.SCXMLSemanticsImpl;
  *
  * @see SCXMLSemantics
  */
-public final class SCXMLExecutor implements SCXMLIOProcessor {
+public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
 
     /**
      * The Logger for the SCXMLExecutor.
@@ -145,8 +148,8 @@ public final class SCXMLExecutor implements SCXMLIOProcessor {
     }
 
     /**
-     * @return the (optionally) &lt;donedata/&rt; produced data after
-     * the current statemachine completed its execution.
+     * @return the (optionally) &lt;donedata/&rt; produced data after the
+     * current statemachine completed its execution.
      */
     public Object getFinalDoneData() {
         return getGlobalContext().getSystemContext().getPlatformVariables().get(SCXMLSystemContext.FINAL_DONE_DATA_KEY);
@@ -577,7 +580,7 @@ public final class SCXMLExecutor implements SCXMLIOProcessor {
         while (exctx.isRunning() && (evt = externalEventQueue.poll()) != null) {
             eventStep(evt);
         }
-     }
+    }
 
     protected void eventStep(TriggerEvent event) throws ModelException {
         semantics.nextStep(exctx, event);
@@ -605,6 +608,31 @@ public final class SCXMLExecutor implements SCXMLIOProcessor {
             int length = sb.length();
             sb.delete(length - 2, length).append(" ]");
             log.log(Level.FINE, sb.toString());
+        }
+    }
+
+    @Override
+    public Object saveState(Context context) {
+        Object values[] = new Object[1];
+
+        context.setLocal(STATE_MACHINE_HINT, getSCInstance().getStateMachine());
+
+        values[0] = exctx.saveState(context);
+        return values;
+    }
+
+    @Override
+    public void restoreState(Context context, Object state) {
+        if (state == null) {
+            return;
+        }
+
+        context.setLocal(STATE_MACHINE_HINT, getSCInstance().getStateMachine());
+
+        Object[] values = (Object[]) state;
+
+        if (values[0] != null) {
+            exctx.restoreState(context, values[0]);
         }
     }
 }

@@ -20,7 +20,9 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import static org.apache.scxml.SCXMLConstants.STATE_MACHINE_HINT;
 import org.apache.scxml.model.EnterableState;
+import org.apache.scxml.model.SCXML;
 
 /**
  * The current active states of a state machine
@@ -97,4 +99,102 @@ public class StateConfiguration implements Serializable {
         activeStates.clear();
         atomicStates.clear();
     }
+    
+    public Object saveState(Context context) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        Object values[] = new Object[2];
+
+        values[0] = saveActiveStates(context);
+        values[1] = saveAtomicStates(context);
+
+        return values;
+    }
+
+    public void restoreState(Context context, Object state) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        if (state == null) {
+            return;
+        }
+
+        Object[] values = (Object[]) state;
+
+        SCXML chart = (SCXML) context.get(STATE_MACHINE_HINT);
+        
+        
+        restoreActiveStates(context, chart, values[0]);
+        restoreAtomicStates(context, chart, values[1]);
+
+    }
+    
+    private Object saveActiveStates(Context context) {
+        Object state = null;
+        if (null != activeStates && activeStates.size() > 0) {
+            Object[] attached = new Object[activeStates.size()];
+            int i = 0;
+            for (EnterableState fstate : activeStates) {
+                attached[i++] = fstate.getClientId();
+            }
+            state = attached;
+        }
+        return state;
+    }
+
+    private void restoreActiveStates(Context context, SCXML chart, Object state) {
+        activeStates.clear();
+
+        if (null != state) {
+            Object[] values = (Object[]) state;
+            for (Object value : values) {
+                String ttid = (String) value;
+                Object found = chart.findElement(ttid);
+                if (found == null) {
+                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
+                }
+
+                EnterableState tt = (EnterableState) found;
+                activeStates.add(tt);
+            }
+        }
+    }
+    
+    private Object saveAtomicStates(Context context) {
+        Object state = null;
+        if (null != atomicStates && atomicStates.size() > 0) {
+            Object[] attached = new Object[atomicStates.size()];
+            int i = 0;
+            for (EnterableState fstate : atomicStates) {
+                attached[i++] = fstate.getClientId();
+            }
+            state = attached;
+        }
+        return state;
+    }
+
+    private void restoreAtomicStates(Context context, SCXML chart, Object state) {
+        atomicStates.clear();
+
+        if (null != state) {
+            Object[] values = (Object[]) state;
+            for (Object value : values) {
+                String ttid = (String) value;
+                Object found = chart.findElement(ttid);
+                if (found == null) {
+                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
+                }
+
+                EnterableState tt = (EnterableState) found;
+                atomicStates.add(tt);
+            }
+        }
+    }
+    
+    
+    
+    
 }

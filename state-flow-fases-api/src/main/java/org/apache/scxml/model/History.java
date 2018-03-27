@@ -17,8 +17,8 @@
 package org.apache.scxml.model;
 
 /**
- * The class in this SCXML object model that corresponds to the
- * &lt;history&gt; SCXML pseudo state element.
+ * The class in this SCXML object model that corresponds to the &lt;history&gt;
+ * SCXML pseudo state element.
  *
  */
 public class History extends TransitionTarget {
@@ -34,9 +34,9 @@ public class History extends TransitionTarget {
     private boolean isDeep;
 
     /**
-     * A conditionless transition representing the default history state
-     * and indicates the state to transition to if the parent state has
-     * never been entered before.
+     * A conditionless transition representing the default history state and
+     * indicates the state to transition to if the parent state has never been
+     * entered before.
      */
     private SimpleTransition transition;
 
@@ -94,7 +94,7 @@ public class History extends TransitionTarget {
      */
     @Override
     public TransitionalState getParent() {
-        return (TransitionalState)super.getParent();
+        return (TransitionalState) super.getParent();
     }
 
     /**
@@ -105,5 +105,22 @@ public class History extends TransitionTarget {
     public final void setParent(final TransitionalState parent) {
         super.setParent(parent);
     }
-}
 
+    /**
+     * Create the identifier for this transition target.
+     *
+     * @param element to generate
+     * @return Returns the new unique client id.
+     */
+    @Override
+    public String createUniqueId(Object element) {
+        if (element instanceof SimpleTransition) {
+            SimpleTransition ftransition = (SimpleTransition) element;
+            if (ftransition.equals(transition)) {
+                return "transition";
+            }
+        }
+        return null;
+    }
+
+}

@@ -22,13 +22,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.scxml.PathResolver;
+import static org.apache.scxml.SCXMLConstants.META_ELEMENT_IDMAP;
+import org.apache.scxml.UniqueIdGenerator;
 
 /**
  * The class in this SCXML object model that corresponds to the &lt;scxml&gt;
  * root element, and serves as the &quot;document root&quot;.
  *
  */
-public class SCXML implements Serializable, Observable {
+public class SCXML implements UniqueIdGenerator, Serializable, Observable {
 
     /**
      * Serial version UID.
@@ -137,6 +139,7 @@ public class SCXML implements Serializable, Observable {
         this.children = new ArrayList<>();
         this.targets = new HashMap<>();
         this.metadata = new HashMap<>();
+        this.metadata.put(META_ELEMENT_IDMAP, new HashMap<>());
     }
 
     /**
@@ -333,8 +336,7 @@ public class SCXML implements Serializable, Observable {
      * <code>null</code>.
      *
      * @return The metadata definitions specified on the all SCXML element, may
-     * be
-     * <code>null</code>.
+     * be <code>null</code>.
      */
     public final Map<String, Object> getMetadata() {
         return metadata;
@@ -440,4 +442,46 @@ public class SCXML implements Serializable, Observable {
     public void setDatamodelName(final String datamodelName) {
         this.datamodelName = datamodelName;
     }
+
+    /**
+     * Find the element by client id.
+     *
+     * @param expr elament id expression
+     * @return Returns the found element.
+     */
+    public Object findElement(String expr) {
+        if (expr.length() == 0) {
+            throw new IllegalArgumentException("\"\"");
+        }
+
+        Map idMap = (Map) metadata.get(META_ELEMENT_IDMAP);
+
+        Object result = idMap.get(expr);
+        return (result);
+    }
+    
+    
+    /**
+     * Create the identifier for this transition target.
+     *
+     * @param element to generate
+     * @return Returns the new unique client id.
+     */
+    @Override
+    public String createUniqueId(Object element) {
+        String result = null;
+        if (element instanceof EnterableState) {
+            EnterableState enterable = (EnterableState) element;
+            if (!children.contains(enterable)) {
+                throw new IllegalArgumentException("This transitional "
+                        + "element no constain "
+                        + "child element: " + enterable.getClass().getName());
+
+            }
+            result = "state_" + children.indexOf(enterable);
+        }
+        return result;
+    }
+    
+    
 }

@@ -23,14 +23,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.scxml.io.StateHolder;
 
 /**
- * The SCXMLSystemContext is used as a read only Context wrapper
- * and provides the SCXML (read only) system variables which are injected via the unwrapped {@link #getContext()}.
+ * The SCXMLSystemContext is used as a read only Context wrapper and provides
+ * the SCXML (read only) system variables which are injected via the unwrapped
+ * {@link #getContext()}.
  *
- * @see <a href="http://www.w3.org/TR/scxml/#SystemVariables">http://www.w3.org/TR/scxml/#SystemVariables</a>
+ * @see
+ * <a href="http://www.w3.org/TR/scxml/#SystemVariables">http://www.w3.org/TR/scxml/#SystemVariables</a>
  */
-public class SCXMLSystemContext implements Context, Serializable {
+public final class SCXMLSystemContext implements Context, StateHolder, Serializable {
 
     /**
      * Serial version UID.
@@ -38,8 +41,11 @@ public class SCXMLSystemContext implements Context, Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * The protected system variables names as defined in the SCXML specification
-     * @see <a href="http://www.w3.org/TR/scxml/#SystemVariables">http://www.w3.org/TR/scxml/#SystemVariables</a>
+     * The protected system variables names as defined in the SCXML
+     * specification
+     *
+     * @see
+     * <a href="http://www.w3.org/TR/scxml/#SystemVariables">http://www.w3.org/TR/scxml/#SystemVariables</a>
      */
     public static final String EVENT_KEY = "_event";
     public static final String SESSIONID_KEY = "_sessionid";
@@ -47,13 +53,21 @@ public class SCXMLSystemContext implements Context, Serializable {
     public static final String IOPROCESSORS_KEY = "_ioprocessors";
     public static final String X_KEY = "_x";
 
-    /** The Commons SCXML internal {@link #getPlatformVariables() platform variable key} holding the current SCXML
-     * status instance **/
+    /**
+     * The Commons SCXML internal
+     * {@link #getPlatformVariables() platform variable key} holding the current
+     * SCXML status instance *
+     */
     public static final String STATUS_KEY = "status";
 
-    /** The Commons SCXML internal {@link #getPlatformVariables() platform variable key} holding the (optionally)
-     * <final><donedata/></final> produced data after the current SCXML completed its execution.
-     * **/
+    /**
+     * The Commons SCXML internal
+     * {@link #getPlatformVariables() platform variable key} holding the
+     * (optionally)
+     * <final><donedata/></final> produced data after the current SCXML
+     * completed its execution.
+     * *
+     */
     public static final String FINAL_DONE_DATA_KEY = "finalDoneData";
 
     /**
@@ -65,17 +79,18 @@ public class SCXMLSystemContext implements Context, Serializable {
     /**
      * The wrapped system context
      */
-
     private Context systemContext;
 
     /**
      * The auto-generated next sessionId prefixed ID
+     *
      * @see #generateSessionId()
      */
     private long nextSessionSequenceId;
 
     /**
      * Initialize or replace systemContext
+     *
      * @param systemContext the system context to set
      * @throws java.lang.NullPointerException if systemContext == null
      */
@@ -83,8 +98,7 @@ public class SCXMLSystemContext implements Context, Serializable {
         if (this.systemContext != null) {
             // replace systemContext
             systemContext.getVars().putAll(this.systemContext.getVars());
-        }
-        else {
+        } else {
             // create Platform variables map
             systemContext.setLocal(X_KEY, new HashMap<String, Object>());
         }
@@ -155,11 +169,12 @@ public class SCXMLSystemContext implements Context, Serializable {
     }
 
     /**
-     * @return The Platform specific system variables map stored under the {@link #X_KEY _x} root system variable
+     * @return The Platform specific system variables map stored under the
+     * {@link #X_KEY _x} root system variable
      */
     @SuppressWarnings("unchecked")
     public Map<String, Object> getPlatformVariables() {
-        return (Map<String, Object>)get(X_KEY);
+        return (Map<String, Object>) get(X_KEY);
     }
 
     /**
@@ -168,4 +183,35 @@ public class SCXMLSystemContext implements Context, Serializable {
     Context getContext() {
         return systemContext;
     }
+
+    @Override
+    public Object saveState(Context context) {
+        Object values[] = new Object[1];
+
+        Context rctx = getSystemContext();
+        if (rctx != null) {
+            if (rctx instanceof StateHolder) {
+                values[0] = ((StateHolder) rctx).saveState(context);
+            }
+        }
+
+        return values;
+    }
+
+    @Override
+    public void restoreState(Context context, Object state) {
+        if (state == null) {
+            return;
+        }
+
+        Object[] values = (Object[]) state;
+
+        Context rctx = getSystemContext();
+        if (rctx != null) {
+            if (rctx instanceof StateHolder) {
+                ((StateHolder) rctx).restoreState(context, values[0]);
+            }
+        }
+    }
+
 }

@@ -27,6 +27,7 @@ import org.apache.scxml.env.SimpleDispatcher;
 import org.apache.scxml.env.SimpleErrorReporter;
 import org.apache.scxml.invoke.Invoker;
 import org.apache.scxml.invoke.InvokerException;
+import org.apache.scxml.io.StateHolder;
 import org.apache.scxml.model.Invoke;
 import org.apache.scxml.model.ModelException;
 import org.apache.scxml.model.SCXML;
@@ -35,7 +36,7 @@ import org.apache.scxml.model.SCXML;
  * SCXMLExecutionContext provides all the services and internal data used during
  * the interpretation of an SCXML statemachine across micro and macro steps
  */
-public class SCXMLExecutionContext implements SCXMLIOProcessor {
+public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
 
     /**
      * Default and required supported SCXML Processor Invoker service URI
@@ -50,7 +51,7 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor {
      * SCXML Execution Logger for the application.
      */
     protected static final Logger log = Logger.getLogger("javax.faces.state");
-    
+
     /**
      * The action execution context instance, providing restricted access to
      * this execution context
@@ -567,4 +568,110 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor {
     public boolean hasPendingInternalEvent() {
         return !internalEventQueue.isEmpty();
     }
+
+    @Override
+    public Object saveState(Context context) {
+        Object values[] = new Object[3];
+        values[0] = checkLegalConfiguration;
+        values[1] = scInstance.saveState(context);
+        values[2] = saveInvokersState(context);
+
+        return values;
+    }
+
+    @Override
+    public void restoreState(Context context, Object state) {
+        if (state == null) {
+            return;
+        }
+
+        Object[] values = (Object[]) state;
+
+        checkLegalConfiguration = (boolean) values[0];
+        scInstance.restoreState(context, values[1]);
+        restoreInvokersState(context, values[2]);
+
+    }
+
+    private Object saveInvokersState(Context context) {
+        Object state = null;
+        if (null != invokeIds && invokeIds.size() > 0) {
+            Object[] attached = new Object[invokeIds.size()];
+            int i = 0;
+            for (Map.Entry<Invoke, String> entry : invokeIds.entrySet()) {
+                Object values[] = new Object[4];
+
+                Invoke invoke = entry.getKey();
+                Invoker invoker = invokers.get(entry.getValue());
+
+                values[0] = entry.getKey();
+                values[1] = invoke.getClientId();
+
+                if (invoker instanceof StateHolder) {
+                    values[2] = entry.getValue().getClass().getName();
+                    values[3] = ((StateHolder) invoker).saveState(context);
+                } else {
+                    values[2] = null;
+                    values[3] = invoker;
+                }
+                attached[i++] = values;
+            }
+            state = attached;
+        }
+        return state;
+    }
+
+    private void restoreInvokersState(Context context, Object state) {
+        SCXML chart = scInstance.getStateMachine();
+        invokers.clear();
+        invokeIds.clear();
+
+        if (null != state) {
+            Object[] values = (Object[]) state;
+            for (Object value : values) {
+                Object[] entry = (Object[]) value;
+
+                String ttid = (String) values[2];
+                Object found = chart.findElement(ttid);
+                if (found == null) {
+                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
+                }
+
+                Invoke invoke = (Invoke) found;
+
+                String invid = (String) entry[0];
+                Invoker invoker = null;
+                if (entry[3] != null) {
+                    Class<Invoker> toRestoreClass;
+                    toRestoreClass = (Class<Invoker>) invokerClasses.get(invoke.getType());
+
+                    if (null != toRestoreClass) {
+                        try {
+                            invoker = toRestoreClass.newInstance();
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            throw new IllegalStateException(e);
+                        }
+                    }
+
+                    invoker.setInvokeId(invid);
+                    invoker.setParentSCXMLExecutor(scxmlExecutor);
+
+                    if (invoker instanceof StateHolder) {
+                        ((StateHolder) invoker).restoreState(context, values[3]);
+                    }
+                } else {
+                    invoker = (Invoker) values[4];
+                    invoker.setInvokeId(invid);
+                    invoker.setParentSCXMLExecutor(scxmlExecutor);
+                }
+
+                try {
+                    registerInvoker(invoke, invoker);
+                } catch (InvokerException ex) {
+                    throw new IllegalStateException(ex);
+                }
+            }
+        }
+    }
+
 }

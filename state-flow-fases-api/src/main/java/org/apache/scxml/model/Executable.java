@@ -19,17 +19,18 @@ package org.apache.scxml.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.scxml.UniqueIdGenerator;
 
 /**
- * An abstract base class for containers of executable elements in SCXML,
- * such as &lt;onentry&gt; and &lt;onexit&gt;.
+ * An abstract base class for containers of executable elements in SCXML, such
+ * as &lt;onentry&gt; and &lt;onexit&gt;.
  *
  */
-public abstract class Executable implements Serializable {
+public abstract class Executable implements UniqueIdGenerator, Serializable {
 
     /**
-     * The set of executable elements (those that inheriting from
-     * Action) that are contained in this Executable.
+     * The set of executable elements (those that inheriting from Action) that
+     * are contained in this Executable.
      */
     private final List<Action> actions;
 
@@ -55,8 +56,8 @@ public abstract class Executable implements Serializable {
     }
 
     /**
-     * Add an Action to the list of executable actions contained in
-     * this Executable.
+     * Add an Action to the list of executable actions contained in this
+     * Executable.
      *
      * @param action The action to add.
      */
@@ -83,5 +84,63 @@ public abstract class Executable implements Serializable {
     protected void setParent(final EnterableState parent) {
         this.parent = parent;
     }
-}
 
+    /**
+     * <p>
+     * The assigned client identifier for this state.</p>
+     */
+    private String clientId = null;
+
+    /**
+     * Create the identifier for this transition target.
+     *
+     * @param element to generate
+     * @return Returns the new unique client id.
+     */
+    @Override
+    public String createUniqueId(Object element) {
+        String result = null;
+        if (element instanceof Action) {
+            Action action = (Action) element;
+            if (!getActions().contains(action)) {
+                throw new IllegalArgumentException("This executable "
+                        + "element no constain "
+                        + "child element: " + action.getClass().getName());
+
+            }
+            result = "action_" + getActions().indexOf(action);
+        }
+
+        return result;
+    }
+
+    /**
+     * Get the identifier for this ecutable.
+     *
+     * @return Returns the unique client id.
+     */
+    public String getClientId() {
+        if (this.clientId == null) {
+            String parentId = null;
+
+            if (this.parent != null) {
+                parentId = this.parent.getClientId();
+            }
+
+            String id = parent.createUniqueId(this);
+            this.clientId = id;
+            if (parentId != null) {
+                StringBuilder idBuilder
+                        = new StringBuilder(parentId.length()
+                                + 1 + this.clientId.length());
+
+                this.clientId = idBuilder
+                        .append(parentId)
+                        .append(":")
+                        .append(id).toString();
+            }
+        }
+        return clientId;
+    }
+
+}

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.faces.impl.state.tag.scxml;
+package org.apache.faces.impl.state.tag;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -24,10 +24,15 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagException;
+import static org.apache.scxml.SCXMLConstants.META_ELEMENT_IDMAP;
+import org.apache.scxml.model.Action;
 import org.apache.scxml.model.EnterableState;
+import org.apache.scxml.model.Finalize;
 import org.apache.scxml.model.History;
 import org.apache.scxml.model.Initial;
 import org.apache.scxml.model.Invoke;
+import org.apache.scxml.model.OnEntry;
+import org.apache.scxml.model.OnExit;
 import org.apache.scxml.model.Parallel;
 import org.apache.scxml.model.SCXML;
 import org.apache.scxml.model.SimpleTransition;
@@ -37,12 +42,12 @@ import org.apache.scxml.model.TransitionTarget;
 import org.apache.scxml.model.TransitionalState;
 
 /**
- * The ModelUpdater provides the utility methods to check the Commons
- * SCXML model for inconsistencies, detect errors, and wire the Commons
- * SCXML model appropriately post document parsing by the SCXMLReader to make
- * it executor ready.
+ * The ModelUpdater provides the utility methods to check the Commons SCXML
+ * model for inconsistencies, detect errors, and wire the Commons SCXML model
+ * appropriately post document parsing by the SCXMLReader to make it executor
+ * ready.
  */
-final class ModelUpdater {
+public final class ModelUpdater {
 
     //// Error messages
     /**
@@ -58,8 +63,8 @@ final class ModelUpdater {
             + "atomic {0}.";
 
     /**
-     * Error message when a state element specifies an initial state which
-     * is not a direct descendent.
+     * Error message when a state element specifies an initial state which is
+     * not a direct descendent.
      */
     private static final String ERR_STATE_BAD_INIT = "initial state "
             + "null or not a descendant of {0}";
@@ -85,28 +90,28 @@ final class ModelUpdater {
     /**
      * Transition target is not a legal IDREF (not found).
      */
-    private static final String ERR_TARGET_NOT_FOUND =
-            "transition target with id \"{0}\" not found.";
+    private static final String ERR_TARGET_NOT_FOUND
+            = "transition target with id \"{0}\" not found.";
 
     /**
      * Transition targets do not form a legal configuration.
      */
-    private static final String ERR_ILLEGAL_TARGETS =
-            "transition targets \"{0}\" do not satisfy the requirements for"
-                    + " target regions belonging to a <parallel>.";
+    private static final String ERR_ILLEGAL_TARGETS
+            = "transition targets \"{0}\" do not satisfy the requirements for"
+            + " target regions belonging to a <parallel>.";
 
     /**
      * Simple states should not contain a history.
      */
-    private static final String ERR_HISTORY_SIMPLE_STATE =
-            "simple {0} contains history elements.";
+    private static final String ERR_HISTORY_SIMPLE_STATE
+            = "simple {0} contains history elements.";
 
     /**
      * History does not specify a default transition target.
      */
-    private static final String ERR_HISTORY_NO_DEFAULT =
-            "no default target specified for history with id \"{0}\""
-                    + " belonging to {1}.";
+    private static final String ERR_HISTORY_NO_DEFAULT
+            = "no default target specified for history with id \"{0}\""
+            + " belonging to {1}.";
 
     /**
      * Error message when an &lt;invoke&gt; specifies both "src" and "srcexpr"
@@ -115,11 +120,13 @@ final class ModelUpdater {
     private static final String ERR_INVOKE_AMBIGUOUS_SRC = "{0} contains "
             + "<invoke> with both \"src\" and \"srcexpr\" attributes specified,"
             + " must specify either one, but not both.";
-    
+
     private final Map<Object, Tag> tags;
 
     /**
      * Discourage instantiation since this is a utility class.
+     *
+     * @param tags
      */
     public ModelUpdater(Map<Object, Tag> tags) {
         super();
@@ -130,10 +137,10 @@ final class ModelUpdater {
      * Post-processing methods to make the SCXML object SCXMLExecutor ready.
      */
     /**
-     * <p>Update the SCXML object model and make it SCXMLExecutor ready.
-     * This is part of post-read processing, and sets up the necessary
-     * object references throughtout the SCXML object model for the parsed
-     * document.</p>
+     * <p>
+     * Update the SCXML object model and make it SCXMLExecutor ready. This is
+     * part of post-read processing, and sets up the necessary object references
+     * throughtout the SCXML object model for the parsed document.</p>
      *
      * @param scxml The SCXML object (output from SCXMLReader)
      * @throws IOException If the object model is flawed
@@ -150,8 +157,8 @@ final class ModelUpdater {
             updateTransition(initialTransition, scxml.getTargets());
 
             if (initialTransition.getTargets().isEmpty()) {
-                logAndThrowModelError(scxml, ERR_SCXML_NO_INIT, new Object[] {
-                        initial });
+                logAndThrowModelError(scxml, ERR_SCXML_NO_INIT, new Object[]{
+                    initial});
             }
         } else {
             // If 'initial' is not specified, the default initial state is
@@ -164,13 +171,19 @@ final class ModelUpdater {
         updateEnterableStates(scxml.getChildren(), targets);
 
         scxml.getInitialTransition().setObservableId(1);
-        initObservables(scxml.getChildren(), 2);
+
+        Map idmap = (Map) scxml.getMetadata().get(META_ELEMENT_IDMAP);
+
+        initMetadata(scxml, idmap, scxml.getChildren(), 2);
     }
 
     /**
-     * Initialize all {@link org.apache.commons.scxml2.model.DocumentOrder} instances (EnterableState or Transition)
-     * by iterating them in document order setting their document order value.
-     * @param states The list of children states of a parent TransitionalState or the SCXML document itself
+     * Initialize all {@link org.apache.commons.scxml2.model.DocumentOrder}
+     * instances (EnterableState or Transition) by iterating them in document
+     * order setting their document order value.
+     *
+     * @param states The list of children states of a parent TransitionalState
+     * or the SCXML document itself
      * @param nextOrder The next to be used order value
      * @return Returns the next to be used order value
      */
@@ -178,7 +191,7 @@ final class ModelUpdater {
         for (EnterableState state : states) {
             state.setOrder(nextOrder++);
             if (state instanceof TransitionalState) {
-                TransitionalState ts = (TransitionalState)state;
+                TransitionalState ts = (TransitionalState) state;
                 for (Transition t : ts.getTransitionsList()) {
                     t.setOrder(nextOrder++);
                 }
@@ -189,41 +202,77 @@ final class ModelUpdater {
     }
 
     /**
-     * Initialize all {@link org.apache.commons.scxml2.model.Observable} instances in the SCXML document
-     * by iterating them in document order and seeding them with a unique obeservable id.
-     * @param states The list of children states of a parent TransitionalState or the SCXML document itself
+     * Initialize all {@link org.apache.commons.scxml2.model.Observable}
+     * instances in the SCXML document by iterating them in document order and
+     * seeding them with a unique obeservable id.
+     *
+     * @param states The list of children states of a parent TransitionalState
+     * or the SCXML document itself
      * @param nextObservableId The next observable id sequence value to be used
      * @return Returns the next to be used observable id sequence value
      */
-    private int initObservables(final List<EnterableState>states, int nextObservableId) {
+    private int initMetadata(final SCXML scxml, final Map idmap, final List<EnterableState> states, int nextObservableId) {
         for (EnterableState es : states) {
+            idmap.put(es.getClientId(), es);
             es.setObservableId(nextObservableId++);
+
             if (es instanceof TransitionalState) {
-                TransitionalState ts = (TransitionalState)es;
+                TransitionalState ts = (TransitionalState) es;
+
+                for (OnEntry on : ts.getOnEntries()) {
+                    idmap.put(on.getClientId(), on);
+                    for (Action at : on.getActions()) {
+                        idmap.put(at.getClientId(), at);
+                    }
+                }
+
+                for (OnExit on : ts.getOnExits()) {
+                    idmap.put(on.getClientId(), on);
+                    for (Action at : on.getActions()) {
+                        idmap.put(at.getClientId(), at);
+                    }
+                }
+
+                for (Invoke iv : ts.getInvokes()) {
+                    idmap.put(iv.getClientId(), iv);
+                    Finalize fi = iv.getFinalize();
+                    if (fi != null) {
+                        for (Action at : fi.getActions()) {
+                            idmap.put(at.getClientId(), at);
+                        }
+                    }
+                }
+
                 if (ts instanceof State) {
-                    State s = (State)ts;
+                    State s = (State) ts;
                     if (s.getInitial() != null && s.getInitial().getTransition() != null) {
                         s.getInitial().getTransition().setObservableId(nextObservableId++);
+                        idmap.put(s.getInitial().getTransition().getClientId(), s.getInitial().getTransition());
                     }
                 }
                 for (Transition t : ts.getTransitionsList()) {
                     t.setObservableId(nextObservableId++);
+                    for (Action at : t.getActions()) {
+                        idmap.put(at.getClientId(), at);
+                    }
                 }
                 for (History h : ts.getHistory()) {
                     h.setObservableId(nextObservableId++);
+                    idmap.put(h.getClientId(), h);
                     if (h.getTransition() != null) {
+                        idmap.put(h.getTransition().getClientId(), h.getTransition());
                         h.getTransition().setObservableId(nextObservableId++);
                     }
                 }
-                nextObservableId = initObservables(ts.getChildren(), nextObservableId);
+                nextObservableId = initMetadata(scxml, idmap, ts.getChildren(), nextObservableId);
             }
         }
         return nextObservableId;
     }
 
     /**
-     * Update this State object (part of post-read processing).
-     * Also checks for any errors in the document.
+     * Update this State object (part of post-read processing). Also checks for
+     * any errors in the document.
      *
      * @param state The State object
      * @param targets The global Map of all transition targets
@@ -246,24 +295,23 @@ final class ModelUpdater {
             //check that initialState is a descendant of s
             if (initialStates.isEmpty()) {
                 logAndThrowModelError(state, ERR_STATE_BAD_INIT,
-                        new Object[] {getName(state)});
+                        new Object[]{getName(state)});
             } else {
                 for (TransitionTarget initialState : initialStates) {
                     if (!initialState.isDescendantOf(state)) {
                         logAndThrowModelError(state, ERR_STATE_BAD_INIT,
-                                new Object[] {getName(state)});
+                                new Object[]{getName(state)});
                     }
                 }
             }
-        }
-        else if (state.getInitial() != null) {
-            logAndThrowModelError(state, ERR_UNSUPPORTED_INIT, new Object[] {getName(state)});
+        } else if (state.getInitial() != null) {
+            logAndThrowModelError(state, ERR_UNSUPPORTED_INIT, new Object[]{getName(state)});
         }
 
         List<History> histories = state.getHistory();
         if (histories.size() > 0 && state.isSimple()) {
             logAndThrowModelError(state, ERR_HISTORY_SIMPLE_STATE,
-                    new Object[] {getName(state)});
+                    new Object[]{getName(state)});
         }
         for (History history : histories) {
             updateHistory(history, targets, state);
@@ -274,7 +322,7 @@ final class ModelUpdater {
 
         for (Invoke inv : state.getInvokes()) {
             if (inv.getSrc() != null && inv.getSrcexpr() != null) {
-                logAndThrowModelError(state, ERR_INVOKE_AMBIGUOUS_SRC, new Object[] {getName(state)});
+                logAndThrowModelError(state, ERR_INVOKE_AMBIGUOUS_SRC, new Object[]{getName(state)});
             }
         }
 
@@ -309,8 +357,8 @@ final class ModelUpdater {
      * @throws IOException If the object model is flawed
      */
     private void updateEnterableStates(final List<EnterableState> states,
-                                              final Map<String, TransitionTarget> targets)
-        throws IOException {
+            final Map<String, TransitionTarget> targets)
+            throws IOException {
         for (EnterableState es : states) {
             if (es instanceof State) {
                 updateState((State) es, targets);
@@ -330,33 +378,32 @@ final class ModelUpdater {
      */
     @SuppressWarnings("element-type-mismatch")
     private void updateHistory(final History history,
-                                      final Map<String, TransitionTarget> targets,
-                                      final TransitionalState parent)
+            final Map<String, TransitionTarget> targets,
+            final TransitionalState parent)
             throws IOException {
         SimpleTransition transition = history.getTransition();
         if (transition == null || transition.getNext() == null) {
             logAndThrowModelError(history, ERR_HISTORY_NO_DEFAULT,
-                    new Object[] {history.getId(), getName(parent)});
-        }
-        else {
+                    new Object[]{history.getId(), getName(parent)});
+        } else {
             updateTransition(transition, targets);
             Set<TransitionTarget> historyStates = transition.getTargets();
             if (historyStates.isEmpty()) {
                 logAndThrowModelError(history, ERR_STATE_NO_HIST,
-                        new Object[] {getName(parent)});
+                        new Object[]{getName(parent)});
             }
             for (TransitionTarget historyState : historyStates) {
                 if (!history.isDeep()) {
                     // Shallow history
                     if (!parent.getChildren().contains(historyState)) {
                         logAndThrowModelError(history, ERR_STATE_BAD_SHALLOW_HIST,
-                                new Object[] {getName(parent)});
+                                new Object[]{getName(parent)});
                     }
                 } else {
                     // Deep history
                     if (!historyState.isDescendantOf(parent)) {
                         logAndThrowModelError(history, ERR_STATE_BAD_DEEP_HIST,
-                                new Object[] {getName(parent)});
+                                new Object[]{getName(parent)});
                     }
                 }
             }
@@ -371,7 +418,7 @@ final class ModelUpdater {
      * @throws IOException If the object model is flawed
      */
     private void updateTransition(final SimpleTransition transition,
-                                         final Map<String, TransitionTarget> targets) throws IOException {
+            final Map<String, TransitionTarget> targets) throws IOException {
         String next = transition.getNext();
         if (next == null) { // stay transition
             return;
@@ -384,16 +431,16 @@ final class ModelUpdater {
                 String id = ids.nextToken();
                 TransitionTarget tt = targets.get(id);
                 if (tt == null) {
-                    logAndThrowModelError(transition, ERR_TARGET_NOT_FOUND, new Object[] {
-                            id });
+                    logAndThrowModelError(transition, ERR_TARGET_NOT_FOUND, new Object[]{
+                        id});
                 }
                 tts.add(tt);
             }
             if (tts.size() > 1) {
                 boolean legal = verifyTransitionTargets(tts);
                 if (!legal) {
-                    logAndThrowModelError(transition, ERR_ILLEGAL_TARGETS, new Object[] {
-                            next });
+                    logAndThrowModelError(transition, ERR_ILLEGAL_TARGETS, new Object[]{
+                        next});
                 }
             }
         }
@@ -409,7 +456,7 @@ final class ModelUpdater {
     private void logAndThrowModelError(final Object element, final String errType, final Object[] msgArgs) throws IOException {
         MessageFormat msgFormat = new MessageFormat(errType);
         String errMsg = msgFormat.format(msgArgs);
-        
+
         Tag tag = tags.get(element);
         throw new TagException(tag, errMsg);
     }
@@ -427,16 +474,16 @@ final class ModelUpdater {
         if (tt instanceof State) {
             name = "anonymous state";
             if (tt.getId() != null) {
-                name = "state with ID \"" + tt.getId() + "\"";
+                name = "state with id \"" + tt.getId() + "\"";
             }
         } else if (tt instanceof Parallel) {
             name = "anonymous parallel";
             if (tt.getId() != null) {
-                name = "parallel with ID \"" + tt.getId() + "\"";
+                name = "parallel with id \"" + tt.getId() + "\"";
             }
         } else {
             if (tt.getId() != null) {
-                name = "transition target with ID \"" + tt.getId() + "\"";
+                name = "transition target with id \"" + tt.getId() + "\"";
             }
         }
         return name;
@@ -446,16 +493,18 @@ final class ModelUpdater {
      * If a transition has multiple targets, then they satisfy the following
      * criteria:
      * <ul>
-     *  <li>No target is an ancestor of any other target on the list</li>
-     *  <li>A full legal state configuration results when all ancestors and default initial descendants have been added.
-     *  <br/>This means that they all must share the same least common parallel ancestor.
-     *  </li>
+     * <li>No target is an ancestor of any other target on the list</li>
+     * <li>A full legal state configuration results when all ancestors and
+     * default initial descendants have been added.
+     * <br/>This means that they all must share the same least common parallel
+     * ancestor.
+     * </li>
      * </ul>
      *
      * @param tts The transition targets
      * @return Whether this is a legal configuration
      * @see <a href=http://www.w3.org/TR/scxml/#LegalStateConfigurations">
-     *     http://www.w3.org/TR/scxml/#LegalStateConfigurations</a>
+     * http://www.w3.org/TR/scxml/#LegalStateConfigurations</a>
      */
     @SuppressWarnings("empty-statement")
     private static boolean verifyTransitionTargets(final Set<TransitionTarget> tts) {
@@ -471,7 +520,7 @@ final class ModelUpdater {
                 continue;
             }
             // find least common ancestor
-            for (i = Math.min(i, tt.getNumberOfAncestors()); i > 0 && first.getAncestor(i-1) != tt.getAncestor(i-1); i--) ;
+            for (i = Math.min(i, tt.getNumberOfAncestors()); i > 0 && first.getAncestor(i - 1) != tt.getAncestor(i - 1); i--) ;
             if (i == 0) {
                 // no common ancestor
                 return false;
@@ -484,6 +533,6 @@ final class ModelUpdater {
             }
         }
         // least common ancestor must be a parallel
-        return first != null && i > 0 && first.getAncestor(i-1) instanceof Parallel;
-   }
+        return first != null && i > 0 && first.getAncestor(i - 1) instanceof Parallel;
+    }
 }

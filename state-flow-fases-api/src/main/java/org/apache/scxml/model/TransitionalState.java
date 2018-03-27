@@ -20,7 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An abstract base class for state elements in SCXML that can be transitioned out from, such as State or Parallel.
+ * An abstract base class for state elements in SCXML that can be transitioned
+ * out from, such as State or Parallel.
  */
 public abstract class TransitionalState extends EnterableState {
 
@@ -42,10 +43,9 @@ public abstract class TransitionalState extends EnterableState {
 
     /**
      * The Invoke children, each which defines an external process that should
-     * be invoked, immediately after the onentry executable content,
-     * and the transitions become candidates after the invoked
-     * process has completed its execution.
-     * May occur 0 or more times.
+     * be invoked, immediately after the onentry executable content, and the
+     * transitions become candidates after the invoked process has completed its
+     * execution. May occur 0 or more times.
      */
     private final List<Invoke> invokes;
 
@@ -83,7 +83,7 @@ public abstract class TransitionalState extends EnterableState {
      */
     @Override
     public TransitionalState getParent() {
-        return (TransitionalState)super.getParent();
+        return (TransitionalState) super.getParent();
     }
 
     /**
@@ -97,17 +97,18 @@ public abstract class TransitionalState extends EnterableState {
 
     /**
      * Get the ancestor of this TransitionalState at specified level
+     *
      * @param level the level of the ancestor to return, zero being top
      * @return the ancestor at specified level
      */
     @Override
     public TransitionalState getAncestor(int level) {
-        return (TransitionalState)super.getAncestor(level);
+        return (TransitionalState) super.getAncestor(level);
     }
 
     /**
-     * Get the list of all outgoing transitions from this state, that
-     * will be candidates for being fired on the given event.
+     * Get the list of all outgoing transitions from this state, that will be
+     * candidates for being fired on the given event.
      *
      * @param event The event
      * @return List Returns the candidate transitions for given event
@@ -127,11 +128,9 @@ public abstract class TransitionalState extends EnterableState {
     }
 
     /**
-     * Add a transition to the map of all outgoing transitions for
-     * this state.
+     * Add a transition to the map of all outgoing transitions for this state.
      *
-     * @param transition
-     *            The transitions to set.
+     * @param transition The transitions to set.
      */
     public final void addTransition(final Transition transition) {
         transitions.add(transition);
@@ -178,8 +177,8 @@ public abstract class TransitionalState extends EnterableState {
     /**
      * Does this state have a history pseudo state.
      *
-     * @return boolean true if a given state contains at least one
-     *                 history pseudo state
+     * @return boolean true if a given state contains at least one history
+     * pseudo state
      *
      * @since 0.7
      */
@@ -191,7 +190,7 @@ public abstract class TransitionalState extends EnterableState {
      * Get the list of history pseudo states for this state.
      *
      * @return a list of all history pseudo states contained by a given state
-     *         (can be empty)
+     * (can be empty)
      * @see #hasHistory()
      *
      * @since 0.7
@@ -212,8 +211,7 @@ public abstract class TransitionalState extends EnterableState {
     /**
      * Set the Invoke child.
      *
-     * @param invoke
-     *            The invoke to set.
+     * @param invoke The invoke to set.
      */
     public final void addInvoke(final Invoke invoke) {
         invoke.setParentEnterableState(this, this.invokes.size());
@@ -242,4 +240,62 @@ public abstract class TransitionalState extends EnterableState {
         children.add(es);
         es.setParent(this);
     }
+
+    /**
+     * Create the identifier for this transition target.
+     *
+     * @param element to generate
+     * @return Returns the new unique client id.
+     */
+    @Override
+    public String createUniqueId(Object element) {
+        String result = null;
+        if (element instanceof Transition) {
+            Transition transition = (Transition) element;
+            if (!transitions.contains(transition)) {
+                throw new IllegalArgumentException("This transitional "
+                        + "element no constain "
+                        + "child element: " + transition);
+
+            }
+            result = "transition_" + transitions.indexOf(transition.getClass().getName());
+        } else if (element instanceof Invoke) {
+            Invoke invoke = (Invoke) element;
+            if (!invokes.contains(invoke)) {
+                throw new IllegalArgumentException("This transitional "
+                        + "element no constain "
+                        + "child element: " + invoke.getClass().getName());
+
+            }
+            result = "invoke_" + transitions.indexOf(invoke);
+        } else if (element instanceof EnterableState) {
+            EnterableState enterable = (EnterableState) element;
+            if (!children.contains(enterable)) {
+                throw new IllegalArgumentException("This transitional "
+                        + "element no constain "
+                        + "child element: " + enterable.getClass().getName());
+
+            }
+            result = "state_" + children.indexOf(enterable);
+        } else if (element instanceof Finalize) {
+            Finalize finalize = (Finalize) element;
+            for (int i = 0; i < invokes.size(); i++) {
+                Invoke invoke = invokes.get(i);
+                if (invoke.getFinalize() != null && finalize.equals(element)) {
+                    result = "invoke_" + i + ":finalize";
+                }
+            }
+            if (result == null) {
+                throw new IllegalArgumentException("This transitional "
+                        + "element no constain "
+                        + "child element: " + finalize.getClass().getName());
+
+            }
+        } else {
+            result = super.createUniqueId(element);
+        }
+
+        return result;
+    }
+
 }

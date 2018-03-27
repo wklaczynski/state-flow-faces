@@ -19,6 +19,7 @@ package org.apache.scxml;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,12 +29,14 @@ import java.util.Set;
 import java.util.UUID;
 import org.apache.scxml.env.SimpleContext;
 import org.apache.scxml.io.ContentParser;
+import org.apache.scxml.io.StateHolder;
 import org.apache.scxml.model.Data;
 import org.apache.scxml.model.Datamodel;
 import org.apache.scxml.model.EnterableState;
 import org.apache.scxml.model.History;
 import org.apache.scxml.model.ModelException;
 import org.apache.scxml.model.SCXML;
+import org.apache.scxml.model.TransitionTarget;
 import org.apache.scxml.model.TransitionalState;
 import org.apache.scxml.semantics.ErrorConstants;
 
@@ -41,7 +44,7 @@ import org.apache.scxml.semantics.ErrorConstants;
  * The <code>SCInstance</code> performs book-keeping functions for a particular
  * execution of a state chart represented by a <code>SCXML</code> object.
  */
-public class SCInstance implements Serializable {
+public class SCInstance implements Serializable, StateHolder {
 
     /**
      * Serial version UID.
@@ -337,7 +340,7 @@ public class SCInstance implements Serializable {
                 try {
                     final PathResolver pr = getStateMachine().getPathResolver();
                     URL url = pr != null ? pr.getResource(resolvedSrc) : new URL(resolvedSrc);
-                    
+
                     datum.setParsedValue(ContentParser.parseResource(url));
                     value = evaluator.cloneData(datum.getParsedValue().getValue());
                     setValue = true;
@@ -567,4 +570,181 @@ public class SCInstance implements Serializable {
     public void resetConfiguration(final History history) {
         histories.remove(history);
     }
+
+    @Override
+    public Object saveState(Context context) {
+
+        Object values[] = new Object[6];
+
+        values[0] = singleContext;
+        values[1] = stateConfiguration.saveState(context);
+
+        Context rctx = getRootContext();
+        if (rctx != null) {
+            if (rctx instanceof StateHolder) {
+                values[2] = ((StateHolder) rctx).saveState(context);
+            }
+        }
+
+        Context sctx = getSystemContext();
+        if (sctx != null) {
+            if (sctx instanceof StateHolder) {
+                values[3] = ((StateHolder) sctx).saveState(context);
+            }
+        }
+
+        values[4] = saveContextsState(context);
+        values[5] = saveHistoriesState(context);
+        return values;
+    }
+
+    @Override
+    public void restoreState(Context context, Object state) {
+
+        if (state == null) {
+            return;
+        }
+
+        Object[] values = (Object[]) state;
+
+        singleContext = (boolean) values[0];
+        stateConfiguration.restoreState(context, values[1]);
+
+        Context rctx = getRootContext();
+        if (rctx != null) {
+            if (rctx instanceof StateHolder) {
+                ((StateHolder) rctx).restoreState(context, values[2]);
+            }
+        }
+
+        Context sctx = getSystemContext();
+        if (sctx != null) {
+            if (sctx instanceof StateHolder) {
+                ((StateHolder) sctx).restoreState(context, values[3]);
+            }
+        }
+
+        restoreContextsState(context, values[4]);
+        restoreHistoriesState(context, values[5]);
+    }
+
+    private Object saveContextsState(Context context) {
+        Object state = null;
+        if (null != contexts && contexts.size() > 0) {
+            Object[] attached = new Object[contexts.size()];
+            int i = 0;
+            for (Map.Entry<EnterableState, Context> entry : contexts.entrySet()) {
+                Object values[] = new Object[1];
+                Context rctx = entry.getValue();
+                if (rctx instanceof StateHolder) {
+                    values[0] = ((StateHolder) rootContext).saveState(context);
+                }
+
+                if (rctx instanceof StateHolder) {
+                    ((StateHolder) rootContext).restoreState(context, values[0]);
+                }
+
+                attached[i++] = values;
+            }
+            state = attached;
+        }
+        return state;
+    }
+
+    private void restoreContextsState(Context context, Object state) {
+        contexts.clear();
+
+        if (null != state) {
+            Object[] values = (Object[]) state;
+            for (Object value : values) {
+                Object[] entry = (Object[]) value;
+
+                String ttid = (String) entry[0];
+                Object found = stateMachine.findElement(ttid);
+                if (found == null) {
+                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
+                }
+
+                EnterableState target = (EnterableState) found;
+                Context tctx = getContext(target);
+                if (tctx instanceof StateHolder) {
+                    ((StateHolder) tctx).restoreState(context, values[0]);
+                }
+            }
+        }
+    }
+
+    private Object saveHistoriesState(Context context) {
+        Object state = null;
+        if (null != histories && histories.size() > 0) {
+            Object[] attached = new Object[histories.size()];
+            int i = 0;
+            for (Map.Entry<History, Set<EnterableState>> entry : histories.entrySet()) {
+                Object values[] = new Object[2];
+                values[0] = entry.getKey().getClientId();
+                values[1] = saveTargetsState(context, entry.getValue());
+                attached[i++] = values;
+            }
+            state = attached;
+        }
+        return state;
+    }
+
+    private void restoreHistoriesState(Context context, Object state) {
+        histories.clear();
+
+        if (null != state) {
+            Object[] values = (Object[]) state;
+            for (Object value : values) {
+                Object[] entry = (Object[]) value;
+
+                String ttid = (String) entry[0];
+                Object found = stateMachine.findElement(ttid);
+
+                if (found == null) {
+                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
+                }
+
+                History history = (History) found;
+
+                Set<EnterableState> last = (Set) histories.get(history);
+                if (last == null) {
+                    last = new HashSet();
+                    histories.put(history, last);
+                }
+                restoreTargetsState(context, last, entry[1]);
+            }
+        }
+    }
+
+    private Object saveTargetsState(Context context, Collection<EnterableState> targets) {
+        Object state = null;
+        if (null != targets && targets.size() > 0) {
+            Object[] attached = new Object[targets.size()];
+            int i = 0;
+            for (TransitionTarget target : targets) {
+                attached[i++] = target.getClientId();
+            }
+            state = attached;
+        }
+        return state;
+    }
+
+    private void restoreTargetsState(Context context, Set<EnterableState> targets, Object state) {
+        targets.clear();
+        if (null != state) {
+            Object[] values = (Object[]) state;
+            for (Object value : values) {
+                String ttid = (String) value;
+                Object found = stateMachine.findElement(ttid);
+                if (found == null) {
+                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
+                }
+
+                EnterableState tt = (EnterableState) found;
+                targets.add(tt);
+            }
+        }
+    }
+
 }

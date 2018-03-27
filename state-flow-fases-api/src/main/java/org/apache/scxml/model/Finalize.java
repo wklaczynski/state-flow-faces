@@ -50,6 +50,6 @@ public class Finalize extends Executable {
      */
     public final void setParent(final TransitionalState parent) {
         super.setParent(parent);
-    }
+    }    
 }
 

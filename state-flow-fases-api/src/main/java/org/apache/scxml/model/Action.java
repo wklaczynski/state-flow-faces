@@ -59,6 +59,12 @@ public abstract class Action implements Serializable {
     }
 
     /**
+     * <p>
+     * The assigned client identifier for this state.</p>
+     */
+    private String clientId = null;
+
+    /**
      * Return the {@link EnterableState} whose
      * {@link org.apache.commons.scxml2.Context} this action executes in.
      *
@@ -93,4 +99,34 @@ public abstract class Action implements Serializable {
      * following actions within the same executable content block
      */
     public abstract void execute(ActionExecutionContext exctx) throws ModelException, SCXMLExpressionException, ActionExecutionError;
+
+    /**
+     * Get the identifier for this ecutable.
+     *
+     * @return Returns the unique client id.
+     */
+    public String getClientId() {
+        if (this.clientId == null) {
+            String parentId = null;
+
+            if (this.parent != null) {
+                parentId = this.parent.getClientId();
+            }
+
+            String id = parent.createUniqueId(this);
+            this.clientId = id;
+            if (parentId != null) {
+                StringBuilder idBuilder
+                        = new StringBuilder(parentId.length()
+                                + 1 + this.clientId.length());
+
+                this.clientId = idBuilder
+                        .append(parentId)
+                        .append(":")
+                        .append(id).toString();
+            }
+        }
+        return clientId;
+    }
+
 }

@@ -102,4 +102,10 @@ public final class SCXMLConstants {
     // Commons SCXML XML Attribute names
     public static final String ATTR_EXMODE = "exmode";
     public static final String ATTR_HINTS = "hints";
+    
+    
+    public static final String STATE_MACHINE_HINT = "scxml.STATE_MACHINE_HINT";
+    
+    public static final String META_ELEMENT_IDMAP = "elment-idmap";
+    
 }

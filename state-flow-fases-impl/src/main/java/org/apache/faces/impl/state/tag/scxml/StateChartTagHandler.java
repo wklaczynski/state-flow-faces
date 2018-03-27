@@ -47,6 +47,7 @@ import static org.apache.faces.impl.state.tag.AbstractFlowTagHandler.TAG_MAP;
 import static org.apache.faces.impl.state.tag.AbstractFlowTagHandler.getElement;
 import static org.apache.faces.impl.state.tag.AbstractFlowTagHandler.popElement;
 import static org.apache.faces.impl.state.tag.AbstractFlowTagHandler.pushElement;
+import org.apache.faces.impl.state.tag.ModelUpdater;
 import static org.apache.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static org.apache.faces.state.StateFlow.CUSTOM_ACTIONS_HINT;
 import static org.apache.faces.state.StateFlow.DEFAULT_STATECHART_NAME;

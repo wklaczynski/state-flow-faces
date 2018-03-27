@@ -27,8 +27,8 @@ import org.apache.scxml.TriggerEvent;
 import org.apache.scxml.semantics.ErrorConstants;
 
 /**
- * The class in this SCXML object model that corresponds to the
- * &lt;final&gt; SCXML element.
+ * The class in this SCXML object model that corresponds to the &lt;final&gt;
+ * SCXML element.
  *
  * @since 0.7
  */
@@ -53,11 +53,12 @@ public class Final extends EnterableState {
      */
     @Override
     public State getParent() {
-        return (State)super.getParent();
+        return (State) super.getParent();
     }
 
     /**
      * Set the parent State.
+     *
      * @param parent The parent state to set
      */
     public final void setParent(State parent) {
@@ -66,6 +67,7 @@ public class Final extends EnterableState {
 
     /**
      * {@inheritDoc}
+     *
      * @return Returns always true (a state of type Final is always atomic)
      */
     @Override
@@ -80,7 +82,7 @@ public class Final extends EnterableState {
     public void setDoneData(final DoneData doneData) {
         this.doneData = doneData;
     }
-
+    
     public Object processDoneData(SCXMLExecutionContext exctx) throws ModelException {
         Object result = null;
         if (doneData != null) {
@@ -97,8 +99,8 @@ public class Final extends EnterableState {
                             exctx.getInternalIOProcessor().addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION,
                                     TriggerEvent.ERROR_EVENT).build());
                             exctx.getErrorReporter().onError(ErrorConstants.EXPRESSION_ERROR,
-                                    "Failed to evaluate <donedata> <content> expression due to error: "+ e.getMessage()
-                                            + ", Using empty value instead.", this, "expr", e);
+                                    "Failed to evaluate <donedata> <content> expression due to error: " + e.getMessage()
+                                    + ", Using empty value instead.", this, "expr", e);
                             evalResult = "";
                         }
                         result = eval.cloneData(evalResult);
@@ -117,10 +119,9 @@ public class Final extends EnterableState {
                 result = null;
                 exctx.getInternalIOProcessor().addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION, TriggerEvent.ERROR_EVENT).build());
                 exctx.getErrorReporter().onError(ErrorConstants.EXPRESSION_ERROR,
-                        "Failed to process final donedata due to error: "+ e.getMessage(), this, "expr", e);
+                        "Failed to process final donedata due to error: " + e.getMessage(), this, "expr", e);
             }
         }
         return result;
     }
 }
-

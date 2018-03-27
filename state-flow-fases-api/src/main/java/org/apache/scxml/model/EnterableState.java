@@ -110,4 +110,37 @@ public abstract class EnterableState extends TransitionTarget implements Documen
      * @return Returns true if this is an atomic state.
      */
     public abstract boolean isAtomicState();
+
+    /**
+     * Create the identifier for this transition target.
+     *
+     * @param element to generate
+     * @return Returns the new unique client id.
+     */
+    @Override
+    public String createUniqueId(Object element) {
+        String result = null;
+        if (element instanceof OnEntry) {
+            OnEntry entry = (OnEntry) element;
+            if (!getOnEntries().contains(entry)) {
+                throw new IllegalArgumentException("This enterable "
+                        + "element no constain "
+                        + "child element: " + entry.getClass().getName());
+            }
+            result = "onentry_" + getOnEntries().indexOf(entry);
+        } else if (element instanceof OnExit) {
+            OnExit exit = (OnExit) element;
+            if (!getOnExits().contains(exit)) {
+                throw new IllegalArgumentException("This enterable "
+                        + "element no constain "
+                        + "child element: " + exit.getClass().getName());
+
+            }
+            result = "onexit_" + getOnExits().indexOf(exit);
+        }
+
+        return result;
+    }
+    
+    
 }

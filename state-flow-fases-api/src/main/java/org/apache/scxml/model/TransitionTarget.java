@@ -17,30 +17,38 @@
 package org.apache.scxml.model;
 
 import java.io.Serializable;
+import org.apache.scxml.UniqueIdGenerator;
 
 /**
  * An abstract base class for elements in SCXML that can serve as a
  * &lt;target&gt; for a &lt;transition&gt;, such as State or Parallel.
  *
  */
-public abstract class TransitionTarget implements Serializable, Observable {
+public abstract class TransitionTarget implements UniqueIdGenerator, Serializable, Observable {
 
     private static final EnterableState[] ZERO_ANCESTORS = new EnterableState[0];
 
     /**
-     * The id for this {@link Observable} which is unique within the SCXML state machine
+     * The id for this {@link Observable} which is unique within the SCXML state
+     * machine
      */
     private Integer observableId;
 
     /**
-     * Identifier for this transition target. Other parts of the SCXML
-     * document may refer to this &lt;state&gt; using this ID.
+     * Identifier for this transition target. Other parts of the SCXML document
+     * may refer to this &lt;state&gt; using this ID.
      */
     private String id;
 
     /**
-     * The parent of this transition target (may be null, if the parent
-     * is the SCXML document root).
+     * <p>
+     * The assigned client identifier for this state.</p>
+     */
+    private String clientId = null;
+
+    /**
+     * The parent of this transition target (may be null, if the parent is the
+     * SCXML document root).
      */
     private EnterableState parent;
 
@@ -57,12 +65,15 @@ public abstract class TransitionTarget implements Serializable, Observable {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final Integer getObservableId() {
         return observableId;
     }
 
     /**
-     * Sets the observableId for this Observable, which must be unique within the SCXML state machine
+     * Sets the observableId for this Observable, which must be unique within
+     * the SCXML state machine
+     *
      * @param observableId the observableId
      */
     public final void setObservableId(Integer observableId) {
@@ -96,6 +107,7 @@ public abstract class TransitionTarget implements Serializable, Observable {
 
     /**
      * Get the ancestor of this TransitionTarget at specified level
+     *
      * @param level the level of the ancestor to return, zero being top
      * @return the ancestor at specified level
      */
@@ -106,8 +118,8 @@ public abstract class TransitionTarget implements Serializable, Observable {
     /**
      * Get the parent TransitionTarget.
      *
-     * @return Returns the parent state
-     * (null if parent is &lt;scxml&gt; element)
+     * @return Returns the parent state (null if parent is &lt;scxml&gt;
+     * element)
      */
     public EnterableState getParent() {
         return parent;
@@ -116,8 +128,9 @@ public abstract class TransitionTarget implements Serializable, Observable {
     /**
      * Set the parent EnterableState.
      * <p>
-     * The parent of a TransitionTarget must be of type EnterableState as a History (as only non-EnterableState)
-     * TransitionTarget cannot have children.
+     * The parent of a TransitionTarget must be of type EnterableState as a
+     * History (as only non-EnterableState) TransitionTarget cannot have
+     * children.
      * </p>
      *
      * @param parent The parent state to set
@@ -140,26 +153,26 @@ public abstract class TransitionTarget implements Serializable, Observable {
      */
     protected void updateDescendantsAncestors() {
         TransitionTarget ttParent = parent;
-        ancestors = new EnterableState[ttParent.ancestors.length+1];
+        ancestors = new EnterableState[ttParent.ancestors.length + 1];
         System.arraycopy(ttParent.ancestors, 0, ancestors, 0, ttParent.ancestors.length);
         ancestors[ttParent.ancestors.length] = parent;
     }
 
     /**
-     * Checks whether this transition target (State or Parallel) is a
-     * descendant of the transition target context.
+     * Checks whether this transition target (State or Parallel) is a descendant
+     * of the transition target context.
      *
-     * @param context
-     *            TransitionTarget context - a potential ancestor
+     * @param context TransitionTarget context - a potential ancestor
      * @return true if this is a descendant of context, false otherwise
      */
     public final boolean isDescendantOf(TransitionTarget context) {
         return getNumberOfAncestors() > context.getNumberOfAncestors()
                 && getAncestor(context.getNumberOfAncestors()) == context;
     }
-    
+
     /**
      * Enforce identity equality only
+     *
      * @param other other object to compare with
      * @return this == other
      */
@@ -170,11 +183,50 @@ public abstract class TransitionTarget implements Serializable, Observable {
 
     /**
      * Enforce returning identity based hascode
-     * @return {@link System#identityHashCode(Object) System.identityHashCode(this)}
+     *
+     * @return
+     * {@link System#identityHashCode(Object) System.identityHashCode(this)}
      */
     @Override
     public final int hashCode() {
         return System.identityHashCode(this);
     }
-}
 
+    /**
+     * Get the identifier for this transition target (may be null).
+     *
+     * @return Returns the unique client id.
+     */
+    public String getClientId() {
+        if (this.clientId == null) {
+            String parentId = null;
+
+            if (this.parent != null) {
+                parentId = this.parent.getClientId();
+            }
+
+            this.clientId = getId();
+            if (this.clientId == null) {
+                if (parent != null) {
+                    String generatedId = parent.createUniqueId(this);
+                    setId(generatedId);
+                    this.clientId = getId();
+                } else {
+                    throw new NullPointerException("undefined \"id\" for root state.");
+                }
+            }
+            if (parentId != null) {
+                StringBuilder idBuilder
+                        = new StringBuilder(parentId.length()
+                                + 1 + this.clientId.length());
+
+                this.clientId = idBuilder
+                        .append(parentId)
+                        .append(":")
+                        .append(getId()).toString();
+            }
+        }
+        return clientId;
+    }
+
+}
