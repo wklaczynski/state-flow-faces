@@ -17,7 +17,10 @@ package org.apache.common.faces.impl.state.tag;
 
 import java.io.Serializable;
 import java.util.logging.Logger;
+import javax.faces.context.FacesContext;
 import org.apache.common.faces.impl.state.log.FlowLogger;
+import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
+import org.apache.common.scxml.SCXMLExecutor;
 
 /**
  *
@@ -26,21 +29,27 @@ import org.apache.common.faces.impl.state.log.FlowLogger;
 public class FacesFlowBuiltin implements Serializable {
 
     public static final Logger log = FlowLogger.FLOW.getLogger();
-    
+
     /**
-     * Implements the In() predicate for flow documents. The method
-     * name chosen is different since &quot;in&quot; is a reserved token
-     * in some expression languages.
+     * Implements the In() predicate for flow documents. The method name chosen
+     * is different since &quot;in&quot; is a reserved token in some expression
+     * languages.
      *
-     * Does this state belong to the given Set of States.
-     * Simple ID based comparator, assumes IDs are unique.
+     * Does this state belong to the given Set of States. Simple ID based
+     * comparator, assumes IDs are unique.
      *
      * @param state The State ID to compare with
      * @return Whether this State belongs to this Set
      */
     public static boolean isMember(final String state) {
-        
-        return false;
+        FacesContext fc = FacesContext.getCurrentInstance();
+        boolean result = false;
+
+        SCXMLExecutor executor = (SCXMLExecutor) fc.getAttributes().get(CURRENT_EXECUTOR_HINT);
+        if (executor != null) {
+            result = executor.getStatus().isInState(state);
+        }
+
+        return result;
     }
 }
-

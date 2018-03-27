@@ -10,7 +10,7 @@
         <x:datamodel>
             <x:data id="chart_title" expr="Test Multiple State Flow Process"/>
             <x:data id="chart_view" expr="/flow1/faces-flow-test.xhtml"/>
-            <x:data id="test_data">I'm here.</x:data> 
+            <x:data id="test_data">I'm starting process, click any button to change my state.</x:data> 
         </x:datamodel>
 
         <x:state id="start">
@@ -33,9 +33,13 @@
                 <x:transition event="error.execution" target="error"/>
 
                 <x:transition event="view.action.cancel" target="cancel"/>
+
+                <x:transition event="view.action.clear" target="cancel">
+                    <x:assign location="test_data" expr="I done transition for event clear in view process."/>
+                </x:transition>
                 
                 <x:transition event="view.action.calculate">
-                    <x:var name="test" expr="#{main.assignedTest1}"/>
+                    <x:assign location="test_data" expr="I done transition for event calculate in view process."/>
                 </x:transition>
             </x:state>
 

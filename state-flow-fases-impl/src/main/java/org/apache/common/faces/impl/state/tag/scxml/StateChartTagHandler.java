@@ -18,6 +18,7 @@ package org.apache.common.faces.impl.state.tag.scxml;
 import com.sun.faces.el.ELContextImpl;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -68,10 +69,9 @@ public class StateChartTagHandler extends TagHandler {
 
     protected final TagAttribute id;
     protected final TagAttribute initial;
-    
+
     private static SCXML restored;
-            
-            
+
     public StateChartTagHandler(TagConfig config) {
         super(config);
         this.id = this.getAttribute("id");
@@ -122,16 +122,26 @@ public class StateChartTagHandler extends TagHandler {
         if (uichart != null && uichart.getStateChart() != null) {
             return;
         }
-        
+
         chart = new SCXML();
         if (initial != null) {
             chart.setInitial(initial.getValue(ctx));
         }
         chart.setDatamodelName(tag.getNamespace());
+
+        String qname = tag.getQName();
+        String typens = "";
         
+        int sep = qname.indexOf(":");
+        if (sep > 0) {
+            typens = qname.substring(0, sep);
+        }
+
+        chart.setNamespaces(new LinkedHashMap<>());
+        chart.getNamespaces().put(typens, tag.getNamespace());
+
         chart.getMetadata().put("faces-viewid", root.getViewId());
         chart.getMetadata().put("faces-chartid", chartId);
-
 
         Application app = ctx.getFacesContext().getApplication();
         if (facetComponent == null && !(facetComponent instanceof UIPanel)) {
@@ -145,7 +155,7 @@ public class StateChartTagHandler extends TagHandler {
         if (null != facetComponent) {
             facetComponent.setId(STATECHART_FACET_NAME);
         }
-        
+
         if (uichart == null) {
             uichart = (UIStateChartRoot) app.createComponent(UIStateChartRoot.COMPONENT_TYPE);
             uichart.setId(chartId);
@@ -158,9 +168,9 @@ public class StateChartTagHandler extends TagHandler {
             baseResolver = new StateFlowURLResolver("/");
             fc.getExternalContext().getApplicationMap().put(BASE_PATH_RESOLVER, baseResolver);
         }
-        
+
         uichart.setStateChart(chart);
-        
+
         PathResolver resolver = baseResolver.getResolver(root.getViewId());
         chart.setPathResolver(resolver);
 
@@ -171,7 +181,7 @@ public class StateChartTagHandler extends TagHandler {
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
         List<CustomAction> customActions = handler.getCustomActions();
-        
+
         Map<Object, Tag> tags = new HashMap<>();
         try {
             build(ctx, uichart, chart, tags, resolver, customActions);
@@ -184,7 +194,7 @@ public class StateChartTagHandler extends TagHandler {
 
         ModelUpdater updater = new ModelUpdater(tags);
         updater.updateSCXML(chart);
-        
+
         restored = chart;
 
     }

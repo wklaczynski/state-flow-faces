@@ -258,6 +258,39 @@ public class EvaluatorELResolver extends ELResolver implements Serializable {
         return false;
     }
 
+    private static class InvokeFinal implements Serializable {
+
+        private static final Set<String> names = new HashSet<>(Arrays.asList(
+                "done"));
+
+        private final SCXMLExecutor executor;
+
+        public InvokeFinal(SCXMLExecutor executor) {
+            this.executor = executor;
+        }
+
+        public Object get(String name) {
+            switch (name) {
+                case "done": {
+                    return executor.getFinalDoneData();
+                }
+                case "state": {
+                    return executor.getStatus().getFinalState().getId();
+                }
+            }
+            return null;
+        }
+
+        public void set(String name, Object value) {
+            throw new PropertyNotWritableException(String.format("(%s property '%s' is read only)", "invoke", name));
+        }
+
+        public boolean has(String name) {
+            return names.contains(name);
+        }
+
+    }
+
     private static class EventVariableParams implements Serializable {
 
         private static final Set<String> names = new HashSet<>(Arrays.asList(
@@ -308,7 +341,7 @@ public class EvaluatorELResolver extends ELResolver implements Serializable {
         }
 
         public void set(String name, Object value) {
-
+            throw new PropertyNotWritableException(String.format("(%s property '%s' is read only)", "event", name));
         }
 
         public boolean has(String name) {

@@ -18,8 +18,10 @@ package org.apache.common.faces.impl.state.evaluator;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.logging.Logger;
+import javax.el.ELContext;
 import javax.el.FunctionMapper;
 import org.apache.common.faces.impl.state.log.FlowLogger;
+import org.apache.common.scxml.SCXMLExecutor;
 
 /**
  *
@@ -29,9 +31,11 @@ public class EvaluatorBuiltinFunctionMapper extends FunctionMapper implements Se
 
         private static final long serialVersionUID = 1L;
         public static final Logger log = FlowLogger.FLOW.getLogger();
+    private final ELContext context;
 
-        public EvaluatorBuiltinFunctionMapper() {
+        public EvaluatorBuiltinFunctionMapper(ELContext context) {
             super();
+        this.context = context;
         }
 
         @Override

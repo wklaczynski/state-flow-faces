@@ -189,7 +189,9 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
                 this.varMapper = new EvaluatorVariableMapper();
             }
 
-            this.fnMapper = new CompositeFunctionMapper(new EvaluatorBuiltinFunctionMapper(), ctx.getFunctionMapper());
+            EvaluatorBuiltinFunctionMapper bfm = new EvaluatorBuiltinFunctionMapper(this);
+            
+            this.fnMapper = new CompositeFunctionMapper(bfm, ctx.getFunctionMapper());
 
             this.elResolver = new CompositeELResolver();
             this.elResolver.add(new EvaluatorELResolver());

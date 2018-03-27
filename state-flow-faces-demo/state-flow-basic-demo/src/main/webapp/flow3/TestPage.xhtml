@@ -30,11 +30,8 @@
                     <h3>Test data manipulation in executed states.</h3>
                     <p/>
                     Data assigned in:
-                    <pre>1. Change data when using &lt;assign location="\#{main.assignedTest1}" expr="\#{book['client[last()]/phone[@type=\'mobile\']']}" &gt;</pre>
-                    <b>Value:</b> #{main.assignedTest1}
                     <p/>
-                    <pre>2. Change data when using &lt;var name="assignedTest2" expr="\#{book['client[first()]/phone[@type=\'home\']']}" &gt;</pre>
-                    <b>Value:</b> #{scxml.assignedTest2}
+                    <b>Value:</b> #{scxml.test_data}
                     <p/>
                     <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
                         <h:commandButton action="calculate" value="Calculate Test">
