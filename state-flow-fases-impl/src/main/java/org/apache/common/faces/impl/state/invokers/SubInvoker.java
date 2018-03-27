@@ -16,12 +16,12 @@
  */
 package org.apache.common.faces.impl.state.invokers;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.logging.Logger;
-import javax.faces.context.ExternalContext;
+import javax.faces.FacesException;
 import javax.faces.context.FacesContext;
 import org.apache.common.faces.state.StateFlowHandler;
+import org.apache.common.scxml.Context;
 import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.ParentSCXMLIOProcessor;
 import org.apache.common.scxml.SCXMLExecutor;
@@ -29,13 +29,16 @@ import org.apache.common.scxml.SCXMLIOProcessor;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
+import org.apache.common.scxml.io.StateHolder;
+import org.apache.common.scxml.io.StateHolderSaver;
+import org.apache.common.scxml.model.ModelException;
 import org.apache.common.scxml.model.SCXML;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
  * contain external namespace elements, further invokes etc.
  */
-public class SubInvoker implements Invoker, Serializable {
+public class SubInvoker implements Invoker, StateHolder {
 
     private final static Logger logger = Logger.getLogger(SubInvoker.class.getName());
 
@@ -54,7 +57,7 @@ public class SubInvoker implements Invoker, Serializable {
     /**
      * The invoked state machine executor.
      */
-    private SCXMLExecutor executor;
+    private transient SCXMLExecutor executor;
     /**
      * Cancellation status.
      */
@@ -129,9 +132,9 @@ public class SubInvoker implements Invoker, Serializable {
     protected void execute(StateFlowHandler handler, SCXML scxml, final Map<String, Object> params) throws InvokerException {
         try {
             FacesContext fc = FacesContext.getCurrentInstance();
-            ExternalContext ec = fc.getExternalContext();
 
-            executor = handler.execute(parentSCXMLExecutor, invokeId, scxml, params);
+            executor = handler.createChildExecutor(fc, parentSCXMLExecutor, invokeId, scxml);
+            handler.execute(fc, executor, params);
         } catch (Throwable me) {
             throw new InvokerException(me);
         }
@@ -172,4 +175,55 @@ public class SubInvoker implements Invoker, Serializable {
             }
         }
     }
+
+    @Override
+    public Object saveState(Context context) {
+        Object values[] = new Object[4];
+
+        values[0] = StateHolderSaver.saveObjectState(context, this);
+
+        SCXML stateMachine = executor.getStateMachine();
+
+        values[1] = stateMachine.getMetadata().get("faces-viewid");
+        values[2] = stateMachine.getMetadata().get("faces-chartid");
+        values[3] = executor.saveState(context);
+
+        return values;
+    }
+
+    @Override
+    public void restoreState(Context context, Object state) {
+        if (state == null) {
+            return;
+        }
+        Object[] values = (Object[]) state;
+
+        StateHolderSaver.restoreObjectState(context, values[0], this);
+        
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        FacesContext fc = FacesContext.getCurrentInstance();
+
+        String viewId = (String) values[1];
+        String id = (String) values[2];
+
+        SCXML stateMachine = null;
+        try {
+            stateMachine = handler.createStateMachine(fc, viewId, id);
+        } catch (ModelException ex) {
+            throw new FacesException(ex);
+        }
+
+        if (stateMachine == null) {
+            throw new FacesException(String.format("Restored state flow %s in %s not found.", viewId, id));
+        }
+
+        try {
+            executor = handler.createChildExecutor(fc, parentSCXMLExecutor, invokeId, stateMachine);
+        } catch (ModelException ex) {
+            throw new FacesException(ex);
+        }
+
+        executor.restoreState(context, values[3]);
+    }
+
 }

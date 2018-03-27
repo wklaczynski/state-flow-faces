@@ -32,7 +32,7 @@ import org.apache.common.scxml.model.SCXML;
 public abstract class StateFlowHandler {
 
     public static final String KEY = "javax.faces.state.StateFlowHandler";
-    
+
     public final static StateFlowHandler getInstance() {
         FacesContext fc = FacesContext.getCurrentInstance();
         StateFlowHandler handler = (StateFlowHandler) fc.getExternalContext().getApplicationMap().get(KEY);
@@ -40,19 +40,21 @@ public abstract class StateFlowHandler {
     }
 
     public abstract List<CustomAction> getCustomActions();
-    
+
     public abstract Map<String, Class<? extends Invoker>> getCustomInvokers();
-    
+
     public abstract SCXMLExecutor getRootExecutor(FacesContext context);
 
     public abstract boolean isActive(FacesContext context);
+
+    public abstract SCXMLExecutor createRootExecutor(FacesContext context, SCXML scxml) throws ModelException;
     
-    public abstract SCXMLExecutor execute(SCXML scxml, Map<String, Object> params);
+    public abstract SCXMLExecutor createChildExecutor(FacesContext context, SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException;
     
-    public abstract SCXMLExecutor execute(SCXMLExecutor parent, String invokeId, SCXML scxml, Map<String, Object> params);
+    public abstract void execute(FacesContext context, SCXMLExecutor executor, Map<String, Object> params);
 
     public abstract SCXMLExecutor getCurrentExecutor(FacesContext context);
-    
+
     public void close(FacesContext context) {
         close(context, null);
     }

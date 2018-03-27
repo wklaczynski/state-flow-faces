@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
@@ -183,8 +185,10 @@ public class StateFlowPhaseListener implements PhaseListener {
             for (String key : pmap.keySet()) {
                 params.put(key, pmap.get(key));
             }
-
-            flowHandler.execute(stateFlow, params);
+            
+            SCXMLExecutor executor = flowHandler.createRootExecutor(context, stateFlow);
+            
+            flowHandler.execute(context, executor, params);
             UIViewRoot result = context.getViewRoot();
 
             if (null != currentViewRoot) {
@@ -196,6 +200,8 @@ public class StateFlowPhaseListener implements PhaseListener {
                     resultViewMap.putAll(currentViewMapShallowCopy);
                 }
             }
+        } catch (ModelException ex) {
+            Logger.getLogger(StateFlowPhaseListener.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             context.setProcessingEvents(true);
             if (!currentViewMapShallowCopy.isEmpty()) {

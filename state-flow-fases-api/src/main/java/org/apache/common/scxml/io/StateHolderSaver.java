@@ -16,6 +16,7 @@
 package org.apache.common.scxml.io;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,7 +62,7 @@ public class StateHolderSaver implements Serializable {
 
                 tuple[StateHolderTupleIndices.StateHolderSaverInstance.ordinal()]
                         = (Serializable) ((StateHolder) toSave).saveState(context);
-                
+
                 savedState = tuple;
             } else if (toSave instanceof Serializable) {
                 savedState = (Serializable) toSave;
@@ -260,6 +261,97 @@ public class StateHolderSaver implements Serializable {
             throw new IllegalStateException("Unknown object type");
         }
         return result;
+    }
+
+    public static Object saveObjectState(Context context, Object instance) {
+        return saveObjectState(context, instance.getClass(), instance);
+    }
+    
+    
+    public static Object saveObjectState(Context context, Class<?> clazz, Object instance) {
+        if (clazz == null) {
+            return null;
+        }
+
+        Object results[] = new Object[2];
+
+        Field[] fields = clazz.getDeclaredFields();
+        Object[] attached = new Object[fields.length];
+        int i = 0;
+        for (Field field : fields) {
+            Object entry[] = null;
+            if (!Modifier.isTransient(field.getModifiers())) {
+                entry = new Object[2];
+                Object value = null;
+                boolean accessibility = field.isAccessible();
+                try {
+                    field.setAccessible(true);
+                    value = field.get(instance);
+                } catch (IllegalArgumentException | IllegalAccessException ex) {
+                    throw new IllegalStateException(String.format("Save statefull field %s error.", field.getName()));
+                } finally {
+                    field.setAccessible(accessibility);
+                }
+                entry[0] = field.getName();
+                entry[1] = saveValueState(context, field.getName(), value);
+            }
+            attached[i++] = entry;
+        }
+        results[0] = attached;
+        results[1] = saveObjectState(context, clazz.getSuperclass(), instance);
+
+        return results;
+    }
+
+    public static void restoreObjectState(Context context, Object state, Object instance) {
+        restoreObjectState(context, state, instance.getClass(), instance);
+    }
+    
+    
+    public static void restoreObjectState(Context context, Object state, Class<?> clazz, Object instance) {
+        if (clazz == null || null == state) {
+            return;
+        }
+
+        Object[] states = (Object[]) state;
+
+        Field[] fields = clazz.getDeclaredFields();
+        Object[] attached = (Object[]) states[0];
+        int i = 0;
+        for (Field field : fields) {
+            if (!Modifier.isTransient(field.getModifiers())) {
+                Object[] entry = (Object[]) attached[i];
+                Object value = restoreValueState(context, field.getName(), entry[1]);
+                boolean accessibility = field.isAccessible();
+                try {
+                    field.setAccessible(true);
+                    field.set(instance, value);
+                } catch (IllegalArgumentException | IllegalAccessException ex) {
+                    throw new IllegalStateException(String.format("Restored statefull field %s error.", field.getName()));
+                } finally {
+                    field.setAccessible(accessibility);
+                }
+            }
+            i++;
+        }
+        restoreObjectState(context, state, clazz.getSuperclass(), instance);
+
+    }
+
+    public static Object saveValueState(Context context, String name, Object value) {
+        if (value == null) {
+            return null;
+        }
+        value = saveAttachedState(context, value);
+        return value;
+    }
+
+    public static Object restoreValueState(Context context, String name, Object state) {
+        if (state == null) {
+            return null;
+        }
+        Object value = restoreAttachedState(context, state);
+        return value;
     }
 
 }

@@ -37,13 +37,13 @@
                     <b>Value:</b> #{scxml.assignedTest2}
                     <p/>
                     <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
-                        <h:commandButton action="assign" value="Run Test">
+                        <h:commandButton action="calculate" value="Calculate Test">
+                            <f:ajax render="asign-test"/>
+                        </h:commandButton>
+                        <h:commandButton action="next" value="Go Next">
                             <f:ajax render="asign-test"/>
                         </h:commandButton>
                         <h:commandButton action="clear" value="Clear Test">
-                            <f:ajax render="asign-test"/>
-                        </h:commandButton>
-                        <h:commandButton action="calculate" value="Calculate Test">
                             <f:ajax render="asign-test"/>
                         </h:commandButton>
                     </h:panelGrid>

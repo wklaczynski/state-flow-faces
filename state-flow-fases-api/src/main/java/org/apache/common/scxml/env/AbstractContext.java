@@ -242,6 +242,12 @@ public class AbstractContext implements Context, StateHolder {
                 if (SCXMLSystemContext.EVENT_KEY.equals(entry.getKey())) {
                     continue;
                 }
+                if (SCXMLSystemContext.SCXML_NAME_KEY.equals(entry.getKey())) {
+                    continue;
+                }
+                if (SCXMLSystemContext.SESSIONID_KEY.equals(entry.getKey())) {
+                    continue;
+                }
 
                 Object vstate = saveValueState(context, entry.getKey(), entry.getValue());
                 attached[i++] = new Object[]{entry.getKey(), vstate};
@@ -269,7 +275,7 @@ public class AbstractContext implements Context, StateHolder {
         value = saveAttachedState(context, value);
 
         return value;
-    }
+}
 
     protected Object restoreValueState(Context context, String name, Object state) {
         Object value = restoreAttachedState(context, state);

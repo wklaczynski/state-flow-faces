@@ -85,7 +85,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     public static final String LOGICAL_FLOW_MAP = StateFlowHandlerImpl.class.getName() + ".LogicalFlowMap";
 
     private Boolean logstep;
-    private final Boolean serialized = Boolean.TRUE;
+    private final Boolean alwaysSerialized = Boolean.TRUE;
 
     public StateFlowHandlerImpl(ServletContext ctx) {
         super();
@@ -215,7 +215,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         return stack != null && !stack.isEmpty();
     }
 
-    private SCXMLExecutor newRootExecutor(FacesContext context, SCXML scxml) throws ModelException {
+    @Override
+    public SCXMLExecutor createRootExecutor(FacesContext context, SCXML scxml) throws ModelException {
 
         StateFlowEvaluator evaluator = new StateFlowEvaluator();
         StateFlowDispatcher dispatcher = new StateFlowDispatcher();
@@ -257,7 +258,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         return executor;
     }
 
-    private SCXMLExecutor newSlaveExecutor(FacesContext context, SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException {
+    @Override
+    public SCXMLExecutor createChildExecutor(FacesContext context, SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException {
 
         StateFlowErrorReporter errorReporter = (StateFlowErrorReporter) parent.getErrorReporter();
 
@@ -299,27 +301,13 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public SCXMLExecutor execute(SCXML scxml, Map<String, Object> params) {
-        return execute(null, null, scxml, params);
-    }
-
-    @Override
-    public SCXMLExecutor execute(SCXMLExecutor parent, String invokeId, SCXML scxml, Map<String, Object> params) {
+    public void execute(FacesContext context, SCXMLExecutor executor, Map<String, Object> params) {
         try {
-            boolean root = parent == null;
-            FacesContext context = FacesContext.getCurrentInstance();
+            boolean root = executor.getParentSCXMLIOProcessor() != null;
 
             FlowDeque fs = getFlowDeque(context, true);
 
             Stack<SCXMLExecutor> stack = fs.getRoots();
-
-            SCXMLExecutor executor;
-            if (root) {
-                executor = newRootExecutor(context, scxml);
-                stack.push(executor);
-            } else {
-                executor = newSlaveExecutor(context, parent, invokeId, scxml);
-            }
 
             Context rootCtx = executor.getEvaluator().newContext(null);
             executor.setRootContext(rootCtx);
@@ -337,8 +325,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             if (!executor.isRunning()) {
                 close(context, executor);
             }
-
-            return executor;
         } catch (Throwable ex) {
             throw new IllegalStateException(ex);
         }
@@ -423,7 +409,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 clientWindow.enableClientWindowRenderMode(context);
             }
             String sessionKey = clientWindow.getId() + "_stateFlowStack";
-            if (serialized) {
+            if (!alwaysSerialized) {
                 result = (FlowDeque) flowMap.get(sessionKey);
                 if (null == result && create) {
                     result = new FlowDeque(sessionKey);
@@ -483,7 +469,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             clientWindow.enableClientWindowRenderMode(context);
         }
         String sessionKey = clientWindow.getId() + "_stateFlowStack";
-        if (serialized) {
+        if (!alwaysSerialized) {
             flowMap.put(sessionKey, flowStack);
         } else {
             Object state = saveFlowDequeState(context, flowStack);
@@ -533,7 +519,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
                     SCXML stateMachine = null;
                     try {
-                        stateMachine = createStateFlow(fc, viewId, id);
+                        stateMachine = createStateMachine(fc, viewId, id);
                     } catch (ModelException ex) {
                         throw new FacesException(ex);
                     }
@@ -544,7 +530,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
                     SCXMLExecutor executor;
                     try {
-                        executor = newRootExecutor(fc, stateMachine);
+                        executor = createRootExecutor(fc, stateMachine);
                     } catch (ModelException ex) {
                         throw new FacesException(ex);
                     }
@@ -609,7 +595,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
             //noinspection unchecked
-            StateFlowHandlerImpl handler = (StateFlowHandlerImpl) StateFlowHandler.getInstance();
+            StateFlowHandler handler = StateFlowHandler.getInstance();
             FacesContext fc = FacesContext.getCurrentInstance();
             executors.clear();
             Object[] states = (Object[]) in.readObject();
@@ -623,7 +609,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
                     SCXML stateMachine = null;
                     try {
-                        stateMachine = handler.createStateFlow(fc, viewId, id);
+                        stateMachine = handler.createStateMachine(fc, viewId, id);
                     } catch (ModelException ex) {
                         throw new FacesException(ex);
                     }
@@ -634,7 +620,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
                     SCXMLExecutor executor;
                     try {
-                        executor = handler.newRootExecutor(fc, stateMachine);
+                        executor = handler.createRootExecutor(fc, stateMachine);
                     } catch (ModelException ex) {
                         throw new FacesException(ex);
                     }
