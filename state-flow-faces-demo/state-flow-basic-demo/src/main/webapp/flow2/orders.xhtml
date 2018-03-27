@@ -14,7 +14,7 @@
 
         <x:state id="start">
             <x:onentry>
-                <x:if cond="#{fx:in('start')}">
+                <x:if cond="#{x:in('start')}">
                 </x:if>
                 <x:if cond="#{orders.prepare()}">
                     <x:raise event="main.prepare.success"/>
