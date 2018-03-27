@@ -123,11 +123,18 @@ public abstract class Executable implements UniqueIdGenerator, Serializable {
         if (this.clientId == null) {
             String parentId = null;
 
+            String id;
             if (this.parent != null) {
                 parentId = this.parent.getClientId();
+                id = parent.createUniqueId(this);
+            } else {
+                if (this instanceof SimpleTransition) {
+                    id = "initial:transition";
+                } else {
+                    throw new NullPointerException("undefined \"id\" for root state.");
+                }
             }
 
-            String id = parent.createUniqueId(this);
             this.clientId = id;
             if (parentId != null) {
                 StringBuilder idBuilder

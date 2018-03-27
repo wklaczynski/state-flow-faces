@@ -17,8 +17,8 @@
 package org.apache.scxml.model;
 
 /**
- * The class in this SCXML object model that corresponds to the
- * &lt;state&gt; SCXML element.
+ * The class in this SCXML object model that corresponds to the &lt;state&gt;
+ * SCXML element.
  *
  */
 public class State extends TransitionalState {
@@ -29,13 +29,14 @@ public class State extends TransitionalState {
     private static final long serialVersionUID = 2L;
 
     /**
-     * The id of the initial child of this composite, corresponding with the state initial attribute
+     * The id of the initial child of this composite, corresponding with the
+     * state initial attribute
      */
     private String first;
 
     /**
-     * A child which identifies initial state for state machines that
-     * have substates.
+     * A child which identifies initial state for state machines that have
+     * substates.
      */
     private Initial initial;
 
@@ -57,8 +58,7 @@ public class State extends TransitionalState {
     /**
      * Set the initial state.
      *
-     * @param target
-     *            The target to set.
+     * @param target The target to set.
      */
     public final void setInitial(final Initial target) {
         this.first = null;
@@ -78,8 +78,7 @@ public class State extends TransitionalState {
     /**
      * Set the initial state by its ID string.
      *
-     * @param target
-     *            The initial target's ID to set.
+     * @param target The initial target's ID to set.
      */
     public final void setFirst(final String target) {
         this.first = target;
@@ -94,6 +93,7 @@ public class State extends TransitionalState {
 
     /**
      * {@inheritDoc}
+     *
      * @return Returns true if this State has no children
      */
     @Override
@@ -127,18 +127,19 @@ public class State extends TransitionalState {
      * @see Parallel
      */
     public final boolean isRegion() {
-        return getParent() instanceof  Parallel;
+        return getParent() instanceof Parallel;
     }
 
     /**
      * Adds an EnterableState (State, Final or Parallel) child
+     *
      * @param es the child to add
      */
     @Override
     public final void addChild(final EnterableState es) {
         super.addChild(es);
     }
-    
+
     /**
      * Create the identifier for this transition target.
      *
@@ -147,16 +148,15 @@ public class State extends TransitionalState {
      */
     @Override
     public String createUniqueId(Object element) {
-        if (element instanceof SimpleTransition ) {
+        if (element instanceof SimpleTransition) {
             SimpleTransition transition = (SimpleTransition) element;
-            if(initial != null) {
-                if(transition.equals(initial.getTransition())) {
+            if (initial != null) {
+                if (transition.equals(initial.getTransition())) {
                     return "initial:transition";
                 }
             }
         }
         return super.createUniqueId(element);
     }
-    
-}
 
+}

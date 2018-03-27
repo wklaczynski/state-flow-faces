@@ -174,7 +174,8 @@ public final class ModelUpdater {
 
         Map idmap = (Map) scxml.getMetadata().get(META_ELEMENT_IDMAP);
 
-        initMetadata(scxml, idmap, scxml.getChildren(), 2);
+        initObservables(scxml.getChildren(), 2);
+        initMetadata(scxml, idmap, scxml.getChildren());
     }
 
     /**
@@ -202,6 +203,39 @@ public final class ModelUpdater {
     }
 
     /**
+     * Initialize all {@link org.apache.commons.scxml2.model.Observable} instances in the SCXML document
+     * by iterating them in document order and seeding them with a unique obeservable id.
+     * @param states The list of children states of a parent TransitionalState or the SCXML document itself
+     * @param nextObservableId The next observable id sequence value to be used
+     * @return Returns the next to be used observable id sequence value
+     */
+    private int initObservables(final List<EnterableState>states, int nextObservableId) {
+        for (EnterableState es : states) {
+            es.setObservableId(nextObservableId++);
+            if (es instanceof TransitionalState) {
+                TransitionalState ts = (TransitionalState)es;
+                if (ts instanceof State) {
+                    State s = (State)ts;
+                    if (s.getInitial() != null && s.getInitial().getTransition() != null) {
+                        s.getInitial().getTransition().setObservableId(nextObservableId++);
+                    }
+                }
+                for (Transition t : ts.getTransitionsList()) {
+                    t.setObservableId(nextObservableId++);
+                }
+                for (History h : ts.getHistory()) {
+                    h.setObservableId(nextObservableId++);
+                    if (h.getTransition() != null) {
+                        h.getTransition().setObservableId(nextObservableId++);
+                    }
+                }
+                nextObservableId = initObservables(ts.getChildren(), nextObservableId);
+            }
+        }
+        return nextObservableId;
+    }
+    
+    /**
      * Initialize all {@link org.apache.commons.scxml2.model.Observable}
      * instances in the SCXML document by iterating them in document order and
      * seeding them with a unique obeservable id.
@@ -211,11 +245,9 @@ public final class ModelUpdater {
      * @param nextObservableId The next observable id sequence value to be used
      * @return Returns the next to be used observable id sequence value
      */
-    private int initMetadata(final SCXML scxml, final Map idmap, final List<EnterableState> states, int nextObservableId) {
+    private void initMetadata(final SCXML scxml, final Map idmap, final List<EnterableState> states) {
         for (EnterableState es : states) {
             idmap.put(es.getClientId(), es);
-            es.setObservableId(nextObservableId++);
-
             if (es instanceof TransitionalState) {
                 TransitionalState ts = (TransitionalState) es;
 
@@ -246,28 +278,23 @@ public final class ModelUpdater {
                 if (ts instanceof State) {
                     State s = (State) ts;
                     if (s.getInitial() != null && s.getInitial().getTransition() != null) {
-                        s.getInitial().getTransition().setObservableId(nextObservableId++);
                         idmap.put(s.getInitial().getTransition().getClientId(), s.getInitial().getTransition());
                     }
                 }
                 for (Transition t : ts.getTransitionsList()) {
-                    t.setObservableId(nextObservableId++);
                     for (Action at : t.getActions()) {
                         idmap.put(at.getClientId(), at);
                     }
                 }
                 for (History h : ts.getHistory()) {
-                    h.setObservableId(nextObservableId++);
                     idmap.put(h.getClientId(), h);
                     if (h.getTransition() != null) {
                         idmap.put(h.getTransition().getClientId(), h.getTransition());
-                        h.getTransition().setObservableId(nextObservableId++);
                     }
                 }
-                nextObservableId = initMetadata(scxml, idmap, ts.getChildren(), nextObservableId);
+                initMetadata(scxml, idmap, ts.getChildren());
             }
         }
-        return nextObservableId;
     }
 
     /**

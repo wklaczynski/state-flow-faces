@@ -16,7 +16,6 @@
  */
 package org.apache.scxml;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -148,8 +147,8 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
     }
 
     /**
-     * @return the (optionally) &lt;donedata/&rt; produced data after the
-     * current statemachine completed its execution.
+     * @return the (optionally) &lt;donedata/&rt; produced data after
+     * the current statemachine completed its execution.
      */
     public Object getFinalDoneData() {
         return getGlobalContext().getSystemContext().getPlatformVariables().get(SCXMLSystemContext.FINAL_DONE_DATA_KEY);

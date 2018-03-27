@@ -109,11 +109,14 @@ public abstract class Action implements Serializable {
         if (this.clientId == null) {
             String parentId = null;
 
+            String id;
             if (this.parent != null) {
                 parentId = this.parent.getClientId();
+                id = parent.createUniqueId(this);
+            } else {
+                throw new NullPointerException("undefined \"id\" for root state.");
             }
 
-            String id = parent.createUniqueId(this);
             this.clientId = id;
             if (parentId != null) {
                 StringBuilder idBuilder

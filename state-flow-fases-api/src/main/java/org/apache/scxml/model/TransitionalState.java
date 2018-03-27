@@ -255,10 +255,10 @@ public abstract class TransitionalState extends EnterableState {
             if (!transitions.contains(transition)) {
                 throw new IllegalArgumentException("This transitional "
                         + "element no constain "
-                        + "child element: " + transition);
+                        + "child element: " + transition.getClass().getName());
 
             }
-            result = "transition_" + transitions.indexOf(transition.getClass().getName());
+            result = "transition_" + transitions.indexOf(transition);
         } else if (element instanceof Invoke) {
             Invoke invoke = (Invoke) element;
             if (!invokes.contains(invoke)) {
@@ -267,7 +267,7 @@ public abstract class TransitionalState extends EnterableState {
                         + "child element: " + invoke.getClass().getName());
 
             }
-            result = "invoke_" + transitions.indexOf(invoke);
+            result = "invoke_" + invokes.indexOf(invoke);
         } else if (element instanceof EnterableState) {
             EnterableState enterable = (EnterableState) element;
             if (!children.contains(enterable)) {

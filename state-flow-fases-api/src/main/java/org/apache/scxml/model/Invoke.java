@@ -498,8 +498,15 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
                 parentId = this.parent.getClientId();
             }
 
-            String id = parent.createUniqueId(this);
-            this.clientId = id;
+            this.clientId = getId();
+            if (this.clientId == null) {
+                if (parent != null) {
+                    String generatedId = parent.createUniqueId(this);
+                    this.clientId = generatedId;
+                } else {
+                    throw new NullPointerException("undefined \"id\" for root state.");
+                }
+            }
             if (parentId != null) {
                 StringBuilder idBuilder
                         = new StringBuilder(parentId.length()
@@ -508,7 +515,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
                 this.clientId = idBuilder
                         .append(parentId)
                         .append(":")
-                        .append(id).toString();
+                        .append(getId()).toString();
             }
         }
         return clientId;

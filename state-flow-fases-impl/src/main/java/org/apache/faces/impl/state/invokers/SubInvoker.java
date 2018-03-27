@@ -146,13 +146,7 @@ public class SubInvoker implements Invoker, Serializable {
             return;
         }
 
-        FacesContext fc = FacesContext.getCurrentInstance();
-        ExternalContext ec = fc.getExternalContext();
-        StateFlowHandler handler = StateFlowHandler.getInstance();
-
         if (executor != null) {
-
-            boolean doneBefore = executor.getStatus().isFinal();
 
             executor.addEvent(event);
 
@@ -161,20 +155,7 @@ public class SubInvoker implements Invoker, Serializable {
             } catch (Throwable me) {
                 throw new InvokerException(me);
             }
-
-            if (!doneBefore && executor.getStatus().isFinal()) {
-
-//                FlowContext ctx = executor.getRootContext();
-//                if (ctx.has("@result")) {
-//                    FlowContext result = (FlowContext) ctx.get("@result");
-//                    FlowStatus pstatus = instance.getCurrentExecutor().getCurrentStatus();
-//                    State pstate = (State) pstatus.getStates().iterator().next();
-//                    FlowContext pcontext = instance.getContext(pstate);
-//                    pcontext.setLocal("@result", result);
-//                }
-            }
         }
-
     }
 
     /**
