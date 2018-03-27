@@ -15,22 +15,22 @@
     </ordering>    
     
    <lifecycle>
-        <phase-listener>org.apache.faces.impl.state.facelets.StateFlowPhaseListener</phase-listener>
+        <phase-listener>org.apache.common.faces.impl.state.facelets.StateFlowPhaseListener</phase-listener>
     </lifecycle>
     
             
     <application>
-        <el-resolver>org.apache.faces.impl.state.el.StateFlowELResolver</el-resolver>
-        <navigation-handler>org.apache.faces.impl.state.facelets.StateFlowNavigationHandler</navigation-handler>
+        <el-resolver>org.apache.common.faces.impl.state.el.StateFlowELResolver</el-resolver>
+        <navigation-handler>org.apache.common.faces.impl.state.facelets.StateFlowNavigationHandler</navigation-handler>
     </application>
     
     <factory>
-        <view-declaration-language-factory>org.apache.faces.impl.state.facelets.StateFlowViewDeclarationLanguageFactory</view-declaration-language-factory>
+        <view-declaration-language-factory>org.apache.common.faces.impl.state.facelets.StateFlowViewDeclarationLanguageFactory</view-declaration-language-factory>
     </factory>
 
     <component>
-        <component-type>org.apache.faces.UIStateChartRoot</component-type>
-        <component-class>org.apache.faces.state.component.UIStateChartRoot</component-class>
+        <component-type>org.apache.common.faces.UIStateChartRoot</component-type>
+        <component-class>org.apache.common.faces.state.component.UIStateChartRoot</component-class>
     </component>
     
     
