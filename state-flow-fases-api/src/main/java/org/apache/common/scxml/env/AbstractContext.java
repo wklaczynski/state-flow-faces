@@ -249,7 +249,7 @@ public class AbstractContext implements Context, StateHolder {
                     continue;
                 }
 
-                Object vstate = saveValueState(context, entry.getKey(), entry.getValue());
+                Object vstate = saveAttachedState(context, entry.getValue());
                 attached[i++] = new Object[]{entry.getKey(), vstate};
             }
             state = attached;
@@ -265,21 +265,10 @@ public class AbstractContext implements Context, StateHolder {
                 Object[] entry = (Object[]) value;
                 String key = (String) entry[0];
 
-                Object vobj = restoreValueState(context, key, entry[1]);
+                Object vobj = restoreAttachedState(context, entry[1]);
                 vars.put(key, vobj);
             }
         }
-    }
-
-    protected Object saveValueState(Context context, String name, Object value) {
-        value = saveAttachedState(context, value);
-
-        return value;
-}
-
-    protected Object restoreValueState(Context context, String name, Object state) {
-        Object value = restoreAttachedState(context, state);
-        return value;
     }
 
 }
