@@ -78,11 +78,11 @@ public class ViewInvoker implements Invoker, Serializable {
     /**
      * invokeId ID.
      */
-    private String invokeId;
+    private transient String invokeId;
     /**
      * Invoking parent SCXMLExecutor
      */
-    private SCXMLExecutor executor;
+    private transient SCXMLExecutor executor;
 
     /**
      * Cancellation status.

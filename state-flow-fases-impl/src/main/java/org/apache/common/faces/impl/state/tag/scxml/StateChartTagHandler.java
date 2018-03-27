@@ -125,6 +125,10 @@ public class StateChartTagHandler extends TagHandler {
             chart.setInitial(initial.getValue(ctx));
         }
         chart.setDatamodelName(tag.getNamespace());
+        
+        chart.getMetadata().put("faces-viewid", root.getViewId());
+        chart.getMetadata().put("faces-chartid", chartId);
+
 
         Application app = ctx.getFacesContext().getApplication();
         if (facetComponent == null && !(facetComponent instanceof UIPanel)) {

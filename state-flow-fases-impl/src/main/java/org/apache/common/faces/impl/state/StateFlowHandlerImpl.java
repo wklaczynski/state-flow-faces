@@ -15,6 +15,9 @@
  */
 package org.apache.common.faces.impl.state;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import org.apache.common.faces.impl.state.evaluator.StateFlowEvaluator;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -61,10 +64,10 @@ import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
-import static org.apache.common.faces.state.StateFlow.STATE_MACHINE_HINT;
 import org.apache.common.faces.state.annotation.StateChartInvoker;
 import org.apache.common.faces.state.annotation.StateChartAction;
 import org.apache.common.scxml.env.AbstractSCXMLListener;
+import org.apache.common.scxml.env.SimpleContext;
 import org.apache.common.scxml.env.SimpleSCXMLListener;
 import org.apache.common.scxml.model.EnterableState;
 import org.apache.common.scxml.model.Var;
@@ -82,15 +85,15 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     public static final String LOGICAL_FLOW_MAP = StateFlowHandlerImpl.class.getName() + ".LogicalFlowMap";
 
     private Boolean logstep;
+    private final Boolean serialized = Boolean.TRUE;
 
     public StateFlowHandlerImpl(ServletContext ctx) {
         super();
 
         customInvokers.put("view", ViewInvoker.class);
         customInvokers.put("scxml", SubInvoker.class);
-        
+
         customActions.add(new CustomAction("http://xmlns.apache.org/faces/scxml", "var", Var.class));
-        
 
         Set<Class<?>> annotatedClasses = (Set<Class<?>>) ctx.getAttribute(ANNOTATED_CLASSES);
         for (Class<?> type : annotatedClasses) {
@@ -420,17 +423,19 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 clientWindow.enableClientWindowRenderMode(context);
             }
             String sessionKey = clientWindow.getId() + "_stateFlowStack";
-            result = (FlowDeque) flowMap.get(sessionKey);
-            if (null == result && create) {
-                result = new FlowDeque(sessionKey);
+            if (serialized) {
+                result = (FlowDeque) flowMap.get(sessionKey);
+                if (null == result && create) {
+                    result = new FlowDeque(sessionKey);
+                }
+            } else {
+                Object state = flowMap.get(sessionKey);
+                if (null == state && create) {
+                    result = new FlowDeque(sessionKey);
+                } else {
+                    result = restoreFlowDequeState(context, state, sessionKey);
+                }
             }
-
-//            Object state = flowMap.get(sessionKey);
-//            if (null == state && create) {
-//                result = new FlowDeque(sessionKey);
-//            } else {
-//                result = restoreFlowDequeState(context, state, sessionKey);
-//            }
         }
 
         context.getAttributes().put(STATE_FLOW_STACK, result);
@@ -478,22 +483,22 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             clientWindow.enableClientWindowRenderMode(context);
         }
         String sessionKey = clientWindow.getId() + "_stateFlowStack";
-
-        //Object state = saveFlowDequeState(context, flowStack);
-        flowMap.put(sessionKey, flowStack);
-
+        if (serialized) {
+            flowMap.put(sessionKey, flowStack);
+        } else {
+            Object state = saveFlowDequeState(context, flowStack);
+            flowMap.put(sessionKey, state);
+        }
     }
 
-    private Object saveFlowDequeState(FacesContext context, FlowDeque flowDeque) {
-        if (context == null) {
+    private Object saveFlowDequeState(FacesContext fc, FlowDeque flowDeque) {
+        if (fc == null) {
             throw new NullPointerException();
         }
 
         Object states[] = new Object[2];
 
-        Stack<SCXMLExecutor> executors = flowDeque.getRoots();
-        //Stack<Integer> roots = flowDeque.getRoots();
-
+        Stack<SCXMLExecutor> executors = flowDeque.executors;
         if (null != executors && executors.size() > 0) {
             Object[] attached = new Object[executors.size()];
             int i = 0;
@@ -501,33 +506,19 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 Object values[] = new Object[4];
                 SCXML stateMachine = executor.getStateMachine();
 
-//                values[0] = stateMachine.getViewId();
-//                values[1] = stateMachine.getId();
-//                values[2] = executor.getStateId();
-                context.getAttributes().put(STATE_MACHINE_HINT, stateMachine);
-                try {
-                    //values[3] = executor.saveState(context);
-                } finally {
-                    context.getAttributes().remove(STATE_MACHINE_HINT);
-                }
+                Context context = new SimpleContext();
+                values[0] = stateMachine.getMetadata().get("faces-viewid");
+                values[1] = stateMachine.getMetadata().get("faces-chartid");
+                values[2] = executor.saveState(context);
 
                 attached[i++] = values;
             }
             states[0] = attached;
         }
-
-//        if (null != roots && roots.size() > 0) {
-//            Object[] attached = new Object[roots.size()];
-//            int i = 0;
-//            for (Integer root : roots) {
-//                attached[i++] = root;
-//            }
-//            states[1] = attached;
-//        }
         return states;
     }
 
-    private FlowDeque restoreFlowDequeState(FacesContext context, Object state, String sessionKey) {
+    private FlowDeque restoreFlowDequeState(FacesContext fc, Object state, String sessionKey) {
         FlowDeque result = new FlowDeque(sessionKey);
 
         if (null != state) {
@@ -539,11 +530,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
                     String viewId = (String) values[0];
                     String id = (String) values[1];
-                    String stateId = (String) values[2];
 
                     SCXML stateMachine = null;
                     try {
-                        stateMachine = createStateFlow(context, viewId, id);
+                        stateMachine = createStateFlow(fc, viewId, id);
                     } catch (ModelException ex) {
                         throw new FacesException(ex);
                     }
@@ -552,25 +542,19 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                         throw new FacesException(String.format("Restored state flow %s in %s not found.", viewId, id));
                     }
 
-                    SCXMLExecutor executor = null;//newStateFlowExecutor(null, context, stateId, stateMachine);
-
-                    context.getAttributes().put(STATE_MACHINE_HINT, stateMachine);
+                    SCXMLExecutor executor;
                     try {
-                        //executor.restoreState(context, values[3]);
-                    } finally {
-                        context.getAttributes().remove(STATE_MACHINE_HINT);
+                        executor = newRootExecutor(fc, stateMachine);
+                    } catch (ModelException ex) {
+                        throw new FacesException(ex);
                     }
+
+                    Context context = new SimpleContext();
+                    executor.restoreState(context, values[2]);
 
                     result.getRoots().add(executor);
                 }
             }
-
-//            if (blocks[1] != null) {
-//                Object[] entries = (Object[]) blocks[1];
-//                for (Object entry : entries) {
-//                    result.getRoots().add((Integer) entry);
-//                }
-//            }
         }
 
         return result;
@@ -579,7 +563,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     private static class FlowDeque implements Serializable {
 
         private final Stack<SCXMLExecutor> executors;
-        private final String key;
+        private String key;
 
         public FlowDeque(final String sessionKey) {
             executors = new Stack<>();
@@ -594,6 +578,74 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return executors;
         }
 
+        // ----------------------------------------------- Serialization Methods
+        // This is dependent on serialization occuring with in a
+        // a Faces request, however, since SCXMLExecutor.{save,restore}State()
+        // doesn't actually serialize the FlowDeque, these methods are here
+        // purely to be good citizens.
+        private void writeObject(ObjectOutputStream out) throws IOException {
+            Object[] states = new Object[2];
+
+            if (null != executors && executors.size() > 0) {
+                Object[] attached = new Object[executors.size()];
+                int i = 0;
+                for (SCXMLExecutor executor : executors) {
+                    Object values[] = new Object[3];
+                    SCXML stateMachine = executor.getStateMachine();
+
+                    Context context = new SimpleContext();
+
+                    values[0] = stateMachine.getMetadata().get("faces-viewid");
+                    values[1] = stateMachine.getMetadata().get("faces-chartid");
+                    values[2] = executor.saveState(context);
+                    attached[i++] = values;
+                }
+                states[0] = attached;
+            }
+
+            //noinspection NonSerializableObjectPassedToObjectStream
+            out.writeObject(states);
+        }
+
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+            //noinspection unchecked
+            StateFlowHandlerImpl handler = (StateFlowHandlerImpl) StateFlowHandler.getInstance();
+            FacesContext fc = FacesContext.getCurrentInstance();
+            executors.clear();
+            Object[] states = (Object[]) in.readObject();
+            if (states[0] != null) {
+                Object[] entries = (Object[]) states[0];
+                for (Object entry : entries) {
+                    Object[] values = (Object[]) entry;
+
+                    String viewId = (String) values[0];
+                    String id = (String) values[1];
+
+                    SCXML stateMachine = null;
+                    try {
+                        stateMachine = handler.createStateFlow(fc, viewId, id);
+                    } catch (ModelException ex) {
+                        throw new FacesException(ex);
+                    }
+
+                    if (stateMachine == null) {
+                        throw new FacesException(String.format("Restored state flow %s in %s not found.", viewId, id));
+                    }
+
+                    SCXMLExecutor executor;
+                    try {
+                        executor = handler.newRootExecutor(fc, stateMachine);
+                    } catch (ModelException ex) {
+                        throw new FacesException(ex);
+                    }
+
+                    Context context = new SimpleContext();
+                    executor.restoreState(context, values[2]);
+
+                    executors.add(executor);
+                }
+            }
+        }
     }
 
 }

@@ -46,11 +46,11 @@ public class SubInvoker implements Invoker, Serializable {
     /**
      * invokeId ID.
      */
-    private String invokeId;
+    private transient String invokeId;
     /**
      * Invoking parent SCXMLExecutor
      */
-    private SCXMLExecutor parentSCXMLExecutor;
+    private transient SCXMLExecutor parentSCXMLExecutor;
     /**
      * The invoked state machine executor.
      */
