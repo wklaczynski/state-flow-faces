@@ -30,6 +30,8 @@ import java.util.UUID;
 import org.apache.common.scxml.env.SimpleContext;
 import org.apache.common.scxml.io.ContentParser;
 import org.apache.common.scxml.io.StateHolder;
+import static org.apache.common.scxml.io.StateHolderSaver.restoreAttachedState;
+import static org.apache.common.scxml.io.StateHolderSaver.saveAttachedState;
 import org.apache.common.scxml.model.Data;
 import org.apache.common.scxml.model.Datamodel;
 import org.apache.common.scxml.model.EnterableState;
@@ -574,22 +576,26 @@ public class SCInstance implements Serializable, StateHolder {
     @Override
     public Object saveState(Context context) {
 
-        Object values[] = new Object[6];
+        Object[] values = new Object[6];
 
         values[0] = singleContext;
         values[1] = stateConfiguration.saveState(context);
 
-        Context rctx = getRootContext();
+        Context rctx = rootContext;
         if (rctx != null) {
             if (rctx instanceof StateHolder) {
                 values[2] = ((StateHolder) rctx).saveState(context);
+            }else {
+                values[2] = saveAttachedState(context, rctx.getVars());
             }
         }
 
-        Context sctx = getSystemContext();
+        Context sctx = systemContext;
         if (sctx != null) {
             if (sctx instanceof StateHolder) {
                 values[3] = ((StateHolder) sctx).saveState(context);
+            } else {
+                values[3] = saveAttachedState(context, sctx.getVars());
             }
         }
 
@@ -610,17 +616,23 @@ public class SCInstance implements Serializable, StateHolder {
         singleContext = (boolean) values[0];
         stateConfiguration.restoreState(context, values[1]);
 
-        Context rctx = getRootContext();
+        Context rctx = rootContext;
         if (rctx != null) {
             if (rctx instanceof StateHolder) {
                 ((StateHolder) rctx).restoreState(context, values[2]);
+            } else {
+                Map vars = (Map) restoreAttachedState(context, values[2]);
+                rctx.getVars().putAll(vars);
             }
         }
 
-        Context sctx = getSystemContext();
+        Context sctx = systemContext;
         if (sctx != null) {
-            if (sctx instanceof StateHolder) {
+            if (rctx instanceof StateHolder) {
                 ((StateHolder) sctx).restoreState(context, values[3]);
+            } else {
+                Map vars = (Map) restoreAttachedState(context, values[3]);
+                sctx.getVars().putAll(vars);
             }
         }
 

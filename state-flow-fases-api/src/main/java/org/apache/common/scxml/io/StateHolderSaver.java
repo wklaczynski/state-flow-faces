@@ -42,9 +42,6 @@ public class StateHolderSaver implements Serializable {
     private String ttid = null;
     private Serializable savedState = null;
 
-    public static final String DYNAMIC_COMPONENT
-            = "com.sun.faces.flow.DynamicComponent";
-
     private enum StateHolderTupleIndices {
         StateHolderSaverInstance,
         LastMember
@@ -118,8 +115,7 @@ public class StateHolderSaver implements Serializable {
             }
         }
 
-        if (null != result && null != savedState
-                && result instanceof StateHolder) {
+        if (null != result && null != savedState && result instanceof StateHolder) {
             // don't need to check transient, since that was done on
             // the saving side.
             Serializable[] tuple = (Serializable[]) savedState;
