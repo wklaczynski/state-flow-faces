@@ -309,6 +309,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
             Stack<SCXMLExecutor> stack = fs.getRoots();
 
+            if (root) {
+                stack.push(executor);
+            }
+            
             Context rootCtx = executor.getEvaluator().newContext(null);
             executor.setRootContext(rootCtx);
 
