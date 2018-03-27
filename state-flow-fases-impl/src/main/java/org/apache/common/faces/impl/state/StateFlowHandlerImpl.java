@@ -303,7 +303,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     @Override
     public void execute(FacesContext context, SCXMLExecutor executor, Map<String, Object> params) {
         try {
-            boolean root = executor.getParentSCXMLIOProcessor() != null;
+            boolean root = executor.getParentSCXMLIOProcessor() == null;
 
             FlowDeque fs = getFlowDeque(context, true);
 
