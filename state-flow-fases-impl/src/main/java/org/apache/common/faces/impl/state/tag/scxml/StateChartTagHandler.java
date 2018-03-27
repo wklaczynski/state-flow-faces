@@ -68,7 +68,10 @@ public class StateChartTagHandler extends TagHandler {
 
     protected final TagAttribute id;
     protected final TagAttribute initial;
-
+    
+    private static SCXML restored;
+            
+            
     public StateChartTagHandler(TagConfig config) {
         super(config);
         this.id = this.getAttribute("id");
@@ -119,7 +122,7 @@ public class StateChartTagHandler extends TagHandler {
         if (uichart != null && uichart.getStateChart() != null) {
             return;
         }
-
+        
         chart = new SCXML();
         if (initial != null) {
             chart.setInitial(initial.getValue(ctx));
@@ -142,13 +145,12 @@ public class StateChartTagHandler extends TagHandler {
         if (null != facetComponent) {
             facetComponent.setId(STATECHART_FACET_NAME);
         }
-
+        
         if (uichart == null) {
             uichart = (UIStateChartRoot) app.createComponent(UIStateChartRoot.COMPONENT_TYPE);
             uichart.setId(chartId);
             facetComponent.getChildren().add(uichart);
         }
-        uichart.setStateChart(chart);
 
         FacesContext fc = ctx.getFacesContext();
         PathResolver baseResolver = (PathResolver) fc.getExternalContext().getApplicationMap().get(BASE_PATH_RESOLVER);
@@ -156,7 +158,15 @@ public class StateChartTagHandler extends TagHandler {
             baseResolver = new StateFlowURLResolver("/");
             fc.getExternalContext().getApplicationMap().put(BASE_PATH_RESOLVER, baseResolver);
         }
-
+        
+        uichart.setStateChart(chart);
+        
+//        if(restored != null) {
+//            chart = restored;
+//            uichart.setStateChart(chart);
+//            return;
+//        }
+        
         PathResolver resolver = baseResolver.getResolver(root.getViewId());
         chart.setPathResolver(resolver);
 
@@ -180,6 +190,8 @@ public class StateChartTagHandler extends TagHandler {
 
         ModelUpdater updater = new ModelUpdater(tags);
         updater.updateSCXML(chart);
+        
+        restored = chart;
 
     }
 
