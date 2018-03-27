@@ -47,6 +47,9 @@
                 <x:initial>
                     <x:transition target="test-process-1"/>
                 </x:initial>
+                <x:history id="test-process-back">
+                    <x:transition target="test-process-1"/>
+                </x:history>
 
                 <x:state id="test-process-1">
                     <x:onentry>
@@ -58,6 +61,13 @@
                 <x:state id="test-process-2">
                     <x:onentry>
                         <x:assign location="test_data" expr="I enty state in view process 2."/>
+                    </x:onentry>
+                    <x:transition event="view.action.next" target="test-process-3"/>
+                </x:state>             
+
+                <x:state id="test-process-3">
+                    <x:onentry>
+                        <x:assign location="test_data" expr="I enty state in view process 3."/>
                     </x:onentry>
                     <x:transition event="view.action.next" target="test-process-1"/>
                 </x:state>             

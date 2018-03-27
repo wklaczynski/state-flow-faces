@@ -75,11 +75,24 @@ public class TransitionTagHandler extends AbstractFlowTagHandler<Transition> {
             }
         }
 
+        if (parentElement instanceof History) {
+            History history = (History) parentElement;
+            if (history.getTransition() != null) {
+                throw new TagException(this.tag, "already defined in this element!");
+            }
+            if (event != null) {
+                throw new TagAttributeException(event, "illegal definition attribute in history transition");
+            }
+            if (cond != null) {
+                throw new TagAttributeException(cond, "illegal definition attribute in history transition");
+            }
+        }
+
         Transition transition = new Transition();
         decorate(ctx, parent, transition);
 
         if (type != null) {
-            TransitionType tvalue =  TransitionType.valueOf(type.getValue());
+            TransitionType tvalue = TransitionType.valueOf(type.getValue());
             if (tvalue != null) {
                 transition.setType(tvalue);
             } else {

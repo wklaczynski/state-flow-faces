@@ -363,6 +363,9 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         if (currentFlow instanceof Initial) {
             Initial target = (Initial) currentFlow;
             target.setTransition(transition);
+        } else if (currentFlow instanceof History) {
+            History target = (History) currentFlow;
+            target.setTransition(transition);
         } else if (currentFlow instanceof TransitionalState) {
             TransitionalState target = (TransitionalState) currentFlow;
             target.addTransition(transition);
