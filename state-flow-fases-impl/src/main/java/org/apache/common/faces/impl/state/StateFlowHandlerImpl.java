@@ -85,7 +85,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     public static final String LOGICAL_FLOW_MAP = StateFlowHandlerImpl.class.getName() + ".LogicalFlowMap";
 
     private Boolean logstep;
-    private final Boolean alwaysSerialized = Boolean.TRUE;
+    private final Boolean alwaysSerialized = Boolean.FALSE;
 
     public StateFlowHandlerImpl(ServletContext ctx) {
         super();

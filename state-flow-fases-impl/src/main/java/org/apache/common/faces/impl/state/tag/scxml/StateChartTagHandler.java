@@ -161,12 +161,6 @@ public class StateChartTagHandler extends TagHandler {
         
         uichart.setStateChart(chart);
         
-//        if(restored != null) {
-//            chart = restored;
-//            uichart.setStateChart(chart);
-//            return;
-//        }
-        
         PathResolver resolver = baseResolver.getResolver(root.getViewId());
         chart.setPathResolver(resolver);
 
