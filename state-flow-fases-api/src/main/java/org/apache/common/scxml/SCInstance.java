@@ -576,31 +576,34 @@ public class SCInstance implements Serializable, StateHolder {
     @Override
     public Object saveState(Context context) {
 
-        Object[] values = new Object[6];
+        Object[] values = new Object[8];
 
         values[0] = singleContext;
-        values[1] = stateConfiguration.saveState(context);
+        values[1] = initialized;
+        values[2] = running;
+        
+        values[3] = stateConfiguration.saveState(context);
 
         Context rctx = rootContext;
         if (rctx != null) {
             if (rctx instanceof StateHolder) {
-                values[2] = ((StateHolder) rctx).saveState(context);
-            }else {
-                values[2] = saveAttachedState(context, rctx.getVars());
+                values[4] = ((StateHolder) rctx).saveState(context);
+            } else {
+                values[4] = saveAttachedState(context, rctx.getVars());
             }
         }
 
         Context sctx = systemContext;
         if (sctx != null) {
             if (sctx instanceof StateHolder) {
-                values[3] = ((StateHolder) sctx).saveState(context);
+                values[5] = ((StateHolder) sctx).saveState(context);
             } else {
-                values[3] = saveAttachedState(context, sctx.getVars());
+                values[5] = saveAttachedState(context, sctx.getVars());
             }
         }
 
-        values[4] = saveContextsState(context);
-        values[5] = saveHistoriesState(context);
+        values[6] = saveContextsState(context);
+        values[7] = saveHistoriesState(context);
         return values;
     }
 
@@ -614,14 +617,17 @@ public class SCInstance implements Serializable, StateHolder {
         Object[] values = (Object[]) state;
 
         singleContext = (boolean) values[0];
-        stateConfiguration.restoreState(context, values[1]);
+        initialized = (boolean) values[1];
+        running = (boolean) values[2];
+        
+        stateConfiguration.restoreState(context, values[3]);
 
         Context rctx = rootContext;
         if (rctx != null) {
             if (rctx instanceof StateHolder) {
-                ((StateHolder) rctx).restoreState(context, values[2]);
+                ((StateHolder) rctx).restoreState(context, values[4]);
             } else {
-                Map vars = (Map) restoreAttachedState(context, values[2]);
+                Map vars = (Map) restoreAttachedState(context, values[4]);
                 rctx.getVars().putAll(vars);
             }
         }
@@ -629,15 +635,15 @@ public class SCInstance implements Serializable, StateHolder {
         Context sctx = systemContext;
         if (sctx != null) {
             if (rctx instanceof StateHolder) {
-                ((StateHolder) sctx).restoreState(context, values[3]);
+                ((StateHolder) sctx).restoreState(context, values[5]);
             } else {
-                Map vars = (Map) restoreAttachedState(context, values[3]);
+                Map vars = (Map) restoreAttachedState(context, values[5]);
                 sctx.getVars().putAll(vars);
             }
         }
 
-        restoreContextsState(context, values[4]);
-        restoreHistoriesState(context, values[5]);
+        restoreContextsState(context, values[6]);
+        restoreHistoriesState(context, values[7]);
     }
 
     private Object saveContextsState(Context context) {
@@ -646,14 +652,15 @@ public class SCInstance implements Serializable, StateHolder {
             Object[] attached = new Object[contexts.size()];
             int i = 0;
             for (Map.Entry<EnterableState, Context> entry : contexts.entrySet()) {
-                Object values[] = new Object[1];
+                Object values[] = new Object[2];
+                values[0] = entry.getKey().getClientId();
                 Context rctx = entry.getValue();
-                if (rctx instanceof StateHolder) {
-                    values[0] = ((StateHolder) rootContext).saveState(context);
-                }
-
-                if (rctx instanceof StateHolder) {
-                    ((StateHolder) rootContext).restoreState(context, values[0]);
+                if (rctx != null) {
+                    if (rctx instanceof StateHolder) {
+                        values[1] = ((StateHolder) rctx).saveState(context);
+                    } else {
+                        values[1] = saveAttachedState(context, rctx.getVars());
+                    }
                 }
 
                 attached[i++] = values;
@@ -678,9 +685,12 @@ public class SCInstance implements Serializable, StateHolder {
                 }
 
                 EnterableState target = (EnterableState) found;
-                Context tctx = getContext(target);
-                if (tctx instanceof StateHolder) {
-                    ((StateHolder) tctx).restoreState(context, values[0]);
+                Context rctx = getContext(target);
+                if (rctx instanceof StateHolder) {
+                    ((StateHolder) rctx).restoreState(context, entry[1]);
+                } else {
+                    Map vars = (Map) restoreAttachedState(context, entry[1]);
+                    rctx.getVars().putAll(vars);
                 }
             }
         }
@@ -692,7 +702,7 @@ public class SCInstance implements Serializable, StateHolder {
             Object[] attached = new Object[histories.size()];
             int i = 0;
             for (Map.Entry<History, Set<EnterableState>> entry : histories.entrySet()) {
-                Object values[] = new Object[2];
+                Object[] values = new Object[2];
                 values[0] = entry.getKey().getClientId();
                 values[1] = saveTargetsState(context, entry.getValue());
                 attached[i++] = values;

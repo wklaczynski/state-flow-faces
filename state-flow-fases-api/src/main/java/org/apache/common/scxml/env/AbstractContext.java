@@ -236,19 +236,6 @@ public class AbstractContext implements Context, StateHolder {
             Object[] attached = new Object[vars.size()];
             int i = 0;
             for (Map.Entry<String, Object> entry : vars.entrySet()) {
-                if (SCXMLSystemContext.IOPROCESSORS_KEY.equals(entry.getKey())) {
-                    continue;
-                }
-                if (SCXMLSystemContext.EVENT_KEY.equals(entry.getKey())) {
-                    continue;
-                }
-                if (SCXMLSystemContext.SCXML_NAME_KEY.equals(entry.getKey())) {
-                    continue;
-                }
-                if (SCXMLSystemContext.SESSIONID_KEY.equals(entry.getKey())) {
-                    continue;
-                }
-
                 Object vstate = saveAttachedState(context, entry.getValue());
                 attached[i++] = new Object[]{entry.getKey(), vstate};
             }
@@ -258,7 +245,6 @@ public class AbstractContext implements Context, StateHolder {
     }
 
     protected void restoreVarsState(Context context, Object state) {
-        vars.clear();
         if (null != state) {
             Object[] values = (Object[]) state;
             for (Object value : values) {

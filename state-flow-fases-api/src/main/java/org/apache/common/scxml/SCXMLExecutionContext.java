@@ -599,20 +599,22 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
             Object[] attached = new Object[invokeIds.size()];
             int i = 0;
             for (Map.Entry<Invoke, String> entry : invokeIds.entrySet()) {
-                Object values[] = new Object[4];
+                Object values[] = new Object[5];
 
                 Invoke invoke = entry.getKey();
                 Invoker invoker = invokers.get(entry.getValue());
+                
 
-                values[0] = entry.getKey();
-                values[1] = invoke.getClientId();
+                values[0] = invoke.getClientId();
+                values[1] = invoker.getInvokeId();
+                values[2] = entry.getValue();
 
                 if (invoker instanceof StateHolder) {
-                    values[2] = entry.getValue().getClass().getName();
-                    values[3] = ((StateHolder) invoker).saveState(context);
+                    values[3] = entry.getValue().getClass().getName();
+                    values[4] = ((StateHolder) invoker).saveState(context);
                 } else {
-                    values[2] = null;
-                    values[3] = invoker;
+                    values[3] = null;
+                    values[4] = invoker;
                 }
                 attached[i++] = values;
             }
@@ -631,7 +633,7 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
             for (Object value : values) {
                 Object[] entry = (Object[]) value;
 
-                String ttid = (String) values[2];
+                String ttid = (String) entry[0];
                 Object found = chart.findElement(ttid);
                 if (found == null) {
                     throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
@@ -639,7 +641,8 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
 
                 Invoke invoke = (Invoke) found;
 
-                String invid = (String) entry[0];
+                String invokeId = (String) entry[1];
+                String keyId = (String) entry[2];
                 Invoker invoker = null;
                 if (entry[3] != null) {
                     Class<Invoker> toRestoreClass;
@@ -653,15 +656,15 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
                         }
                     }
 
-                    invoker.setInvokeId(invid);
+                    invoker.setInvokeId(invokeId);
                     invoker.setParentSCXMLExecutor(scxmlExecutor);
 
                     if (invoker instanceof StateHolder) {
                         ((StateHolder) invoker).restoreState(context, values[3]);
                     }
                 } else {
-                    invoker = (Invoker) values[4];
-                    invoker.setInvokeId(invid);
+                    invoker = (Invoker) entry[4];
+                    invoker.setInvokeId(invokeId);
                     invoker.setParentSCXMLExecutor(scxmlExecutor);
                 }
 

@@ -67,8 +67,7 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
      * {@link #getPlatformVariables() platform variable key} holding the
      * (optionally)
      * <final><donedata/></final> produced data after the current SCXML
-     * completed its execution.
-     * *
+     * completed its execution. *
      */
     public static final String FINAL_DONE_DATA_KEY = "finalDoneData";
 
@@ -216,24 +215,21 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
 
     protected Object saveVarsState(Context context) {
         Object state = null;
-        Context rctx = getSystemContext();
+        Context rctx = getContext();
         Map<String, Object> vars = rctx.getVars();
         if (null != vars && vars.size() > 0) {
             Object[] attached = new Object[vars.size()];
             int i = 0;
             for (Map.Entry<String, Object> entry : vars.entrySet()) {
-                if (SCXMLSystemContext.IOPROCESSORS_KEY.equals(entry.getKey())) {
+                if (SCXMLSystemContext.PROTECTED_NAMES.contains(entry.getKey())) {
                     continue;
                 }
-                if (SCXMLSystemContext.EVENT_KEY.equals(entry.getKey())) {
+                if (SCXMLSystemContext.STATUS_KEY.equals(entry.getKey())) {
                     continue;
                 }
-                if (SCXMLSystemContext.SCXML_NAME_KEY.equals(entry.getKey())) {
-                    continue;
-                }
-                if (SCXMLSystemContext.SESSIONID_KEY.equals(entry.getKey())) {
-                    continue;
-                }
+//                if (SCXMLSystemContext.FINAL_DONE_DATA_KEY.equals(entry.getKey())) {
+//                    continue;
+//                }
 
                 Object vstate = saveValueState(context, entry.getKey(), entry.getValue());
                 attached[i++] = new Object[]{entry.getKey(), vstate};
@@ -244,17 +240,17 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
     }
 
     protected void restoreVarsState(Context context, Object state) {
-        Context rctx = getSystemContext();
-        Map<String, Object> vars = rctx.getVars();
-        vars.clear();
+        Context rctx = getContext();
         if (null != state) {
             Object[] values = (Object[]) state;
             for (Object value : values) {
-                Object[] entry = (Object[]) value;
-                String key = (String) entry[0];
+                if (value != null) {
+                    Object[] entry = (Object[]) value;
+                    String key = (String) entry[0];
 
-                Object vobj = restoreValueState(context, key, entry[1]);
-                vars.put(key, vobj);
+                    Object vobj = restoreValueState(context, key, entry[1]);
+                    rctx.setLocal(key, vobj);
+                }
             }
         }
     }
