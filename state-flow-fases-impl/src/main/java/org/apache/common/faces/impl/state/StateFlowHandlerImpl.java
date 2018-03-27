@@ -563,7 +563,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     private static class FlowDeque implements Serializable {
 
         private final Stack<SCXMLExecutor> executors;
-        private String key;
+        private final String key;
 
         public FlowDeque(final String sessionKey) {
             executors = new Stack<>();
