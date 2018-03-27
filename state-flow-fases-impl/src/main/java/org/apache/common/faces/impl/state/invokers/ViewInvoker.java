@@ -418,7 +418,7 @@ public class ViewInvoker implements Invoker, Serializable {
         Iterator<EnterableState> iterator = executor.getStatus().getActiveStates().iterator();
         while (iterator.hasNext()) {
             EnterableState enterable = iterator.next();
-            if (enterable instanceof TransitionalState) {
+            if (enterable.isAtomicState()) {
                 Context context = executor.getSCInstance().getContext(enterable);
                 result.add(context);
             }
@@ -431,17 +431,7 @@ public class ViewInvoker implements Invoker, Serializable {
      */
     @Override
     public void cancel() throws InvokerException {
-        FacesContext context = FacesContext.getCurrentInstance();
-
         cancelled = true;
-
-//        ExternalContext ec = context.getExternalContext();
-//        Context stateContext = executor.getGlobalContext();
-//
-//        Map<String, String> parameterMap = ec.getRequestParameterMap();
-//        for (Map.Entry<String, String> entry : parameterMap.entrySet()) {
-//            stateContext.setLocal(entry.getKey(), entry.getValue());
-//        }
 
         if (control.equals("statefull")) {
             FacesContext fc = FacesContext.getCurrentInstance();
