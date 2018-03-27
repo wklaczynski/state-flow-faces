@@ -46,10 +46,10 @@ public class InitialTagHandler extends AbstractFlowTagHandler<Initial> {
 
         Initial target = new Initial();
         decorate(ctx, parent, target);
-
-        applyNext(ctx, parent, target);
         
         state.setInitial(target);
+
+        applyNext(ctx, parent, target);
     }
 
 }

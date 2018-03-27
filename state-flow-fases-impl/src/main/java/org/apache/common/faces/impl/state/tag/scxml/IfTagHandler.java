@@ -60,9 +60,9 @@ public class IfTagHandler extends AbstractFlowTagHandler<If> {
         
         action.setCond(cond.getValue());
 
-        applyNext(ctx, parent, action);
-
         addAction(ctx, parent, action);
+
+        applyNext(ctx, parent, action);
     }
 
 }

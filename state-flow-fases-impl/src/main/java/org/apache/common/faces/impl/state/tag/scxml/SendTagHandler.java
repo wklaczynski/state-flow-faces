@@ -76,9 +76,9 @@ public class SendTagHandler extends AbstractFlowTagHandler<Send> {
         action.setDelay(delay != null ? delay.getValue() : null);
         action.setNamelist(namelist != null ? namelist.getValue() : null);
 
-        applyNext(ctx, parent, action);
-
         addAction(ctx, parent, action);
+
+        applyNext(ctx, parent, action);
     }
 
 }

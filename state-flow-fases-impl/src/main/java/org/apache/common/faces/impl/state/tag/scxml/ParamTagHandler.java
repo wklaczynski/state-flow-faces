@@ -63,9 +63,9 @@ public class ParamTagHandler extends AbstractFlowTagHandler<Param> {
         param.setName(name.getValue());
         param.setExpr(expr.getValue());
         
-        applyNext(ctx, parent, param);
-        
         params.add(param);
+        
+        applyNext(ctx, parent, param);
     }
 
 }

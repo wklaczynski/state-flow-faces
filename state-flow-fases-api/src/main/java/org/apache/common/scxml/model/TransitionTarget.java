@@ -17,14 +17,13 @@
 package org.apache.common.scxml.model;
 
 import java.io.Serializable;
-import org.apache.common.scxml.UniqueIdGenerator;
 
 /**
  * An abstract base class for elements in SCXML that can serve as a
  * &lt;target&gt; for a &lt;transition&gt;, such as State or Parallel.
  *
  */
-public abstract class TransitionTarget implements UniqueIdGenerator, Serializable, Observable {
+public abstract class TransitionTarget implements UniqueClientId, Serializable, Observable {
 
     private static final EnterableState[] ZERO_ANCESTORS = new EnterableState[0];
 
@@ -195,38 +194,21 @@ public abstract class TransitionTarget implements UniqueIdGenerator, Serializabl
     /**
      * Get the identifier for this transition target (may be null).
      *
-     * @return Returns the unique client id.
+     * @return Returns the unique client clientId.
      */
+    @Override
     public String getClientId() {
-        if (this.clientId == null) {
-            String parentId = null;
-
-            if (this.parent != null) {
-                parentId = this.parent.getClientId();
-            }
-
-            this.clientId = getId();
-            if (this.clientId == null) {
-                if (parent != null) {
-                    String generatedId = parent.createUniqueId(this);
-                    setId(generatedId);
-                    this.clientId = getId();
-                } else {
-                    throw new NullPointerException("undefined \"id\" for root state.");
-                }
-            }
-            if (parentId != null) {
-                StringBuilder idBuilder
-                        = new StringBuilder(parentId.length()
-                                + 1 + this.clientId.length());
-
-                this.clientId = idBuilder
-                        .append(parentId)
-                        .append(":")
-                        .append(getId()).toString();
-            }
-        }
         return clientId;
+    }
+
+    /**
+     * Set the identifier for this transition target.
+     *
+     * @param clientId The clientId to set.
+     */
+    @Override
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
     }
 
 }

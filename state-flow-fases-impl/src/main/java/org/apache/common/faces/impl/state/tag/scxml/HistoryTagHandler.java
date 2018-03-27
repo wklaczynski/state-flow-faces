@@ -51,11 +51,13 @@ public class HistoryTagHandler extends AbstractFlowTagHandler<History> {
         target.setId(id.getValue());
         target.setType(type != null ? type.getValue() : null);
 
-        applyNext(ctx, parent, target);
+        addHistory(ctx, parent, target);
         
         addTransitionTarget(ctx, parent, target);
         
-        addHistory(ctx, parent, target);
+        applyNext(ctx, parent, target);
+        
+        
     }
 
 }

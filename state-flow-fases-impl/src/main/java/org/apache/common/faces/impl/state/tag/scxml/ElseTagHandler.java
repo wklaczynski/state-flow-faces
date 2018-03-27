@@ -41,10 +41,10 @@ public class ElseTagHandler extends AbstractFlowTagHandler<Else> {
         Else action = new Else();
         decorate(ctx, parent, action);
 
-        applyNext(ctx, parent, action);
-
         If aif = (If) parentElement;
         aif.addAction(action);
+
+        applyNext(ctx, parent, action);
     }
 
 }

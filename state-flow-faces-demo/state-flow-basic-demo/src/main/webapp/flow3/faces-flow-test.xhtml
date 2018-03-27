@@ -50,6 +50,8 @@
                 <x:history id="test-process-back">
                     <x:transition target="test-process-1"/>
                 </x:history>
+                
+                <x:transition event="view.action.back" target="test-process-back"/>
 
                 <x:state id="test-process-1">
                     <x:onentry>

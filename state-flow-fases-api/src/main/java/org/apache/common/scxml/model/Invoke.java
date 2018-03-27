@@ -121,12 +121,6 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     private String namelist;
 
     /**
-     * <p>
-     * The assigned client identifier for this state.</p>
-     */
-    private String clientId = null;
-
-    /**
      * Get the identifier for this invoke (may be null).
      *
      * @return Returns the id.
@@ -482,44 +476,5 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
             }
         }
     }
-    
-
-    /**
-     * Get the identifier for this ecutable.
-     *
-     * @return Returns the unique client id.
-     */
-    @Override
-    public String getClientId() {
-        if (this.clientId == null) {
-            String parentId = null;
-
-            if (this.parent != null) {
-                parentId = this.parent.getClientId();
-            }
-
-            this.clientId = getId();
-            if (this.clientId == null) {
-                if (parent != null) {
-                    String generatedId = parent.createUniqueId(this);
-                    this.clientId = generatedId;
-                } else {
-                    throw new NullPointerException("undefined \"id\" for root state.");
-                }
-            }
-            if (parentId != null) {
-                StringBuilder idBuilder
-                        = new StringBuilder(parentId.length()
-                                + 1 + this.clientId.length());
-
-                this.clientId = idBuilder
-                        .append(parentId)
-                        .append(":")
-                        .append(getId()).toString();
-            }
-        }
-        return clientId;
-    }
-    
     
 }

@@ -61,9 +61,9 @@ public class RaiseTagHandler extends AbstractFlowTagHandler<Raise> {
 
         action.setEvent(event.getValue());
 
-        applyNext(ctx, parent, action);
-
         addAction(ctx, parent, action);
+
+        applyNext(ctx, parent, action);
     }
 
 }

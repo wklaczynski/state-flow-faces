@@ -65,9 +65,9 @@ public class LogTagHandler extends AbstractFlowTagHandler<Log> {
         
         action.setExpr(expr != null ? expr.getValue() : null);
         
-        applyNext(ctx, parent, action);
-        
         addAction(ctx, parent, action);
+        
+        applyNext(ctx, parent, action);
     }
 
 }

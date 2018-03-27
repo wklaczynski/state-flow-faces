@@ -47,9 +47,9 @@ public class DoneDataTagHandler extends AbstractFlowTagHandler<DoneData> {
         DoneData donedata = new DoneData();
         decorate(ctx, parent, donedata);
         
-        applyNext(ctx, parent, donedata);
-        
         continer.setDoneData(donedata);
+        
+        applyNext(ctx, parent, donedata);
     }
     
 }

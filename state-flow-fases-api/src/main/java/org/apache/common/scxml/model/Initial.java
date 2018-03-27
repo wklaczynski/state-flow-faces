@@ -23,7 +23,7 @@ import java.io.Serializable;
  * &lt;initial&gt; SCXML pseudo state element.
  *
  */
-public class Initial implements Serializable {
+public class Initial implements UniqueClientId, Serializable {
 
     /**
      * Serial version UID.
@@ -47,6 +47,12 @@ public class Initial implements Serializable {
      */
     private boolean generated;
 
+    /**
+     * <p>
+     * The assigned client identifier for this state.</p>
+     */
+    private String clientId = null;
+    
     /**
      * Constructor.
      */
@@ -108,5 +114,26 @@ public class Initial implements Serializable {
     public final void setGenerated() {
         this.generated = true;
     }
+
+    /**
+     * Get the identifier for this ecutable.
+     *
+     * @return Returns the unique client id.
+     */
+    @Override
+    public String getClientId() {
+        return clientId;
+    }
+
+    /**
+     * Set the identifier for this transition target.
+     *
+     * @param clientId The clientId to set.
+     */
+    @Override
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+    
 }
 

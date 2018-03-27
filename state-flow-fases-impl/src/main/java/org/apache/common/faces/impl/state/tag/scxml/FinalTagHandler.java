@@ -50,10 +50,10 @@ public class FinalTagHandler extends AbstractFlowTagHandler<Final> {
 
         state.setId(id.getValue(ctx));
 
-        applyNext(ctx, parent, state);
-
         addChild(ctx, parent, state);
         addTransitionTarget(ctx, parent, state);
+
+        applyNext(ctx, parent, state);
     }
 
 }

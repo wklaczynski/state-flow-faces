@@ -65,9 +65,9 @@ public class CancelTagHandler extends AbstractFlowTagHandler<Cancel> {
             action.setSendidexpr(sendid.getValue());
         }
 
-        applyNext(ctx, parent, action);
-
         addAction(ctx, parent, action);
+
+        applyNext(ctx, parent, action);
     }
 
 }

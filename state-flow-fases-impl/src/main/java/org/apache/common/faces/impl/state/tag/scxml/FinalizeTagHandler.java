@@ -52,9 +52,9 @@ public class FinalizeTagHandler extends AbstractFlowTagHandler<Finalize> {
         State state = getElement(parent, State.class);
         executable.setParent(state);
 
-        applyNext(ctx, parent, executable);
-
         invoke.setFinalize(executable);
+
+        applyNext(ctx, parent, executable);
     }
 
 }

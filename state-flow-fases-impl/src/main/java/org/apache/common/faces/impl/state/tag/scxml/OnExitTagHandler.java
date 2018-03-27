@@ -48,9 +48,9 @@ public class OnExitTagHandler extends AbstractFlowTagHandler<OnExit> {
 
         OnExit executable = new OnExit();
 
-        applyNext(ctx, parent, executable);
-
         target.addOnExit(executable);
+
+        applyNext(ctx, parent, executable);
     }
 
 }

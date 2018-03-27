@@ -13,19 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.common.scxml;
+package org.apache.common.scxml.model;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public interface UniqueIdGenerator {
-
+public interface UniqueClientId {
+    
     /**
-     * Create the identifier for this transition target.
+     * Get the identifier for this transition target (may be null).
      *
-     * @param element to generate
-     * @return Returns the new unique client id.
+     * @return Returns the unique client clientId.
      */
-    String createUniqueId(Object element);
+    String getClientId();
+    
+    /**
+     * Set the identifier for this transition target.
+     *
+     * @param clientId The clientId to set.
+     */
+    void setClientId(String clientId);
+    
 }

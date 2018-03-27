@@ -23,14 +23,13 @@ import java.util.List;
 import java.util.Map;
 import org.apache.common.scxml.PathResolver;
 import static org.apache.common.scxml.SCXMLConstants.META_ELEMENT_IDMAP;
-import org.apache.common.scxml.UniqueIdGenerator;
 
 /**
  * The class in this SCXML object model that corresponds to the &lt;scxml&gt;
  * root element, and serves as the &quot;document root&quot;.
  *
  */
-public class SCXML implements UniqueIdGenerator, Serializable, Observable {
+public class SCXML implements Serializable, Observable {
 
     /**
      * Serial version UID.
@@ -459,29 +458,5 @@ public class SCXML implements UniqueIdGenerator, Serializable, Observable {
         Object result = idMap.get(expr);
         return (result);
     }
-    
-    
-    /**
-     * Create the identifier for this transition target.
-     *
-     * @param element to generate
-     * @return Returns the new unique client id.
-     */
-    @Override
-    public String createUniqueId(Object element) {
-        String result = null;
-        if (element instanceof EnterableState) {
-            EnterableState enterable = (EnterableState) element;
-            if (!children.contains(enterable)) {
-                throw new IllegalArgumentException("This transitional "
-                        + "element no constain "
-                        + "child element: " + enterable.getClass().getName());
-
-            }
-            result = "state_" + children.indexOf(enterable);
-        }
-        return result;
-    }
-    
     
 }

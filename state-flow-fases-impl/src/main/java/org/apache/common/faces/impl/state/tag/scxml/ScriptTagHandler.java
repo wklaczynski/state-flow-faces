@@ -91,8 +91,6 @@ public class ScriptTagHandler extends AbstractFlowTagHandler<Script> {
         }
         resolved = true;
 
-        applyNext(ctx, parent, action);
-
         if (parentElement instanceof SCXML) {
             SCXML scxml = (SCXML) parentElement;
             action.setGlobalScript(true);
@@ -102,6 +100,8 @@ public class ScriptTagHandler extends AbstractFlowTagHandler<Script> {
             addAction(ctx, parent, action);
         }
 
+        applyNext(ctx, parent, action);
+        
     }
 
 }

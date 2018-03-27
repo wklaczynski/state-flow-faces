@@ -55,11 +55,11 @@ public class ParallelTagHandler extends AbstractFlowTagHandler<Parallel> {
         }
         parallel.setId(cid);
         
-        applyNext(ctx, parent, parallel);
-        
         addTransitionTarget(ctx, parent, parallel);
         
         addChild(ctx, parent, parallel);
+        
+        applyNext(ctx, parent, parallel);
     }
 
 }

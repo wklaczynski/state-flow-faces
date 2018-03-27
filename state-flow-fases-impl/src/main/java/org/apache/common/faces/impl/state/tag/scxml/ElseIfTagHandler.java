@@ -48,10 +48,10 @@ public class ElseIfTagHandler extends AbstractFlowTagHandler<ElseIf> {
 
         action.setCond(cond.getValue());
 
-        applyNext(ctx, parent, action);
-
         If aif = (If) parentElement;
         aif.addAction(aif);
+
+        applyNext(ctx, parent, action);
     }
 
 }

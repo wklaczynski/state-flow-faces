@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.UUID;
 import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagException;
 import static org.apache.common.scxml.SCXMLConstants.META_ELEMENT_IDMAP;
@@ -175,7 +176,7 @@ public final class ModelUpdater {
         Map idmap = (Map) scxml.getMetadata().get(META_ELEMENT_IDMAP);
 
         initObservables(scxml.getChildren(), 2);
-        initMetadata(scxml, idmap, scxml.getChildren());
+        updateClientId(scxml, idmap);
     }
 
     /**
@@ -203,19 +204,22 @@ public final class ModelUpdater {
     }
 
     /**
-     * Initialize all {@link org.apache.commons.scxml2.model.Observable} instances in the SCXML document
-     * by iterating them in document order and seeding them with a unique obeservable id.
-     * @param states The list of children states of a parent TransitionalState or the SCXML document itself
+     * Initialize all {@link org.apache.commons.scxml2.model.Observable}
+     * instances in the SCXML document by iterating them in document order and
+     * seeding them with a unique obeservable id.
+     *
+     * @param states The list of children states of a parent TransitionalState
+     * or the SCXML document itself
      * @param nextObservableId The next observable id sequence value to be used
      * @return Returns the next to be used observable id sequence value
      */
-    private int initObservables(final List<EnterableState>states, int nextObservableId) {
+    private int initObservables(final List<EnterableState> states, int nextObservableId) {
         for (EnterableState es : states) {
             es.setObservableId(nextObservableId++);
             if (es instanceof TransitionalState) {
-                TransitionalState ts = (TransitionalState)es;
+                TransitionalState ts = (TransitionalState) es;
                 if (ts instanceof State) {
-                    State s = (State)ts;
+                    State s = (State) ts;
                     if (s.getInitial() != null && s.getInitial().getTransition() != null) {
                         s.getInitial().getTransition().setObservableId(nextObservableId++);
                     }
@@ -234,42 +238,109 @@ public final class ModelUpdater {
         }
         return nextObservableId;
     }
-    
+
     /**
-     * Initialize all {@link org.apache.commons.scxml2.model.Observable}
-     * instances in the SCXML document by iterating them in document order and
-     * seeding them with a unique obeservable id.
+     * Create unique clientId
+     *
+     * @return Returns unique id
+     */
+    private String uid(String nonce) {
+        return uid(null, nonce);
+    }
+
+    /**
+     * Create unique clientId
+     *
+     * @return Returns unique id
+     */
+    private String uid(String id, String nonce) {
+        if (id != null) {
+            return id;
+        }
+        //return String.valueOf(System.identityHashCode(nonce));
+        return nonce;
+    }
+
+
+    /**
+     * Initialize all unique clientId
      *
      * @param states The list of children states of a parent TransitionalState
      * or the SCXML document itself
      * @param nextObservableId The next observable id sequence value to be used
      * @return Returns the next to be used observable id sequence value
      */
-    private void initMetadata(final SCXML scxml, final Map idmap, final List<EnterableState> states) {
+    private void updateClientId(final SCXML scxml, final Map idmap) {
+        String prefix = "scxml:";
+
+        scxml.getInitialTransition().setClientId(prefix + "initial:transition");
+        idmap.put(scxml.getInitialTransition().getClientId(), scxml.getInitialTransition());
+
+        List<EnterableState> children = scxml.getChildren();
+        updateClientId(scxml, idmap, prefix, children);
+    }
+    
+    /**
+     * Initialize all unique clientId
+     *
+     * @param states The list of children states of a parent TransitionalState
+     * or the SCXML document itself
+     * @param nextObservableId The next observable id sequence value to be used
+     * @return Returns the next to be used observable id sequence value
+     */
+    private void updateClientId(final SCXML scxml, final Map<String, Object> idmap,
+            String prefix, final List<EnterableState> states) {
+
+        int snonce = 1;
         for (EnterableState es : states) {
+            es.setClientId(prefix + uid(es.getId(), "state_" + snonce++));
             idmap.put(es.getClientId(), es);
+            String tprefix = es.getClientId() + ":";
+
             if (es instanceof TransitionalState) {
                 TransitionalState ts = (TransitionalState) es;
 
+                int ennonce = 1;
                 for (OnEntry on : ts.getOnEntries()) {
+                    on.setClientId(tprefix + uid("entry_" + ennonce++));
                     idmap.put(on.getClientId(), on);
+
+                    String aprefix = on.getClientId() + ":";
+                    int anonce = 1;
                     for (Action at : on.getActions()) {
+                        at.setClientId(aprefix + uid("action_" + anonce++));
                         idmap.put(at.getClientId(), at);
                     }
                 }
 
+                int exnonce = 1;
                 for (OnExit on : ts.getOnExits()) {
+                    on.setClientId(tprefix + uid("exit_" + exnonce++));
                     idmap.put(on.getClientId(), on);
+
+                    String aprefix = on.getClientId() + ":";
+                    int anonce = 1;
                     for (Action at : on.getActions()) {
+                        at.setClientId(aprefix + uid("action_" + anonce++));
                         idmap.put(at.getClientId(), at);
                     }
                 }
 
+                int innonce = 1;
                 for (Invoke iv : ts.getInvokes()) {
+                    iv.setClientId(tprefix + uid(iv.getId(), "exit_" + innonce++));
                     idmap.put(iv.getClientId(), iv);
+
                     Finalize fi = iv.getFinalize();
                     if (fi != null) {
+                        String cprefix = iv.getClientId() + ":";
+                        fi.setClientId(cprefix + uid("finalize"));
+                        idmap.put(fi.getClientId(), fi);
+
+                        String aprefix = fi.getClientId() + ":";
+                        int anonce = 1;
                         for (Action at : fi.getActions()) {
+                            at.setClientId(aprefix + uid("action_" + anonce++));
                             idmap.put(at.getClientId(), at);
                         }
                     }
@@ -277,24 +348,49 @@ public final class ModelUpdater {
 
                 if (ts instanceof State) {
                     State s = (State) ts;
-                    if (s.getInitial() != null && s.getInitial().getTransition() != null) {
-                        idmap.put(s.getInitial().getTransition().getClientId(), s.getInitial().getTransition());
+                    if (s.getInitial() != null) {
+                        Initial in = s.getInitial();
+                        in.setClientId(tprefix + uid("initial"));
+                        idmap.put(in.getClientId(), in);
+
+                        if (in.getTransition() != null) {
+                            SimpleTransition tr = in.getTransition();
+                            tr.setClientId(in.getClientId() + ":" + uid("transition"));
+                            idmap.put(tr.getClientId(), tr);
+                        }
                     }
+
                 }
+
+                int tnonce = 1;
                 for (Transition t : ts.getTransitionsList()) {
+                    t.setClientId(tprefix + uid("transition_" + tnonce++));
+                    idmap.put(t.getClientId(), t);
+
+                    String aprefix = t.getClientId() + ":";
+                    int anonce = 1;
                     for (Action at : t.getActions()) {
+                        at.setClientId(aprefix + uid("action_" + anonce++));
                         idmap.put(at.getClientId(), at);
                     }
                 }
+
+                int hnonce = 1;
                 for (History h : ts.getHistory()) {
+                    h.setClientId(tprefix + uid("history_" + hnonce++));
                     idmap.put(h.getClientId(), h);
+
                     if (h.getTransition() != null) {
-                        idmap.put(h.getTransition().getClientId(), h.getTransition());
+                        SimpleTransition tr = h.getTransition();
+                        tr.setClientId(h.getClientId() + ":" + uid("transition"));
+                        idmap.put(tr.getClientId(), tr);
                     }
                 }
-                initMetadata(scxml, idmap, ts.getChildren());
+                
+                updateClientId(scxml, idmap, tprefix, ts.getChildren());
             }
         }
+
     }
 
     /**

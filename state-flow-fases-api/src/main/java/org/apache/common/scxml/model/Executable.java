@@ -19,14 +19,13 @@ package org.apache.common.scxml.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.common.scxml.UniqueIdGenerator;
 
 /**
  * An abstract base class for containers of executable elements in SCXML, such
  * as &lt;onentry&gt; and &lt;onexit&gt;.
  *
  */
-public abstract class Executable implements UniqueIdGenerator, Serializable {
+public abstract class Executable implements UniqueClientId, Serializable {
 
     /**
      * The set of executable elements (those that inheriting from Action) that
@@ -92,62 +91,23 @@ public abstract class Executable implements UniqueIdGenerator, Serializable {
     private String clientId = null;
 
     /**
-     * Create the identifier for this transition target.
-     *
-     * @param element to generate
-     * @return Returns the new unique client id.
-     */
-    @Override
-    public String createUniqueId(Object element) {
-        String result = null;
-        if (element instanceof Action) {
-            Action action = (Action) element;
-            if (!getActions().contains(action)) {
-                throw new IllegalArgumentException("This executable "
-                        + "element no constain "
-                        + "child element: " + action.getClass().getName());
-
-            }
-            result = "action_" + getActions().indexOf(action);
-        }
-
-        return result;
-    }
-
-    /**
      * Get the identifier for this ecutable.
      *
      * @return Returns the unique client id.
      */
+    @Override
     public String getClientId() {
-        if (this.clientId == null) {
-            String parentId = null;
-
-            String id;
-            if (this.parent != null) {
-                parentId = this.parent.getClientId();
-                id = parent.createUniqueId(this);
-            } else {
-                if (this instanceof SimpleTransition) {
-                    id = "initial:transition";
-                } else {
-                    throw new NullPointerException("undefined \"id\" for root state.");
-                }
-            }
-
-            this.clientId = id;
-            if (parentId != null) {
-                StringBuilder idBuilder
-                        = new StringBuilder(parentId.length()
-                                + 1 + this.clientId.length());
-
-                this.clientId = idBuilder
-                        .append(parentId)
-                        .append(":")
-                        .append(id).toString();
-            }
-        }
         return clientId;
     }
 
+    /**
+     * Set the identifier for this transition target.
+     *
+     * @param clientId The clientId to set.
+     */
+    @Override
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+    
 }

@@ -67,10 +67,10 @@ public class InvokeTagHandler extends AbstractFlowTagHandler<Invoke> {
 
         target.setId(id != null ? id.getValue() : null);
 
-        applyNext(ctx, parent, target);
-
         TransitionalState state = (TransitionalState) parentElement;
         state.addInvoke(target);
+
+        applyNext(ctx, parent, target);
     }
 
 }

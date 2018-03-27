@@ -48,9 +48,9 @@ public class OnEntryTagHandler extends AbstractFlowTagHandler<OnEntry> {
         
         OnEntry executable = new OnEntry();
 
-        applyNext(ctx, parent, executable);
-
         target.addOnEntry(executable);
+
+        applyNext(ctx, parent, executable);
     }
 
 }

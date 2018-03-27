@@ -140,23 +140,4 @@ public class State extends TransitionalState {
         super.addChild(es);
     }
 
-    /**
-     * Create the identifier for this transition target.
-     *
-     * @param element to generate
-     * @return Returns the new unique client id.
-     */
-    @Override
-    public String createUniqueId(Object element) {
-        if (element instanceof SimpleTransition) {
-            SimpleTransition transition = (SimpleTransition) element;
-            if (initial != null) {
-                if (transition.equals(initial.getTransition())) {
-                    return "initial:transition";
-                }
-            }
-        }
-        return super.createUniqueId(element);
-    }
-
 }

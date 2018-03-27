@@ -25,7 +25,7 @@ import org.apache.common.scxml.SCXMLExpressionException;
  * &lt;assign&gt;, &lt;log&gt; etc.
  *
  */
-public abstract class Action implements Serializable {
+public abstract class Action implements UniqueClientId, Serializable {
 
     /**
      * Link to its parent or container.
@@ -105,31 +105,19 @@ public abstract class Action implements Serializable {
      *
      * @return Returns the unique client id.
      */
+    @Override
     public String getClientId() {
-        if (this.clientId == null) {
-            String parentId = null;
-
-            String id;
-            if (this.parent != null) {
-                parentId = this.parent.getClientId();
-                id = parent.createUniqueId(this);
-            } else {
-                throw new NullPointerException("undefined \"id\" for root state.");
-            }
-
-            this.clientId = id;
-            if (parentId != null) {
-                StringBuilder idBuilder
-                        = new StringBuilder(parentId.length()
-                                + 1 + this.clientId.length());
-
-                this.clientId = idBuilder
-                        .append(parentId)
-                        .append(":")
-                        .append(id).toString();
-            }
-        }
         return clientId;
     }
 
+    /**
+     * Set the identifier for this transition target.
+     *
+     * @param clientId The clientId to set.
+     */
+    @Override
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+    
 }

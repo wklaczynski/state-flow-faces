@@ -63,7 +63,7 @@ public class History extends TransitionTarget {
      */
     public final void setTransition(final SimpleTransition transition) {
         if (getParent() == null) {
-            throw new IllegalStateException("History transition cannot be set before setting its parent");
+            throw new IllegalStateException("history transition cannot be set before setting its parent");
         }
         this.transition = transition;
         this.transition.setParent(getParent());
@@ -104,23 +104,6 @@ public class History extends TransitionTarget {
      */
     public final void setParent(final TransitionalState parent) {
         super.setParent(parent);
-    }
-
-    /**
-     * Create the identifier for this transition target.
-     *
-     * @param element to generate
-     * @return Returns the new unique client id.
-     */
-    @Override
-    public String createUniqueId(Object element) {
-        if (element instanceof SimpleTransition) {
-            SimpleTransition ftransition = (SimpleTransition) element;
-            if (ftransition.equals(transition)) {
-                return "transition";
-            }
-        }
-        return null;
     }
 
 }
