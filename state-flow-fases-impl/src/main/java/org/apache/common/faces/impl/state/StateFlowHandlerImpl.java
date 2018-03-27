@@ -69,6 +69,8 @@ import org.apache.common.faces.state.annotation.StateChartAction;
 import org.apache.common.scxml.env.AbstractSCXMLListener;
 import org.apache.common.scxml.env.SimpleContext;
 import org.apache.common.scxml.env.SimpleSCXMLListener;
+import static org.apache.common.scxml.io.StateHolderSaver.restoreContext;
+import static org.apache.common.scxml.io.StateHolderSaver.saveContext;
 import org.apache.common.scxml.model.EnterableState;
 import org.apache.common.scxml.model.Var;
 
@@ -85,7 +87,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     public static final String LOGICAL_FLOW_MAP = StateFlowHandlerImpl.class.getName() + ".LogicalFlowMap";
 
     private Boolean logstep;
-    private final Boolean alwaysSerialized = Boolean.FALSE;
+    private final Boolean alwaysSerialized = Boolean.TRUE;
 
     public StateFlowHandlerImpl(ServletContext ctx) {
         super();
@@ -228,6 +230,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         SCXMLExecutor executor = new SCXMLExecutor(evaluator, dispatcher, errorReporter);
         executor.setStateMachine(scxml);
         executor.addListener(scxml, new StateFlowCDIListener(executor));
+        
+        executor.setRootContext(executor.getEvaluator().newContext(null));
 
         if (context.getApplication().getProjectStage() == ProjectStage.Production) {
             executor.setCheckLegalConfiguration(false);
@@ -267,6 +271,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         errorReporter.getTags().putAll(new HashMap<>(tags));
 
         SCXMLExecutor executor = new SCXMLExecutor(parent, invokeId, scxml);
+        executor.setRootContext(parent.getRootContext());
+        
         executor.addListener(scxml, new StateFlowCDIListener(executor));
 
         if (context.getApplication().getProjectStage() == ProjectStage.Production) {
@@ -499,7 +505,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 Context context = new SimpleContext();
                 values[0] = stateMachine.getMetadata().get("faces-viewid");
                 values[1] = stateMachine.getMetadata().get("faces-chartid");
-                values[2] = executor.saveState(context);
+                values[2] = saveContext(context, executor.getRootContext());
+                values[3] = executor.saveState(context);
 
                 attached[i++] = values;
             }
@@ -540,7 +547,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     }
 
                     Context context = new SimpleContext();
-                    executor.restoreState(context, values[2]);
+                    
+                    restoreContext(context, executor.getRootContext(), values[2]);
+                    
+                    executor.restoreState(context, values[3]);
 
                     result.getRoots().add(executor);
                 }
@@ -580,14 +590,15 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 Object[] attached = new Object[executors.size()];
                 int i = 0;
                 for (SCXMLExecutor executor : executors) {
-                    Object values[] = new Object[3];
+                    Object values[] = new Object[4];
                     SCXML stateMachine = executor.getStateMachine();
 
                     Context context = new SimpleContext();
 
                     values[0] = stateMachine.getMetadata().get("faces-viewid");
                     values[1] = stateMachine.getMetadata().get("faces-chartid");
-                    values[2] = executor.saveState(context);
+                    values[2] = saveContext(context, executor.getRootContext());
+                    values[3] = executor.saveState(context);
                     attached[i++] = values;
                 }
                 states[0] = attached;
@@ -630,7 +641,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     }
 
                     Context context = new SimpleContext();
-                    executor.restoreState(context, values[2]);
+                    
+                    restoreContext(context, executor.getRootContext(), values[2]);
+                    
+                    executor.restoreState(context, values[3]);
 
                     executors.add(executor);
                 }

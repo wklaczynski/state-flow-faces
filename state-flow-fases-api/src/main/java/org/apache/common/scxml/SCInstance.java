@@ -30,8 +30,11 @@ import java.util.UUID;
 import org.apache.common.scxml.env.SimpleContext;
 import org.apache.common.scxml.io.ContentParser;
 import org.apache.common.scxml.io.StateHolder;
+import static org.apache.common.scxml.io.StateHolderSaver.findElement;
 import static org.apache.common.scxml.io.StateHolderSaver.restoreAttachedState;
+import static org.apache.common.scxml.io.StateHolderSaver.restoreContext;
 import static org.apache.common.scxml.io.StateHolderSaver.saveAttachedState;
+import static org.apache.common.scxml.io.StateHolderSaver.saveContext;
 import org.apache.common.scxml.model.Data;
 import org.apache.common.scxml.model.Datamodel;
 import org.apache.common.scxml.model.EnterableState;
@@ -615,29 +618,6 @@ public class SCInstance implements Serializable, StateHolder {
         restoreContextsState(context, values[7]);
         restoreHistoriesState(context, values[8]);
     }
-    
-    public Object saveContext(Context context, Context ctx) {
-        Object state = null;
-        if (ctx != null) {
-            if (ctx instanceof StateHolder) {
-                state = ((StateHolder) ctx).saveState(context);
-            } else {
-                state = saveAttachedState(context, ctx.getVars());
-            }
-        }
-        return state;
-    }
-
-    public void restoreContext(Context context, Context ctx, Object state) {
-        if (ctx != null) {
-            if (ctx instanceof StateHolder) {
-                ((StateHolder) ctx).restoreState(context, state);
-            } else {
-                Map vars = (Map) restoreAttachedState(context, state);
-                ctx.getVars().putAll(vars);
-            }
-        }
-    }
 
     private Object saveContextsState(Context context) {
         Object state = null;
@@ -671,13 +651,9 @@ public class SCInstance implements Serializable, StateHolder {
             for (Object value : values) {
                 Object[] entry = (Object[]) value;
 
-                String ttid = (String) entry[0];
-                Object found = stateMachine.findElement(ttid);
-                if (found == null) {
-                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
-                }
-
-                EnterableState target = (EnterableState) found;
+                EnterableState target = (EnterableState) 
+                        findElement(context, stateMachine, (String) entry[0]);
+                
                 Context rctx = getContext(target);
                 if (rctx instanceof StateHolder) {
                     ((StateHolder) rctx).restoreState(context, entry[1]);
@@ -713,14 +689,8 @@ public class SCInstance implements Serializable, StateHolder {
             for (Object value : values) {
                 Object[] entry = (Object[]) value;
 
-                String ttid = (String) entry[0];
-                Object found = stateMachine.findElement(ttid);
-
-                if (found == null) {
-                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
-                }
-
-                History history = (History) found;
+                History history = (History) 
+                        findElement(context, stateMachine, (String) entry[0]);
 
                 Set<EnterableState> last = (Set) histories.get(history);
                 if (last == null) {
@@ -750,13 +720,9 @@ public class SCInstance implements Serializable, StateHolder {
         if (null != state) {
             Object[] values = (Object[]) state;
             for (Object value : values) {
-                String ttid = (String) value;
-                Object found = stateMachine.findElement(ttid);
-                if (found == null) {
-                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
-                }
+                EnterableState tt = (EnterableState)
+                        findElement(context, stateMachine, (String) value);
 
-                EnterableState tt = (EnterableState) found;
                 targets.add(tt);
             }
         }

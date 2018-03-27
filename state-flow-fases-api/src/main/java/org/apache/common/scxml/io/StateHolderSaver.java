@@ -262,24 +262,23 @@ public class StateHolderSaver implements Serializable {
     public static Object saveObjectState(Context context, Object instance) {
         return saveObjectState(context, instance.getClass(), instance);
     }
-    
+
     private static boolean serializable(int modifiers) {
-        if(Modifier.isTransient(modifiers)) {
+        if (Modifier.isTransient(modifiers)) {
             return false;
         }
-        if(Modifier.isStatic(modifiers)) {
+        if (Modifier.isStatic(modifiers)) {
             return false;
         }
-        if(Modifier.isNative(modifiers)) {
+        if (Modifier.isNative(modifiers)) {
             return false;
         }
-        if(Modifier.isAbstract(modifiers)) {
+        if (Modifier.isAbstract(modifiers)) {
             return false;
         }
         return !Modifier.isVolatile(modifiers);
     }
-    
-    
+
     public static Object saveObjectState(Context context, Class<?> clazz, Object instance) {
         if (clazz == null) {
             return null;
@@ -318,8 +317,7 @@ public class StateHolderSaver implements Serializable {
     public static void restoreObjectState(Context context, Object state, Object instance) {
         restoreObjectState(context, state, instance.getClass(), instance);
     }
-    
-    
+
     public static void restoreObjectState(Context context, Object state, Class<?> clazz, Object instance) {
         if (clazz == null || null == state) {
             return;
@@ -364,6 +362,37 @@ public class StateHolderSaver implements Serializable {
         }
         Object value = restoreAttachedState(context, state);
         return value;
+    }
+
+    public static Object saveContext(Context context, Context ctx) {
+        Object state = null;
+        if (ctx != null) {
+            if (ctx instanceof StateHolder) {
+                state = ((StateHolder) ctx).saveState(context);
+            } else {
+                state = saveAttachedState(context, ctx.getVars());
+            }
+        }
+        return state;
+    }
+
+    public static void restoreContext(Context context, Context ctx, Object state) {
+        if (ctx != null) {
+            if (ctx instanceof StateHolder) {
+                ((StateHolder) ctx).restoreState(context, state);
+            } else {
+                Map vars = (Map) restoreAttachedState(context, state);
+                ctx.getVars().putAll(vars);
+            }
+        }
+    }
+
+    public static Object findElement(Context context, SCXML chart, String id) {
+        Object found = chart.findElement(id);
+        if (found == null) {
+            throw new IllegalStateException(String.format("Restored element %s not found.", id));
+        }
+        return found;
     }
 
 }

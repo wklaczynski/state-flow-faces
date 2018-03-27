@@ -28,6 +28,7 @@ import org.apache.common.scxml.env.SimpleErrorReporter;
 import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
 import org.apache.common.scxml.io.StateHolder;
+import static org.apache.common.scxml.io.StateHolderSaver.findElement;
 import org.apache.common.scxml.model.Invoke;
 import org.apache.common.scxml.model.ModelException;
 import org.apache.common.scxml.model.SCXML;
@@ -624,7 +625,7 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
     }
 
     private void restoreInvokersState(Context context, Object state) {
-        SCXML chart = scInstance.getStateMachine();
+        SCXML stateMachine = scInstance.getStateMachine();
         invokers.clear();
         invokeIds.clear();
 
@@ -633,14 +634,9 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
             for (Object value : values) {
                 Object[] entry = (Object[]) value;
 
-                String ttid = (String) entry[0];
-                Object found = chart.findElement(ttid);
-                if (found == null) {
-                    throw new IllegalStateException(String.format("Restored element %s not found.", ttid));
-                }
-
-                Invoke invoke = (Invoke) found;
-
+                Invoke invoke = (Invoke)
+                        findElement(context, stateMachine, (String) entry[0]);
+                
                 String invokeId = (String) entry[1];
                 String keyId = (String) entry[2];
                 Invoker invoker = null;
