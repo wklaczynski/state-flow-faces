@@ -34,7 +34,7 @@
 
                 <x:transition event="view.action.cancel" target="cancel"/>
 
-                <x:transition event="view.action.clear" target="cancel">
+                <x:transition event="view.action.clear">
                     <x:assign location="test_data" expr="I done transition for event clear in view process."/>
                 </x:transition>
                 
@@ -49,10 +49,16 @@
                 </x:initial>
 
                 <x:state id="test-process-1">
+                    <x:onentry>
+                        <x:assign location="test_data" expr="I enty state in view process 1."/>
+                    </x:onentry>
                     <x:transition event="view.action.next" target="test-process-2"/>
                 </x:state>     
 
                 <x:state id="test-process-2">
+                    <x:onentry>
+                        <x:assign location="test_data" expr="I enty state in view process 2."/>
+                    </x:onentry>
                     <x:transition event="view.action.next" target="test-process-1"/>
                 </x:state>             
             </x:state> 
