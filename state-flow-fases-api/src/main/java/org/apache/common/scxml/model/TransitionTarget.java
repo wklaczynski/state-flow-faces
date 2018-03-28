@@ -211,4 +211,9 @@ public abstract class TransitionTarget implements UniqueClientId, Serializable, 
         this.clientId = clientId;
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "{" + clientId + '}';
+    }
+    
 }

@@ -109,5 +109,10 @@ public abstract class Executable implements UniqueClientId, Serializable {
     public void setClientId(String clientId) {
         this.clientId = clientId;
     }
-    
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName()+ "{" + clientId + '}';
+    }
+
 }

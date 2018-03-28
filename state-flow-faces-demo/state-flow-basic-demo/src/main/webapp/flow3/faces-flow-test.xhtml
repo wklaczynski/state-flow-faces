@@ -11,6 +11,8 @@
             <x:data id="chart_title" expr="Test Multiple State Flow Process"/>
             <x:data id="chart_view" expr="/flow1/faces-flow-test.xhtml"/>
             <x:data id="test_data">I'm starting process, click any button to change my state.</x:data> 
+            <x:data id="hasback" expr="false"/> 
+            <x:data id="hasnext" expr="true"/> 
         </x:datamodel>
 
         <x:state id="start">
@@ -37,25 +39,28 @@
                 <x:transition event="view.action.clear">
                     <x:assign location="test_data" expr="I done transition for event clear in view process."/>
                 </x:transition>
-                
+
                 <x:transition event="view.action.calculate">
                     <x:assign location="test_data" expr="I done transition for event calculate in view process."/>
                 </x:transition>
+
+                <x:transition event="view.action.go-view" target="view-process"/>
             </x:state>
 
             <x:state id="test-process">
                 <x:initial>
                     <x:transition target="test-process-1"/>
                 </x:initial>
-                <x:history id="test-process-back">
+
+                <x:history id="test-process-return">
                     <x:transition target="test-process-1"/>
                 </x:history>
-                
-                <x:transition event="view.action.back" target="test-process-back"/>
 
                 <x:state id="test-process-1">
                     <x:onentry>
                         <x:assign location="test_data" expr="I enty state in view process 1."/>
+                        <x:assign location="hasnext" expr="true"/>
+                        <x:assign location="hasback" expr="false"/>
                     </x:onentry>
                     <x:transition event="view.action.next" target="test-process-2"/>
                 </x:state>     
@@ -63,23 +68,42 @@
                 <x:state id="test-process-2">
                     <x:onentry>
                         <x:assign location="test_data" expr="I enty state in view process 2."/>
+                        <x:assign location="hasnext" expr="true"/>
+                        <x:assign location="hasback" expr="true"/>
                     </x:onentry>
+                    <x:transition event="view.action.back" target="test-process-1"/>
                     <x:transition event="view.action.next" target="test-process-3"/>
                 </x:state>             
 
                 <x:state id="test-process-3">
                     <x:onentry>
                         <x:assign location="test_data" expr="I enty state in view process 3."/>
+                        <x:assign location="hasnext" expr="false"/>
+                        <x:assign location="hasback" expr="true"/>
                     </x:onentry>
-                    <x:transition event="view.action.next" target="test-process-1"/>
+                    <x:transition event="view.action.back" target="test-process-2"/>
                 </x:state>             
             </x:state> 
         </x:parallel>
 
+
+        <x:state id="view-process">
+            <x:onentry>
+                <x:assign location="test_data" expr="I left the multi process."/>
+            </x:onentry>
+            <x:invoke type="view" src="ViewPage.xhtml"/>
+
+            <x:transition event="error.execution" target="error"/>
+
+            <x:transition event="view.action.cancel" target="cancel"/>
+
+            <x:transition event="view.action.return" target="test-process-return"/>
+            <x:transition event="view.action.start-again" target="show"/>
+        </x:state>
+
+
         <x:state id="error"> 
-            <x:invoke type="scxml" src="/common/error.scxml">
-                <x:finalize/>
-            </x:invoke>
+            <x:invoke type="scxml" src="/common/error.scxml"/>
 
             <x:transition event="error.invoke.cancel" target="cancel"/>
             <x:transition event="error.invoke.failed" target="cancel"/>

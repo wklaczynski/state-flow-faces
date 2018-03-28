@@ -11,15 +11,11 @@
         <h1>#{scxml.chart_title}</h1>
         <hr/>
         <h:form>
-            <h:panelGroup rendered="#{empty scxml.chart_title}">
-                <h2>Hello, I'm not starting from flow faces :(</h2>
-                <hr/>
-            </h:panelGroup>
             <h:panelGroup>
                 <h3>Hello, I'm in test parallel process state chat &lt;scxml id="show"&gt;: "#{scxml.chart_view}"</h3>
-                This page is started by state flow chart. It's assigned any data from owned &lt;scxml&gt;
+                This page is next page in state flow chart. It's assigned any data from owned &lt;scxml&gt;
                 <p/>
-                Started two process in &lt;parallel&gt; state. First state invoke view, and two state is in multi atomic state.
+                Exited to one proces in new view. 
                 <p/>
                 <h:panelGroup>
                     <h:messages/> 
@@ -32,25 +28,9 @@
                     <b>Value:</b> #{scxml.test_data}
                     <p/>
                     <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
-                        <h:commandButton action="calculate" value="Calculate Test">
-                            <f:ajax render="asign-test"/>
+                        <h:commandButton action="return" value="Return History Process">
                         </h:commandButton>
-                        <h:commandButton
-                            action="back"
-                            disabled="#{!scxml.hasback}"
-                            value="Go Back">
-                            <f:ajax render="asign-test"/>
-                        </h:commandButton>
-                        <h:commandButton
-                            action="next"
-                            disabled="#{!scxml.hasnext}"
-                            value="Go Next">
-                            <f:ajax render="asign-test"/>
-                        </h:commandButton>
-                        <h:commandButton action="clear" value="Clear Test">
-                            <f:ajax render="asign-test"/>
-                        </h:commandButton>
-                        <h:commandButton action="go-view" value="Go View">
+                        <h:commandButton action="start-again" value="Start Again Process">
                         </h:commandButton>
                     </h:panelGrid>
                 </h:panelGroup>

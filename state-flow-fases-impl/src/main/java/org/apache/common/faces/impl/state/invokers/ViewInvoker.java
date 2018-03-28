@@ -58,7 +58,6 @@ import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.env.EffectiveContextMap;
 import org.apache.common.scxml.model.EnterableState;
-import org.apache.common.scxml.model.TransitionalState;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
