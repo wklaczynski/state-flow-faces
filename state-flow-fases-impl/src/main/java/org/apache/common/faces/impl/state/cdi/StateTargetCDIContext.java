@@ -40,6 +40,7 @@ import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.annotation.StateTargetScoped;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.model.EnterableState;
+import org.apache.common.scxml.model.Parallel;
 import org.apache.common.scxml.model.SCXML;
 import org.apache.common.scxml.model.TransitionTarget;
 
@@ -131,7 +132,7 @@ public class StateTargetCDIContext implements Context, Serializable {
                         throw new ContextNotActiveException("Request to activate bean in state, but that executor is not running.");
                     }
 
-                    if (!executor.getStatus().isInState(tbi.id)) {
+                    if (!executor.getStatus().isInState(state.getId())) {
                         throw new ContextNotActiveException("Request to activate bean in state '" + tbi + "', but that state is not active.");
                     }
 
@@ -438,42 +439,15 @@ public class StateTargetCDIContext implements Context, Serializable {
         }
         TransitionTarget result = null;
 
-        if (selector.equals("@composite")) {
-            EnterableState top = null;
+        if (selector.equals("@current")) {
             Set<EnterableState> states = executor.getStatus().getStates();
-            for (EnterableState state : states) {
-                if (top == null || top.isDescendantOf(state)) {
-                    top = state;
-                }
-            }
-            while (top.isAtomicState()) {
-                if (top.getParent() == null) {
-                    break;
-                }
-                top = top.getParent();
-            }
-            result = top;
-        } else if (selector.equals("@all")) {
-            EnterableState top = null;
-            Set<EnterableState> states = executor.getStatus().getStates();
-            for (EnterableState state : states) {
-                if (top == null || top.isDescendantOf(state)) {
-                    top = state;
-                }
-            }
-            result = top;
+            result = selectCollectiveState(states);
         } else if (selector.equals("@top")) {
-            EnterableState top = null;
             Set<EnterableState> states = executor.getStatus().getStates();
-            for (EnterableState state : states) {
-                if (top == null || top.isDescendantOf(state)) {
-                    top = state;
-                }
-            }
-            while (top.getParent() != null) {
-                top = top.getParent();
-            }
-            result = top;
+            result = selectTopState(states);
+        } else if (selector.equals("@composite")) {
+            Set<EnterableState> states = executor.getStatus().getStates();
+            result = selectFirstCompositeState(states);
         } else {
             SCXML stateMachine = executor.getStateMachine();
             TransitionTarget tt = stateMachine.getTargets().get(selector);
@@ -484,6 +458,42 @@ public class StateTargetCDIContext implements Context, Serializable {
 
         return result;
 
+    }
+
+    private static EnterableState selectCollectiveState(Set<EnterableState> states) {
+        if (states.isEmpty()) {
+            return null;
+        }
+        EnterableState result = states.iterator().next();
+        if (states.size() > 1) {
+            for (int i = 0; i < result.getNumberOfAncestors(); i++) {
+                EnterableState ancestor = result.getAncestor(i);
+                if (ancestor instanceof Parallel) {
+                    result = ancestor;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    private static EnterableState selectFirstCompositeState(Set<EnterableState> states) {
+        EnterableState result = selectCollectiveState(states);
+        while (result.getParent() != null && result.isAtomicState()) {
+            result = result.getParent();
+        }
+        return result;
+    }
+
+    private static EnterableState selectTopState(Set<EnterableState> states) {
+        if (!states.isEmpty()) {
+            return null;
+        }
+        EnterableState result = states.iterator().next();
+        if (result.getNumberOfAncestors() > 0) {
+            result = result.getAncestor(0);
+        }
+        return result;
     }
 
 }
