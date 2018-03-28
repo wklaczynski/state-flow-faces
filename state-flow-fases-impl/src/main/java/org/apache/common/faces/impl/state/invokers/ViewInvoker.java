@@ -138,7 +138,6 @@ public class ViewInvoker implements Invoker, Serializable {
             ViewHandler vh = fc.getApplication().getViewHandler();
 
 //            getViewParamsContext(fc).putAll(params);
-
             NavigationCase navCase = findNavigationCase(fc, url);
             viewId = url;
             try {
@@ -233,7 +232,7 @@ public class ViewInvoker implements Invoker, Serializable {
                 fc.responseComplete();
             } else {
                 UIViewRoot viewRoot;
-                
+
                 if (viewState != null) {
                     fc.getAttributes().put(FACES_VIEW_STATE, viewState);
                     viewRoot = vh.restoreView(fc, viewId);
@@ -346,7 +345,6 @@ public class ViewInvoker implements Invoker, Serializable {
 //        return viewParamsContext;
 //
 //    }
-
     protected NavigationCase findNavigationCase(FacesContext context, String outcome) {
         ConfigurableNavigationHandler navigationHandler = (ConfigurableNavigationHandler) context.getApplication().getNavigationHandler();
         return navigationHandler.getNavigationCase(context, null, outcome);
@@ -374,12 +372,12 @@ public class ViewInvoker implements Invoker, Serializable {
                 .startsWith(FACES_PHASE_EVENT_PREFIX))) {
             if (viewId.equals(event.getSendId())) {
                 FacesContext context = FacesContext.getCurrentInstance();
-                
+
                 context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
                 context.getELContext().putContext(SCXMLExecutor.class, executor);
 
                 Context stateContext = getStateContext(context, executor);
-                context.getELContext().putContext(Context.class,  getEffectiveContext(stateContext));
+                context.getELContext().putContext(Context.class, getEffectiveContext(stateContext));
             }
             return;
         }
@@ -391,10 +389,10 @@ public class ViewInvoker implements Invoker, Serializable {
 
                 Map<String, String> params = new HashMap<>();
                 params.putAll(ec.getRequestParameterMap());
-                
+
                 String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
                 EventBuilder evb = new EventBuilder("view.action." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
-                
+
                 evb.data(params);
                 evb.sendId(invokeId);
                 executor.addEvent(evb.build());
@@ -402,25 +400,21 @@ public class ViewInvoker implements Invoker, Serializable {
         }
     }
 
-
     protected StateFlowContext getEffectiveContext(final Context nodeCtx) {
         return new StateFlowContext(nodeCtx, new EffectiveContextMap(nodeCtx));
     }
-    
-    
+
     private static Context getStateContext(
             final FacesContext fc,
             final SCXMLExecutor executor) {
 
         CompositeContext result = new CompositeContext(executor.getGlobalContext());
 
-        Iterator<EnterableState> iterator = executor.getStatus().getActiveStates().iterator();
+        Iterator<EnterableState> iterator = executor.getStatus().getStates().iterator();
         while (iterator.hasNext()) {
             EnterableState enterable = iterator.next();
-            if (enterable.isAtomicState()) {
-                Context context = executor.getSCInstance().getContext(enterable);
-                result.add(context);
-            }
+            Context context = executor.getSCInstance().getContext(enterable);
+            result.add(context);
         }
         return result;
     }

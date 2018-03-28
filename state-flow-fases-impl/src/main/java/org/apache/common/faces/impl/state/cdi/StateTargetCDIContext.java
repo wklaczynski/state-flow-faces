@@ -18,6 +18,7 @@ package org.apache.common.faces.impl.state.cdi;
 import com.sun.faces.util.Util;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +40,8 @@ import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.annotation.StateTargetScoped;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.model.EnterableState;
+import org.apache.common.scxml.model.SCXML;
+import org.apache.common.scxml.model.TransitionTarget;
 
 /**
  *
@@ -52,8 +55,8 @@ public class StateTargetCDIContext implements Context, Serializable {
 
     private final Map<Contextual<?>, TargetBeanInfo> targetIds;
 
-    
     static class TargetBeanInfo {
+
         String id;
 
         @Override
@@ -77,99 +80,122 @@ public class StateTargetCDIContext implements Context, Serializable {
 
         @Override
         public String toString() {
-            return "TargetBeanInfo{" + ", id=" + id + '}';
+            return "TargetBeanInfo{" + id + '}';
         }
-        
+
     }
-    
+
     StateTargetCDIContext(Map<Contextual<?>, TargetBeanInfo> flowIds) {
         this.targetIds = new ConcurrentHashMap<>(flowIds);
     }
-    
-    
-    
+
     @Override
     public Class<? extends Annotation> getScope() {
         return StateTargetScoped.class;
     }
 
     @Override
-    @SuppressWarnings("UnusedAssignment")
     public <T> T get(Contextual<T> contextual, CreationalContext<T> creational) {
         assertNotReleased();
-        
+
+        if (!(contextual instanceof PassivationCapable)) {
+            throw new IllegalArgumentException("StateTargetScoped " + contextual.toString() + " must be PassivationCapable, but is not.");
+        }
+
         FacesContext facesContext = FacesContext.getCurrentInstance();
         SCXMLExecutor executor = getExecutor(facesContext);
-        
-        EnterableState state = findState(facesContext, executor, "@composite");
-        
+
+        TargetBeanInfo tbi = targetIds.get(contextual);
+        TransitionTarget state = findState(facesContext, executor, tbi.id);
+
         StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
-        
-        T result = get(mapHelper, contextual);
-        
-        if (null == result) {
-            Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
+
+        T result = get(mapHelper, contextual, executor, state);
+
+        if (null == result && creational != null) {
+            Map<String, Object> targetScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
             Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
-            
-            String passivationCapableId = ((PassivationCapable)contextual).getId();
 
-            synchronized (flowScopedBeanMap) {
-                result = (T) flowScopedBeanMap.get(passivationCapableId);
+            String passivationCapableId = ((PassivationCapable) contextual).getId();
+            String beanId = state.getId() + ":" + passivationCapableId;
+
+            synchronized (targetScopedBeanMap) {
+                result = (T) targetScopedBeanMap.get(beanId);
                 if (null == result) {
-                    
+
                     if (null == executor) {
-                        return null;
-                    }
-                    
-                    if (!executor.isRunning()) {
-                        throw new ContextNotActiveException("Request to activate bean in executor, but that executor is not active.");
+                        throw new ContextNotActiveException("Request to activate bean in state, but that executor is not active.");
                     }
 
-                    
+                    if (!executor.isRunning()) {
+                        throw new ContextNotActiveException("Request to activate bean in state, but that executor is not running.");
+                    }
+
+                    if (!executor.getStatus().isInState(tbi.id)) {
+                        throw new ContextNotActiveException("Request to activate bean in state '" + tbi + "', but that state is not active.");
+                    }
+
                     result = contextual.create(creational);
-                    
+
                     if (null != result) {
-                        flowScopedBeanMap.put(passivationCapableId, result);
-                        creationalMap.put(passivationCapableId, creational);
+                        targetScopedBeanMap.put(beanId, result);
+                        creationalMap.put(beanId, creational);
                         mapHelper.updateSession();
                     }
                 }
             }
         }
-        mapHelper = null;
         return result;
     }
 
     @Override
-    @SuppressWarnings("UnusedAssignment")
     public <T> T get(Contextual<T> contextual) {
         assertNotReleased();
+
         if (!(contextual instanceof PassivationCapable)) {
-            throw new IllegalArgumentException("FlowScoped StateChartScoped " + contextual.toString() + " must be PassivationCapable, but is not.");
+            throw new IllegalArgumentException("StateTargetScoped " + contextual.toString() + " must be PassivationCapable, but is not.");
         }
+
         FacesContext facesContext = FacesContext.getCurrentInstance();
         SCXMLExecutor executor = getExecutor(facesContext);
-        
-        
-        EnterableState state = findState(facesContext, executor, "@composite");
-        
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
 
-        T result = get(mapHelper, contextual);
-        mapHelper = null;
+        if (!executor.isRunning()) {
+            throw new ContextNotActiveException("Request to bean in state, but that executor is not running.");
+        }
+
+        TargetBeanInfo tbi = targetIds.get(contextual);
+        TransitionTarget state = findState(facesContext, executor, tbi.id);
+
+        if (state == null) {
+            throw new ContextNotActiveException("StateTargetScoped '" + tbi + "', must be defined state, but that state is not active.");
+        }
+
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
+        T result = get(mapHelper, contextual, executor, state);
 
         return result;
     }
-    
-    private <T> T get(StateScopeMapHelper mapHelper, Contextual<T> contextual) {
+
+    private <T> T get(StateScopeMapHelper mapHelper, Contextual<T> contextual, SCXMLExecutor executor, TransitionTarget state) {
         assertNotReleased();
         if (!(contextual instanceof PassivationCapable)) {
             throw new IllegalArgumentException("StateChartScoped bean " + contextual.toString() + " must be PassivationCapable, but is not.");
         }
-        String passivationCapableId = ((PassivationCapable)contextual).getId();
-        return (T) mapHelper.getScopedBeanMapForCurrentExecutor().get(passivationCapableId);
+
+        if (!executor.isRunning()) {
+            return null;
+        }
+
+        if (!executor.getStatus().isInState(state.getId())) {
+            return null;
+        }
+
+        String passivationCapableId = ((PassivationCapable) contextual).getId();
+
+        String beanId = state.getId() + ":" + passivationCapableId;
+        Map<String, Object> map = mapHelper.getScopedBeanMapForCurrentExecutor();
+        return (T) map.get(beanId);
     }
-    
 
     @Override
     public boolean isActive() {
@@ -181,8 +207,7 @@ public class StateTargetCDIContext implements Context, Serializable {
         HttpSession session = hse.getSession();
         StateScopeMapHelper.sessionDestroyed(session);
     }
-    
-    
+
     private static Map<Object, Object> getCurrentFlowScopeAndUpdateSession(StateScopeMapHelper mapHelper) {
         Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
         Map<Object, Object> result = null;
@@ -194,20 +219,19 @@ public class StateTargetCDIContext implements Context, Serializable {
             }
         }
         mapHelper.updateSession();
-        return result; 
+        return result;
     }
-    
-    
+
     static void executorExited(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        
+
         StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
         Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
         Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
-        assert(!flowScopedBeanMap.isEmpty());
-        assert(!creationalMap.isEmpty());
+        assert (!flowScopedBeanMap.isEmpty());
+        assert (!creationalMap.isEmpty());
         BeanManager beanManager = (BeanManager) Util.getCdiBeanManager(facesContext);
-        
+
         for (Map.Entry<String, Object> entry : flowScopedBeanMap.entrySet()) {
             String passivationCapableId = entry.getKey();
             if (TARGET_SCOPE_MAP_KEY.equals(passivationCapableId)) {
@@ -216,15 +240,15 @@ public class StateTargetCDIContext implements Context, Serializable {
             Contextual owner = beanManager.getPassivationCapableBean(passivationCapableId);
             Object bean = entry.getValue();
             CreationalContext creational = creationalMap.get(passivationCapableId);
-            
+
             owner.destroy(bean, creational);
         }
-        
+
         flowScopedBeanMap.clear();
         creationalMap.clear();
-        
+
         mapHelper.updateSession();
-        
+
         if (CdiUtil.isCdiOneOneOrLater(facesContext)) {
             Class flowCDIEventFireHelperImplClass = null;
             try {
@@ -234,33 +258,31 @@ public class StateTargetCDIContext implements Context, Serializable {
                     LOGGER.log(Level.SEVERE, "CDI 1.1 events not enabled", ex);
                 }
             }
-            
+
             if (null != flowCDIEventFireHelperImplClass) {
                 Set<Bean<?>> availableBeans = beanManager.getBeans(flowCDIEventFireHelperImplClass);
                 if (null != availableBeans && !availableBeans.isEmpty()) {
                     Bean<?> bean = beanManager.resolve(availableBeans);
-                    CreationalContext<?> creationalContext =
-                            beanManager.createCreationalContext(null);
-                    StateFlowCDIEventFireHelper eventHelper = 
-                            (StateFlowCDIEventFireHelper)  beanManager.getReference(bean, bean.getBeanClass(),
-                            creationalContext);
+                    CreationalContext<?> creationalContext
+                            = beanManager.createCreationalContext(null);
+                    StateFlowCDIEventFireHelper eventHelper
+                            = (StateFlowCDIEventFireHelper) beanManager.getReference(bean, bean.getBeanClass(),
+                                    creationalContext);
                     eventHelper.fireTargetExecutorDestroyedEvent(executor);
                 }
             }
         }
     }
-    
+
     static void executorEntered(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        
+
         StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
 
         mapHelper.createMaps();
-        
+
         getCurrentFlowScopeAndUpdateSession(mapHelper);
-        
-        
-        
+
         if (CdiUtil.isCdiOneOneOrLater(facesContext)) {
             Class flowCDIEventFireHelperImplClass = null;
             try {
@@ -275,46 +297,57 @@ public class StateTargetCDIContext implements Context, Serializable {
                 Set<Bean<?>> availableBeans = beanManager.getBeans(flowCDIEventFireHelperImplClass);
                 if (null != availableBeans && !availableBeans.isEmpty()) {
                     Bean<?> bean = beanManager.resolve(availableBeans);
-                    CreationalContext<?> creationalContext =
-                            beanManager.createCreationalContext(null);
-                    StateFlowCDIEventFireHelper eventHelper = 
-                            (StateFlowCDIEventFireHelper)  beanManager.getReference(bean, bean.getBeanClass(),
-                            creationalContext);
+                    CreationalContext<?> creationalContext
+                            = beanManager.createCreationalContext(null);
+                    StateFlowCDIEventFireHelper eventHelper
+                            = (StateFlowCDIEventFireHelper) beanManager.getReference(bean, bean.getBeanClass(),
+                                    creationalContext);
                     eventHelper.fireTargetExecutorInitializedEvent(executor);
                 }
             }
         }
     }
-    
+
     static void stateExited(SCXMLExecutor executor, EnterableState state) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        
+
         StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
-        Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
+        Map<String, Object> scopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
         Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
-        assert(!flowScopedBeanMap.isEmpty());
-        assert(!creationalMap.isEmpty());
-        
-        
+        assert (!scopedBeanMap.isEmpty());
+        assert (!creationalMap.isEmpty());
+
         BeanManager beanManager = (BeanManager) Util.getCdiBeanManager(facesContext);
-        
-        for (Map.Entry<String, Object> entry : flowScopedBeanMap.entrySet()) {
-            String passivationCapableId = entry.getKey();
-            if (TARGET_SCOPE_MAP_KEY.equals(passivationCapableId)) {
+
+        String prefix = state.getId() + ":";
+
+        Set<String> toRemove = new HashSet<>();
+
+        for (Map.Entry<String, Object> entry : scopedBeanMap.entrySet()) {
+            String beanId = entry.getKey();
+            if (TARGET_SCOPE_MAP_KEY.equals(beanId)) {
                 continue;
             }
+            if (!prefix.startsWith(beanId)) {
+                continue;
+            }
+            toRemove.add(beanId);
+            String passivationCapableId = beanId.substring(prefix.length());
+
             Contextual owner = beanManager.getPassivationCapableBean(passivationCapableId);
             Object bean = entry.getValue();
-            CreationalContext creational = creationalMap.get(passivationCapableId);
-            
+            CreationalContext creational = creationalMap.get(beanId);
+
             owner.destroy(bean, creational);
         }
-        
-        flowScopedBeanMap.clear();
-        creationalMap.clear();
-        
+
+        for (String key : toRemove) {
+            scopedBeanMap.remove(key);
+            creationalMap.remove(key);
+        }
+
         mapHelper.updateSession();
-        
+
         if (CdiUtil.isCdiOneOneOrLater(facesContext)) {
             Class flowCDIEventFireHelperImplClass = null;
             try {
@@ -324,33 +357,29 @@ public class StateTargetCDIContext implements Context, Serializable {
                     LOGGER.log(Level.SEVERE, "CDI 1.1 events not enabled", ex);
                 }
             }
-            
+
             if (null != flowCDIEventFireHelperImplClass) {
                 Set<Bean<?>> availableBeans = beanManager.getBeans(flowCDIEventFireHelperImplClass);
                 if (null != availableBeans && !availableBeans.isEmpty()) {
                     Bean<?> bean = beanManager.resolve(availableBeans);
-                    CreationalContext<?> creationalContext =
-                            beanManager.createCreationalContext(null);
-                    StateFlowCDIEventFireHelper eventHelper = 
-                            (StateFlowCDIEventFireHelper)  beanManager.getReference(bean, bean.getBeanClass(),
-                            creationalContext);
+                    CreationalContext<?> creationalContext
+                            = beanManager.createCreationalContext(null);
+                    StateFlowCDIEventFireHelper eventHelper
+                            = (StateFlowCDIEventFireHelper) beanManager.getReference(bean, bean.getBeanClass(),
+                                    creationalContext);
                     eventHelper.fireExecutorDestroyedEvent(executor);
                 }
             }
         }
     }
-    
+
     static void stateEntered(SCXMLExecutor executor, EnterableState state) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        
         StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
 
         mapHelper.createMaps();
-        
         getCurrentFlowScopeAndUpdateSession(mapHelper);
-        
-        
-        
+
         if (CdiUtil.isCdiOneOneOrLater(facesContext)) {
             Class flowCDIEventFireHelperImplClass = null;
             try {
@@ -365,17 +394,17 @@ public class StateTargetCDIContext implements Context, Serializable {
                 Set<Bean<?>> availableBeans = beanManager.getBeans(flowCDIEventFireHelperImplClass);
                 if (null != availableBeans && !availableBeans.isEmpty()) {
                     Bean<?> bean = beanManager.resolve(availableBeans);
-                    CreationalContext<?> creationalContext =
-                            beanManager.createCreationalContext(null);
-                    StateFlowCDIEventFireHelper eventHelper = 
-                            (StateFlowCDIEventFireHelper)  beanManager.getReference(bean, bean.getBeanClass(),
-                            creationalContext);
+                    CreationalContext<?> creationalContext
+                            = beanManager.createCreationalContext(null);
+                    StateFlowCDIEventFireHelper eventHelper
+                            = (StateFlowCDIEventFireHelper) beanManager.getReference(bean, bean.getBeanClass(),
+                                    creationalContext);
                     eventHelper.fireExecutorInitializedEvent(executor);
                 }
             }
         }
     }
-    
+
     @SuppressWarnings({"FinalPrivateMethod"})
     private final void assertNotReleased() {
         if (!isActive()) {
@@ -402,13 +431,59 @@ public class StateTargetCDIContext implements Context, Serializable {
 
     }
 
-    private static EnterableState findState(FacesContext context, SCXMLExecutor executor, String selector) {
+    @SuppressWarnings("ConvertToStringSwitch")
+    private static TransitionTarget findState(FacesContext context, SCXMLExecutor executor, String selector) {
+        if (executor == null) {
+            return null;
+        }
+        TransitionTarget result = null;
 
-        EnterableState result = null;
+        if (selector.equals("@composite")) {
+            EnterableState top = null;
+            Set<EnterableState> states = executor.getStatus().getStates();
+            for (EnterableState state : states) {
+                if (top == null || top.isDescendantOf(state)) {
+                    top = state;
+                }
+            }
+            while (top.isAtomicState()) {
+                if (top.getParent() == null) {
+                    break;
+                }
+                top = top.getParent();
+            }
+            result = top;
+        } else if (selector.equals("@all")) {
+            EnterableState top = null;
+            Set<EnterableState> states = executor.getStatus().getStates();
+            for (EnterableState state : states) {
+                if (top == null || top.isDescendantOf(state)) {
+                    top = state;
+                }
+            }
+            result = top;
+        } else if (selector.equals("@top")) {
+            EnterableState top = null;
+            Set<EnterableState> states = executor.getStatus().getStates();
+            for (EnterableState state : states) {
+                if (top == null || top.isDescendantOf(state)) {
+                    top = state;
+                }
+            }
+            while (top.getParent() != null) {
+                top = top.getParent();
+            }
+            result = top;
+        } else {
+            SCXML stateMachine = executor.getStateMachine();
+            TransitionTarget tt = stateMachine.getTargets().get(selector);
+            if (tt instanceof EnterableState) {
+                result = tt;
+            }
+        }
 
         return result;
 
     }
-    
-    
+
 }

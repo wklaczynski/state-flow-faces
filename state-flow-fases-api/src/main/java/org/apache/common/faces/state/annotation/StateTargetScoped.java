@@ -39,10 +39,10 @@ public @interface StateTargetScoped {
      *
      * @return transition id or:
      * "@top" - when bean assigned to top composite transition or top parallel transition for all atomic transitions.
-     * "@atomoic" - when bean assigned to last atomic transition or top parallel transition for all atomic transitions.
+     * "@all" - when bean assigned to last atomic transition or top parallel transition for all transitions.
      * "@composite" - when bean assigned to last composite trnsition or top parallel transition.
      */
-    String value() default "@composite";
+    String value() default "@all";
 
     
 }
