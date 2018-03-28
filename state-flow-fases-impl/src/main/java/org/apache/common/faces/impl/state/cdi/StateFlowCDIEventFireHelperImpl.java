@@ -22,6 +22,8 @@ import javax.inject.Inject;
 import org.apache.common.faces.state.annotation.StateChartScoped;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.annotation.StateDialogScoped;
+import org.apache.common.faces.state.annotation.StateTargetScoped;
+import org.apache.common.scxml.model.TransitionTarget;
 
 public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHelper {
 
@@ -38,6 +40,20 @@ public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHel
     @Inject
     @Destroyed(StateDialogScoped.class)
     Event<SCXMLExecutor> stateDialogScopeDestroyedEvent;
+
+    @Inject
+    @Initialized(StateTargetScoped.class)
+    Event<TransitionTarget> stateTargetScopeInitializedEvent;
+    @Inject
+    @Destroyed(StateTargetScoped.class)
+    Event<TransitionTarget> stateTargetScopeDestroyedEvent;
+
+    @Inject
+    @Initialized(StateTargetScoped.class)
+    Event<SCXMLExecutor> stateTargetScopeExecutorInitializedEvent;
+    @Inject
+    @Destroyed(StateTargetScoped.class)
+    Event<SCXMLExecutor> stateTargetScopeExecutorDestroyedEvent;
     
     @Override
     public void fireExecutorInitializedEvent(SCXMLExecutor executor) {
@@ -57,6 +73,26 @@ public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHel
     @Override
     public void fireRootExecutorDestroyedEvent(SCXMLExecutor executor) {
         stateDialogScopeDestroyedEvent.fire(executor);
+    }
+
+    @Override
+    public void fireTargetInitializedEvent(TransitionTarget target) {
+        stateTargetScopeInitializedEvent.fire(target);
+    }
+
+    @Override
+    public void fireTargetDestroyedEvent(TransitionTarget target) {
+        stateTargetScopeDestroyedEvent.fire(target);
+    }
+
+    @Override
+    public void fireTargetExecutorInitializedEvent(SCXMLExecutor executor) {
+        stateTargetScopeExecutorInitializedEvent.fire(executor);
+    }
+
+    @Override
+    public void fireTargetExecutorDestroyedEvent(SCXMLExecutor executor) {
+        stateTargetScopeExecutorDestroyedEvent.fire(executor);
     }
 
 }

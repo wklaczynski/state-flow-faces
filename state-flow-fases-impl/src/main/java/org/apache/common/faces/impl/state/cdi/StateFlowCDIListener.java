@@ -45,6 +45,8 @@ public class StateFlowCDIListener implements SCXMLListener, Serializable {
     public void onEntry(EnterableState tt) {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (CdiUtil.isCdiAvailable(fc)) {
+            StateFlowCDIHelper.stateEntered(executor, tt);
+            
             BeanManager bm = CdiUtil.getCdiBeanManager(fc);
             bm.fireEvent(new OnEntryEvent(executor, tt));
             
@@ -71,6 +73,8 @@ public class StateFlowCDIListener implements SCXMLListener, Serializable {
     public void onExit(EnterableState tt) {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (CdiUtil.isCdiAvailable(fc)) {
+            StateFlowCDIHelper.stateExited(executor, tt);
+            
             BeanManager bm = CdiUtil.getCdiBeanManager(fc);
             bm.fireEvent(new OnExitEvent(executor, tt));
             

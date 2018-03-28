@@ -16,6 +16,7 @@
 package org.apache.common.faces.impl.state.cdi;
 
 import org.apache.common.scxml.SCXMLExecutor;
+import org.apache.common.scxml.model.TransitionTarget;
 
 /**
  *
@@ -31,5 +32,12 @@ public interface StateFlowCDIEventFireHelper {
 
     void fireRootExecutorDestroyedEvent(SCXMLExecutor executor);
     
+    void fireTargetInitializedEvent(TransitionTarget target);
+
+    void fireTargetDestroyedEvent(TransitionTarget target);
+
+    void fireTargetExecutorInitializedEvent(SCXMLExecutor executor);
+
+    void fireTargetExecutorDestroyedEvent(SCXMLExecutor executor);
     
 }

@@ -18,9 +18,6 @@ package org.apache.common.faces.impl.state.cdi;
 import com.sun.faces.util.Util;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +30,6 @@ import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.PassivationCapable;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
@@ -42,7 +38,6 @@ import org.apache.common.faces.impl.state.log.FlowLogger;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.annotation.StateChartScoped;
 import org.apache.common.scxml.SCXMLExecutor;
-import org.apache.common.scxml.SCXMLSystemContext;
 
 /**
  *
@@ -50,11 +45,9 @@ import org.apache.common.scxml.SCXMLSystemContext;
  */
 public class StateChartCDIContext implements Context, Serializable {
 
+    private static final String FLOW_SCOPE_KEY = "chartscope";
     private static final String FLOW_SCOPE_MAP_KEY = StateFlowConstants.STATE_FLOW_PREFIX + "STATE_CHART_SCOPE_MAP";
     private static final Logger LOGGER = FlowLogger.FLOW.getLogger();
-
-    private static final String PER_SESSION_BEAN_MAP_LIST = StateChartCDIContext.class.getPackage().getName() + ".statechart.PER_SESSION_BEAN_MAP_LIST";
-    private static final String PER_SESSION_CREATIONAL_LIST = StateChartCDIContext.class.getPackage().getName() + ".statechart.PER_SESSION_CREATIONAL_LIST";
 
     @Override
     public Class<? extends Annotation> getScope() {
@@ -68,13 +61,13 @@ public class StateChartCDIContext implements Context, Serializable {
         
         FacesContext facesContext = FacesContext.getCurrentInstance();
         SCXMLExecutor executor = getExecutor(facesContext);
-        StateChartScopeMapHelper mapHelper = new StateChartScopeMapHelper(facesContext, executor);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
         
         T result = get(mapHelper, contextual);
         
         if (null == result) {
-            Map<String, Object> flowScopedBeanMap = mapHelper.getFlowScopedBeanMapForCurrentExecutor();
-            Map<String, CreationalContext<?>> creationalMap = mapHelper.getFlowScopedCreationalMapForCurrentExecutor();
+            Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
+            Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
             
             String passivationCapableId = ((PassivationCapable)contextual).getId();
 
@@ -113,8 +106,8 @@ public class StateChartCDIContext implements Context, Serializable {
             throw new IllegalArgumentException("FlowScoped StateChartScoped " + contextual.toString() + " must be PassivationCapable, but is not.");
         }
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        SCXMLExecutor current = getExecutor(facesContext);
-        StateChartScopeMapHelper mapHelper = new StateChartScopeMapHelper(facesContext, current);
+        SCXMLExecutor executor = getExecutor(facesContext);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
 
         T result = get(mapHelper, contextual);
         mapHelper = null;
@@ -122,13 +115,13 @@ public class StateChartCDIContext implements Context, Serializable {
         return result;
     }
     
-    private <T> T get(StateChartScopeMapHelper mapHelper, Contextual<T> contextual) {
+    private <T> T get(StateScopeMapHelper mapHelper, Contextual<T> contextual) {
         assertNotReleased();
         if (!(contextual instanceof PassivationCapable)) {
             throw new IllegalArgumentException("StateChartScoped bean " + contextual.toString() + " must be PassivationCapable, but is not.");
         }
         String passivationCapableId = ((PassivationCapable)contextual).getId();
-        return (T) mapHelper.getFlowScopedBeanMapForCurrentExecutor().get(passivationCapableId);
+        return (T) mapHelper.getScopedBeanMapForCurrentExecutor().get(passivationCapableId);
     }
     
 
@@ -137,149 +130,18 @@ public class StateChartCDIContext implements Context, Serializable {
         return null != getExecutor();
     }
 
-    private static class StateChartScopeMapHelper {
-
-        private transient String flowBeansForClientWindowKey;
-        private transient String creationalForClientWindowKey;
-        private transient final Map<String, Object> sessionMap;
-
-        private StateChartScopeMapHelper(FacesContext facesContext, SCXMLExecutor executor) {
-            ExternalContext extContext = facesContext.getExternalContext();
-            this.sessionMap = extContext.getSessionMap();
-
-            generateKeyForCDIBeansBelongToAExecutor(facesContext, executor);
-        }
-
-        private void generateKeyForCDIBeansBelongToAExecutor(FacesContext facesContext, SCXMLExecutor executor) {
-            if (null != executor) {
-
-                String currentSessionId = (String) executor.getSCInstance().getSystemContext().get(SCXMLSystemContext.SESSIONID_KEY);
-
-                String prefix = "StateChart";
-                
-                flowBeansForClientWindowKey = prefix + ":" + currentSessionId + "_beans";
-                creationalForClientWindowKey = prefix + ":" + currentSessionId + "_creational";
-
-            } else {
-                flowBeansForClientWindowKey = creationalForClientWindowKey = null;
-            }
-        }
-
-        private void createMaps() {
-            getFlowScopedBeanMapForCurrentExecutor();
-            getFlowScopedCreationalMapForCurrentExecutor();
-        }
-
-        private boolean isFlowExists() {
-            return (null != flowBeansForClientWindowKey && null != creationalForClientWindowKey);
-        }
-
-        public String getCreationalForClientWindowKey() {
-            return creationalForClientWindowKey;
-        }
-
-        public String getFlowBeansForClientWindowKey() {
-            return flowBeansForClientWindowKey;
-        }
-
-        private Map<String, Object> getFlowScopedBeanMapForCurrentExecutor() {
-            if (null == flowBeansForClientWindowKey && null == creationalForClientWindowKey) {
-                return Collections.emptyMap();
-            }
-            Map<String, Object> result;
-            result = (Map<String, Object>) sessionMap.get(flowBeansForClientWindowKey);
-            if (null == result) {
-                result = new ConcurrentHashMap<>();
-                sessionMap.put(flowBeansForClientWindowKey, result);
-                ensureBeanMapCleanupOnSessionDestroyed(sessionMap, flowBeansForClientWindowKey);
-            }
-            return result;
-        }
-
-        private Map<String, CreationalContext<?>> getFlowScopedCreationalMapForCurrentExecutor() {
-            if (null == flowBeansForClientWindowKey && null == creationalForClientWindowKey) {
-                return Collections.emptyMap();
-            }
-            Map<String, CreationalContext<?>> result;
-            result = (Map<String, CreationalContext<?>>) sessionMap.get(creationalForClientWindowKey);
-            if (null == result) {
-                result = new ConcurrentHashMap<>();
-                sessionMap.put(creationalForClientWindowKey, result);
-                ensureCreationalCleanupOnSessionDestroyed(sessionMap, creationalForClientWindowKey);
-            }
-            return result;
-        }
-
-        private void updateSession() {
-            if (null == flowBeansForClientWindowKey && null == creationalForClientWindowKey) {
-                return;
-            }
-            sessionMap.put(flowBeansForClientWindowKey, getFlowScopedBeanMapForCurrentExecutor());
-            sessionMap.put(creationalForClientWindowKey, getFlowScopedCreationalMapForCurrentExecutor());
-            Object obj = sessionMap.get(PER_SESSION_BEAN_MAP_LIST);
-            if (null != obj) {
-                sessionMap.put(PER_SESSION_BEAN_MAP_LIST, obj);
-            }
-            obj = sessionMap.get(PER_SESSION_CREATIONAL_LIST);
-            if (null != obj) {
-                sessionMap.put(PER_SESSION_CREATIONAL_LIST, obj);
-            }
-        }
-    }
-
-    
-    private static void ensureBeanMapCleanupOnSessionDestroyed(Map<String, Object> sessionMap, String flowBeansForClientWindow) {
-        List<String> beanMapList = (List<String>) sessionMap.get(PER_SESSION_BEAN_MAP_LIST);
-        if (null == beanMapList) {
-            beanMapList = new ArrayList<>();
-            sessionMap.put(PER_SESSION_BEAN_MAP_LIST, beanMapList);
-        }
-        beanMapList.add(flowBeansForClientWindow);
-    }
-
-    private static void ensureCreationalCleanupOnSessionDestroyed(Map<String, Object> sessionMap, String creationalForClientWindow) {
-        List<String> beanMapList = (List<String>) sessionMap.get(PER_SESSION_CREATIONAL_LIST);
-        if (null == beanMapList) {
-            beanMapList = new ArrayList<>();
-            sessionMap.put(PER_SESSION_CREATIONAL_LIST, beanMapList);
-        }
-        beanMapList.add(creationalForClientWindow);
-    }
 
     public static void sessionDestroyed(HttpSessionEvent hse) {
         HttpSession session = hse.getSession();
-        
-        List<String> beanMapList = (List<String>) session.getAttribute(PER_SESSION_BEAN_MAP_LIST);
-        if (null != beanMapList) {
-            for (String cur : beanMapList) {
-                Map<Contextual<?>, Object> beanMap = 
-                        (Map<Contextual<?>, Object>) session.getAttribute(cur);
-                beanMap.clear();
-                session.removeAttribute(cur);
-            }
-            session.removeAttribute(PER_SESSION_BEAN_MAP_LIST);
-            beanMapList.clear();
-        }
-        
-        List<String> creationalList = (List<String>) session.getAttribute(PER_SESSION_CREATIONAL_LIST);
-        if (null != creationalList) {
-            for (String cur : creationalList) {
-                Map<Contextual<?>, CreationalContext<?>> beanMap = 
-                        (Map<Contextual<?>, CreationalContext<?>>) session.getAttribute(cur);
-                beanMap.clear();
-                session.removeAttribute(cur);
-            }
-            session.removeAttribute(PER_SESSION_CREATIONAL_LIST);
-            creationalList.clear();
-        }
-        
-        
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(FLOW_SCOPE_KEY);
+        mapHelper.sessionDestroyed(session);
     }
     
-    private static Map<Object, Object> getCurrentFlowScopeAndUpdateSession(StateChartScopeMapHelper mapHelper) {
-        Map<String, Object> flowScopedBeanMap = mapHelper.getFlowScopedBeanMapForCurrentExecutor();
+    
+    private static Map<Object, Object> getCurrentFlowScopeAndUpdateSession(StateScopeMapHelper mapHelper) {
+        Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
         Map<Object, Object> result = null;
-        if (mapHelper.isFlowExists()) {
+        if (mapHelper.isExecutorExists()) {
             result = (Map<Object, Object>) flowScopedBeanMap.get(FLOW_SCOPE_MAP_KEY);
             if (null == result) {
                 result = new ConcurrentHashMap<>();
@@ -290,13 +152,11 @@ public class StateChartCDIContext implements Context, Serializable {
         return result; 
     }
     
-    
-    
     static void executorExited(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateChartScopeMapHelper mapHelper = new StateChartScopeMapHelper(facesContext, executor);
-        Map<String, Object> flowScopedBeanMap = mapHelper.getFlowScopedBeanMapForCurrentExecutor();
-        Map<String, CreationalContext<?>> creationalMap = mapHelper.getFlowScopedCreationalMapForCurrentExecutor();
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
+        Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
+        Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
         assert(!flowScopedBeanMap.isEmpty());
         assert(!creationalMap.isEmpty());
         BeanManager beanManager = (BeanManager) Util.getCdiBeanManager(facesContext);
@@ -345,13 +205,11 @@ public class StateChartCDIContext implements Context, Serializable {
     
     static void executorEntered(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateChartScopeMapHelper mapHelper = new StateChartScopeMapHelper(facesContext, executor);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
 
         mapHelper.createMaps();
         
         getCurrentFlowScopeAndUpdateSession(mapHelper);
-        
-        
         
         if (CdiUtil.isCdiOneOneOrLater(facesContext)) {
             Class flowCDIEventFireHelperImplClass = null;
