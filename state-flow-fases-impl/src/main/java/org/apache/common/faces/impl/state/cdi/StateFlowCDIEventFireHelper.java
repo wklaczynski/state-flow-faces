@@ -27,4 +27,9 @@ public interface StateFlowCDIEventFireHelper {
 
     void fireExecutorDestroyedEvent(SCXMLExecutor executor);
 
+    void fireRootExecutorInitializedEvent(SCXMLExecutor executor);
+
+    void fireRootExecutorDestroyedEvent(SCXMLExecutor executor);
+    
+    
 }

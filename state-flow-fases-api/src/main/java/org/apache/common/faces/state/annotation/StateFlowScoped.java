@@ -13,28 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.common.faces.impl.state.cdi;
+package org.apache.common.faces.state.annotation;
 
-import org.apache.common.scxml.SCXMLExecutor;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.enterprise.context.NormalScope;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class StateFlowCDIHelper {
-
-    public static void executorEntered(SCXMLExecutor executor) {
-        StateChartCDIContext.executorEntered(executor);
-        if (executor.getParentSCXMLIOProcessor() == null) {
-            StateFlowCDIContext.executorEntered(executor);
-        }
-    }
-
-    public static void executorExited(SCXMLExecutor executor) {
-        StateChartCDIContext.executorExited(executor);
-        if (executor.getParentSCXMLIOProcessor() == null) {
-            StateFlowCDIContext.executorExited(executor);
-        }
-    }
-
+@NormalScope
+@Inherited
+@Documented
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
+@Retention(value = RetentionPolicy.RUNTIME)
+public @interface StateFlowScoped {
 }
