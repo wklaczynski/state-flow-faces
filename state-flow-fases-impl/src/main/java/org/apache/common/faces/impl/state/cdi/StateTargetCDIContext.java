@@ -113,14 +113,14 @@ public class StateTargetCDIContext implements Context, Serializable {
         T result = get(mapHelper, contextual, executor, state);
 
         if (null == result && creational != null) {
-            Map<String, Object> targetScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
+            Map<String, Object> scopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
             Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
 
             String passivationCapableId = ((PassivationCapable) contextual).getId();
             String beanId = state.getId() + ":" + passivationCapableId;
 
-            synchronized (targetScopedBeanMap) {
-                result = (T) targetScopedBeanMap.get(beanId);
+            synchronized (scopedBeanMap) {
+                result = (T) scopedBeanMap.get(beanId);
                 if (null == result) {
 
                     if (null == executor) {
@@ -138,7 +138,7 @@ public class StateTargetCDIContext implements Context, Serializable {
                     result = contextual.create(creational);
 
                     if (null != result) {
-                        targetScopedBeanMap.put(beanId, result);
+                        scopedBeanMap.put(beanId, result);
                         creationalMap.put(beanId, creational);
                         mapHelper.updateSession();
                     }
