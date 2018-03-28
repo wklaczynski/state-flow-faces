@@ -20,8 +20,8 @@ import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import org.apache.common.faces.state.annotation.StateChartScoped;
-import org.apache.common.faces.state.annotation.StateFlowScoped;
 import org.apache.common.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.annotation.StateDialogScoped;
 
 public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHelper {
 
@@ -33,11 +33,11 @@ public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHel
     Event<SCXMLExecutor> stateChartScopeDestroyedEvent;
 
     @Inject
-    @Initialized(StateFlowScoped.class)
-    Event<SCXMLExecutor> stateFlowScopeInitializedEvent;
+    @Initialized(StateDialogScoped.class)
+    Event<SCXMLExecutor> stateDialogScopeInitializedEvent;
     @Inject
-    @Destroyed(StateFlowScoped.class)
-    Event<SCXMLExecutor> stateFlowScopeDestroyedEvent;
+    @Destroyed(StateDialogScoped.class)
+    Event<SCXMLExecutor> stateDialogScopeDestroyedEvent;
     
     @Override
     public void fireExecutorInitializedEvent(SCXMLExecutor executor) {
@@ -51,12 +51,12 @@ public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHel
     
     @Override
     public void fireRootExecutorInitializedEvent(SCXMLExecutor executor) {
-        stateFlowScopeInitializedEvent.fire(executor);
+        stateDialogScopeInitializedEvent.fire(executor);
     }
 
     @Override
     public void fireRootExecutorDestroyedEvent(SCXMLExecutor executor) {
-        stateFlowScopeDestroyedEvent.fire(executor);
+        stateDialogScopeDestroyedEvent.fire(executor);
     }
 
 }

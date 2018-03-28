@@ -32,10 +32,14 @@ import org.apache.common.scxml.SCXMLExecutor;
  */
 public class StateFlowScopesELResolver extends ELResolver {
 
-    public static final String DIALOG_SCOPE = "scxmlScope";
-    public static final String DIALOG_VARIABLE_NAME = "scxml";
+    public static final String CHART_SCOPE = "scxmlScope";
+    public static final String CHART_VARIABLE_NAME = "scxml";
+    
+    public static final String DIALOG_SCOPE = "dialogScope";
+    public static final String DIALOG_VARIABLE_NAME = "dialog";
+    
     public static final String STATE_VARIABLE_NAME = "state";
-    public static final String DIALOG_PARAM_MAP = "org.scxml.attr";
+    public static final String CHART_PARAM_MAP = "org.scxml.attr";
 
     @Override
     public Object getValue(ELContext context, Object base, Object property) throws NullPointerException, PropertyNotFoundException, ELException {
@@ -47,6 +51,10 @@ public class StateFlowScopesELResolver extends ELResolver {
         if (null == base) {
             if (null != property.toString()) {
                 switch (property.toString()) {
+                    case CHART_VARIABLE_NAME:
+                        context.setPropertyResolved(true);
+                        result = getChartParams(context);
+                        break;
                     case DIALOG_VARIABLE_NAME:
                         context.setPropertyResolved(true);
                         result = getDialogParams(context);
@@ -54,6 +62,10 @@ public class StateFlowScopesELResolver extends ELResolver {
                     case STATE_VARIABLE_NAME:
                         context.setPropertyResolved(true);
                         result = getStateParams(context);
+                        break;
+                    case CHART_SCOPE:
+                        context.setPropertyResolved(true);
+                        result = getChartScope(context);
                         break;
                     case DIALOG_SCOPE:
                         context.setPropertyResolved(true);
@@ -66,20 +78,22 @@ public class StateFlowScopesELResolver extends ELResolver {
         } else if (base instanceof DialogParams) {
             DialogParams scope = (DialogParams) base;
             result = scope.get(property.toString());
-            if (result == null) {
-                //notf("chart", property);
-            }
+            context.setPropertyResolved(true);
+        } else if (base instanceof ChartParams) {
+            ChartParams scope = (ChartParams) base;
+            result = scope.get(property.toString());
             context.setPropertyResolved(true);
         } else if (base instanceof StateParams) {
             StateParams scope = (StateParams) base;
             result = scope.get(property.toString());
-            if (result == null) {
-                //notf("state", property);
-            }
             context.setPropertyResolved(true);
         } else if (base instanceof DialogScope) {
             context.setPropertyResolved(true);
             DialogScope scope = (DialogScope) base;
+            result = scope.get(property.toString());
+        } else if (base instanceof ChartScope) {
+            context.setPropertyResolved(true);
+            ChartScope scope = (ChartScope) base;
             result = scope.get(property.toString());
         }
         return result;
@@ -95,6 +109,9 @@ public class StateFlowScopesELResolver extends ELResolver {
         if (null == base) {
             if (null != property.toString()) {
                 switch (property.toString()) {
+                    case CHART_VARIABLE_NAME:
+                        result = ChartParams.class;
+                        break;
                     case DIALOG_VARIABLE_NAME:
                         result = DialogParams.class;
                         break;
@@ -103,6 +120,9 @@ public class StateFlowScopesELResolver extends ELResolver {
                         break;
                     case DIALOG_SCOPE:
                         result = DialogScope.class;
+                        break;
+                    case CHART_SCOPE:
+                        result = ChartScope.class;
                         break;
                     default:
                         break;
@@ -115,8 +135,22 @@ public class StateFlowScopesELResolver extends ELResolver {
             if (value != null) {
                 result = value.getClass();
             }
+        } else if (base instanceof ChartParams) {
+            ChartParams scope = (ChartParams) base;
+            Object value = scope.get(property.toString());
+            context.setPropertyResolved(true);
+            if (value != null) {
+                result = value.getClass();
+            }
         } else if (base instanceof StateParams) {
             StateParams scope = (StateParams) base;
+            context.setPropertyResolved(true);
+            Object value = scope.get(property.toString());
+            if (value != null) {
+                result = value.getClass();
+            }
+        } else if (base instanceof ChartScope) {
+            ChartScope scope = (ChartScope) base;
             context.setPropertyResolved(true);
             Object value = scope.get(property.toString());
             if (value != null) {
@@ -143,9 +177,17 @@ public class StateFlowScopesELResolver extends ELResolver {
             context.setPropertyResolved(true);
             DialogScope scope = (DialogScope) base;
             scope.put(property.toString(), value);
+        } else if (base instanceof ChartScope) {
+            context.setPropertyResolved(true);
+            ChartScope scope = (ChartScope) base;
+            scope.put(property.toString(), value);
         } else if (base instanceof DialogParams) {
             context.setPropertyResolved(true);
             DialogParams scope = (DialogParams) base;
+            scope.set(property.toString(), value);
+        } else if (base instanceof ChartParams) {
+            context.setPropertyResolved(true);
+            ChartParams scope = (ChartParams) base;
             scope.set(property.toString(), value);
         } else if (base instanceof StateParams) {
             context.setPropertyResolved(true);
@@ -162,15 +204,33 @@ public class StateFlowScopesELResolver extends ELResolver {
             throw new PropertyNotFoundException(message);
         }
         if (null == base) {
-            if (property.toString().equals(DIALOG_SCOPE)) {
-                context.setPropertyResolved(true);
-                result = true;
-            } else if (STATE_VARIABLE_NAME.equals(property.toString())) {
-                result = true;
+            switch (property.toString()) {
+                case CHART_SCOPE:
+                    context.setPropertyResolved(true);
+                    result = true;
+                    break;
+                case DIALOG_SCOPE:
+                    context.setPropertyResolved(true);
+                    result = true;
+                    break;
+                case STATE_VARIABLE_NAME:
+                    context.setPropertyResolved(true);
+                    result = true;
+                    break;
+                case DIALOG_VARIABLE_NAME:
+                    context.setPropertyResolved(true);
+                    result = true;
+                    break;
+                default:
+                    break;
             }
         } else if (base instanceof DialogScope) {
             result = false;
+        } else if (base instanceof ChartScope) {
+            result = false;
         } else if (base instanceof DialogParams) {
+            result = false;
+        } else if (base instanceof ChartParams) {
             result = false;
         } else if (base instanceof StateParams) {
             result = false;
@@ -195,6 +255,21 @@ public class StateFlowScopesELResolver extends ELResolver {
                 desc.setValue(ELResolver.RESOLVABLE_AT_DESIGN_TIME, true);
                 result.add(desc);
             }
+        } else if (base instanceof ChartScope) {
+            context.setPropertyResolved(true);
+            ChartScope scope = (ChartScope) base;
+            Map<String, Object> params = scope;
+            for (Map.Entry<String, Object> param : params.entrySet()) {
+                FeatureDescriptor desc = new FeatureDescriptor();
+                desc.setName(param.getKey());
+                desc.setDisplayName("Chart Scope Object");
+                desc.setValue(ELResolver.TYPE, param.getValue().getClass());
+                desc.setValue(ELResolver.RESOLVABLE_AT_DESIGN_TIME, true);
+                result.add(desc);
+            }
+        } else if (base instanceof ChartParams) {
+            context.setPropertyResolved(true);
+            ChartParams scope = (ChartParams) base;
         } else if (base instanceof DialogParams) {
             context.setPropertyResolved(true);
             DialogParams scope = (DialogParams) base;
@@ -213,7 +288,7 @@ public class StateFlowScopesELResolver extends ELResolver {
     public Class<?> getCommonPropertyType(ELContext context, Object base) {
         if (null == base) {
             return null;
-        } else if (base instanceof DialogScope) {
+        } else if (base instanceof ChartScope) {
             return String.class;
         }
         return null;
@@ -223,22 +298,46 @@ public class StateFlowScopesELResolver extends ELResolver {
         DialogScope attrScope = null;
         SCXMLExecutor executor = (SCXMLExecutor) context.getContext(SCXMLExecutor.class);
         if (executor != null) {
-            Context ctx = executor.getGlobalContext();
-            attrScope = (DialogScope) ctx.get(DIALOG_PARAM_MAP);
+            Context ctx = executor.getRootContext();
+            attrScope = (DialogScope) ctx.get(CHART_PARAM_MAP);
             if (attrScope == null) {
                 attrScope = new DialogScope();
-                ctx.set(DIALOG_PARAM_MAP, attrScope);
+                ctx.set(CHART_PARAM_MAP, attrScope);
                 attrScope.onCreate();
             }
         }
         return attrScope;
     }
 
+    private ChartScope getChartScope(ELContext context) {
+        ChartScope attrScope = null;
+        SCXMLExecutor executor = (SCXMLExecutor) context.getContext(SCXMLExecutor.class);
+        if (executor != null) {
+            Context ctx = executor.getGlobalContext();
+            attrScope = (ChartScope) ctx.get(CHART_PARAM_MAP);
+            if (attrScope == null) {
+                attrScope = new ChartScope();
+                ctx.set(CHART_PARAM_MAP, attrScope);
+                attrScope.onCreate();
+            }
+        }
+        return attrScope;
+    }
+    
     private DialogParams getDialogParams(ELContext context) {
         DialogParams attrScope = null;
         SCXMLExecutor executor = (SCXMLExecutor) context.getContext(SCXMLExecutor.class);
         if (executor != null) {
             attrScope = new DialogParams(executor);
+        }
+        return attrScope;
+    }
+
+    private ChartParams getChartParams(ELContext context) {
+        ChartParams attrScope = null;
+        SCXMLExecutor executor = (SCXMLExecutor) context.getContext(SCXMLExecutor.class);
+        if (executor != null) {
+            attrScope = new ChartParams(executor);
         }
         return attrScope;
     }
@@ -263,17 +362,66 @@ public class StateFlowScopesELResolver extends ELResolver {
 
         public void onCreate() {
             FacesContext ctx = FacesContext.getCurrentInstance();
-            ScopeContext context = new ScopeContext(DIALOG_SCOPE, this);
+            ScopeContext context = new ScopeContext(CHART_SCOPE, this);
             ctx.getApplication().publishEvent(ctx, PostConstructCustomScopeEvent.class, context);
         }
     }
 
+    public class ChartScope extends ConcurrentHashMap<String, Object> implements Serializable {
+
+        public ChartScope() {
+            super();
+        }
+
+        public void onCreate() {
+            FacesContext ctx = FacesContext.getCurrentInstance();
+            ScopeContext context = new ScopeContext(CHART_SCOPE, this);
+            ctx.getApplication().publishEvent(ctx, PostConstructCustomScopeEvent.class, context);
+        }
+    }
+    
     private static class DialogParams extends AbstractMap<String, Object> implements Serializable {
 
         private final Context ctx;
         private final SCXMLExecutor executor;
 
         public DialogParams(SCXMLExecutor executor) {
+            this.executor = executor;
+            this.ctx = executor.getRootContext();
+        }
+
+        public Context getCtx() {
+            return ctx;
+        }
+
+        public SCXMLExecutor getExecutor() {
+            return executor;
+        }
+
+        public Object get(String name) {
+            return ctx.get(name);
+        }
+
+        public void set(String name, Object value) {
+            ctx.setLocal(name, value);
+        }
+
+        public boolean has(String name) {
+            return ctx.has(name);
+        }
+
+        @Override
+        public Set<Map.Entry<String, Object>> entrySet() {
+            return ctx.getVars().entrySet();
+        }
+    }
+    
+    private static class ChartParams extends AbstractMap<String, Object> implements Serializable {
+
+        private final Context ctx;
+        private final SCXMLExecutor executor;
+
+        public ChartParams(SCXMLExecutor executor) {
             this.executor = executor;
             this.ctx = executor.getGlobalContext();
         }

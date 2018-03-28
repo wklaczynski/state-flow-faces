@@ -26,14 +26,14 @@ public class StateFlowCDIHelper {
     public static void executorEntered(SCXMLExecutor executor) {
         StateChartCDIContext.executorEntered(executor);
         if (executor.getParentSCXMLIOProcessor() == null) {
-            StateFlowCDIContext.executorEntered(executor);
+            StateDialogCDIContext.executorEntered(executor);
         }
     }
 
     public static void executorExited(SCXMLExecutor executor) {
         StateChartCDIContext.executorExited(executor);
         if (executor.getParentSCXMLIOProcessor() == null) {
-            StateFlowCDIContext.executorExited(executor);
+            StateDialogCDIContext.executorExited(executor);
         }
     }
 

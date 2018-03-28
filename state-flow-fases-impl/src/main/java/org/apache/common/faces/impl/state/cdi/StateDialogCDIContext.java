@@ -48,13 +48,13 @@ import org.apache.common.scxml.SCXMLSystemContext;
  *
  * @author Waldemar Kłaczyński
  */
-public class StateFlowCDIContext implements Context, Serializable {
+public class StateDialogCDIContext implements Context, Serializable {
 
     private static final String FLOW_SCOPE_MAP_KEY = StateFlowConstants.STATE_FLOW_PREFIX + "STATE_FLOW_SCOPE_MAP";
     private static final Logger LOGGER = FlowLogger.FLOW.getLogger();
 
-    private static final String PER_SESSION_BEAN_MAP_LIST = StateFlowCDIContext.class.getPackage().getName() + ".statechart.PER_SESSION_BEAN_MAP_LIST";
-    private static final String PER_SESSION_CREATIONAL_LIST = StateFlowCDIContext.class.getPackage().getName() + ".statechart.PER_SESSION_CREATIONAL_LIST";
+    private static final String PER_SESSION_BEAN_MAP_LIST = StateDialogCDIContext.class.getPackage().getName() + ".statechart.PER_SESSION_BEAN_MAP_LIST";
+    private static final String PER_SESSION_CREATIONAL_LIST = StateDialogCDIContext.class.getPackage().getName() + ".statechart.PER_SESSION_CREATIONAL_LIST";
 
     @Override
     public Class<? extends Annotation> getScope() {

@@ -26,7 +26,7 @@ import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessBean;
 import org.apache.common.faces.state.annotation.StateChartScoped;
 import org.apache.common.faces.impl.state.log.FlowLogger;
-import org.apache.common.faces.state.annotation.StateFlowScoped;
+import org.apache.common.faces.state.annotation.StateDialogScoped;
 
 /**
  *
@@ -44,7 +44,7 @@ public class StateFlowCDIExtension implements Extension {
 
     public void beforeBean(@Observes final BeforeBeanDiscovery event, BeanManager beanManager) {
         event.addScope(StateChartScoped.class, true, true);
-        event.addScope(StateFlowScoped.class, true, true);
+        event.addScope(StateDialogScoped.class, true, true);
     }
 
     public void processBean(@Observes ProcessBean<?> event) {
@@ -53,9 +53,9 @@ public class StateFlowCDIExtension implements Extension {
             log.log(Level.FINE, "Processing occurrence of @StateChartScoped");
         }
 
-        StateFlowScoped flowScoped = event.getAnnotated().getAnnotation(StateFlowScoped.class);
+        StateDialogScoped flowScoped = event.getAnnotated().getAnnotation(StateDialogScoped.class);
         if (flowScoped != null && log.isLoggable(Level.FINE)) {
-            log.log(Level.FINE, "Processing occurrence of @StateFlowScoped");
+            log.log(Level.FINE, "Processing occurrence of @StateDialogScoped");
         }
 
     }
