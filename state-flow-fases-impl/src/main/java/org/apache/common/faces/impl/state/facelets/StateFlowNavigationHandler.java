@@ -71,7 +71,7 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
                         TriggerEvent.CALL_EVENT);
 
                 eb.sendId(context.getViewRoot().getViewId());
-                
+
                 SCXMLExecutor root = handler.getRootExecutor(context);
                 try {
                     TriggerEvent ev = eb.build();
@@ -79,6 +79,11 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
                 }
+
+                if (context.getResponseComplete()) {
+                    handler.writeState(context);
+                }
+
             }
         } else {
             wrappedNavigationHandler.handleNavigation(context, fromAction, outcome);
