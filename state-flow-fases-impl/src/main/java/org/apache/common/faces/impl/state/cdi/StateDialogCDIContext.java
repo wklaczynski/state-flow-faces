@@ -130,8 +130,7 @@ public class StateDialogCDIContext implements Context, Serializable {
 
     public static void sessionDestroyed(HttpSessionEvent hse) {
         HttpSession session = hse.getSession();
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(DIALOG_SCOPE_KEY);
-        mapHelper.sessionDestroyed(session);
+        StateScopeMapHelper.sessionDestroyed(session);
     }
 
     private static Map<Object, Object> getCurrentFlowScopeAndUpdateSession(StateScopeMapHelper mapHelper) {

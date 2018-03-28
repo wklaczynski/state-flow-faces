@@ -133,8 +133,7 @@ public class StateChartCDIContext implements Context, Serializable {
 
     public static void sessionDestroyed(HttpSessionEvent hse) {
         HttpSession session = hse.getSession();
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(CHART_SCOPE_KEY);
-        mapHelper.sessionDestroyed(session);
+        StateScopeMapHelper.sessionDestroyed(session);
     }
     
     

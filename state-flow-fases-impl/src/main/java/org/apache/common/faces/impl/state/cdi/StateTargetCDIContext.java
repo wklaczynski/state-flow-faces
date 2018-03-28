@@ -179,8 +179,7 @@ public class StateTargetCDIContext implements Context, Serializable {
 
     public static void sessionDestroyed(HttpSessionEvent hse) {
         HttpSession session = hse.getSession();
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(TARGET_SCOPE_KEY);
-        mapHelper.sessionDestroyed(session);
+        StateScopeMapHelper.sessionDestroyed(session);
     }
     
     

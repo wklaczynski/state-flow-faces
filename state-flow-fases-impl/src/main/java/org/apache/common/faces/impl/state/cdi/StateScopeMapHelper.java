@@ -25,7 +25,6 @@ import javax.enterprise.context.spi.CreationalContext;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
-import static org.apache.common.faces.impl.state.StateFlowConstants.STATE_FLOW_PREFIX;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.SCXMLSystemContext;
 
@@ -35,8 +34,8 @@ import org.apache.common.scxml.SCXMLSystemContext;
  */
 public class StateScopeMapHelper {
 
-    private transient String sessionBeanMapListKey;
-    private transient String sessionCreationalMapListKey;
+    private static final String PER_SESSION_BEAN_MAP_LIST = StateScopeMapHelper.class.getPackage().getName() + ".PER_SESSION_BEAN_MAP_LIST";
+    private static final String PER_SESSION_CREATIONAL_LIST = StateScopeMapHelper.class.getPackage().getName() + ".PER_SESSION_CREATIONAL_LIST";
     
     private transient String beansForExecutorKey;
     private transient String creationalForExecutorKey;
@@ -53,8 +52,6 @@ public class StateScopeMapHelper {
 
     public StateScopeMapHelper(String prefix) {
         this.prefix = prefix;
-        sessionBeanMapListKey = STATE_FLOW_PREFIX + "." + prefix + ".PER_SESSION_BEAN_MAP_LIST";
-        sessionCreationalMapListKey = STATE_FLOW_PREFIX + "." + prefix + ".PER_SESSION_CREATIONAL_LIST";
     }
     
     private void generateKeyForCDIBeansBelongToAExecutor(FacesContext facesContext, SCXMLExecutor executor) {
@@ -122,36 +119,36 @@ public class StateScopeMapHelper {
 
         sessionMap.put(beansForExecutorKey, getScopedBeanMapForCurrentExecutor());
         sessionMap.put(creationalForExecutorKey, getScopedCreationalMapForCurrentExecutor());
-        Object obj = sessionMap.get(sessionBeanMapListKey);
+        Object obj = sessionMap.get(PER_SESSION_BEAN_MAP_LIST);
         if (null != obj) {
-            sessionMap.put(sessionBeanMapListKey, obj);
+            sessionMap.put(PER_SESSION_BEAN_MAP_LIST, obj);
         }
-        obj = sessionMap.get(sessionCreationalMapListKey);
+        obj = sessionMap.get(PER_SESSION_CREATIONAL_LIST);
         if (null != obj) {
-            sessionMap.put(sessionCreationalMapListKey, obj);
+            sessionMap.put(PER_SESSION_CREATIONAL_LIST, obj);
         }
     }
 
-    private void ensureBeanMapCleanupOnSessionDestroyed(Map<String, Object> sessionMap, String beansForExecutor) {
-        List<String> beanMapList = (List<String>) sessionMap.get(sessionBeanMapListKey);
+    private static void ensureBeanMapCleanupOnSessionDestroyed(Map<String, Object> sessionMap, String beansForExecutor) {
+        List<String> beanMapList = (List<String>) sessionMap.get(PER_SESSION_BEAN_MAP_LIST);
         if (null == beanMapList) {
             beanMapList = new ArrayList<>();
-            sessionMap.put(sessionBeanMapListKey, beanMapList);
+            sessionMap.put(PER_SESSION_BEAN_MAP_LIST, beanMapList);
         }
         beanMapList.add(beansForExecutor);
     }
 
-    private void ensureCreationalCleanupOnSessionDestroyed(Map<String, Object> sessionMap, String creationalForExecutor) {
-        List<String> beanMapList = (List<String>) sessionMap.get(sessionCreationalMapListKey);
+    private static void ensureCreationalCleanupOnSessionDestroyed(Map<String, Object> sessionMap, String creationalForExecutor) {
+        List<String> beanMapList = (List<String>) sessionMap.get(PER_SESSION_CREATIONAL_LIST);
         if (null == beanMapList) {
             beanMapList = new ArrayList<>();
-            sessionMap.put(sessionCreationalMapListKey, beanMapList);
+            sessionMap.put(PER_SESSION_CREATIONAL_LIST, beanMapList);
         }
         beanMapList.add(creationalForExecutor);
     }
 
-    public void sessionDestroyed(HttpSession session) {
-        List<String> beanMapList = (List<String>) session.getAttribute(sessionBeanMapListKey);
+    public static void sessionDestroyed(HttpSession session) {
+        List<String> beanMapList = (List<String>) session.getAttribute(PER_SESSION_BEAN_MAP_LIST);
         if (null != beanMapList) {
             for (String cur : beanMapList) {
                 Map<Contextual<?>, Object> beanMap
@@ -159,11 +156,11 @@ public class StateScopeMapHelper {
                 beanMap.clear();
                 session.removeAttribute(cur);
             }
-            session.removeAttribute(sessionBeanMapListKey);
+            session.removeAttribute(PER_SESSION_BEAN_MAP_LIST);
             beanMapList.clear();
         }
 
-        List<String> creationalList = (List<String>) session.getAttribute(sessionCreationalMapListKey);
+        List<String> creationalList = (List<String>) session.getAttribute(PER_SESSION_CREATIONAL_LIST);
         if (null != creationalList) {
             for (String cur : creationalList) {
                 Map<Contextual<?>, CreationalContext<?>> beanMap
@@ -171,7 +168,7 @@ public class StateScopeMapHelper {
                 beanMap.clear();
                 session.removeAttribute(cur);
             }
-            session.removeAttribute(sessionCreationalMapListKey);
+            session.removeAttribute(PER_SESSION_CREATIONAL_LIST);
             creationalList.clear();
         }
 
