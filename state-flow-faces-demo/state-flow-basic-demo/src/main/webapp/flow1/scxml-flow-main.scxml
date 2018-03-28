@@ -21,8 +21,9 @@ limitations under the License.
 
     <datamodel>
         <data id="hasback" expr="#{scxml_has_parent == true}"/>
-        <data id="chart_title" expr="State Flow Faces from SCXML file"/>
-        <data id="chart_view" expr="/flow1/faces-flow-main.scxml"/>
+        <data id="title" expr="State Flow Faces from SCXML file"/>
+        <data id="view" expr="/flow1/faces-flow-main.scxml"/>
+        
         <data id="assignedTest2" expr="no tested"/>
         <data id="book" src="/test/data.xml"/>
     </datamodel>

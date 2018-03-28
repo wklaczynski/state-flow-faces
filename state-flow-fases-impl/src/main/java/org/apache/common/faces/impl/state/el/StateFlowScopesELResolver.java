@@ -31,12 +31,14 @@ import org.apache.common.scxml.SCXMLExecutor;
  * @author waldek
  */
 public class StateFlowScopesELResolver extends ELResolver {
-
-    public static final String CHART_SCOPE = "scxmlScope";
-    public static final String CHART_VARIABLE_NAME = "scxml";
     
     public static final String DIALOG_SCOPE = "dialogScope";
     public static final String DIALOG_VARIABLE_NAME = "dialog";
+
+    public static final String CHART_SCOPE = "chartScope";
+    public static final String CHART_VARIABLE_NAME = "chart";
+    public static final String SCXML_SCOPE = "scxmlScope";
+    public static final String SCXML_VARIABLE_NAME = "scxml";
     
     public static final String STATE_VARIABLE_NAME = "state";
     public static final String CHART_PARAM_MAP = "org.scxml.attr";
@@ -51,25 +53,27 @@ public class StateFlowScopesELResolver extends ELResolver {
         if (null == base) {
             if (null != property.toString()) {
                 switch (property.toString()) {
-                    case CHART_VARIABLE_NAME:
-                        context.setPropertyResolved(true);
-                        result = getChartParams(context);
-                        break;
                     case DIALOG_VARIABLE_NAME:
                         context.setPropertyResolved(true);
                         result = getDialogParams(context);
+                        break;
+                    case DIALOG_SCOPE:
+                        context.setPropertyResolved(true);
+                        result = getDialogScope(context);
+                        break;
+                    case CHART_VARIABLE_NAME:
+                    case SCXML_VARIABLE_NAME:
+                        context.setPropertyResolved(true);
+                        result = getChartParams(context);
                         break;
                     case STATE_VARIABLE_NAME:
                         context.setPropertyResolved(true);
                         result = getStateParams(context);
                         break;
                     case CHART_SCOPE:
+                    case SCXML_SCOPE:
                         context.setPropertyResolved(true);
                         result = getChartScope(context);
-                        break;
-                    case DIALOG_SCOPE:
-                        context.setPropertyResolved(true);
-                        result = getDialogScope(context);
                         break;
                     default:
                         break;
@@ -109,22 +113,24 @@ public class StateFlowScopesELResolver extends ELResolver {
         if (null == base) {
             if (null != property.toString()) {
                 switch (property.toString()) {
-                    case CHART_VARIABLE_NAME:
-                        result = ChartParams.class;
+                    case DIALOG_SCOPE:
+                        result = DialogScope.class;
                         break;
                     case DIALOG_VARIABLE_NAME:
                         result = DialogParams.class;
                         break;
-                    case STATE_VARIABLE_NAME:
-                        result = StateParams.class;
-                        break;
-                    case DIALOG_SCOPE:
-                        result = DialogScope.class;
-                        break;
                     case CHART_SCOPE:
+                    case SCXML_SCOPE:
                         result = ChartScope.class;
                         break;
                     default:
+                        break;
+                    case CHART_VARIABLE_NAME:
+                    case SCXML_VARIABLE_NAME:
+                        result = ChartParams.class;
+                        break;
+                    case STATE_VARIABLE_NAME:
+                        result = StateParams.class;
                         break;
                 }
             }
@@ -205,19 +211,21 @@ public class StateFlowScopesELResolver extends ELResolver {
         }
         if (null == base) {
             switch (property.toString()) {
-                case CHART_SCOPE:
-                    context.setPropertyResolved(true);
-                    result = true;
-                    break;
                 case DIALOG_SCOPE:
                     context.setPropertyResolved(true);
                     result = true;
                     break;
-                case STATE_VARIABLE_NAME:
+                case DIALOG_VARIABLE_NAME:
                     context.setPropertyResolved(true);
                     result = true;
                     break;
-                case DIALOG_VARIABLE_NAME:
+                case CHART_SCOPE:
+                case SCXML_SCOPE:
+                    context.setPropertyResolved(true);
+                    result = true;
+                    break;
+                case CHART_VARIABLE_NAME:
+                case SCXML_VARIABLE_NAME:
                     context.setPropertyResolved(true);
                     result = true;
                     break;

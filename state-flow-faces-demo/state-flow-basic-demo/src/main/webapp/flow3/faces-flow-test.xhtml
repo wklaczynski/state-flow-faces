@@ -8,11 +8,12 @@
     <x:scxml id="main" initial="start">
 
         <x:datamodel>
-            <x:data id="chart_title" expr="Test Multiple State Flow Process"/>
-            <x:data id="chart_view" expr="/flow1/faces-flow-test.xhtml"/>
+            <x:data id="title" expr="Test Multiple State Flow Process"/>
+            <x:data id="view" expr="/flow1/faces-flow-test.xhtml"/>
+            
             <x:data id="test_data">I'm starting process, click any button to change my state.</x:data> 
-            <x:data id="hasback" expr="false"/> 
-            <x:data id="hasnext" expr="true"/> 
+            <x:data id="test_hasnext" expr="true"/> 
+            <x:data id="test_hasback" expr="false"/> 
         </x:datamodel>
 
         <x:state id="start">

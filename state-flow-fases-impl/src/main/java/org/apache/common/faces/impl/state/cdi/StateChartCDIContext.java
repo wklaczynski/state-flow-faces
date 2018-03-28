@@ -67,7 +67,7 @@ public class StateChartCDIContext implements Context, Serializable {
         assertNotReleased();
         
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        SCXMLExecutor executor = getCurrentExecutor(facesContext);
+        SCXMLExecutor executor = getExecutor(facesContext);
         StateChartScopeMapHelper mapHelper = new StateChartScopeMapHelper(facesContext, executor);
         
         T result = get(mapHelper, contextual);
@@ -113,7 +113,7 @@ public class StateChartCDIContext implements Context, Serializable {
             throw new IllegalArgumentException("FlowScoped StateChartScoped " + contextual.toString() + " must be PassivationCapable, but is not.");
         }
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        SCXMLExecutor current = getCurrentExecutor(facesContext);
+        SCXMLExecutor current = getExecutor(facesContext);
         StateChartScopeMapHelper mapHelper = new StateChartScopeMapHelper(facesContext, current);
 
         T result = get(mapHelper, contextual);
@@ -134,7 +134,7 @@ public class StateChartCDIContext implements Context, Serializable {
 
     @Override
     public boolean isActive() {
-        return null != getCurrentExecutor();
+        return null != getExecutor();
     }
 
     private static class StateChartScopeMapHelper {
@@ -388,13 +388,13 @@ public class StateChartCDIContext implements Context, Serializable {
         }
     }
 
-    private SCXMLExecutor getCurrentExecutor() {
+    private SCXMLExecutor getExecutor() {
         FacesContext context = FacesContext.getCurrentInstance();
-        SCXMLExecutor result = getCurrentExecutor(context);
+        SCXMLExecutor result = getExecutor(context);
         return result;
     }
 
-    private static SCXMLExecutor getCurrentExecutor(FacesContext context) {
+    private static SCXMLExecutor getExecutor(FacesContext context) {
 
         StateFlowHandler flowHandler = StateFlowHandler.getInstance();
         if (null == flowHandler) {

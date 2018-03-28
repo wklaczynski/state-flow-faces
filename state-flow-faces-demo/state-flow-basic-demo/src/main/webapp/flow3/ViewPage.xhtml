@@ -8,11 +8,11 @@
         <h:outputStylesheet library="css" name="demo-style.css"  />
     </h:head>
     <h:body>
-        <h1>#{scxml.chart_title}</h1>
+        <h1>#{chart.title}</h1>
         <hr/>
         <h:form>
             <h:panelGroup>
-                <h3>Hello, I'm in test parallel process state chat &lt;scxml id="show"&gt;: "#{scxml.chart_view}"</h3>
+                <h3>Hello, I'm in test parallel process state chat &lt;scxml id="show"&gt;: "#{chart.chart_view}"</h3>
                 This page is next page in state flow chart. It's assigned any data from owned &lt;scxml&gt;
                 <p/>
                 Exited to one proces in new view. 
@@ -25,7 +25,7 @@
                     <p/>
                     Data assigned in:
                     <p/>
-                    <b>Value:</b> #{scxml.test_data}
+                    <b>Value:</b> #{chart.data}
                     <p/>
                     <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
                         <h:commandButton action="return" value="Return History Process">

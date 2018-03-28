@@ -17,13 +17,13 @@ package org.apache.common.faces.demo.basic;
 
 import java.io.Serializable;
 import javax.inject.Named;
-import org.apache.common.faces.state.annotation.StateChartScoped;
+import org.apache.common.faces.state.annotation.StateDialogScoped;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-@StateChartScoped
+@StateDialogScoped
 @Named("main")
 public class MainBean implements Serializable {
     
