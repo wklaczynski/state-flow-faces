@@ -45,8 +45,8 @@ import org.apache.common.scxml.SCXMLExecutor;
  */
 public class StateDialogCDIContext implements Context, Serializable {
 
-    private static final String FLOW_SCOPE_KEY = "dialogscope";
-    private static final String FLOW_SCOPE_MAP_KEY = StateFlowConstants.STATE_FLOW_PREFIX + "STATE_FLOW_SCOPE_MAP";
+    private static final String DIALOG_SCOPE_KEY = "dialogscope";
+    private static final String DIALOG_SCOPE_MAP_KEY = StateFlowConstants.STATE_FLOW_PREFIX + "STATE_FLOW_SCOPE_MAP";
     private static final Logger LOGGER = FlowLogger.FLOW.getLogger();
 
     @Override
@@ -61,7 +61,7 @@ public class StateDialogCDIContext implements Context, Serializable {
 
         FacesContext facesContext = FacesContext.getCurrentInstance();
         SCXMLExecutor executor = getExecutor(facesContext);
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, DIALOG_SCOPE_KEY);
 
         T result = get(mapHelper, contextual);
 
@@ -106,7 +106,7 @@ public class StateDialogCDIContext implements Context, Serializable {
         }
         FacesContext facesContext = FacesContext.getCurrentInstance();
         SCXMLExecutor current = getExecutor(facesContext);
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, current, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, current, DIALOG_SCOPE_KEY);
 
         T result = get(mapHelper, contextual);
         mapHelper = null;
@@ -130,7 +130,7 @@ public class StateDialogCDIContext implements Context, Serializable {
 
     public static void sessionDestroyed(HttpSessionEvent hse) {
         HttpSession session = hse.getSession();
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(DIALOG_SCOPE_KEY);
         mapHelper.sessionDestroyed(session);
     }
 
@@ -138,10 +138,10 @@ public class StateDialogCDIContext implements Context, Serializable {
         Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
         Map<Object, Object> result = null;
         if (mapHelper.isExecutorExists()) {
-            result = (Map<Object, Object>) flowScopedBeanMap.get(FLOW_SCOPE_MAP_KEY);
+            result = (Map<Object, Object>) flowScopedBeanMap.get(DIALOG_SCOPE_MAP_KEY);
             if (null == result) {
                 result = new ConcurrentHashMap<>();
-                flowScopedBeanMap.put(FLOW_SCOPE_MAP_KEY, result);
+                flowScopedBeanMap.put(DIALOG_SCOPE_MAP_KEY, result);
             }
         }
         mapHelper.updateSession();
@@ -149,8 +149,12 @@ public class StateDialogCDIContext implements Context, Serializable {
     }
 
     static void executorExited(SCXMLExecutor executor) {
+        if(executor.getParentSCXMLIOProcessor() != null) {
+            return;
+        }
+
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, DIALOG_SCOPE_KEY);
         Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
         Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
         assert (!flowScopedBeanMap.isEmpty());
@@ -159,7 +163,7 @@ public class StateDialogCDIContext implements Context, Serializable {
 
         for (Map.Entry<String, Object> entry : flowScopedBeanMap.entrySet()) {
             String passivationCapableId = entry.getKey();
-            if (FLOW_SCOPE_MAP_KEY.equals(passivationCapableId)) {
+            if (DIALOG_SCOPE_MAP_KEY.equals(passivationCapableId)) {
                 continue;
             }
             Contextual owner = beanManager.getPassivationCapableBean(passivationCapableId);
@@ -200,8 +204,12 @@ public class StateDialogCDIContext implements Context, Serializable {
     }
 
     static void executorEntered(SCXMLExecutor executor) {
+        if(executor.getParentSCXMLIOProcessor() != null) {
+            return;
+        }
+        
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, DIALOG_SCOPE_KEY);
 
         mapHelper.createMaps();
 
