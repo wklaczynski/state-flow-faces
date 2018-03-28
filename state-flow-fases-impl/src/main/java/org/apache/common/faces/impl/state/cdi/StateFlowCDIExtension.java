@@ -16,6 +16,7 @@
 package org.apache.common.faces.impl.state.cdi;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.spi.Contextual;
@@ -39,12 +40,13 @@ public class StateFlowCDIExtension implements Extension {
 
     private boolean cdiOneOneOrGreater = false;
 
-   private Map<Contextual<?>, StateTargetCDIContext.TargetBeanInfo> targetScopedBeanFlowIds;
-    
+    private final Map<Contextual<?>, StateTargetCDIContext.TargetBeanInfo> targetScopedBeanFlowIds;
+
     public static final Logger log = FlowLogger.CDI.getLogger();
 
     public StateFlowCDIExtension() {
         cdiOneOneOrGreater = CdiUtil.isCdiOneOneOrGreater();
+        targetScopedBeanFlowIds = new ConcurrentHashMap<>();
     }
 
     public void beforeBean(@Observes final BeforeBeanDiscovery event, BeanManager beanManager) {
@@ -65,12 +67,11 @@ public class StateFlowCDIExtension implements Extension {
         }
 
        StateTargetScoped targetScoped = event.getAnnotated().getAnnotation(StateTargetScoped.class);
-       if (null != dialogScoped) {
+       if (null != targetScoped) {
            StateTargetCDIContext.TargetBeanInfo fbi = new StateTargetCDIContext.TargetBeanInfo();
            fbi.id = targetScoped.value();
            targetScopedBeanFlowIds.put(event.getBean(), fbi);
        }
-        
     }
 
     public void afterBean(@Observes final AfterBeanDiscovery event, BeanManager beanManager) {
