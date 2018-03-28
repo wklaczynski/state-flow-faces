@@ -25,7 +25,6 @@ import javax.enterprise.context.spi.CreationalContext;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
 import static org.apache.common.faces.impl.state.StateFlowConstants.STATE_FLOW_PREFIX;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.SCXMLSystemContext;
@@ -133,22 +132,22 @@ public class StateScopeMapHelper {
         }
     }
 
-    private void ensureBeanMapCleanupOnSessionDestroyed(Map<String, Object> sessionMap, String flowBeansForClientWindow) {
+    private void ensureBeanMapCleanupOnSessionDestroyed(Map<String, Object> sessionMap, String beansForExecutor) {
         List<String> beanMapList = (List<String>) sessionMap.get(sessionBeanMapListKey);
         if (null == beanMapList) {
             beanMapList = new ArrayList<>();
             sessionMap.put(sessionBeanMapListKey, beanMapList);
         }
-        beanMapList.add(flowBeansForClientWindow);
+        beanMapList.add(beansForExecutor);
     }
 
-    private void ensureCreationalCleanupOnSessionDestroyed(Map<String, Object> sessionMap, String creationalForClientWindow) {
+    private void ensureCreationalCleanupOnSessionDestroyed(Map<String, Object> sessionMap, String creationalForExecutor) {
         List<String> beanMapList = (List<String>) sessionMap.get(sessionCreationalMapListKey);
         if (null == beanMapList) {
             beanMapList = new ArrayList<>();
             sessionMap.put(sessionCreationalMapListKey, beanMapList);
         }
-        beanMapList.add(creationalForClientWindow);
+        beanMapList.add(creationalForExecutor);
     }
 
     public void sessionDestroyed(HttpSession session) {
