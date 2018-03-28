@@ -154,8 +154,6 @@ public class StateChartCDIContext implements Context, Serializable {
             if (null != executor) {
 
                 String currentSessionId = (String) executor.getSCInstance().getSystemContext().get(SCXMLSystemContext.SESSIONID_KEY);
-                
-                System.out.println("Generated session id = " + currentSessionId);
 
                 String prefix = "StateChart";
                 
