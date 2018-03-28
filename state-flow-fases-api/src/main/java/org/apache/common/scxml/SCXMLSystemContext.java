@@ -78,6 +78,13 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
             EVENT_KEY, SESSIONID_KEY, SCXML_NAME_KEY, IOPROCESSORS_KEY, X_KEY));
 
     /**
+     * The set of transient to restore or save system variables names
+     */
+    private static final Set<String> TRANSIENT_NAMES = new HashSet<>(Arrays.asList(
+            EVENT_KEY, IOPROCESSORS_KEY, X_KEY, STATUS_KEY));
+    
+    
+    /**
      * The wrapped system context
      */
     private Context systemContext;
@@ -221,10 +228,7 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
             Object[] attached = new Object[vars.size()];
             int i = 0;
             for (Map.Entry<String, Object> entry : vars.entrySet()) {
-                if (SCXMLSystemContext.PROTECTED_NAMES.contains(entry.getKey())) {
-                    continue;
-                }
-                if (SCXMLSystemContext.STATUS_KEY.equals(entry.getKey())) {
+                if (SCXMLSystemContext.TRANSIENT_NAMES.contains(entry.getKey())) {
                     continue;
                 }
 //                if (SCXMLSystemContext.FINAL_DONE_DATA_KEY.equals(entry.getKey())) {

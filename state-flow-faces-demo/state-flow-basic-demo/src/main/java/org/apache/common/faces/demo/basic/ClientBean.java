@@ -26,6 +26,8 @@ import org.apache.common.faces.state.annotation.StateChartScoped;
 @StateChartScoped
 @Named("client")
 public class ClientBean implements Serializable {
+
+    private String assignedTest1 = "";
     
     public boolean prepare() {
         return true;
@@ -34,6 +36,13 @@ public class ClientBean implements Serializable {
     public String getBeanTitle() {
         return "Client Bean";
     }
-    
+
+    public String getAssignedTest1() {
+        return assignedTest1;
+    }
+
+    public void setAssignedTest1(String assignedTest1) {
+        this.assignedTest1 = assignedTest1;
+    }
     
 }

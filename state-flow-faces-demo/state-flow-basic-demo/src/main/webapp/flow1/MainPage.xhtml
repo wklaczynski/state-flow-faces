@@ -3,11 +3,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:f="http://xmlns.jcp.org/jsf/core">
-    
+
     <f:metadata>
         <f:viewParam name="page_description"/>
     </f:metadata>
-    
+
     <h:head>
         <title>Main State Flow Faces</title>
         <h:outputStylesheet library="css" name="demo-style.css"  />
@@ -25,8 +25,6 @@
                 This page is started by state flow chart. It's assigned any data from owned &lt;scxml&gt;
                 <p/>
                 Assigned data and navigation is from &lt;scxml&gt; and current &lt;state&gt;.
-                <p/>
-                <b>Used bean:</b> <i>"#{main.beanTitle}"</i>  in chart scope.
                 <p/>
                 <b>View Param:</b> <i>"#{page_description}"</i>  mapped from scxml invoke param.
                 <hr/>
@@ -86,23 +84,36 @@
                     I'm reading the first phone from data "book" in root datamodel. Result: #{chart.book.client['0']['phone[@type=\'mobile\']'].textContent}
                     <p/><pre>use xpath query: &quot;\#{chart.book.client['0']['phone[@type='mobile']'].textContent}&quot;</pre>
                 </h:panelGroup>
-                <h:panelGroup id="asign-test">
+                <h:panelGroup>
                     <hr/>
+                    <p/>
+                    <b>Used bean main:</b>
+                    <p/>\#{main.beanTitle} = <i>"#{main.beanTitle}"</i>
+                    <p/>\#{main.assignedTest1} = <i>"#{main.assignedTest1}"</i>
+                    <pre>This beans are in dialog scope. This beans can see data from parent and child execution.</pre>
+                    <p/><b>Used bean client:</b>
+                    <p/>"\#{client.beanTitle}" = <i>"#{client.beanTitle}"</i> 
+                    <p/>"\#{client.assignedTest1}" = <i>"#{client.assignedTest1}"</i> 
+                    <pre>This bean is in chart scope. This bean can not see data from parent and child execution.</pre>
+                    <hr/>
+                </h:panelGroup>
+                <h:panelGroup id="asign-test">
                     <h3>Test data manipulation in executed states.</h3>
                     <p/>
                     Data assigned in:
                     <pre>1. Change data when using &lt;assign location="\#{main.assignedTest1}" expr="\#{book['client[last()]/phone[@type=\'mobile\']'].textContent}" &gt;</pre>
                     <b>Value:</b> #{main.assignedTest1}
-                    <p/>
-                    <pre>2. Change data when using &lt;var name="assignedTest2" expr="\#{book['client[first()]/phone[@type=\'home\']'].textContent}" &gt;</pre>
-                    <b>Value:</b> #{chart.assignedTest2}
+                    <pre>2. Change data when using &lt;assign location="\#{client.assignedTest1}" expr="\#{book['client[last()]/phone[@type=\'home\']'].textContent}" &gt;</pre>
+                    <b>Value:</b> #{client.assignedTest1}
+                    <pre>3. Change data when using &lt;assign name="chartAssignedTest" expr="\#{book['client[1]/phone[@type=\'home\']'].textContent}" &gt;</pre>
+                    <b>Value:</b> #{chart.chartAssignedTest}
                     <p/>
                     <h:panelGrid cellspacing="4" columns="2" style="bottom: 0px">
                         <h:commandButton action="assign" value="Run Test">
-                            <f:ajax render="asign-test"/>
+                            <f:ajax render="@form"/>
                         </h:commandButton>
                         <h:commandButton action="clear" value="Clear Test">
-                            <f:ajax render="asign-test"/>
+                            <f:ajax render="@form"/>
                         </h:commandButton>
                     </h:panelGrid>
                 </h:panelGroup>

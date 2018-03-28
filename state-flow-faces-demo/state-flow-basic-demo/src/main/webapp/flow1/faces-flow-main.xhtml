@@ -12,7 +12,7 @@
             <x:data id="title" expr="State Flow Faces from Faces Metadata"/>
             <x:data id="view" expr="/flow1/faces-flow-main.xhtml"/>
             
-            <x:data id="assignedTest2" expr="no tested"/>
+            <x:data id="chartAssignedTest" expr="no tested"/>
             <x:data id="assignedRasult" expr="no result"/>
             <x:data id="book" src="/test/data.xml"/>
         </x:datamodel>
@@ -41,26 +41,6 @@
             <x:transition event="view.action.exit" target="exit"/>
             <x:transition event="view.action.assign" target="assing-test"/>
             <x:transition event="view.action.clear" target="clear-test"/>
-        </x:state> 
-
-        <x:state id="assing-test">
-            <x:onentry>
-                <x:assign 
-                    location="#{main.assignedTest1}" 
-                    expr="#{book['client[last()]/phone[@type=\'mobile\']'].$text}"
-                    />
-                <x:raise event="assing-test.finish"/>
-            </x:onentry>
-            <x:transition event="assing-test.finish" target="main"/>
-        </x:state> 
-
-        <x:state id="clear-test">
-            <x:onentry>
-                <x:assign location="#{main.assignedTest1}"/>
-                <x:raise event="clear-test.finish"/>
-            </x:onentry>
-            <x:transition event="clear-test.finish" target="main">
-            </x:transition>
         </x:state> 
 
         <x:state id="show-client"> 
@@ -99,11 +79,40 @@
                 <x:assign location="#{selected.surname.$text}" expr="#{done.surname}"/>
                 <x:assign location="#{selected.phone['@type=\'mobile\''].$text}" expr="#{done.mobilePhone}"/>
                 <x:assign location="#{selected.phone['@type=\'home\''].$text}" expr="#{done.homePhone}"/>
-
             </x:transition> 
             <x:transition event="done.invoke.update-client" target="main"/>
         </x:state>      
 
+        <x:state id="assing-test">
+            <x:onentry>
+                <x:assign 
+                    location="#{main.assignedTest1}" 
+                    expr="#{book['client[last()]/phone[@type=\'mobile\']'].$text}"
+                    />
+                <x:assign 
+                    location="#{client.assignedTest1}" 
+                    expr="#{book['client[last()]/phone[@type=\'home\']'].$text}"
+                    />
+                <x:assign 
+                    location="chartAssignedTest" 
+                    expr="#{book['client[1]/phone[@type=\'home\']'].$text}"
+                    />
+                <x:raise event="assing-test.finish"/>
+            </x:onentry>
+            <x:transition event="assing-test.finish" target="main"/>
+        </x:state> 
+
+        <x:state id="clear-test">
+            <x:onentry>
+                <x:assign location="#{main.assignedTest1}"/>
+                <x:assign location="#{client.assignedTest1}"/>
+                <x:assign location="chartAssignedTest"/>
+                <x:raise event="clear-test.finish"/>
+            </x:onentry>
+            <x:transition event="clear-test.finish" target="main">
+            </x:transition>
+        </x:state> 
+        
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml">
                 <x:finalize/>
