@@ -45,8 +45,8 @@ import org.apache.common.scxml.SCXMLExecutor;
  */
 public class StateChartCDIContext implements Context, Serializable {
 
-    private static final String FLOW_SCOPE_KEY = "chartscope";
-    private static final String FLOW_SCOPE_MAP_KEY = StateFlowConstants.STATE_FLOW_PREFIX + "STATE_CHART_SCOPE_MAP";
+    private static final String CHART_SCOPE_KEY = "chartscope";
+    private static final String CHART_SCOPE_MAP_KEY = StateFlowConstants.STATE_FLOW_PREFIX + "STATE_CHART_SCOPE_MAP";
     private static final Logger LOGGER = FlowLogger.FLOW.getLogger();
 
     @Override
@@ -61,7 +61,7 @@ public class StateChartCDIContext implements Context, Serializable {
         
         FacesContext facesContext = FacesContext.getCurrentInstance();
         SCXMLExecutor executor = getExecutor(facesContext);
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, CHART_SCOPE_KEY);
         
         T result = get(mapHelper, contextual);
         
@@ -107,7 +107,7 @@ public class StateChartCDIContext implements Context, Serializable {
         }
         FacesContext facesContext = FacesContext.getCurrentInstance();
         SCXMLExecutor executor = getExecutor(facesContext);
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, CHART_SCOPE_KEY);
 
         T result = get(mapHelper, contextual);
         mapHelper = null;
@@ -133,7 +133,7 @@ public class StateChartCDIContext implements Context, Serializable {
 
     public static void sessionDestroyed(HttpSessionEvent hse) {
         HttpSession session = hse.getSession();
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(CHART_SCOPE_KEY);
         mapHelper.sessionDestroyed(session);
     }
     
@@ -142,10 +142,10 @@ public class StateChartCDIContext implements Context, Serializable {
         Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
         Map<Object, Object> result = null;
         if (mapHelper.isExecutorExists()) {
-            result = (Map<Object, Object>) flowScopedBeanMap.get(FLOW_SCOPE_MAP_KEY);
+            result = (Map<Object, Object>) flowScopedBeanMap.get(CHART_SCOPE_MAP_KEY);
             if (null == result) {
                 result = new ConcurrentHashMap<>();
-                flowScopedBeanMap.put(FLOW_SCOPE_MAP_KEY, result);
+                flowScopedBeanMap.put(CHART_SCOPE_MAP_KEY, result);
             }
         }
         mapHelper.updateSession();
@@ -154,7 +154,7 @@ public class StateChartCDIContext implements Context, Serializable {
     
     static void executorExited(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, CHART_SCOPE_KEY);
         Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
         Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
         assert(!flowScopedBeanMap.isEmpty());
@@ -163,7 +163,7 @@ public class StateChartCDIContext implements Context, Serializable {
         
         for (Map.Entry<String, Object> entry : flowScopedBeanMap.entrySet()) {
             String passivationCapableId = entry.getKey();
-            if (FLOW_SCOPE_MAP_KEY.equals(passivationCapableId)) {
+            if (CHART_SCOPE_MAP_KEY.equals(passivationCapableId)) {
                 continue;
             }
             Contextual owner = beanManager.getPassivationCapableBean(passivationCapableId);
@@ -205,7 +205,7 @@ public class StateChartCDIContext implements Context, Serializable {
     
     static void executorEntered(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, CHART_SCOPE_KEY);
 
         mapHelper.createMaps();
         

@@ -46,9 +46,9 @@ import org.apache.common.scxml.model.EnterableState;
  */
 public class StateTargetCDIContext implements Context, Serializable {
 
-    private static final String FLOW_SCOPE_KEY = "targetscope";
+    private static final String TARGET_SCOPE_KEY = "targetscope";
     private static final Logger LOGGER = FlowLogger.FLOW.getLogger();
-    private static final String FLOW_SCOPE_MAP_KEY = StateFlowConstants.STATE_FLOW_PREFIX + "STATE_TARGET_SCOPE_MAP";
+    private static final String TARGET_SCOPE_MAP_KEY = StateFlowConstants.STATE_FLOW_PREFIX + "STATE_TARGET_SCOPE_MAP";
 
     private final Map<Contextual<?>, TargetBeanInfo> targetIds;
 
@@ -103,7 +103,7 @@ public class StateTargetCDIContext implements Context, Serializable {
         
         EnterableState state = findState(facesContext, executor, "@composite");
         
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
         
         T result = get(mapHelper, contextual);
         
@@ -153,7 +153,7 @@ public class StateTargetCDIContext implements Context, Serializable {
         
         EnterableState state = findState(facesContext, executor, "@composite");
         
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
 
         T result = get(mapHelper, contextual);
         mapHelper = null;
@@ -179,7 +179,7 @@ public class StateTargetCDIContext implements Context, Serializable {
 
     public static void sessionDestroyed(HttpSessionEvent hse) {
         HttpSession session = hse.getSession();
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(TARGET_SCOPE_KEY);
         mapHelper.sessionDestroyed(session);
     }
     
@@ -188,10 +188,10 @@ public class StateTargetCDIContext implements Context, Serializable {
         Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
         Map<Object, Object> result = null;
         if (mapHelper.isExecutorExists()) {
-            result = (Map<Object, Object>) flowScopedBeanMap.get(FLOW_SCOPE_MAP_KEY);
+            result = (Map<Object, Object>) flowScopedBeanMap.get(TARGET_SCOPE_MAP_KEY);
             if (null == result) {
                 result = new ConcurrentHashMap<>();
-                flowScopedBeanMap.put(FLOW_SCOPE_MAP_KEY, result);
+                flowScopedBeanMap.put(TARGET_SCOPE_MAP_KEY, result);
             }
         }
         mapHelper.updateSession();
@@ -202,7 +202,7 @@ public class StateTargetCDIContext implements Context, Serializable {
     static void executorExited(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
         Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
         Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
         assert(!flowScopedBeanMap.isEmpty());
@@ -211,7 +211,7 @@ public class StateTargetCDIContext implements Context, Serializable {
         
         for (Map.Entry<String, Object> entry : flowScopedBeanMap.entrySet()) {
             String passivationCapableId = entry.getKey();
-            if (FLOW_SCOPE_MAP_KEY.equals(passivationCapableId)) {
+            if (TARGET_SCOPE_MAP_KEY.equals(passivationCapableId)) {
                 continue;
             }
             Contextual owner = beanManager.getPassivationCapableBean(passivationCapableId);
@@ -254,7 +254,7 @@ public class StateTargetCDIContext implements Context, Serializable {
     static void executorEntered(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
 
         mapHelper.createMaps();
         
@@ -290,7 +290,7 @@ public class StateTargetCDIContext implements Context, Serializable {
     static void stateExited(SCXMLExecutor executor, EnterableState state) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
         Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
         Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
         assert(!flowScopedBeanMap.isEmpty());
@@ -301,7 +301,7 @@ public class StateTargetCDIContext implements Context, Serializable {
         
         for (Map.Entry<String, Object> entry : flowScopedBeanMap.entrySet()) {
             String passivationCapableId = entry.getKey();
-            if (FLOW_SCOPE_MAP_KEY.equals(passivationCapableId)) {
+            if (TARGET_SCOPE_MAP_KEY.equals(passivationCapableId)) {
                 continue;
             }
             Contextual owner = beanManager.getPassivationCapableBean(passivationCapableId);
@@ -344,7 +344,7 @@ public class StateTargetCDIContext implements Context, Serializable {
     static void stateEntered(SCXMLExecutor executor, EnterableState state) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
 
         mapHelper.createMaps();
         
