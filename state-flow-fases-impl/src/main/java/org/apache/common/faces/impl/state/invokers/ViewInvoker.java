@@ -56,8 +56,10 @@ import static org.apache.common.faces.state.StateFlow.FACES_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.scxml.EventBuilder;
+import org.apache.common.scxml.InvokeContext;
 import org.apache.common.scxml.env.EffectiveContextMap;
 import org.apache.common.scxml.model.EnterableState;
+import org.apache.common.scxml.model.ModelException;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -129,7 +131,7 @@ public class ViewInvoker implements Invoker, Serializable {
      * {@inheritDoc}.
      */
     @Override
-    public void invoke(final String url, final Map<String, Object> params) throws InvokerException {
+    public void invoke(final InvokeContext ictx, final String url, final Map<String, Object> params) throws InvokerException {
         FacesContext fc = FacesContext.getCurrentInstance();
         boolean oldProcessingEvents = fc.isProcessingEvents();
         try {
@@ -354,7 +356,7 @@ public class ViewInvoker implements Invoker, Serializable {
      * {@inheritDoc}.
      */
     @Override
-    public void invokeContent(final String content, final Map<String, Object> params)
+    public void invokeContent(final InvokeContext ictx, final String content, final Map<String, Object> params)
             throws InvokerException {
 
     }
@@ -363,7 +365,7 @@ public class ViewInvoker implements Invoker, Serializable {
      * {@inheritDoc}.
      */
     @Override
-    public void parentEvent(final TriggerEvent event) throws InvokerException {
+    public void parentEvent(final InvokeContext ictx, final TriggerEvent event) throws InvokerException {
         if (cancelled) {
             return;
         }
@@ -371,13 +373,17 @@ public class ViewInvoker implements Invoker, Serializable {
         if (event.getType() == TriggerEvent.CALL_EVENT && (event.getName()
                 .startsWith(FACES_PHASE_EVENT_PREFIX))) {
             if (viewId.equals(event.getSendId())) {
-                FacesContext context = FacesContext.getCurrentInstance();
-
-                context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
-                context.getELContext().putContext(SCXMLExecutor.class, executor);
-
-                Context stateContext = getStateContext(context, executor);
-                context.getELContext().putContext(Context.class, getEffectiveContext(stateContext));
+                try {
+                    FacesContext context = FacesContext.getCurrentInstance();
+                    
+                    context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
+                    context.getELContext().putContext(SCXMLExecutor.class, executor);
+                    
+                    Context stateContext = ictx.getContext();
+                    context.getELContext().putContext(Context.class, getEffectiveContext(stateContext));
+                } catch (ModelException ex) {
+                    throw new InvokerException(ex);
+                }
             }
             return;
         }
@@ -402,21 +408,6 @@ public class ViewInvoker implements Invoker, Serializable {
 
     protected StateFlowContext getEffectiveContext(final Context nodeCtx) {
         return new StateFlowContext(nodeCtx, new EffectiveContextMap(nodeCtx));
-    }
-
-    private static Context getStateContext(
-            final FacesContext fc,
-            final SCXMLExecutor executor) {
-
-        CompositeContext result = new CompositeContext(executor.getGlobalContext());
-
-        Iterator<EnterableState> iterator = executor.getStatus().getStates().iterator();
-        while (iterator.hasNext()) {
-            EnterableState enterable = iterator.next();
-            Context context = executor.getSCInstance().getContext(enterable);
-            result.add(context);
-        }
-        return result;
     }
 
     /**

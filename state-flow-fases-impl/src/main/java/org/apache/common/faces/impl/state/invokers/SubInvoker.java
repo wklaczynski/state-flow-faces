@@ -23,6 +23,7 @@ import javax.faces.context.FacesContext;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.EventBuilder;
+import org.apache.common.scxml.InvokeContext;
 import org.apache.common.scxml.ParentSCXMLIOProcessor;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.SCXMLIOProcessor;
@@ -101,7 +102,7 @@ public class SubInvoker implements Invoker, StateHolder {
      * {@inheritDoc}.
      */
     @Override
-    public void invoke(final String url, final Map<String, Object> params)
+    public void invoke(final InvokeContext ictx, final String url, final Map<String, Object> params)
             throws InvokerException {
         FacesContext fc = FacesContext.getCurrentInstance();
         StateFlowHandler handler = StateFlowHandler.getInstance();
@@ -124,7 +125,7 @@ public class SubInvoker implements Invoker, StateHolder {
      * {@inheritDoc}.
      */
     @Override
-    public void invokeContent(final String content, final Map<String, Object> params)
+    public void invokeContent(final InvokeContext ictx, final String content, final Map<String, Object> params)
             throws InvokerException {
 
     }
@@ -144,7 +145,7 @@ public class SubInvoker implements Invoker, StateHolder {
      * {@inheritDoc}.
      */
     @Override
-    public void parentEvent(final TriggerEvent event) throws InvokerException {
+    public void parentEvent(final InvokeContext ictx, final TriggerEvent event) throws InvokerException {
         if (cancelled) {
             return;
         }

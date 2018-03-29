@@ -439,9 +439,9 @@ public class StateTargetCDIContext implements Context, Serializable {
         }
         TransitionTarget result = null;
 
-        if (selector.equals("@current")) {
+        if (selector.equals("@common")) {
             Set<EnterableState> states = executor.getStatus().getStates();
-            result = selectCollectiveState(states);
+            result = selectCommonState(states);
         } else if (selector.equals("@top")) {
             Set<EnterableState> states = executor.getStatus().getStates();
             result = selectTopState(states);
@@ -460,7 +460,7 @@ public class StateTargetCDIContext implements Context, Serializable {
 
     }
 
-    private static EnterableState selectCollectiveState(Set<EnterableState> states) {
+    private static EnterableState selectCommonState(Set<EnterableState> states) {
         if (states.isEmpty()) {
             return null;
         }
@@ -478,7 +478,7 @@ public class StateTargetCDIContext implements Context, Serializable {
     }
 
     private static EnterableState selectFirstCompositeState(Set<EnterableState> states) {
-        EnterableState result = selectCollectiveState(states);
+        EnterableState result = selectCommonState(states);
         while (result.getParent() != null && result.isAtomicState()) {
             result = result.getParent();
         }

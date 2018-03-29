@@ -98,6 +98,8 @@ public class TransitionTagHandler extends AbstractFlowTagHandler<Transition> {
             } else {
                 throw new TagAttributeException(type, String.format("illegal tranisition type \"%s\", transition tyme mus be match \"internal\" or \"external\".", tvalue));
             }
+        } else {
+            transition.setType(TransitionType.internal);
         }
 
         if (event != null) {
