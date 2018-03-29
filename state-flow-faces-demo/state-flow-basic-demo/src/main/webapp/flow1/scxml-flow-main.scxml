@@ -14,47 +14,97 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<scxml 
-    xmlns="http://xmlns.apache.org/faces/scxml"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    initial="start">
+<scxml id="main" initial="start">
 
     <datamodel>
         <data id="hasback" expr="#{scxml_has_parent == true}"/>
-        <data id="title" expr="State Flow Faces from SCXML file"/>
-        <data id="view" expr="/flow1/faces-flow-main.scxml"/>
-        
-        <data id="assignedTest2" expr="no tested"/>
+        <data id="title" expr="State Flow Faces from Faces Metadata"/>
+        <data id="view" expr="/flow1/faces-flow-main.xhtml"/>
+            
+        <data id="chartAssignedTest" expr="no tested"/>
+        <data id="assignedRasult" expr="no result"/>
         <data id="book" src="/test/data.xml"/>
     </datamodel>
-    
     <state id="start">
         <onentry>
             <if cond="#{main.prepare()}">
-                <raise event="main.prepare.success"/>
+                <raise event="start.prepare.success"/>
                 <else/>
-                <raise event="main.prepare.failed"/>
+                <raise event="start.prepare.failed"/>
             </if>
         </onentry>
-        <transition event="main.prepare.success" target="main"/>
-        <transition event="main.prepare.failed" target="exit"/>
+        <transition event="start.prepare.success" target="main"/>
+        <transition event="start.prepare.failed" target="exit"/>
     </state>
 
     <state id="main">
-        <invoke type="view" src="MainPage.xhtml"/>
+        <invoke type="view" src="MainPage.xhtml">
+            <param name="page_description" expr="Page description from scxml."/>
+        </invoke>
+
         <transition event="error.execution" target="main"/>
 
         <transition event="view.action.show" target="show-client"/>
+        <transition event="view.action.update" target="update-client"/>
+
         <transition event="view.action.exit" target="exit"/>
         <transition event="view.action.assign" target="assing-test"/>
         <transition event="view.action.clear" target="clear-test"/>
     </state> 
 
+    <state id="show-client"> 
+        <onentry>
+            <var name="selected" expr="#{book.client['@id'][param.clid]}"/>
+        </onentry>
+        <invoke type="scxml" src="faces-flow-client-show.xhtml">
+            <param name="clientId" expr="#{selected.id.$text}"/>
+            <param name="clientName" expr="#{selected.name.$text}"/>
+            <param name="clientSurname" expr="#{selected.surname.$text}"/>
+            <param name="clientMobilePhone" expr="#{selected.phone['@type=\'mobile\''].$text}"/>
+            <param name="clientHomePhone" expr="#{selected.phone['@type=\'home\''].$text}"/>
+        </invoke>
+        <transition event="error.execution" target="main"/>
+        <transition event="done.invoke.show-client" target="main"/>
+    </state>      
+
+    <state id="update-client"> 
+        <onentry>
+            <var name="selected" expr="#{book.client['@id'][param.clid]}"/>
+        </onentry>
+        <invoke type="scxml" src="faces-flow-client-update.xhtml">
+            <param name="clientId" expr="#{selected.id.$text}"/>
+            <param name="clientName" expr="#{selected.name.$text}"/>
+            <param name="clientSurname" expr="#{selected.surname.$text}"/>
+            <param name="clientMobilePhone" expr="#{selected.phone['@type=\'mobile\''].$text}"/>
+            <param name="clientHomePhone" expr="#{selected.phone['@type=\'home\''].$text}"/>
+        </invoke>
+        <transition event="error.execution" target="main"/>
+
+        <transition 
+            event="done.invoke.update-client" 
+            cond="#{done.success}" 
+            target="main">
+            <assign location="#{selected.name.$text}" expr="#{done.name}"/>
+            <assign location="#{selected.surname.$text}" expr="#{done.surname}"/>
+            <assign location="#{selected.phone['@type=\'mobile\''].$text}" expr="#{done.mobilePhone}"/>
+            <assign location="#{selected.phone['@type=\'home\''].$text}" expr="#{done.homePhone}"/>
+        </transition> 
+        <transition event="done.invoke.update-client" target="main"/>
+    </state>      
+
     <state id="assing-test">
         <onentry>
             <assign 
                 location="#{main.assignedTest1}" 
-                expr="#{book['client[last()]/phone[@type=\'mobile\']']}"
+                expr="#{book['client[last()]/phone[@type=\'mobile\']'].$text}"
+            />
+            <assign 
+                location="#{client.assignedTest1}" 
+                expr="#{book['client[last()]/phone[@type=\'home\']'].$text}"
+            />
+            <assign 
+                location="chartAssignedTest" 
+                expr="#{book['client[1]/phone[@type=\'home\']'].$text}"
             />
             <raise event="assing-test.finish"/>
         </onentry>
@@ -64,30 +114,23 @@ limitations under the License.
     <state id="clear-test">
         <onentry>
             <assign location="#{main.assignedTest1}"/>
+            <assign location="#{client.assignedTest1}"/>
+            <assign location="chartAssignedTest"/>
             <raise event="clear-test.finish"/>
         </onentry>
-        <transition event="clear-test.finish" target="main"/>
+        <transition event="clear-test.finish" target="main">
+        </transition>
     </state> 
-
-
-    <state id="show-client"> 
-        <invoke type="scxml" src="faces-flow-show-client.xhtml">
-            <param name="clientId" expr="#{param.clid}"/>
-            <param name="clientName" expr="#{book['client[@id=\'1\']/phone[@type=\'mobile\']']}"/>
-        </invoke>
-        <transition event="error.execution" target="main"/>
-        <transition event="done.invoke.show-client" target="main"/>
-    </state>      
-
-
+        
     <state id="error"> 
         <invoke type="scxml" src="/common/error.scxml">
             <finalize/>
         </invoke>
-        <transition event="error.invoke.done" target="exit"/>
+        <transition event="done.invoke.error.*" target="exit"/>
     </state>      
 
     <final id="exit">
+
     </final>
 
-</scxml>
+</scxml>    
