@@ -42,29 +42,29 @@
                     <p/>
                     Data assigned in:
                     <p/>
-                    <b>Value:</b> #{chart.test_data}
+                    <b>Value:</b> #{currentState.assignedTest1}
                     <p/>
                     <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
                         <h:commandButton action="calculate" value="Calculate Test">
-                            <f:ajax render="asign-test"/>
+                            <f:ajax render="@form"/>
                         </h:commandButton>
                         <h:commandButton
                             action="back"
                             disabled="#{!chart.test_hasback}"
                             value="Go Back">
-                            <f:ajax render="asign-test"/>
+                            <f:ajax render="@form"/>
                         </h:commandButton>
                         <h:commandButton
                             action="next"
                             disabled="#{!chart.test_hasnext}"
                             value="Go Next">
-                            <f:ajax render="asign-test"/>
+                            <f:ajax render="@form"/>
                         </h:commandButton>
                         <h:commandButton action="clear" value="Clear Test">
-                            <f:ajax render="asign-test"/>
+                            <f:ajax render="@form"/>
                         </h:commandButton>
                         <h:commandButton action="go-view" value="Go View">
-                            <f:ajax render="asign-test"/>
+                            <f:ajax render="@form"/>
                         </h:commandButton>
                     </h:panelGrid>
                 </h:panelGroup>

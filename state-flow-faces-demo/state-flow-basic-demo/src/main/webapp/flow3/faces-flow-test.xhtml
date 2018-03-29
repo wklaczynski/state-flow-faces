@@ -39,11 +39,13 @@
                 <x:transition event="view.action.cancel" target="cancel"/>
 
                 <x:transition event="view.action.clear">
-                    <x:assign location="test_data" expr="I done transition for event clear in view process."/>
+                    <x:assign location="#{main.assignedTest1}"
+                              expr="I done transition for event clear in view process."/>
                 </x:transition>
 
                 <x:transition event="view.action.calculate">
-                    <x:assign location="test_data" expr="I done transition for event calculate in view process."/>
+                    <x:assign location="#{main.assignedTest1}"
+                              expr="I done transition for event calculate in view process."/>
                 </x:transition>
 
                 <x:transition event="view.action.go-view" target="view-process"/>
@@ -52,7 +54,8 @@
             <x:state id="test-process">
                 <x:initial>
                     <x:transition target="test-process-1">
-                        <x:assign location="#{currentState.assignedTest1}" expr="I'm Setiitng in test-process"/>
+                        <x:assign location="#{currentState.assignedTest1}"
+                                  expr="Initialized by test-process"/>
                     </x:transition>
                 </x:initial>
 
@@ -62,11 +65,19 @@
 
                 <x:transition event="view.action.clear" 
                               cond="#{!x:in('test-process-1')}" 
-                              target="test-process-1"/>
+                              target="test-process-1">
+                    <x:assign location="#{currentState.assignedTest1}"
+                              expr="I cleaned the data in test-process target, when not in target 'test-process-1'."/>
+                </x:transition>
+                <x:transition event="view.action.clear" target="test-process-1">
+                    <x:assign location="#{currentState.assignedTest1}"
+                              expr="I cleaned the data in 'test-process' target, when not in target 'test-process-1'."/>
+                </x:transition>
 
                 <x:state id="test-process-1">
                     <x:onentry>
-                        <x:assign location="test_data" expr="I enty state in view process 1."/>
+                        <x:assign location="#{main.assignedTest1}" 
+                                  expr="I enty state in view process 1."/>
                         <x:assign location="test_hasnext" expr="true"/>
                         <x:assign location="test_hasback" expr="false"/>
                     </x:onentry>
@@ -75,7 +86,10 @@
 
                 <x:state id="test-process-2">
                     <x:onentry>
-                        <x:assign location="test_data" expr="I enty state in view process 2."/>
+                        <x:assign location="#{currentState.assignedTest1}"
+                                  expr="Changed by test-process 2"/>
+                        <x:assign location="#{main.assignedTest1}"
+                                  expr="I enty state in view process 2."/>
                         <x:assign location="test_hasnext" expr="true"/>
                         <x:assign location="test_hasback" expr="true"/>
                     </x:onentry>
@@ -85,7 +99,8 @@
 
                 <x:state id="test-process-3">
                     <x:onentry>
-                        <x:assign location="test_data" expr="I enty state in view process 3."/>
+                        <x:assign location="#{main.assignedTest1}"
+                                  expr="I enty state in view process 3."/>
                         <x:assign location="test_hasnext" expr="false"/>
                         <x:assign location="test_hasback" expr="true"/>
                     </x:onentry>
@@ -107,6 +122,19 @@
 
             <x:transition event="view.action.return" target="test-process-return"/>
             <x:transition event="view.action.start-again" target="show"/>
+
+            <x:transition event="view.action.calculate-1">
+                <x:assign location="#{currentState.assignedTest1}"
+                          expr="Changed by 'calculate-1' in 'view-process' state"/>
+            </x:transition>
+
+            <x:transition event="view.action.calculate-2">
+                <x:assign location="#{currentState.assignedTest1}"
+                          expr="Changed by 'calculate-2' in 'view-process' state"/>
+                <x:assign location="#{main.assignedTest1}"
+                          expr="Changed by 'calculate-2' in 'view-process' state"/>
+            </x:transition>
+
         </x:state>
 
 

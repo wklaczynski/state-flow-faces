@@ -20,19 +20,41 @@
                 <h:panelGroup>
                     <h:messages/> 
                 </h:panelGroup>
+                <h:panelGroup>
+                    <hr/>
+                    <p/>
+                    <b>Used bean main:</b>
+                    <p/>\#{main.beanTitle} = <i>"#{main.beanTitle}"</i>
+                    <p/>\#{main.assignedTest1} = <i>"#{main.assignedTest1}"</i>
+                    <pre>This beans are in dialog scope. This beans can see data from parent and child execution.</pre>
+                    <p/><b>Used bean client:</b>
+                    <p/>"\#{currentState.beanTitle}" = <i>"#{currentState.beanTitle}"</i> 
+                    <p/>"\#{currentState.assignedTest1}" = <i>"#{currentState.assignedTest1}"</i> 
+                    <pre>This bean is in state scope in "@composite". This bean can not see data from parent targets not in the common composite state or parallel.</pre>
+                    <hr/>
+                </h:panelGroup>
                 <h:panelGroup id="asign-test">
                     <h3>Test data manipulation in executed states.</h3>
                     <p/>
                     Data assigned in:
                     <p/>
-                    <b>Value:</b> #{chart.data}
+                    <b>Value:</b> #{main.assignedTest1}
                     <p/>
                     <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
+                        <h:commandButton action="calculate-1" value="Calculate 1">
+                            <f:ajax render="@form"/>
+                        </h:commandButton>
+                        <h:commandButton action="calculate-2" value="Calculate 2">
+                            <f:ajax render="@form"/>
+                        </h:commandButton>
                         <h:commandButton action="return" value="Return History Process">
-                            <f:ajax render="asign-test"/>
+                            <f:ajax render="@form"/>
+                        </h:commandButton>
+                        <h:commandButton action="return" value="Return History Process">
+                            <f:ajax render="@form"/>
                         </h:commandButton>
                         <h:commandButton action="start-again" value="Start Again Process">
-                            <f:ajax render="asign-test"/>
+                            <f:ajax render="@form"/>
                         </h:commandButton>
                     </h:panelGrid>
                 </h:panelGroup>

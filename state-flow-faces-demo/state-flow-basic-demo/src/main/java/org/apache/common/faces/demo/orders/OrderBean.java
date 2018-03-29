@@ -17,7 +17,7 @@ package org.apache.common.faces.demo.orders;
 
 import java.io.Serializable;
 import javax.inject.Named;
-import org.apache.common.faces.demo.orders.deta.Order;
+import org.apache.common.faces.demo.orders.data.Order;
 import org.apache.common.faces.state.annotation.StateChartScoped;
 
 /**
