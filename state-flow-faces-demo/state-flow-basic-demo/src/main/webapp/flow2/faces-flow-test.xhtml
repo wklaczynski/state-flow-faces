@@ -113,6 +113,23 @@
                     <x:transition event="view.action.back" target="test-process-2"/>
                 </x:state>             
             </x:state> 
+            
+            <x:state id="invoke-process">
+                <x:initial>
+                    <x:transition target="invoke-process-1"/>
+                </x:initial>
+                
+                <x:state id="invoke-process-1">
+                    <x:transition event="view.action.start-invoke" target="invoke-process-2"/>
+                </x:state>
+                
+                <x:state id="invoke-process-2">
+                    <x:invoke type="demo" src="show_my.png"/>
+                    
+                    <x:transition event="view.action.stop-invoke" target="invoke-process-1"/>
+                </x:state>
+            </x:state>
+            
         </x:parallel>
 
 

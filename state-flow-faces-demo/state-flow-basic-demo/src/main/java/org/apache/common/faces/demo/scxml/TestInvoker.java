@@ -18,6 +18,10 @@ package org.apache.common.faces.demo.scxml;
 
 import java.util.Map;
 import java.util.logging.Logger;
+import javax.faces.application.FacesMessage;
+import static javax.faces.application.FacesMessage.SEVERITY_INFO;
+import javax.faces.context.FacesContext;
+import org.apache.common.faces.state.annotation.StateChartInvoker;
 import org.apache.common.scxml.InvokeContext;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.SCXMLIOProcessor;
@@ -25,6 +29,7 @@ import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
 
+@StateChartInvoker("demo")
 public class TestInvoker implements Invoker {
 
     private final static Logger logger = Logger.getLogger(TestInvoker.class.getName());
@@ -57,6 +62,11 @@ public class TestInvoker implements Invoker {
     @Override
     public void invoke(final InvokeContext ictx, final String url, final Map<String, Object> params)
             throws InvokerException {
+        FacesContext fc = FacesContext.getCurrentInstance();
+
+        FacesMessage facesMessage = new FacesMessage("Yes, I'm starting witch src=" + url + "!");
+        facesMessage.setSeverity(SEVERITY_INFO);
+        fc.addMessage(null, facesMessage);
 
     }
 
@@ -78,7 +88,11 @@ public class TestInvoker implements Invoker {
     @Override
     public void cancel() throws InvokerException {
         cancelled = true;
+        FacesContext fc = FacesContext.getCurrentInstance();
 
+        FacesMessage facesMessage = new FacesMessage("Oh, I'm canceling!");
+        facesMessage.setSeverity(SEVERITY_INFO);
+        fc.addMessage(null, facesMessage);
     }
 
 }

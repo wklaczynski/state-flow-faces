@@ -69,6 +69,26 @@
                         </h:commandButton>
                     </h:panelGrid>
                 </h:panelGroup>
+                <h:panelGroup id="element-test">
+                    <h3>Test custom invoke elements.</h3>
+                    <h:panelGroup>
+                        <h:messages/> 
+                    </h:panelGroup>
+                    <h:panelGrid cellspacing="4" columns="6" style="bottom: 0px">
+                        <h:commandButton
+                            action="start-invoke"
+                            value="Test Start Invoke"
+                            immediate="false">
+                            <f:ajax render="@form"/>
+                        </h:commandButton>
+                        <h:commandButton
+                            action="stop-invoke"
+                            value="Test Stop Invoke"
+                            immediate="false">
+                            <f:ajax render="@form"/>
+                        </h:commandButton>
+                    </h:panelGrid>
+                </h:panelGroup>
                 <h:panelGroup>
                     <hr/>
                 </h:panelGroup>
