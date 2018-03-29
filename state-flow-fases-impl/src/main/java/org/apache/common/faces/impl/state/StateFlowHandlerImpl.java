@@ -67,6 +67,8 @@ import static org.apache.common.faces.state.StateFlow.SKIP_START_STATE_MACHINE_H
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.annotation.StateChartInvoker;
 import org.apache.common.faces.state.annotation.StateChartAction;
+import org.apache.common.faces.state.annotation.StateChartActions;
+import org.apache.common.faces.state.annotation.StateChartInvokers;
 import org.apache.common.scxml.env.AbstractSCXMLListener;
 import org.apache.common.scxml.env.SimpleContext;
 import org.apache.common.scxml.env.SimpleSCXMLListener;
@@ -99,16 +101,28 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         Set<Class<?>> annotatedClasses = (Set<Class<?>>) ctx.getAttribute(ANNOTATED_CLASSES);
         for (Class<?> type : annotatedClasses) {
-
             if (type.isAnnotationPresent(StateChartAction.class)) {
-                StateChartAction a = type.getAnnotation(StateChartAction.class);
+                StateChartAction def = type.getAnnotation(StateChartAction.class);
                 Class<?> javaClass = type;
-                CustomAction action = new CustomAction(a.namespaceURI(), a.value(), (Class<? extends Action>) javaClass);
+                CustomAction action = new CustomAction(def.namespaceURI(), def.value(), (Class<? extends Action>) javaClass);
                 customActions.add(action);
+            } else if (type.isAnnotationPresent(StateChartActions.class)) {
+                StateChartActions defs = type.getAnnotation(StateChartActions.class);
+                for (StateChartAction def : defs.value()) {
+                    Class<?> javaClass = type;
+                    CustomAction action = new CustomAction(def.namespaceURI(), def.value(), (Class<? extends Action>) javaClass);
+                    customActions.add(action);
+                }
             } else if (type.isAnnotationPresent(StateChartInvoker.class)) {
-                StateChartInvoker a = type.getAnnotation(StateChartInvoker.class);
+                StateChartInvoker def = type.getAnnotation(StateChartInvoker.class);
                 Class<?> javaClass = type;
-                customInvokers.put(a.value(), (Class<Invoker>) javaClass);
+                customInvokers.put(def.value(), (Class<Invoker>) javaClass);
+            } else if (type.isAnnotationPresent(StateChartInvokers.class)) {
+                StateChartInvokers defs = type.getAnnotation(StateChartInvokers.class);
+                for (StateChartInvoker def : defs.value()) {
+                    Class<?> javaClass = type;
+                    customInvokers.put(def.value(), (Class<Invoker>) javaClass);
+                }
             }
         }
     }
@@ -244,7 +258,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         SCXMLExecutor executor = new SCXMLExecutor(evaluator, dispatcher, errorReporter);
         executor.setStateMachine(scxml);
         executor.addListener(scxml, new StateFlowCDIListener(executor));
-        
+
         executor.setRootContext(executor.getEvaluator().newContext(null));
 
         if (context.getApplication().getProjectStage() == ProjectStage.Production) {
@@ -286,7 +300,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         SCXMLExecutor executor = new SCXMLExecutor(parent, invokeId, scxml);
         executor.setRootContext(parent.getRootContext());
-        
+
         executor.addListener(scxml, new StateFlowCDIListener(executor));
 
         if (context.getApplication().getProjectStage() == ProjectStage.Production) {
@@ -332,7 +346,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             if (root) {
                 stack.push(executor);
             }
-            
+
             Context rootCtx = executor.getEvaluator().newContext(null);
             executor.setRootContext(rootCtx);
 
@@ -561,9 +575,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     }
 
                     Context context = new SimpleContext();
-                    
+
                     restoreContext(context, executor.getRootContext(), values[2]);
-                    
+
                     executor.restoreState(context, values[3]);
 
                     result.getRoots().add(executor);
@@ -655,9 +669,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     }
 
                     Context context = new SimpleContext();
-                    
+
                     restoreContext(context, executor.getRootContext(), values[2]);
-                    
+
                     executor.restoreState(context, values[3]);
 
                     executors.add(executor);

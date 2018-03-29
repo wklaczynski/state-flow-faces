@@ -23,7 +23,9 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.HandlesTypes;
 import static org.apache.common.faces.impl.state.StateFlowConstants.ANNOTATED_CLASSES;
 import org.apache.common.faces.state.annotation.StateChartAction;
+import org.apache.common.faces.state.annotation.StateChartActions;
 import org.apache.common.faces.state.annotation.StateChartInvoker;
+import org.apache.common.faces.state.annotation.StateChartInvokers;
 
 /**
  *
@@ -32,7 +34,9 @@ import org.apache.common.faces.state.annotation.StateChartInvoker;
 @SuppressWarnings({"UnusedDeclaration"})
 @HandlesTypes({
     StateChartAction.class,
-    StateChartInvoker.class
+    StateChartActions.class,
+    StateChartInvoker.class,
+    StateChartInvokers.class
 })
 public class StateFlowFacesInitializer implements ServletContainerInitializer {
 
