@@ -23,19 +23,22 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Target;
 
 /**
- * The annotation register invoker classs by type.;
+ * A custom action is simply a tuple consisting of a namespace URI,
+ * the local name for the custom action and the corresponding
+ * {@link Action} class.
  *
  */
 @Target({TYPE})
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface StateChartInvoker {
+public @interface StateChartActions {
 
     /**
-     * Get the type for this &lt;invoke&gt; element.
+     * The <code>StateChartAction</code> mappings that are to be applied.
      *
-     * @return String Returns the type.
+     * @return StateChartAction...
      */
-    String value();
+    StateChartAction[] value();
+
 }

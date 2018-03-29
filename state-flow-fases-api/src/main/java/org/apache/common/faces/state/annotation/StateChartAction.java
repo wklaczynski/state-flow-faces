@@ -22,13 +22,28 @@ import java.lang.annotation.Retention;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Target;
 
+/**
+ * A custom action is simply a tuple consisting of a namespace URI,
+ * the local name for the custom action and the corresponding
+ * {@link Action} class.
+ *
+ */
 @Target({TYPE})
 @Documented
 @Retention(RUNTIME)
 @Inherited
 public @interface StateChartAction {
+
+    /**
+     * Get the local name for this custom action.
+     *
+     * @return Returns the local name.
+     */
     String value();
-    String namespaceURI() default "http://xmlns.jcp.org/flow/custom";
+
+    /**
+     * The namespace this custom action belongs to.
+     * @return Returns the namespace URI.
+     */
+    String namespaceURI() default "http://xmlns.apache.org/faces/custom";
 }
-
-

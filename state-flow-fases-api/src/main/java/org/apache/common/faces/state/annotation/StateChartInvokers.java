@@ -22,20 +22,18 @@ import java.lang.annotation.Retention;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Target;
 
-/**
- * The annotation register invoker classs by type.;
- *
- */
 @Target({TYPE})
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface StateChartInvoker {
-
+public @interface StateChartInvokers {
+   
     /**
-     * Get the type for this &lt;invoke&gt; element.
+     * The <code>StateChartAction</code> mappings that are to be applied.
      *
-     * @return String Returns the type.
+     * @return StateChartInvoker...
      */
-    String value();
+    StateChartInvoker[] value();
 }
+
+
