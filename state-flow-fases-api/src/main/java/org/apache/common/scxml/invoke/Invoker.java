@@ -17,6 +17,7 @@
 package org.apache.common.scxml.invoke;
 
 import java.util.Map;
+import org.apache.common.scxml.InvokeContext;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.SCXMLIOProcessor;
 import org.apache.common.scxml.TriggerEvent;
@@ -97,29 +98,32 @@ public interface Invoker {
     /**
      * Invoke the SCXML document located at an external URL.
      *
+     * @param ictx The InvokeContext for this invoker instance
      * @param url The source URL of the SCXML document to invoke.
      * @param params The &lt;param&gt; values
      * @throws InvokerException In case there is a fatal problem with
      *                          invoking the source.
      */
-    void invoke(String url, Map<String, Object> params)
+    void invoke(InvokeContext ictx, String url, Map<String, Object> params)
     throws InvokerException;
 
     /**
      * Invoke the SCXML document provided as inline XML content
      *
+     * @param ictx The InvokeContext for this invoker instance
      * @param content The SCXML document as inline XML content
      * @param params The &lt;param&gt; values
      * @throws InvokerException In case there is a fatal problem with
      *                          invoking the source.
      */
-    void invokeContent(String content, Map<String, Object> params)
+    void invokeContent(InvokeContext ictx, String content, Map<String, Object> params)
             throws InvokerException;
 
     /**
      * Forwards the event triggered on the parent state machine
      * on to the invoked activity.
      *
+     * @param ictx The InvokeContext for this invoker instance
      * @param event
      *            an external event which triggered during the last
      *            time quantum
@@ -128,7 +132,7 @@ public interface Invoker {
      *                          processing the events forwarded by the
      *                          parent state machine.
      */
-    void parentEvent(TriggerEvent event)
+    void parentEvent(InvokeContext ictx, TriggerEvent event)
     throws InvokerException;
 
     /**

@@ -28,6 +28,7 @@ import org.apache.common.scxml.ActionExecutionContext;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.ErrorReporter;
 import org.apache.common.scxml.EventBuilder;
+import org.apache.common.scxml.InvokeContext;
 import org.apache.common.scxml.ParentSCXMLIOProcessor;
 import org.apache.common.scxml.SCInstance;
 import org.apache.common.scxml.SCXMLExecutionContext;
@@ -1103,8 +1104,10 @@ public class SCXMLSemanticsImpl implements SCXMLSemantics {
                 if (entry.getKey().isAutoForward() &&
                         !(event.getName().equals("done.invoke."+entry.getValue()) ||
                                 event.getName().startsWith("done.invoke."+entry.getValue()+"."))) {
+                    
+                    InvokeContext ictx = new InvokeContext(exctx, invoke);
                     try {
-                        exctx.getInvoker(entry.getKey()).parentEvent(event);
+                        exctx.getInvoker(entry.getKey()).parentEvent(ictx, event);
                     } catch (InvokerException ie) {
                         exctx.getAppLog().log(Level.SEVERE, ie.getMessage(), ie);
                         throw new ModelException(ie.getMessage(), ie.getCause());

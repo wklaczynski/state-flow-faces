@@ -38,7 +38,7 @@ public @interface StateTargetScoped {
      * State#getId of a defined scxml for this application.
      *
      * @return transition id or:
-     * "@current" - when bean assigned to last atomic transition or top parallel transition for all transitions.
+     * "@common" - when bean assigned to last target transition or top parallel for all active targets.
      * "@top" - when bean assigned to top composite transition or top parallel transition for all atomic transitions.
      * "@composite" - when bean assigned to last composite target or top parallel transition.
      */

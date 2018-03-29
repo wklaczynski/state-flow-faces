@@ -26,6 +26,7 @@ import org.apache.common.scxml.io.ContentParser;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.Evaluator;
 import org.apache.common.scxml.EventBuilder;
+import org.apache.common.scxml.InvokeContext;
 import org.apache.common.scxml.PathResolver;
 import org.apache.common.scxml.SCXMLConstants;
 import org.apache.common.scxml.SCXMLExecutionContext;
@@ -462,10 +463,12 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
             PayloadBuilder.addNamelistDataToPayload(parentState, ctx, eval, exctx.getErrorReporter(), namelist, payloadDataMap);
             PayloadBuilder.addParamsToPayload(ctx, eval, paramsList, payloadDataMap);
             invoker.setParentSCXMLExecutor(exctx.getSCXMLExecutor());
+            
+            InvokeContext ivctx = new InvokeContext(exctx, this);
             if (src != null) {
-                invoker.invoke(src, payloadDataMap);
+                invoker.invoke(ivctx, src, payloadDataMap);
             } else {
-                invoker.invokeContent((String) contentValue, payloadDataMap);
+                invoker.invokeContent(ivctx, (String) contentValue, payloadDataMap);
             }
             exctx.registerInvoker(this, invoker);
         } catch (InvokerException | ActionExecutionError | SCXMLExpressionException e) {
