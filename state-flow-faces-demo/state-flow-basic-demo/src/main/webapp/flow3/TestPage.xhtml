@@ -24,6 +24,19 @@
                 <h:panelGroup>
                     <h:messages/> 
                 </h:panelGroup>
+                <h:panelGroup>
+                    <hr/>
+                    <p/>
+                    <b>Used bean main:</b>
+                    <p/>\#{main.beanTitle} = <i>"#{main.beanTitle}"</i>
+                    <p/>\#{main.assignedTest1} = <i>"#{main.assignedTest1}"</i>
+                    <pre>This beans are in dialog scope. This beans can see data from parent and child execution.</pre>
+                    <p/><b>Used bean client:</b>
+                    <p/>"\#{currentState.beanTitle}" = <i>"#{currentState.beanTitle}"</i> 
+                    <p/>"\#{currentState.assignedTest1}" = <i>"#{currentState.assignedTest1}"</i> 
+                    <pre>This bean is in state scope in "@composite". This bean can not see data from parent targets not in the common composite state or parallel.</pre>
+                    <hr/>
+                </h:panelGroup>
                 <h:panelGroup id="asign-test">
                     <h3>Test data manipulation in executed states.</h3>
                     <p/>
