@@ -16,6 +16,9 @@
 package org.apache.common.faces.demo.basic;
 
 import java.io.Serializable;
+import javax.faces.application.FacesMessage;
+import static javax.faces.application.FacesMessage.SEVERITY_INFO;
+import javax.faces.context.FacesContext;
 import javax.inject.Named;
 import org.apache.common.faces.state.annotation.StateDialogScoped;
 
@@ -63,5 +66,16 @@ public class MainBean implements Serializable {
         this.assignedTest2 = assignedTest2;
     }
     
+    public void testCall(String name, String value) {
+        FacesContext fc = FacesContext.getCurrentInstance();
+
+        FacesMessage facesMessage = new FacesMessage(String.format(
+                "I'm called to testCall method in main bean, witch params name=%s value=%s.",
+        name, value));
+        facesMessage.setSeverity(SEVERITY_INFO);
+        fc.addMessage(null, facesMessage);
+        
+        
+    }
     
 }

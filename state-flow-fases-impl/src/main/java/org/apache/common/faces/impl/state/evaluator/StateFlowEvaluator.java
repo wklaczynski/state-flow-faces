@@ -34,12 +34,12 @@ import org.apache.common.scxml.Context;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.SCXMLExpressionException;
 import org.apache.common.scxml.env.AbstractBaseEvaluator;
-import static org.apache.common.faces.impl.state.evaluator.StateFlowEvaluatorProvider.SUPPORTED_DATA_MODEL;
 import org.apache.common.faces.impl.state.utils.Util;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import org.apache.common.scxml.SCXMLIOProcessor;
 import org.apache.common.scxml.SCXMLSystemContext;
 import org.apache.common.scxml.env.EffectiveContextMap;
+import static org.apache.common.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
 
 /**
  *
@@ -63,7 +63,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
 
     @Override
     public String getSupportedDatamodel() {
-        return SUPPORTED_DATA_MODEL;
+        return SCXML_DATA_MODEL;
     }
 
     @Override

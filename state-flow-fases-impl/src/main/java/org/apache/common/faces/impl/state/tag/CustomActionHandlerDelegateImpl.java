@@ -32,10 +32,10 @@ import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.CURR
 import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.getElement;
 import org.apache.common.faces.state.tag.ActionHandler;
 import org.apache.common.scxml.model.Action;
+import org.apache.common.scxml.model.ActionsContainer;
 import org.apache.common.scxml.model.CustomAction;
 import org.apache.common.scxml.model.CustomActionWrapper;
 import org.apache.common.scxml.model.Executable;
-import org.apache.common.scxml.model.If;
 
 /**
  *
@@ -136,10 +136,13 @@ public class CustomActionHandlerDelegateImpl extends TagHandlerDelegate {
             Executable executable = (Executable) currentFlow;
             executable.addAction(action);
             action.setParent(executable);
-        } else if (currentFlow instanceof If) {
-            If ifaction = (If) currentFlow;
-            ifaction.addAction(action);
-            action.setParent(ifaction.getParent());
+        } else if (currentFlow instanceof ActionsContainer) {
+            ActionsContainer continer = (ActionsContainer) currentFlow;
+            continer.addAction(action);
+            if (continer instanceof Action) {
+                Action paction = (Action) continer;
+                action.setParent(paction.getParent());
+            }
         } else {
             throw new TagException(owner.getTag(), "can not stored this element on parent element.");
         }

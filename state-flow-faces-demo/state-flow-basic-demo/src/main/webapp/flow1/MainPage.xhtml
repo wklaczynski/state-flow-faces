@@ -115,10 +115,31 @@
                         <h:commandButton action="clear" value="Clear Test">
                             <f:ajax render="@form"/>
                         </h:commandButton>
+                    </h:panelGrid>
+                </h:panelGroup>
+                <h:panelGroup id="element-test">
+                    <h3>Test action and invoke elements.</h3>
+                    <h:panelGroup>
+                        <h:messages/> 
+                    </h:panelGroup>
+                    <h:panelGrid cellspacing="4" columns="6" style="bottom: 0px">
                         <h:commandButton
-                            action="custom-redirect"
+                            action="custom-action"
                             value="Test Custom Action"
                             immediate="false">
+                            <f:ajax render="@form"/>
+                        </h:commandButton>
+                        <h:commandButton
+                            action="fx-redirect"
+                            value="Test Redirect"
+                            immediate="false">
+                            <f:ajax render="@form"/>
+                        </h:commandButton>
+                        <h:commandButton
+                            action="fx-call"
+                            value="Test Call Method"
+                            immediate="false">
+                            <f:ajax render="@form"/>
                         </h:commandButton>
                     </h:panelGrid>
                 </h:panelGroup>

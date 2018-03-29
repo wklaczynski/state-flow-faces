@@ -18,7 +18,6 @@ package org.apache.common.faces.impl.state.tag.scxml;
 import java.io.IOException;
 import javax.faces.component.UIComponent;
 import org.apache.common.scxml.model.Finalize;
-import org.apache.common.scxml.model.If;
 import org.apache.common.scxml.model.Log;
 import org.apache.common.scxml.model.OnEntry;
 import org.apache.common.scxml.model.OnExit;
@@ -27,6 +26,7 @@ import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
 import org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler;
+import org.apache.common.scxml.model.ActionsContainer;
 import org.apache.common.scxml.model.SCXML;
 
 /**
@@ -45,7 +45,8 @@ public class LogTagHandler extends AbstractFlowTagHandler<Log> {
         in("onexit", OnExit.class);
         in("transition", Transition.class);
         in("finalize", Finalize.class);
-        in("if", If.class);
+        
+        impl("actions continer", ActionsContainer.class);
 
         top("onentry", OnEntry.class);
         top("onexit", OnExit.class);

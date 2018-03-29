@@ -16,7 +16,6 @@
 package org.apache.common.faces.impl.state.tag;
 
 import com.sun.faces.facelets.compiler.UIInstructions;
-import org.apache.common.scxml.model.If;
 import org.apache.common.scxml.model.Initial;
 import org.apache.common.scxml.model.Transition;
 import org.apache.common.scxml.model.Executable;
@@ -57,6 +56,7 @@ import org.apache.common.faces.impl.state.log.FlowLogger;
 import org.apache.common.faces.impl.state.utils.Util;
 import static org.apache.common.faces.state.StateFlow.CUSTOM_ACTIONS_HINT;
 import org.apache.common.scxml.io.ContentParser;
+import org.apache.common.scxml.model.ActionsContainer;
 import org.apache.common.scxml.model.CustomAction;
 import org.apache.common.scxml.model.ParsedValue;
 
@@ -79,6 +79,7 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
     protected static final Pattern dataFct = Pattern.compile("Data\\(");
 
     private final Map<String, Class> parentMap = new LinkedHashMap<>();
+    private final Map<String, Class> parentImplMap = new LinkedHashMap<>();
     private final Map<String, Class> topParentMap = new LinkedHashMap<>();
 
     protected final String alias;
@@ -98,6 +99,10 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
     protected void in(String alias, Class type) {
         parentMap.put(alias, type);
         topParentMap.put(alias, type);
+    }
+
+    protected void impl(String alias, Class type) {
+        parentImplMap.put(alias, type);
     }
 
     protected void top(String alias, Class type) {
@@ -127,7 +132,7 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
             return;
         }
 
-        boolean accept = parentMap.isEmpty();
+        boolean accept = parentMap.isEmpty() && parentImplMap.isEmpty();
         for (Map.Entry<String, Class> entry : parentMap.entrySet()) {
             if (entry.getValue().equals(parentFlow.getClass())) {
                 accept = true;
@@ -135,26 +140,59 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
             }
         }
 
-        if (!accept) {
-            String elmess = buildTagsMessage(parentMap.keySet());
-            throw new TagException(this.tag, String.format("does not contain in parent, parent mus be %s element type.", elmess));
-        }
-
-        accept = topParentMap.isEmpty();
-        for (Map.Entry<String, Class> entry : topParentMap.entrySet()) {
-            if (getElementStack(parent, entry.getValue()) != null) {
+        for (Map.Entry<String, Class> entry : parentImplMap.entrySet()) {
+            if (entry.getValue().isAssignableFrom(parentFlow.getClass())) {
                 accept = true;
                 break;
             }
         }
 
         if (!accept) {
+            if (parentImplMap.isEmpty()) {
+                String pamess = buildTagsMessage(parentMap.keySet());
+                throw new TagException(this.tag, String.format("the element does not added in parent element, parent element must be %s element type.", pamess));
+
+            } else if (parentMap.isEmpty()) {
+                String immess = buildImplMessage(parentImplMap.keySet());
+                throw new TagException(this.tag, String.format("the element does not added in parent element, parent element must implemented %s element type.", immess));
+            } else {
+                String pamess = buildTagsMessage(parentMap.keySet());
+                String immess = buildImplMessage(parentImplMap.keySet());
+                throw new TagException(this.tag, String.format("the element does not added in parent element, parent element must be %s or implemented %s element type.", pamess, immess));
+            }
+
+        }
+
+        boolean topaccept = topParentMap.isEmpty();
+        for (Map.Entry<String, Class> entry : topParentMap.entrySet()) {
+            if (getElementStack(parent, entry.getValue()) != null) {
+                topaccept = true;
+                break;
+            }
+        }
+
+        if (!topaccept) {
             String elmess = buildTagsMessage(topParentMap.keySet());
-            throw new TagException(this.tag, String.format("does not contain in top, any top %s element type.", elmess));
+            throw new TagException(this.tag, String.format("the element does not added in top structure, any top elements must be %s element type.", elmess));
         }
     }
 
     private String buildTagsMessage(Collection<String> elements) {
+        StringBuilder sb = new StringBuilder();
+        if (elements.size() > 1) {
+            sb.append(" one of [");
+        }
+        for (String element : elements) {
+            sb.append("<").append(element).append(">,");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        if (elements.size() > 1) {
+            sb.append("]");
+        }
+        return sb.toString();
+    }
+
+    private String buildImplMessage(Collection<String> elements) {
         StringBuilder sb = new StringBuilder();
         if (elements.size() > 1) {
             sb.append(" one of [");
@@ -227,12 +265,11 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         }
     }
 
-    
     public static List<CustomAction> getCustomActions(FaceletContext ctx, UIComponent parent) {
         List<CustomAction> customActions = (List<CustomAction>) getElement(parent, CUSTOM_ACTIONS_HINT);
         return customActions;
     }
-    
+
     public static final void pushElement(UIComponent parent, String name, Object element) {
         Stack stack = (Stack) parent.getAttributes().get(name);
         if (stack == null) {
@@ -380,10 +417,13 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
             Executable executable = (Executable) currentFlow;
             executable.addAction(action);
             action.setParent(executable);
-        } else if (currentFlow instanceof If) {
-            If ifaction = (If) currentFlow;
-            ifaction.addAction(action);
-            action.setParent(ifaction.getParent());
+        } else if (currentFlow instanceof ActionsContainer) {
+            ActionsContainer continer = (ActionsContainer) currentFlow;
+            continer.addAction(action);
+            if (continer instanceof Action) {
+                Action paction = (Action) continer;
+                action.setParent(paction.getParent());
+            }
         } else {
             throw new TagException(this.tag, "can not stored this element on parent element.");
         }
@@ -483,8 +523,7 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         }
         return result;
     }
-    
-    
+
     public ParsedValue getParsedResorceValue(FaceletContext ctx, UIComponent parent, String url) throws IOException {
         ParsedValue result = null;
         try {
@@ -550,5 +589,5 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         }
         return result;
     }
-    
+
 }

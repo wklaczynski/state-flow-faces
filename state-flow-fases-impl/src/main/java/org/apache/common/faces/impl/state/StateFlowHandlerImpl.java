@@ -61,6 +61,7 @@ import org.apache.common.faces.impl.state.cdi.StateFlowCDIListener;
 import org.apache.common.faces.impl.state.config.StateWebConfiguration;
 import org.apache.common.faces.impl.state.invokers.SubInvoker;
 import org.apache.common.faces.impl.state.invokers.ViewInvoker;
+import org.apache.common.faces.impl.state.tag.faces.SetVariable;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
@@ -75,7 +76,10 @@ import org.apache.common.scxml.env.SimpleSCXMLListener;
 import static org.apache.common.scxml.io.StateHolderSaver.restoreContext;
 import static org.apache.common.scxml.io.StateHolderSaver.saveContext;
 import org.apache.common.scxml.model.EnterableState;
-import org.apache.common.scxml.model.Var;
+import static org.apache.common.faces.impl.state.StateFlowImplConstants.FXSCXML_DATA_MODEL;
+import static org.apache.common.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
+import org.apache.common.faces.impl.state.tag.faces.MethodCall;
+import org.apache.common.faces.impl.state.tag.faces.Redirect;
 
 /**
  *
@@ -97,7 +101,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         customInvokers.put("view", ViewInvoker.class);
         customInvokers.put("scxml", SubInvoker.class);
 
-        customActions.add(new CustomAction("http://xmlns.apache.org/faces/scxml", "var", Var.class));
+        customActions.add(new CustomAction(SCXML_DATA_MODEL, "var", SetVariable.class));
+        
+        customActions.add(new CustomAction(FXSCXML_DATA_MODEL, "call", MethodCall.class));
+        customActions.add(new CustomAction(FXSCXML_DATA_MODEL, "redirect", Redirect.class));
 
         Set<Class<?>> annotatedClasses = (Set<Class<?>>) ctx.getAttribute(ANNOTATED_CLASSES);
         for (Class<?> type : annotatedClasses) {

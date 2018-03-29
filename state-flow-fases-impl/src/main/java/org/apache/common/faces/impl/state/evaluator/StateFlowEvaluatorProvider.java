@@ -18,6 +18,7 @@ package org.apache.common.faces.impl.state.evaluator;
 import org.apache.common.scxml.Evaluator;
 import org.apache.common.scxml.EvaluatorProvider;
 import org.apache.common.scxml.model.SCXML;
+import static org.apache.common.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
 
 /**
  *
@@ -25,11 +26,9 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class StateFlowEvaluatorProvider implements EvaluatorProvider {
 
-    public static final String SUPPORTED_DATA_MODEL = "http://xmlns.apache.org/faces/scxml";
-
     @Override
     public String getSupportedDatamodel() {
-        return SUPPORTED_DATA_MODEL;
+        return SCXML_DATA_MODEL;
     }
 
     @Override

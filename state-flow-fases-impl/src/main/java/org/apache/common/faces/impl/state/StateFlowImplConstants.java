@@ -54,5 +54,10 @@ public class StateFlowImplConstants {
     public static final String STATEFLOW_REFRESH_PERIOD_PARAM_NAME = "javax.faces.state.STATEFLOW_REFRESH_PERIOD";
 
     public static final String STATE_FLOW_STACK = STATE_FLOW_PREFIX + "FlowStack";
+    
+    public static final String SCXML_DATA_MODEL = "http://xmlns.apache.org/faces/scxml";
+    
+    public static final String FXSCXML_DATA_MODEL = "http://xmlns.apache.org/faces/fxscxml";
+    
 
 }

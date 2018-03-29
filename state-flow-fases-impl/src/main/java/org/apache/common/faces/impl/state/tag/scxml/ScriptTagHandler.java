@@ -28,6 +28,7 @@ import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
 import org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler;
 import org.apache.common.scxml.PathResolver;
+import org.apache.common.scxml.model.ActionsContainer;
 import org.apache.common.scxml.model.SCXML;
 import org.apache.common.scxml.model.Script;
 
@@ -50,7 +51,8 @@ public class ScriptTagHandler extends AbstractFlowTagHandler<Script> {
         in("onexit", OnExit.class);
         in("transition", Transition.class);
         in("finalize", Finalize.class);
-        in("if", If.class);
+        
+        impl("actions continer", ActionsContainer.class);
 
         top("onentry", OnEntry.class);
         top("onexit", OnExit.class);

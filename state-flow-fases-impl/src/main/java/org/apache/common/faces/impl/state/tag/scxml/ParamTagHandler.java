@@ -18,14 +18,11 @@ package org.apache.common.faces.impl.state.tag.scxml;
 import java.io.IOException;
 import java.util.List;
 import javax.faces.component.UIComponent;
-import org.apache.common.scxml.model.Invoke;
 import org.apache.common.scxml.model.Param;
-import org.apache.common.scxml.model.Send;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
 import org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler;
-import org.apache.common.scxml.model.DoneData;
 import org.apache.common.scxml.model.ParamsContainer;
 import org.apache.common.scxml.model.SCXML;
 
@@ -37,16 +34,16 @@ public class ParamTagHandler extends AbstractFlowTagHandler<Param> {
 
     protected final TagAttribute name;
     protected final TagAttribute expr;
+    protected final TagAttribute location;
     
     public ParamTagHandler(TagConfig config) {
         super(config, Param.class);
         
-        in("invoke", Invoke.class);
-        in("send", Send.class);
-        in("donedata", DoneData.class);
+        impl("params container", ParamsContainer.class);
         
         this.name = this.getRequiredAttribute("name");
-        this.expr = this.getRequiredAttribute("expr");
+        this.expr = this.getAttribute("expr");
+        this.location = this.getAttribute("location");
     }
 
     @Override
@@ -61,7 +58,8 @@ public class ParamTagHandler extends AbstractFlowTagHandler<Param> {
         decorate(ctx, parent, param);
 
         param.setName(name.getValue());
-        param.setExpr(expr.getValue());
+        param.setExpr(expr != null ? expr.getValue() : null);
+        param.setLocation(location != null ? location.getValue() : null);
         
         params.add(param);
         

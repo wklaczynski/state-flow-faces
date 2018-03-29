@@ -298,7 +298,7 @@ limitations under the License.
         <attribute>
             <description><![CDATA[A value expression (see 5.9.3 Legal Data Values and Value Expressions) that is evaluated to provide the value.]]></description>
             <name>expr</name>
-            <required>true</required>
+            <required>false</required>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
@@ -402,7 +402,7 @@ limitations under the License.
         <description><![CDATA[The <finalize> element enables an invoking session to update its data model with data contained in events returned by the invoked session. <finalize> contains executable content that is executed whenever the external service returns an event after the <invoke> has been executed. This content is applied before the system looks for transitions that match the event. Within the executable content, the system variable '_event' can be used to refer to the data contained in the event which is being processed.In the case of parallel states, only the finalize code in the original invoking state is executed.]]></description>
         <handler-class>org.apache.common.faces.impl.state.tag.scxml.FinalizeTagHandler</handler-class>
     </tag>
-    
+                        
     <!--Custom action unspecfied SCXML-->
     <tag>
         <tag-name>var</tag-name>
