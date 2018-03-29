@@ -102,7 +102,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         customInvokers.put("scxml", SubInvoker.class);
 
         customActions.add(new CustomAction(SCXML_DATA_MODEL, "var", SetVariable.class));
-        
+
         customActions.add(new CustomAction(FXSCXML_DATA_MODEL, "call", MethodCall.class));
         customActions.add(new CustomAction(FXSCXML_DATA_MODEL, "redirect", Redirect.class));
 
@@ -538,6 +538,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 SCXML stateMachine = executor.getStateMachine();
 
                 Context context = new SimpleContext();
+                Context.setCurrentInstance(context);
+
                 values[0] = stateMachine.getMetadata().get("faces-viewid");
                 values[1] = stateMachine.getMetadata().get("faces-chartid");
                 values[2] = saveContext(context, executor.getRootContext());
@@ -582,6 +584,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     }
 
                     Context context = new SimpleContext();
+                    Context.setCurrentInstance(context);
 
                     restoreContext(context, executor.getRootContext(), values[2]);
 
@@ -629,6 +632,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     SCXML stateMachine = executor.getStateMachine();
 
                     Context context = new SimpleContext();
+                    Context.setCurrentInstance(context);
 
                     values[0] = stateMachine.getMetadata().get("faces-viewid");
                     values[1] = stateMachine.getMetadata().get("faces-chartid");
@@ -676,6 +680,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     }
 
                     Context context = new SimpleContext();
+                    Context.setCurrentInstance(context);
 
                     restoreContext(context, executor.getRootContext(), values[2]);
 

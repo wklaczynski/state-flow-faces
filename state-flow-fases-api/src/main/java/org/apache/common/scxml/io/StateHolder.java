@@ -15,7 +15,6 @@
  */
 package org.apache.common.scxml.io;
 
-import java.io.IOException;
 import org.apache.common.scxml.Context;
 
 /**

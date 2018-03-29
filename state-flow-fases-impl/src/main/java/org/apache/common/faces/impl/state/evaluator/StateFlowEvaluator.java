@@ -74,6 +74,8 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     private <V> V wrap(Context ctx, String expr, Callable<V> call) throws SCXMLExpressionException {
         FacesContext fc = FacesContext.getCurrentInstance();
 
+        Context.setCurrentInstance(ctx);
+        
         if (ef == null) {
             ef = fc.getApplication().getExpressionFactory();
         }
@@ -106,6 +108,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             throw new SCXMLExpressionException(String.format("%s error: %s", expr, Util.getErrorMessage(ex)), ex);
         } finally {
             ec.putContext(Context.class, newContext(null));
+            Context.setCurrentInstance(null);
         }
     }
 

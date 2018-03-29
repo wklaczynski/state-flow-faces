@@ -41,6 +41,7 @@ import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
 import static org.apache.common.faces.state.StateFlow.FACES_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
+import org.apache.common.scxml.Context;
 import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.model.ModelException;
@@ -70,16 +71,17 @@ public class StateFlowPhaseListener implements PhaseListener {
 
                 eb.sendId(context.getViewRoot().getViewId());
 
-                rootExecutor.addEvent(new EventBuilder(
-                        name, TriggerEvent.CALL_EVENT)
-                        .sendId(context.getViewRoot().getViewId())
-                        .build());
+                rootExecutor.addEvent(eb.build());
 
                 try {
                     rootExecutor.triggerEvents();
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
                 }
+                
+                Context.setCurrentInstance(
+                        (Context) context.getELContext().getContext(Context.class));
+                
             }
         }
 
@@ -102,14 +104,18 @@ public class StateFlowPhaseListener implements PhaseListener {
                 eb.sendId(context.getViewRoot().getViewId());
 
                 SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
-                rootExecutor.addEvent(
-                        eb.build());
+                rootExecutor.addEvent(eb.build());
 
                 try {
                     rootExecutor.triggerEvents();
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
                 }
+                
+                Context.setCurrentInstance(
+                        (Context) context.getELContext().getContext(Context.class));
+
+                
             }
         }
 

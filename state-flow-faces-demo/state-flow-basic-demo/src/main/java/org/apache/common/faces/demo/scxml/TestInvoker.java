@@ -16,6 +16,9 @@
  */
 package org.apache.common.faces.demo.scxml;
 
+import java.io.IOException;
+import java.io.ObjectOutput;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.logging.Logger;
 import javax.faces.application.FacesMessage;
@@ -29,8 +32,14 @@ import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
 
+/**
+ * A test custom invoker {@link Invoker} for SCXML documents. Invoked demo 
+ * functions. The invocer must be Serializable or StateHolder for save self
+ * state in distribuable session. Serializable is last if 
+ * 
+ */
 @StateChartInvoker("demo")
-public class TestInvoker implements Invoker {
+public class TestInvoker implements Invoker, Serializable {
 
     private final static Logger logger = Logger.getLogger(TestInvoker.class.getName());
 
@@ -93,6 +102,10 @@ public class TestInvoker implements Invoker {
         FacesMessage facesMessage = new FacesMessage("Oh, I'm canceling!");
         facesMessage.setSeverity(SEVERITY_INFO);
         fc.addMessage(null, facesMessage);
+    }
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

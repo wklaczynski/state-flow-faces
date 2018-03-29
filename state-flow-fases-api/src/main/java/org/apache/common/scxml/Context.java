@@ -17,17 +17,19 @@
 package org.apache.common.scxml;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.faces.context.FacesContext;
+import org.apache.common.scxml.env.SimpleContext;
 
 /**
- * A Context or &quot;scope&quot; for storing variables; usually tied to
- * a SCXML root or State object.
+ * A Context or &quot;scope&quot; for storing variables; usually tied to a SCXML
+ * root or State object.
  */
 public interface Context {
 
     /**
-     * Assigns a new value to an existing variable or creates a new one.
-     * The method searches the chain of parent Contexts for variable
-     * existence.
+     * Assigns a new value to an existing variable or creates a new one. The
+     * method searches the chain of parent Contexts for variable existence.
      *
      * @param name The variable name
      * @param value The variable value
@@ -35,9 +37,9 @@ public interface Context {
     void set(String name, Object value);
 
     /**
-     * Assigns a new value to an existing variable or creates a new one.
-     * The method allows to shaddow a variable of the same name up the
-     * Context chain.
+     * Assigns a new value to an existing variable or creates a new one. The
+     * method allows to shaddow a variable of the same name up the Context
+     * chain.
      *
      * @param name The variable name
      * @param value The variable value
@@ -71,8 +73,8 @@ public interface Context {
     /**
      * Get the Map of all variables in this Context.
      *
-     * @return Local variable entries Map
-     * To get variables in parent Context, call getParent().getVars().
+     * @return Local variable entries Map To get variables in parent Context,
+     * call getParent().getVars().
      * @see #getParent()
      */
     Map<String, Object> getVars();
@@ -90,10 +92,62 @@ public interface Context {
     Context getParent();
 
     /**
-     * Get the SCXMLSystemContext for this Context, should not be null unless this is the root Context
+     * Get the SCXMLSystemContext for this Context, should not be null unless
+     * this is the root Context
      *
      * @return The SCXMLSystemContext in a chained Context environment
      */
     SCXMLSystemContext getSystemContext();
+
+    static ConcurrentHashMap threadInitContext = new ConcurrentHashMap(2);
+
+    /**
+     * <p>
+     * The <code>ThreadLocal</code> variable used to record the {@link Context}
+     * instance for each processing thread.</p>
+     */
+    static ThreadLocal<Context> instance = new ThreadLocal<Context>() {
+        @Override
+        protected Context initialValue() {
+            return (null);
+        }
+    };
+
+    /**
+     * Return the Context instance
+     *
+     * @return current Context
+     */
+    public static Context getCurrentInstance() {
+        Context context = instance.get();
+
+        if (null == context) {
+            context = (Context) threadInitContext.get(Thread.currentThread());
+        }
+        if (null == context) {
+            context = new SimpleContext();
+        }
+        return context;
+    }
+
+    /**
+     * <p>
+     * Set the {@link FacesContext} instance for the request that is being
+     * processed by the current thread.</p>
+     *
+     * @param context The {@link Context} instance for the current thread,
+     * or <code>null</code> if this thread no longer has a
+     * <code>Context</code> instance.
+     *
+     */
+    public static void setCurrentInstance(Context context) {
+
+        if (context == null) {
+            instance.remove();
+        } else {
+            instance.set(context);
+        }
+
+    }
 
 }
