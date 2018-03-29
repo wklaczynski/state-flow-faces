@@ -14,7 +14,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<scxml id="main" initial="start">
+<scxml 
+    xmlns="http://xmlns.apache.org/faces/scxml"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    initial="start">
 
     <datamodel>
         <data id="hasback" expr="#{scxml_has_parent == true}"/>
