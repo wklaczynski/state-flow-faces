@@ -15,6 +15,7 @@
  */
 package org.apache.common.faces.state.component;
 
+import javax.faces.component.UIComponentBase;
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.event.ComponentSystemEventListener;
 import javax.faces.event.PostRestoreStateEvent;
@@ -24,8 +25,10 @@ import org.apache.common.scxml.model.SCXML;
  *
  * @author Waldemar Kłaczyński
  */
-public class UIStateChartRoot extends UIFlowBase {
+public class UIStateChartRoot extends UIComponentBase {
 
+    public static final String COMPONENT_FAMILY = "org.apache.common.faces.StateFlow";
+    
     public static final String COMPONENT_TYPE = "org.apache.common.faces.UIStateChartRoot";
 
     enum PropertyKeys {
@@ -35,8 +38,9 @@ public class UIStateChartRoot extends UIFlowBase {
     @SuppressWarnings("OverridableMethodCallInConstructor")
     public UIStateChartRoot() {
         super();
-        setRendered(false);
+        setRendererType(null);
         setTransient(true);
+        setRendered(false);
 
         addFacesListener((ComponentSystemEventListener) (ComponentSystemEvent event) -> {
             if (event instanceof PostRestoreStateEvent) {
@@ -54,9 +58,12 @@ public class UIStateChartRoot extends UIFlowBase {
     }
 
     private void postRestoreState() {
-
-
-
     }
+
+    @Override
+    public String getFamily() {
+        return COMPONENT_FAMILY;
+    }
+
     
 }

@@ -33,7 +33,7 @@ import javax.enterprise.inject.spi.PassivationCapable;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
-import org.apache.common.faces.impl.state.StateFlowConstants;
+import org.apache.common.faces.impl.state.StateFlowImplConstants;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.annotation.StateChartScoped;
@@ -46,7 +46,7 @@ import org.apache.common.scxml.SCXMLExecutor;
 public class StateChartCDIContext implements Context, Serializable {
 
     private static final String CHART_SCOPE_KEY = "chartscope";
-    private static final String CHART_SCOPE_MAP_KEY = StateFlowConstants.STATE_FLOW_PREFIX + "STATE_CHART_SCOPE_MAP";
+    private static final String CHART_SCOPE_MAP_KEY = StateFlowImplConstants.STATE_FLOW_PREFIX + "STATE_CHART_SCOPE_MAP";
     private static final Logger LOGGER = FlowLogger.CDI.getLogger();
 
     @Override

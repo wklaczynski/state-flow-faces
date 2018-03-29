@@ -64,5 +64,33 @@
         <finalName>state-flow-basic-demo</finalName>
     </build>
 
+    <profiles>
+        <profile>
+            <id>run-on-wildfly</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.wildfly.plugins</groupId>
+                        <artifactId>wildfly-maven-plugin</artifactId>
+                        <version>1.2.1.Final</version>
+                        <configuration>
+                            <username>${faces.wildfly.admin.user}</username>
+                            <password>${faces.wildfly.admin.password}</password>
+                            <hostname>${faces.wildfly.admin.host}</hostname>
+                            <filename>${project.build.finalName}.war</filename>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>    
 
 </project>

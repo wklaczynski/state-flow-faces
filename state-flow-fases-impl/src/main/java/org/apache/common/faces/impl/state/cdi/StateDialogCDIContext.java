@@ -33,7 +33,7 @@ import javax.enterprise.inject.spi.PassivationCapable;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
-import org.apache.common.faces.impl.state.StateFlowConstants;
+import org.apache.common.faces.impl.state.StateFlowImplConstants;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.annotation.StateDialogScoped;
@@ -46,7 +46,7 @@ import org.apache.common.scxml.SCXMLExecutor;
 public class StateDialogCDIContext implements Context, Serializable {
 
     private static final String DIALOG_SCOPE_KEY = "dialogscope";
-    private static final String DIALOG_SCOPE_MAP_KEY = StateFlowConstants.STATE_FLOW_PREFIX + "STATE_DIALOG_SCOPE_MAP";
+    private static final String DIALOG_SCOPE_MAP_KEY = StateFlowImplConstants.STATE_FLOW_PREFIX + "STATE_DIALOG_SCOPE_MAP";
     private static final Logger LOGGER = FlowLogger.CDI.getLogger();
 
     @Override

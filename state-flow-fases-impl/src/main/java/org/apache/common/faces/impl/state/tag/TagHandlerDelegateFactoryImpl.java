@@ -17,7 +17,7 @@ package org.apache.common.faces.impl.state.tag;
 
 import org.apache.common.faces.impl.state.tag.CustomActionHandlerDelegateImpl;
 import javax.faces.view.facelets.TagHandlerDelegate;
-import org.apache.common.faces.state.tag.CustomActionHandler;
+import org.apache.common.faces.state.tag.ActionHandler;
 import org.apache.common.faces.state.tag.TagHandlerDelegateFactory;
 
 /**
@@ -27,7 +27,7 @@ import org.apache.common.faces.state.tag.TagHandlerDelegateFactory;
 public class TagHandlerDelegateFactoryImpl extends TagHandlerDelegateFactory {
 
     @Override
-    public TagHandlerDelegate createStateFlowActionDelegate(CustomActionHandler owner) {
+    public TagHandlerDelegate createStateFlowActionDelegate(ActionHandler owner) {
         TagHandlerDelegate delegate = new CustomActionHandlerDelegateImpl(owner);
         return delegate;
     }

@@ -34,7 +34,7 @@ import javax.enterprise.inject.spi.PassivationCapable;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
-import org.apache.common.faces.impl.state.StateFlowConstants;
+import org.apache.common.faces.impl.state.StateFlowImplConstants;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.annotation.StateTargetScoped;
@@ -52,7 +52,7 @@ public class StateTargetCDIContext implements Context, Serializable {
 
     private static final String TARGET_SCOPE_KEY = "targetscope";
     private static final Logger LOGGER = FlowLogger.CDI.getLogger();
-    private static final String TARGET_SCOPE_MAP_KEY = StateFlowConstants.STATE_FLOW_PREFIX + "STATE_TARGET_SCOPE_MAP";
+    private static final String TARGET_SCOPE_MAP_KEY = StateFlowImplConstants.STATE_FLOW_PREFIX + "STATE_TARGET_SCOPE_MAP";
 
     private final Map<Contextual<?>, TargetBeanInfo> targetIds;
 

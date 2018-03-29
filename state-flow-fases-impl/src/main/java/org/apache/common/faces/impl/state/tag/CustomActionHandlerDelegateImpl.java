@@ -30,7 +30,7 @@ import javax.faces.view.facelets.TagHandlerDelegate;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.CURRENT_FLOW_OBJECT;
 import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.getElement;
-import org.apache.common.faces.state.tag.CustomActionHandler;
+import org.apache.common.faces.state.tag.ActionHandler;
 import org.apache.common.scxml.model.Action;
 import org.apache.common.scxml.model.CustomAction;
 import org.apache.common.scxml.model.CustomActionWrapper;
@@ -45,9 +45,9 @@ public class CustomActionHandlerDelegateImpl extends TagHandlerDelegate {
 
     protected static final Logger log = FlowLogger.TAGLIB.getLogger();
     
-    private final CustomActionHandler owner;
+    private final ActionHandler owner;
 
-    public CustomActionHandlerDelegateImpl(CustomActionHandler owner) {
+    public CustomActionHandlerDelegateImpl(ActionHandler owner) {
         this.owner = owner;
     }
 

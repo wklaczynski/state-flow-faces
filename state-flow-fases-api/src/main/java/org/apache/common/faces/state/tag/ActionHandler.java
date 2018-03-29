@@ -32,7 +32,7 @@ import javax.faces.view.facelets.TagHandlerDelegate;
  *
  * @author Waldemar Kłaczyński
  */
-public class CustomActionHandler  extends MetaTagHandler {
+public class ActionHandler  extends MetaTagHandler {
 
     protected TagHandlerDelegateFactory delegateFactory;
     
@@ -42,7 +42,7 @@ public class CustomActionHandler  extends MetaTagHandler {
     
     private TagHandlerDelegate helper;
     
-    public CustomActionHandler(TagConfig config) {
+    public ActionHandler(TagConfig config) {
         super(config);
         this.binding = this.getAttribute("binding");
         this.disabled = this.getAttribute("disabled");

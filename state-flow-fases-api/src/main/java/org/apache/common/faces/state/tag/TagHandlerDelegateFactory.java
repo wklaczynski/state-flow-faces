@@ -34,7 +34,7 @@ public abstract class TagHandlerDelegateFactory implements FacesWrapper<TagHandl
         return null;
     }
     
-    public abstract TagHandlerDelegate createStateFlowActionDelegate(CustomActionHandler owner);
+    public abstract TagHandlerDelegate createStateFlowActionDelegate(ActionHandler owner);
 
 
 }

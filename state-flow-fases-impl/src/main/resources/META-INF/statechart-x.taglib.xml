@@ -407,7 +407,7 @@ limitations under the License.
     <tag>
         <tag-name>var</tag-name>
         <description><![CDATA[The <var> element is used to modify the data model.]]></description>
-        <handler-class>org.apache.common.faces.state.tag.CustomActionHandler</handler-class>
+        <handler-class>org.apache.common.faces.state.tag.ActionHandler</handler-class>
         <attribute>
             <description><![CDATA[The name in the data model into which to insert the new value. See 5.9.2 Location Expressions for details.]]></description>
             <name>name</name>

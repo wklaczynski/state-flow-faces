@@ -21,7 +21,7 @@ import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.HandlesTypes;
-import static org.apache.common.faces.impl.state.StateFlowConstants.ANNOTATED_CLASSES;
+import static org.apache.common.faces.impl.state.StateFlowImplConstants.ANNOTATED_CLASSES;
 import org.apache.common.faces.state.annotation.StateChartAction;
 import org.apache.common.faces.state.annotation.StateChartActions;
 import org.apache.common.faces.state.annotation.StateChartInvoker;

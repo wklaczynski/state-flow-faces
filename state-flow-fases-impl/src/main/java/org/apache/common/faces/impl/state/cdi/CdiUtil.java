@@ -30,7 +30,7 @@ import javax.enterprise.inject.spi.InjectionTargetFactory;
 import javax.faces.context.FacesContext;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import org.apache.common.faces.impl.state.StateFlowConstants;
+import org.apache.common.faces.impl.state.StateFlowImplConstants;
 import static org.apache.common.faces.impl.state.utils.Util.log;
 
 /**
@@ -146,10 +146,10 @@ public class CdiUtil {
     public static boolean isCdiOneOneOrLater(FacesContext facesContext) {
         boolean result = false;
 
-        if (facesContext != null && facesContext.getAttributes().containsKey(StateFlowConstants.CDI_1_1_OR_LATER)) {
-            result = (Boolean) facesContext.getAttributes().get(StateFlowConstants.CDI_1_1_OR_LATER);
-        } else if (facesContext != null && facesContext.getExternalContext().getApplicationMap().containsKey(StateFlowConstants.CDI_1_1_OR_LATER)) {
-            result = facesContext.getExternalContext().getApplicationMap().containsKey(StateFlowConstants.CDI_1_1_OR_LATER);
+        if (facesContext != null && facesContext.getAttributes().containsKey(StateFlowImplConstants.CDI_1_1_OR_LATER)) {
+            result = (Boolean) facesContext.getAttributes().get(StateFlowImplConstants.CDI_1_1_OR_LATER);
+        } else if (facesContext != null && facesContext.getExternalContext().getApplicationMap().containsKey(StateFlowImplConstants.CDI_1_1_OR_LATER)) {
+            result = facesContext.getExternalContext().getApplicationMap().containsKey(StateFlowImplConstants.CDI_1_1_OR_LATER);
         } else {
             try {
                 Class.forName("javax.enterprise.context.Initialized");
@@ -161,8 +161,8 @@ public class CdiUtil {
             }
 
             if (facesContext != null) {
-                facesContext.getAttributes().put(StateFlowConstants.CDI_1_1_OR_LATER, result);
-                facesContext.getExternalContext().getApplicationMap().put(StateFlowConstants.CDI_1_1_OR_LATER, result);
+                facesContext.getAttributes().put(StateFlowImplConstants.CDI_1_1_OR_LATER, result);
+                facesContext.getExternalContext().getApplicationMap().put(StateFlowImplConstants.CDI_1_1_OR_LATER, result);
             }
         }
 
@@ -178,10 +178,10 @@ public class CdiUtil {
     public static BeanManager getCdiBeanManager(FacesContext facesContext) {
         BeanManager result = null;
 
-        if (facesContext != null && facesContext.getAttributes().containsKey(StateFlowConstants.CDI_BEAN_MANAGER)) {
-            result = (BeanManager) facesContext.getAttributes().get(StateFlowConstants.CDI_BEAN_MANAGER);
-        } else if (facesContext != null && facesContext.getExternalContext().getApplicationMap().containsKey(StateFlowConstants.CDI_BEAN_MANAGER)) {
-            result = (BeanManager) facesContext.getExternalContext().getApplicationMap().get(StateFlowConstants.CDI_BEAN_MANAGER);
+        if (facesContext != null && facesContext.getAttributes().containsKey(StateFlowImplConstants.CDI_BEAN_MANAGER)) {
+            result = (BeanManager) facesContext.getAttributes().get(StateFlowImplConstants.CDI_BEAN_MANAGER);
+        } else if (facesContext != null && facesContext.getExternalContext().getApplicationMap().containsKey(StateFlowImplConstants.CDI_BEAN_MANAGER)) {
+            result = (BeanManager) facesContext.getExternalContext().getApplicationMap().get(StateFlowImplConstants.CDI_BEAN_MANAGER);
         } else {
             try {
                 InitialContext initialContext = new InitialContext();
@@ -200,8 +200,8 @@ public class CdiUtil {
             }
 
             if (result != null && facesContext != null) {
-                facesContext.getAttributes().put(StateFlowConstants.CDI_BEAN_MANAGER, result);
-                facesContext.getExternalContext().getApplicationMap().put(StateFlowConstants.CDI_BEAN_MANAGER, result);
+                facesContext.getAttributes().put(StateFlowImplConstants.CDI_BEAN_MANAGER, result);
+                facesContext.getExternalContext().getApplicationMap().put(StateFlowImplConstants.CDI_BEAN_MANAGER, result);
             }
         }
 
@@ -217,16 +217,16 @@ public class CdiUtil {
     public static boolean isCdiAvailable(FacesContext facesContext) {
         boolean result;
 
-        if (facesContext != null && facesContext.getAttributes().containsKey(StateFlowConstants.CDI_AVAILABLE)) {
-            result = (Boolean) facesContext.getAttributes().get(StateFlowConstants.CDI_AVAILABLE);
-        } else if (facesContext != null && facesContext.getExternalContext().getApplicationMap().containsKey(StateFlowConstants.CDI_AVAILABLE)) {
-            result = (Boolean) facesContext.getExternalContext().getApplicationMap().get(StateFlowConstants.CDI_AVAILABLE);
+        if (facesContext != null && facesContext.getAttributes().containsKey(StateFlowImplConstants.CDI_AVAILABLE)) {
+            result = (Boolean) facesContext.getAttributes().get(StateFlowImplConstants.CDI_AVAILABLE);
+        } else if (facesContext != null && facesContext.getExternalContext().getApplicationMap().containsKey(StateFlowImplConstants.CDI_AVAILABLE)) {
+            result = (Boolean) facesContext.getExternalContext().getApplicationMap().get(StateFlowImplConstants.CDI_AVAILABLE);
         } else {
             result = getCdiBeanManager(facesContext) != null;
 
             if (result && facesContext != null) {
-                facesContext.getAttributes().put(StateFlowConstants.CDI_AVAILABLE, result);
-                facesContext.getExternalContext().getApplicationMap().put(StateFlowConstants.CDI_AVAILABLE, result);
+                facesContext.getAttributes().put(StateFlowImplConstants.CDI_AVAILABLE, result);
+                facesContext.getExternalContext().getApplicationMap().put(StateFlowImplConstants.CDI_AVAILABLE, result);
             }
         }
 

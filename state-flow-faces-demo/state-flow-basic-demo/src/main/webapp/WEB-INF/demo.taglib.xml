@@ -26,7 +26,7 @@ limitations under the License.
     <tag>
         <tag-name>test</tag-name>
         <description><![CDATA[The <test> element is used to test custom action.]]></description>
-        <handler-class>org.apache.common.faces.state.tag.CustomActionHandler</handler-class>
+        <handler-class>org.apache.common.faces.state.tag.ActionHandler</handler-class>
         <attribute>
             <description><![CDATA[The url to redirect page.]]></description>
             <name>message</name>

@@ -36,7 +36,7 @@ import javax.annotation.PreDestroy;
 import javax.faces.FacesException;
 import javax.faces.application.StateManager;
 import javax.faces.context.FacesContext;
-import org.apache.common.faces.impl.state.StateFlowConstants;
+import org.apache.common.faces.impl.state.StateFlowImplConstants;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 
 /**
@@ -218,7 +218,7 @@ public class Util {
         return pattern.split(toSplit, 0);
     }
 
-    private static final String patternCacheKey = StateFlowConstants.STATE_FLOW_PREFIX + "patternCache";
+    private static final String patternCacheKey = StateFlowImplConstants.STATE_FLOW_PREFIX + "patternCache";
     
     private static Map<String, Pattern> getPatternCache(Map<String, Object> appMap) {
         @SuppressWarnings("unchecked")

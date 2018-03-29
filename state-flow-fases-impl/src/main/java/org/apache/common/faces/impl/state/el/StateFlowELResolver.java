@@ -16,7 +16,7 @@
 package org.apache.common.faces.impl.state.el;
 
 import javax.el.CompositeELResolver;
-import static org.apache.common.faces.impl.state.StateFlowConstants.LOCAL_XPATH_RESOLVER;
+import static org.apache.common.faces.impl.state.StateFlowImplConstants.LOCAL_XPATH_RESOLVER;
 import org.apache.common.faces.impl.state.config.StateWebConfiguration;
 import org.apache.common.faces.impl.state.el.xpath.XPathELResolver;
 
