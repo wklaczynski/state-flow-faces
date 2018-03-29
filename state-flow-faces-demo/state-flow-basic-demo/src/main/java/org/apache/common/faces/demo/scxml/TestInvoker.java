@@ -18,28 +18,30 @@ package org.apache.common.faces.demo.scxml;
 
 import java.io.IOException;
 import java.io.ObjectOutput;
-import java.io.Serializable;
 import java.util.Map;
 import java.util.logging.Logger;
 import javax.faces.application.FacesMessage;
 import static javax.faces.application.FacesMessage.SEVERITY_INFO;
 import javax.faces.context.FacesContext;
 import org.apache.common.faces.state.annotation.StateChartInvoker;
+import org.apache.common.scxml.Context;
 import org.apache.common.scxml.InvokeContext;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.SCXMLIOProcessor;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
+import org.apache.common.scxml.io.StateHolder;
 
 /**
  * A test custom invoker {@link Invoker} for SCXML documents. Invoked demo 
  * functions. The invocer must be Serializable or StateHolder for save self
- * state in distribuable session. Serializable is last if 
+ * state in distribuable session. Serializable is last if invoker implemented
+ * StateHolder then save or restore state
  * 
  */
 @StateChartInvoker("demo")
-public class TestInvoker implements Invoker, Serializable {
+public class TestInvoker implements Invoker, StateHolder {
 
     private final static Logger logger = Logger.getLogger(TestInvoker.class.getName());
 
@@ -106,6 +108,19 @@ public class TestInvoker implements Invoker, Serializable {
 
     public void writeExternal(ObjectOutput out) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Object saveState(Context context) {
+        Object[] state = new Object[2];
+        state[0] = "This remember after session restore in other machine or redeploy";
+        return state;
+    }
+
+    @Override
+    public void restoreState(Context context, Object state) {
+        Object[] values = (Object[]) state;
+        String remember = (String) values[0];
     }
 
 }
