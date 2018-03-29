@@ -120,7 +120,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 alwaysSerialized = Boolean.FALSE;
             } else {
                 StateWebConfiguration wcfg = StateWebConfiguration.getInstance();
-                String pname = wcfg.getOptionValue(STATE_CHART_SERIALIZED_PARAM_NAME, "true");
+                String pname = wcfg.getOptionValue(STATE_CHART_SERIALIZED_PARAM_NAME, "false");
                 alwaysSerialized = Boolean.parseBoolean(pname);
             }
         }
