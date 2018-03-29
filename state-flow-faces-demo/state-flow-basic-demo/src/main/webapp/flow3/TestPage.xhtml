@@ -31,10 +31,11 @@
                     <p/>\#{main.beanTitle} = <i>"#{main.beanTitle}"</i>
                     <p/>\#{main.assignedTest1} = <i>"#{main.assignedTest1}"</i>
                     <pre>This beans are in dialog scope. This beans can see data from parent and child execution.</pre>
-                    <p/><b>Used bean client:</b>
+                    <p/><b>Used bean state scope:</b>
                     <p/>"\#{currentState.beanTitle}" = <i>"#{currentState.beanTitle}"</i> 
                     <p/>"\#{currentState.assignedTest1}" = <i>"#{currentState.assignedTest1}"</i> 
-                    <pre>This bean is in state scope in "@composite". This bean can not see data from parent targets not in the common composite state or parallel.</pre>
+                    <p/>"\#{showState.assignedTest1}" = <i>"#{showState.assignedTest1}"</i> 
+                    <pre>This beans are in state scope in "@composite". This bean can not see data from parent targets not in the common composite state or parallel.</pre>
                     <hr/>
                 </h:panelGroup>
                 <h:panelGroup id="asign-test">
