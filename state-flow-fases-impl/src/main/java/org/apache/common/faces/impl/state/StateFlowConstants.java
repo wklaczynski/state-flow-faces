@@ -31,6 +31,8 @@ public class StateFlowConstants {
 
     public final static String STATE_CHART_LOGSTEP_PARAM_NAME = STATE_FLOW_PREFIX + "STATE_CHART_LOGSTEP";
 
+    public final static String STATE_CHART_SERIALIZED_PARAM_NAME = STATE_FLOW_PREFIX + "STATE_CHART_ALWEYS_SERIALIZED";
+
     public final static String LOCAL_XPATH_RESOLVER = STATE_FLOW_PREFIX + "LOCAL_XPATH_RESOLVER";
 
     public final static String ORYGINAL_SCXML_DEFAULT_SUFIX = ".scxml";

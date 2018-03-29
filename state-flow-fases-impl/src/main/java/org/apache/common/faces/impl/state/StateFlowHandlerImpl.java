@@ -53,6 +53,7 @@ import org.apache.common.scxml.model.SCXML;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
 import static org.apache.common.faces.impl.state.StateFlowConstants.STATE_CHART_LOGSTEP_PARAM_NAME;
+import static org.apache.common.faces.impl.state.StateFlowConstants.STATE_CHART_SERIALIZED_PARAM_NAME;
 import static org.apache.common.faces.impl.state.StateFlowConstants.STATE_FLOW_STACK;
 import org.apache.common.faces.impl.state.cdi.CdiUtil;
 import org.apache.common.faces.impl.state.cdi.StateFlowCDIHelper;
@@ -87,11 +88,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     public static final String LOGICAL_FLOW_MAP = StateFlowHandlerImpl.class.getName() + ".LogicalFlowMap";
 
     private Boolean logstep;
-    private final Boolean alwaysSerialized = Boolean.TRUE;
+    private Boolean alwaysSerialized;
 
     public StateFlowHandlerImpl(ServletContext ctx) {
         super();
-
         customInvokers.put("view", ViewInvoker.class);
         customInvokers.put("scxml", SubInvoker.class);
 
@@ -111,6 +111,20 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 customInvokers.put(a.value(), (Class<Invoker>) javaClass);
             }
         }
+    }
+
+    private Boolean getAlwaysSerialized() {
+        if (alwaysSerialized == null) {
+            FacesContext fc = FacesContext.getCurrentInstance();
+            if (fc.getApplication().getProjectStage() == ProjectStage.Production) {
+                alwaysSerialized = Boolean.FALSE;
+            } else {
+                StateWebConfiguration wcfg = StateWebConfiguration.getInstance();
+                String pname = wcfg.getOptionValue(STATE_CHART_SERIALIZED_PARAM_NAME, "true");
+                alwaysSerialized = Boolean.parseBoolean(pname);
+            }
+        }
+        return alwaysSerialized;
     }
 
     private boolean isLogstep() {
@@ -419,7 +433,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 clientWindow.enableClientWindowRenderMode(context);
             }
             String sessionKey = clientWindow.getId() + "_stateFlowStack";
-            if (!alwaysSerialized) {
+            if (!getAlwaysSerialized()) {
                 result = (FlowDeque) flowMap.get(sessionKey);
                 if (null == result && create) {
                     result = new FlowDeque(sessionKey);
@@ -479,7 +493,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             clientWindow.enableClientWindowRenderMode(context);
         }
         String sessionKey = clientWindow.getId() + "_stateFlowStack";
-        if (!alwaysSerialized) {
+        if (!getAlwaysSerialized()) {
             flowMap.put(sessionKey, flowStack);
         } else {
             Object state = saveFlowDequeState(context, flowStack);
