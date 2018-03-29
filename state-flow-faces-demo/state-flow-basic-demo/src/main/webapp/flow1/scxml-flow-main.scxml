@@ -17,6 +17,8 @@ limitations under the License.
 <scxml 
     xmlns="http://xmlns.apache.org/faces/scxml"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:fx="http://xmlns.apache.org/faces/fxscxml"
+    xmlns:d="http://xmlns.apache.org/faces/basic/demo"
     initial="start">
 
     <datamodel>
@@ -53,6 +55,24 @@ limitations under the License.
         <transition event="view.action.exit" target="exit"/>
         <transition event="view.action.assign" target="assing-test"/>
         <transition event="view.action.clear" target="clear-test"/>
+            
+        <transition event="view.action.custom-action">
+            <d:test message="I'm executing test action"/>
+        </transition>
+            
+        <transition event="view.action.fx-redirect">
+            <fx:redirect url="/flow3/faces-flow-test.xhtml">
+                <param name="aparam" expr="#{true}"/>
+            </fx:redirect> 
+        </transition>
+            
+        <transition event="view.action.fx-call">
+            <fx:call expr="#{main.testCall}">
+                <param name="name" location="string" expr="Parametr 1"/>
+                <param name="value" location="string" expr="Parametr 2"/>
+            </fx:call> 
+        </transition>
+            
     </state> 
 
     <state id="show-client"> 
