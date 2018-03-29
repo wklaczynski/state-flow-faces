@@ -121,6 +121,8 @@ public class TestInvoker implements Invoker, StateHolder {
     public void restoreState(Context context, Object state) {
         Object[] values = (Object[]) state;
         String remember = (String) values[0];
+        
+        logger.info(remember);
     }
 
 }
