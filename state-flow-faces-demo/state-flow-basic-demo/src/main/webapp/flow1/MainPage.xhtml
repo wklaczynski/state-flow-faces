@@ -108,12 +108,17 @@
                     <pre>3. Change data when using &lt;assign name="chartAssignedTest" expr="\#{book['client[1]/phone[@type=\'home\']'].textContent}" &gt;</pre>
                     <b>Value:</b> #{chart.chartAssignedTest}
                     <p/>
-                    <h:panelGrid cellspacing="4" columns="2" style="bottom: 0px">
+                    <h:panelGrid cellspacing="4" columns="6" style="bottom: 0px">
                         <h:commandButton action="assign" value="Run Test">
                             <f:ajax render="@form"/>
                         </h:commandButton>
                         <h:commandButton action="clear" value="Clear Test">
                             <f:ajax render="@form"/>
+                        </h:commandButton>
+                        <h:commandButton
+                            action="custom-redirect"
+                            value="Test Custom Action"
+                            immediate="false">
                         </h:commandButton>
                     </h:panelGrid>
                 </h:panelGroup>
@@ -128,7 +133,6 @@
                                 value="Exit"
                                 immediate="false">
                             </h:commandButton>
-
                         </h:panelGrid>
                     </h:panelGroup>
                 </h:panelGroup>

@@ -4,7 +4,7 @@
     xmlns:f="http://xmlns.jcp.org/jsf/core"
     xmlns:x="http://xmlns.apache.org/faces/scxml"
     xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-    >
+    xmlns:d="http://xmlns.apache.org/faces/basic/demo">
     <x:scxml id="main" initial="start">
 
         <x:datamodel>
@@ -41,6 +41,11 @@
             <x:transition event="view.action.exit" target="exit"/>
             <x:transition event="view.action.assign" target="assing-test"/>
             <x:transition event="view.action.clear" target="clear-test"/>
+            
+            <x:transition event="view.action.custom-redirect">
+                <d:redirect action="/flow3/faces-flow-test.xhtml"/>
+            </x:transition>
+            
         </x:state> 
 
         <x:state id="show-client"> 
