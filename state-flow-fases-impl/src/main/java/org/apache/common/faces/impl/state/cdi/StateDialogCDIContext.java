@@ -47,7 +47,7 @@ public class StateDialogCDIContext implements Context, Serializable {
 
     private static final String DIALOG_SCOPE_KEY = "dialogscope";
     private static final String DIALOG_SCOPE_MAP_KEY = StateFlowConstants.STATE_FLOW_PREFIX + "STATE_DIALOG_SCOPE_MAP";
-    private static final Logger LOGGER = FlowLogger.FLOW.getLogger();
+    private static final Logger LOGGER = FlowLogger.CDI.getLogger();
 
     @Override
     public Class<? extends Annotation> getScope() {

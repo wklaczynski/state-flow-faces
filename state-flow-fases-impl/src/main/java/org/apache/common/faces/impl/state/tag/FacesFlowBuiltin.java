@@ -28,7 +28,7 @@ import org.apache.common.scxml.SCXMLExecutor;
  */
 public class FacesFlowBuiltin implements Serializable {
 
-    public static final Logger log = FlowLogger.FLOW.getLogger();
+    public static final Logger log = FlowLogger.TAGLIB.getLogger();
 
     /**
      * Implements the In() predicate for flow documents. The method name chosen

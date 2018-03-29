@@ -30,6 +30,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.FaceletException;
 import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagAttribute;
+import org.apache.common.faces.impl.state.log.FlowLogger;
 import org.apache.common.scxml.ErrorReporter;
 import org.apache.common.scxml.model.Data;
 import org.apache.common.scxml.model.EnterableState;
@@ -55,7 +56,7 @@ public class StateFlowErrorReporter implements ErrorReporter, Serializable {
     /**
      * Log.
      */
-    protected static final Logger log = Logger.getLogger("javax.faces.state");
+    protected static final Logger log = FlowLogger.SCXML.getLogger();
     private final Map<Object, Object> tags;
 
     /**

@@ -30,23 +30,23 @@ import org.apache.common.faces.impl.state.utils.Util;
  */
 public enum FlowLogger {
 
-    FACES("faces"),
-    FLOW("flow"),
-    CDI("cdi"),
-    PARSER("parser"),
     APPLICATION("apps"),
-    TAGLIB("taglib");
+    TAGLIB("taglib"),
+    FACES("faclets"),
+    CDI("cdi"),
+    SCXML("scxml"),
+    EL("el");
 
     private static final String LOGGER_RESOURCES
             = "org.apache.common.faces.impl.state.LogStrings";
-    public static final String FACES_LOGGER_NAME_PREFIX
-            = "javax.enterprise.resource.webcontainer.sfjsf.";
+    public static final String FACES_LOGGER_NAME_ROOT
+            = "org.apache.faces.";
     private final String loggerName;
 
     FlowLogger(String loggerName) {
-        this.loggerName = FACES_LOGGER_NAME_PREFIX + loggerName;
+        this.loggerName = FACES_LOGGER_NAME_ROOT + loggerName;
     }
-
+    
     public String getLoggerName() {
         return loggerName;
     }

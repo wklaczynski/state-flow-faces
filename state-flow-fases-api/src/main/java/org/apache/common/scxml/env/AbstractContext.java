@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.apache.common.scxml.Context;
+import org.apache.common.scxml.SCXMLLogger;
 import org.apache.common.scxml.SCXMLSystemContext;
 import org.apache.common.scxml.io.StateHolder;
 import static org.apache.common.scxml.io.StateHolderSaver.restoreAttachedState;
@@ -38,7 +39,7 @@ public class AbstractContext implements Context, StateHolder {
     /**
      * Implementation independent log category.
      */
-    protected static final Logger log = Logger.getLogger("javax.faces.state");
+    protected static final Logger log = SCXMLLogger.SCXML.getLogger();
     /**
      * The parent Context to this Context.
      */

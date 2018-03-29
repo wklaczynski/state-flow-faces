@@ -51,7 +51,7 @@ import org.apache.common.scxml.model.TransitionTarget;
 public class StateTargetCDIContext implements Context, Serializable {
 
     private static final String TARGET_SCOPE_KEY = "targetscope";
-    private static final Logger LOGGER = FlowLogger.FLOW.getLogger();
+    private static final Logger LOGGER = FlowLogger.CDI.getLogger();
     private static final String TARGET_SCOPE_MAP_KEY = StateFlowConstants.STATE_FLOW_PREFIX + "STATE_TARGET_SCOPE_MAP";
 
     private final Map<Contextual<?>, TargetBeanInfo> targetIds;

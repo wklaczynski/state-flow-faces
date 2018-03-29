@@ -47,7 +47,7 @@ public class StateChartCDIContext implements Context, Serializable {
 
     private static final String CHART_SCOPE_KEY = "chartscope";
     private static final String CHART_SCOPE_MAP_KEY = StateFlowConstants.STATE_FLOW_PREFIX + "STATE_CHART_SCOPE_MAP";
-    private static final Logger LOGGER = FlowLogger.FLOW.getLogger();
+    private static final Logger LOGGER = FlowLogger.CDI.getLogger();
 
     @Override
     public Class<? extends Annotation> getScope() {

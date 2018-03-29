@@ -21,7 +21,6 @@ import java.util.logging.Logger;
 import javax.el.ELContext;
 import javax.el.FunctionMapper;
 import org.apache.common.faces.impl.state.log.FlowLogger;
-import org.apache.common.scxml.SCXMLExecutor;
 
 /**
  *
@@ -30,7 +29,7 @@ import org.apache.common.scxml.SCXMLExecutor;
 public class EvaluatorBuiltinFunctionMapper extends FunctionMapper implements Serializable {
 
         private static final long serialVersionUID = 1L;
-        public static final Logger log = FlowLogger.FLOW.getLogger();
+        public static final Logger log = FlowLogger.APPLICATION.getLogger();
     private final ELContext context;
 
         public EvaluatorBuiltinFunctionMapper(ELContext context) {

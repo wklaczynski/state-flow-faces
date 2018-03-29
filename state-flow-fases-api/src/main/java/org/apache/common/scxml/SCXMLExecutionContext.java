@@ -51,7 +51,7 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
     /**
      * SCXML Execution Logger for the application.
      */
-    protected static final Logger log = Logger.getLogger("javax.faces.state");
+    protected static final Logger log = SCXMLLogger.SCXML.getLogger();
 
     /**
      * The action execution context instance, providing restricted access to

@@ -33,7 +33,7 @@ public class WebMessage {
     /**
      * Log.
      */
-    public static final Logger log = FlowLogger.FLOW.getLogger();
+    public static final Logger log = FlowLogger.APPLICATION.getLogger();
 
     private static final String FACES_MESSAGES_BUNDLE = "org.apache.common.faces.impl.state.messages";
     private static final String DETAIL_SUFFIX = "_detail";

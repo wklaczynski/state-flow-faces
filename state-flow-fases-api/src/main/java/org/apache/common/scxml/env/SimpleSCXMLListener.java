@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.common.scxml.SCXMLListener;
+import org.apache.common.scxml.SCXMLLogger;
 import org.apache.common.scxml.model.EnterableState;
 import org.apache.common.scxml.model.Transition;
 import org.apache.common.scxml.model.TransitionTarget;
@@ -34,7 +35,7 @@ public class SimpleSCXMLListener implements SCXMLListener, Serializable {
     /** Serial version UID. */
     private static final long serialVersionUID = 1L;
     /** Implementation independent log category. */
-    protected static final Logger log = Logger.getLogger("javax.faces.state");
+    protected static final Logger log = SCXMLLogger.SCXML.getLogger();
 
     public SimpleSCXMLListener() {
     }

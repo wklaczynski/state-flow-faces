@@ -33,7 +33,7 @@ public class JSTLErrorHandler implements ErrorHandler {
     /**
      * Log.
      */
-    public static final Logger log = FlowLogger.FLOW.getLogger();
+    public static final Logger log = FlowLogger.EL.getLogger();
 
     @Override
     public void warning(SAXParseException exception) throws SAXException {

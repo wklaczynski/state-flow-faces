@@ -20,11 +20,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.component.UIComponent;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.MetaRuleset;
 import javax.faces.view.facelets.TagException;
 import javax.faces.view.facelets.TagHandlerDelegate;
+import org.apache.common.faces.impl.state.log.FlowLogger;
 import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.CURRENT_FLOW_OBJECT;
 import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.getElement;
 import org.apache.common.faces.state.tag.CustomActionHandler;
@@ -40,6 +43,8 @@ import org.apache.common.scxml.model.If;
  */
 public class CustomActionHandlerDelegateImpl extends TagHandlerDelegate {
 
+    protected static final Logger log = FlowLogger.TAGLIB.getLogger();
+    
     private final CustomActionHandler owner;
 
     public CustomActionHandlerDelegateImpl(CustomActionHandler owner) {
@@ -66,8 +71,10 @@ public class CustomActionHandlerDelegateImpl extends TagHandlerDelegate {
         String prefix = aqname;
         int ind = prefix.indexOf(':');
         if (ind >= 0) {
-            prefix = prefix.substring(0, ind - 1);
+            prefix = prefix.substring(0, ind);
         }
+        
+        log.log(Level.INFO, "Handle custom action: {0}", aqname);
 
         Map<String, String> namespaces = new HashMap<>();
         namespaces.put(prefix, anamespace);

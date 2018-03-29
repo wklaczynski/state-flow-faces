@@ -23,19 +23,13 @@ limitations under the License.
         
     <!--Test custom action unspecfied SCXML-->
     <tag>
-        <tag-name>redirect</tag-name>
-        <description><![CDATA[The <redirect> element is used to redirect action.]]></description>
+        <tag-name>test</tag-name>
+        <description><![CDATA[The <test> element is used to test custom action.]]></description>
         <handler-class>org.apache.common.faces.state.tag.CustomActionHandler</handler-class>
         <attribute>
             <description><![CDATA[The url to redirect page.]]></description>
-            <name>url</name>
-            <required>false</required>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <description><![CDATA[The relative action to redirect page.]]></description>
-            <name>action</name>
-            <required>false</required>
+            <name>message</name>
+            <required>true</required>
             <type>java.lang.String</type>
         </attribute>
     </tag>

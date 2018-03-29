@@ -28,6 +28,7 @@ import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.EventDispatcher;
 import org.apache.common.scxml.ParentSCXMLIOProcessor;
 import org.apache.common.scxml.SCXMLIOProcessor;
+import org.apache.common.scxml.SCXMLLogger;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.model.ActionExecutionError;
 
@@ -102,7 +103,7 @@ public class SimpleDispatcher implements EventDispatcher, Serializable {
     /**
      * Implementation independent log category.
      */
-    protected static final Logger log = Logger.getLogger("javax.faces.state");
+    protected static final Logger log = SCXMLLogger.SCXML.getLogger();
 
     /**
      * The <code>Map</code> of active <code>Timer</code>s, keyed by &lt;send&gt;

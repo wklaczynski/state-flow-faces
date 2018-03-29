@@ -55,7 +55,7 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
     /**
      * The Logger for the SCXMLExecutor.
      */
-    protected static final Logger log = Logger.getLogger("javax.faces.state");
+    protected static final Logger log = SCXMLLogger.SCXML.getLogger();
 
     /**
      * Parent SCXMLIOProcessor

@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.common.scxml.ErrorReporter;
+import org.apache.common.scxml.SCXMLLogger;
 import org.apache.common.scxml.model.Data;
 import org.apache.common.scxml.model.EnterableState;
 import org.apache.common.scxml.model.Executable;
@@ -46,7 +47,7 @@ public class SimpleErrorReporter implements ErrorReporter, Serializable {
     /**
      * Log.
      */
-    protected static final Logger log = Logger.getLogger("javax.faces.state");
+    protected static final Logger log = SCXMLLogger.SCXML.getLogger();
 
     /**
      * Constructor.

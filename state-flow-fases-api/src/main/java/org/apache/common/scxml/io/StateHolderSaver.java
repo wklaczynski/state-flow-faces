@@ -26,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.common.scxml.Context;
 import static org.apache.common.scxml.SCXMLConstants.STATE_MACHINE_HINT;
+import org.apache.common.scxml.SCXMLLogger;
 import org.apache.common.scxml.model.EnterableState;
 import org.apache.common.scxml.model.SCXML;
 import org.apache.common.scxml.model.TransitionTarget;
@@ -36,7 +37,7 @@ import org.apache.common.scxml.model.TransitionTarget;
  */
 public class StateHolderSaver implements Serializable {
 
-    private static final Logger LOGGER = Logger.getLogger("javax.faces.flow");
+    private static final Logger LOGGER = SCXMLLogger.SCXML.getLogger();
 
     private String className = null;
     private String ttid = null;

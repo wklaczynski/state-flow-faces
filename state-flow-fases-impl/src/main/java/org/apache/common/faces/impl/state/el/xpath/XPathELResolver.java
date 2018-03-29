@@ -56,7 +56,7 @@ public class XPathELResolver extends ELResolver {
     /**
      * Log.
      */
-    public static final Logger log = FlowLogger.FLOW.getLogger();
+    public static final Logger log = FlowLogger.EL.getLogger();
 
     private static XPathFactory XPATH_FACTORY;
     private static HashMap exprCache;

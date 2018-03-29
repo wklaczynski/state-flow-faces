@@ -43,7 +43,7 @@ import org.apache.common.faces.impl.state.utils.Util;
  */
 public class FlowMetaRulesetImpl extends MetaRuleset {
 
-    private final static Logger LOGGER = FlowLogger.FLOW.getLogger();
+    private final static Logger LOGGER = FlowLogger.TAGLIB.getLogger();
     private final static Map<Class, WeakReference<MetadataTarget>> metadata
             = Collections.synchronizedMap(new WeakHashMap<Class, WeakReference<MetadataTarget>>());
 

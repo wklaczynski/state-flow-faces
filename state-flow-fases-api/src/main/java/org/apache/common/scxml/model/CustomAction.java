@@ -18,6 +18,7 @@ package org.apache.common.scxml.model;
 
 import java.util.Map;
 import java.util.logging.Logger;
+import org.apache.common.scxml.SCXMLLogger;
 
 /**
  * A custom action is simply a tuple consisting of a namespace URI,
@@ -93,7 +94,7 @@ public class CustomAction {
      */
     public CustomAction(final String namespaceURI, final String localName,
             final Class<? extends Action> actionClass) {
-        Logger log = Logger.getLogger("javax.faces.state");
+        Logger log = SCXMLLogger.SCXML.getLogger();
         if (namespaceURI == null || namespaceURI.trim().length() == 0) {
             log.severe(ERR_NO_NAMESPACE);
             throw new IllegalArgumentException(ERR_NO_NAMESPACE);
