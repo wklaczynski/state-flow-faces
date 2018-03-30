@@ -2,109 +2,109 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
     <h:head>
         <title>Multiple State Flow Faces</title>
         <h:outputStylesheet library="css" name="demo-style.css"  />
     </h:head>
     <h:body>
-        <h1>#{chart.title}</h1>
-        <hr/>
         <h:form>
-            <h:panelGroup rendered="#{empty chart.title}">
-                <h2>Hello, I'm not starting from flow faces :(</h2>
-                <hr/>
-            </h:panelGroup>
-            <h:panelGroup>
-                <h3>Hello, I'm in test parallel process state chat &lt;scxml id="show"&gt;: "#{chart.view}"</h3>
-                This page is started by state flow chart. It's assigned any data from owned &lt;scxml&gt;
-                <p/>
-                Started two process in &lt;parallel&gt; state. First state invoke view, and two state is in multi atomic state.
-                <p/>
-                <h:panelGroup>
-                    <h:messages/> 
-                </h:panelGroup>
-                <h:panelGroup>
-                    <hr/>
-                    <p/>
-                    <b>Used bean main:</b>
-                    <p/>\#{main.beanTitle} = <i>"#{main.beanTitle}"</i>
-                    <p/>\#{main.assignedTest1} = <i>"#{main.assignedTest1}"</i>
-                    <pre>This beans are in dialog scope. This beans can see data from parent and child execution.</pre>
-                    <p/><b>Used bean state scope:</b>
-                    <p/>"\#{currentState.beanTitle}" = <i>"#{currentState.beanTitle}"</i> 
-                    <p/>"\#{currentState.assignedTest1}" = <i>"#{currentState.assignedTest1}"</i> 
-                    <p/>"\#{showState.assignedTest1}" = <i>"#{showState.assignedTest1}"</i> 
-                    <pre>This beans are in state scope in "@composite". This bean can not see data from parent targets not in the common composite state or parallel.</pre>
+            <p:panel header="#{chart.title}">
+                <h:panelGroup rendered="#{empty chart.title}">
+                    <h2>Hello, I'm not starting from flow faces :(</h2>
                     <hr/>
                 </h:panelGroup>
-                <h:panelGroup id="asign-test">
-                    <h3>Test data manipulation in executed states.</h3>
+                <h:panelGroup>
+                    <h3>Hello, I'm in test parallel process state chat &lt;scxml id="show"&gt;: "#{chart.view}"</h3>
+                    This page is started by state flow chart. It's assigned any data from owned &lt;scxml&gt;
                     <p/>
-                    Data assigned in:
+                    Started two process in &lt;parallel&gt; state. First state invoke view, and two state is in multi atomic state.
                     <p/>
-                    <b>Value:</b> #{main.assignedTest1}
-                    <p/>
-                    <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
-                        <h:commandButton action="calculate" value="Calculate Test">
-                            <f:ajax render="@form"/>
-                        </h:commandButton>
-                        <h:commandButton
-                            action="back"
-                            disabled="#{!chart.test_hasback}"
-                            value="Go Back">
-                            <f:ajax render="@form"/>
-                        </h:commandButton>
-                        <h:commandButton
-                            action="next"
-                            disabled="#{!chart.test_hasnext}"
-                            value="Go Next">
-                            <f:ajax render="@form"/>
-                        </h:commandButton>
-                        <h:commandButton action="clear" value="Clear Test">
-                            <f:ajax render="@form"/>
-                        </h:commandButton>
-                        <h:commandButton action="go-view" value="Go View">
-                            <f:ajax render="@form"/>
-                        </h:commandButton>
-                    </h:panelGrid>
-                </h:panelGroup>
-                <h:panelGroup id="element-test">
-                    <h3>Test custom invoke elements.</h3>
                     <h:panelGroup>
                         <h:messages/> 
                     </h:panelGroup>
-                    <h:panelGrid cellspacing="4" columns="6" style="bottom: 0px">
-                        <h:commandButton
-                            action="start-invoke"
-                            value="Test Start Invoke"
-                            immediate="false">
-                            <f:ajax render="@form"/>
-                        </h:commandButton>
-                        <h:commandButton
-                            action="stop-invoke"
-                            value="Test Stop Invoke"
-                            immediate="false">
-                            <f:ajax render="@form"/>
-                        </h:commandButton>
-                    </h:panelGrid>
-                </h:panelGroup>
-                <h:panelGroup>
-                    <hr/>
-                </h:panelGroup>
-                <h:panelGroup id="navigation">
-                    <h:panelGroup layout="block" style=" text-align: left;">
+                    <h:panelGroup>
+                        <hr/>
+                        <p/>
+                        <b>Used bean main:</b>
+                        <p/>\#{main.beanTitle} = <i>"#{main.beanTitle}"</i>
+                        <p/>\#{main.assignedTest1} = <i>"#{main.assignedTest1}"</i>
+                        <pre>This beans are in dialog scope. This beans can see data from parent and child execution.</pre>
+                        <p/><b>Used bean state scope:</b>
+                        <p/>"\#{currentState.beanTitle}" = <i>"#{currentState.beanTitle}"</i> 
+                        <p/>"\#{currentState.assignedTest1}" = <i>"#{currentState.assignedTest1}"</i> 
+                        <pre>This beans are in state scope in "@composite". This bean can not see data from parent targets not in the common composite state or parallel.</pre>
+                        <hr/>
+                    </h:panelGroup>
+                    <h:panelGroup id="asign-test">
+                        <h3>Test data manipulation in executed states.</h3>
+                        <p/>
+                        Data assigned in:
+                        <p/>
+                        <b>Value:</b> #{main.assignedTest1}
+                        <p/>
                         <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
-                            <h:commandButton
-                                action="cancel"
-                                value="Cancel"
-                                immediate="false">
+                            <h:commandButton action="calculate" value="Calculate Test">
+                                <f:ajax render="@form"/>
                             </h:commandButton>
-
+                            <h:commandButton
+                                action="back"
+                                disabled="#{!chart.test_hasback}"
+                                value="Go Back">
+                                <f:ajax render="@form"/>
+                            </h:commandButton>
+                            <h:commandButton
+                                action="next"
+                                disabled="#{!chart.test_hasnext}"
+                                value="Go Next">
+                                <f:ajax render="@form"/>
+                            </h:commandButton>
+                            <h:commandButton action="clear" value="Clear Test">
+                                <f:ajax render="@form"/>
+                            </h:commandButton>
+                            <h:commandButton action="go-view" value="Go View">
+                                <f:ajax render="@form"/>
+                            </h:commandButton>
                         </h:panelGrid>
                     </h:panelGroup>
+                    <h:panelGroup id="element-test">
+                        <h3>Test custom invoke elements.</h3>
+                        <h:panelGroup>
+                            <h:messages/> 
+                        </h:panelGroup>
+                        <h:panelGrid cellspacing="4" columns="6" style="bottom: 0px">
+                            <h:commandButton
+                                action="start-invoke"
+                                value="Test Start Invoke"
+                                immediate="false">
+                                <f:ajax render="@form"/>
+                            </h:commandButton>
+                            <h:commandButton
+                                action="stop-invoke"
+                                value="Test Stop Invoke"
+                                immediate="false">
+                                <f:ajax render="@form"/>
+                            </h:commandButton>
+                        </h:panelGrid>
+                    </h:panelGroup>
+                    <h:panelGroup>
+                        <hr/>
+                    </h:panelGroup>
+                    <h:panelGroup id="navigation">
+                        <h:panelGroup layout="block" style=" text-align: left;">
+                            <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
+                                <h:commandButton
+                                    action="cancel"
+                                    value="Cancel"
+                                    immediate="false">
+                                </h:commandButton>
+
+                            </h:panelGrid>
+                        </h:panelGroup>
+                    </h:panelGroup>
                 </h:panelGroup>
-            </h:panelGroup>
+            </p:panel>
         </h:form>
     </h:body>
 

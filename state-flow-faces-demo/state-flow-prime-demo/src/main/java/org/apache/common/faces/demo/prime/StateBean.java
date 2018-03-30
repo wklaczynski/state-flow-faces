@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.common.faces.demo.basic;
+package org.apache.common.faces.demo.prime;
 
 import java.io.Serializable;
 import javax.inject.Named;
@@ -23,9 +23,9 @@ import org.apache.common.faces.state.annotation.StateTargetScoped;
  *
  * @author Waldemar Kłaczyński
  */
-@StateTargetScoped("show")
-@Named("showState")
-public class StateOnlyBean implements Serializable {
+@StateTargetScoped
+@Named("currentState")
+public class StateBean implements Serializable {
     
     private String assignedTest1 = "";
     
@@ -34,7 +34,7 @@ public class StateOnlyBean implements Serializable {
     }
     
     public String getBeanTitle() {
-        return "Show State Bean";
+        return "Current State Bean";
     }
 
     public String getAssignedTest1() {

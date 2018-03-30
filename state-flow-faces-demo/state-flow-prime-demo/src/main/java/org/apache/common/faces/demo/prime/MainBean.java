@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.common.faces.demo.basic;
+package org.apache.common.faces.demo.prime;
 
 import java.io.Serializable;
 import javax.faces.application.FacesMessage;

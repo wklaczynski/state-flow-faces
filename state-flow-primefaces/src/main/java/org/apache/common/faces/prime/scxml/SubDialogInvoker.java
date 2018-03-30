@@ -6,8 +6,6 @@ package org.apache.common.faces.prime.scxml;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,10 +17,17 @@ import java.util.logging.Logger;
 import javax.faces.application.ViewHandler;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.Flash;
+import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
+import static org.apache.common.faces.state.StateFlow.FACES_PHASE_EVENT_PREFIX;
+import static org.apache.common.faces.state.StateFlow.FACES_RENDER_VIEW;
+import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.annotation.StateChartInvoker;
+import org.apache.common.scxml.Context;
+import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.InvokeContext;
 import org.apache.common.scxml.SCInstance;
 import org.apache.common.scxml.SCXMLExecutor;
@@ -30,6 +35,7 @@ import org.apache.common.scxml.SCXMLIOProcessor;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
+import org.apache.common.scxml.model.ModelException;
 import org.primefaces.component.api.ClientBehaviorRenderingMode;
 import org.primefaces.context.RequestContext;
 import org.primefaces.util.AjaxRequestBuilder;
@@ -50,13 +56,9 @@ public class SubDialogInvoker implements Invoker, Serializable {
     private static final long serialVersionUID = 1L;
     private transient SCXMLExecutor executor;
     private transient String invokeId;
-    private String parentStateId;
-    private String eventPrefix;
-    private SCInstance parentSCInstance;
-    private boolean cancelled;
-    private static final String invokePrefix = ".invoke.";
-    private static final String invokeCancelResponse = "cancel.response";
+    private transient boolean cancelled;
     private String sourceId;
+    private String viewId;
 
     @Override
     public String getInvokeId() {
@@ -82,16 +84,13 @@ public class SubDialogInvoker implements Invoker, Serializable {
     @Override
     public void invoke(final InvokeContext ictx, final String source, final Map params) throws InvokerException {
         try {
-            StateFlowHandler handler = StateFlowHandler.getInstance();
-
             FacesContext context = FacesContext.getCurrentInstance();
             Flash flash = context.getExternalContext().getFlash();
 
-            URL url = new URL(source);
-            String viewId = url.getFile();
+            String viewId = source;
 
             RequestContext requestContext = RequestContext.getCurrentInstance();
-            Map<Object, Object> attrs = requestContext.getAttributes();
+            Map<Object, Object> attrs = context.getAttributes();
 
             Map<String, List<String>> dialogParams = (Map<String, List<String>>) attrs.get(Constants.DIALOG_FRAMEWORK.PARAMS);
             Map<String, List<String>> vparams = new LinkedHashMap();
@@ -126,15 +125,6 @@ public class SubDialogInvoker implements Invoker, Serializable {
             params.put("pfdlgcid", Collections.singletonList(pfdlgcid));
             ViewHandler viewHandler = context.getApplication().getViewHandler();
             context.getExternalContext().getFlash().setRedirect(true);
-
-            String sufix = context.getExternalContext().getInitParameter("javax.faces.DIALOG_ACTION_SUFIX");
-            if (sufix == null) {
-                sufix = ".scxml";
-            }
-
-            if (!sufix.equals(".scxml")) {
-                viewId = viewId.replace(".scxml", sufix);
-            }
 
             String gurl = viewHandler.getRedirectURL(
                     context,
@@ -217,13 +207,13 @@ public class SubDialogInvoker implements Invoker, Serializable {
             sb.append(script);
             sb.append("}");
             sb.append("}});");
-            requestContext.execute(sb.toString());
+            requestContext.getScriptsToExecute().add(sb.toString());
             sb.setLength(0);
 
             flash.setKeepMessages(true);
             flash.setRedirect(true);
             SharedUtils.doLastPhaseActions(context, true);
-        } catch (MalformedURLException ex) {
+        } catch (Throwable ex) {
             throw new InvokerException(ex);
         }
     }
@@ -235,12 +225,60 @@ public class SubDialogInvoker implements Invoker, Serializable {
     }
 
     @Override
-    public void parentEvent(final InvokeContext ictx, final TriggerEvent evt)
+    public void parentEvent(final InvokeContext ictx, final TriggerEvent event)
             throws InvokerException {
         if (cancelled) {
             return;
         }
         StateFlowHandler handler = StateFlowHandler.getInstance();
+
+        if (event.getType() == TriggerEvent.CALL_EVENT && (event.getName()
+                .startsWith(FACES_PHASE_EVENT_PREFIX))) {
+            if (viewId.equals(event.getSendId())) {
+                FacesContext context = FacesContext.getCurrentInstance();
+                try {
+                    context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
+                    context.getELContext().putContext(SCXMLExecutor.class, executor);
+
+                    Context stateContext = ictx.getContext();
+                    context.getELContext().putContext(Context.class, stateContext);
+
+                    if (event.getName().startsWith(FACES_RENDER_VIEW)) {
+                        UIViewRoot view = context.getViewRoot();
+
+                        UIComponent fresource = createResource(context, "flowfaces.js", "flowfaces", "javax.faces.resource.Script");
+                        fresource.setId("flowfaces_flowfaces.js");
+
+                        List<UIComponent> resources = view.getComponentResources(context, "head");
+
+                        view.addComponentResource(context, view, "head");
+
+                    }
+                } catch (ModelException ex) {
+                    throw new InvokerException(ex);
+                }
+            }
+            return;
+        }
+
+        if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
+            if (viewId.equals(event.getSendId())) {
+                FacesContext context = FacesContext.getCurrentInstance();
+                UIViewRoot view = context.getViewRoot();
+                ExternalContext ec = context.getExternalContext();
+
+                Map<String, String> params = new HashMap<>();
+                params.putAll(ec.getRequestParameterMap());
+
+                String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
+                EventBuilder evb = new EventBuilder("view.action." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
+
+                evb.data(params);
+                evb.sendId(invokeId);
+                executor.addEvent(evb.build());
+            }
+        }
+
 //        SCXMLExecutor executor = manager.getExecutor(parentSCInstance.getExecutor());
 //        boolean doneBefore = executor.getCurrentStatus().isFinal();
 //        try {
@@ -258,7 +296,7 @@ public class SubDialogInvoker implements Invoker, Serializable {
 //                Context pcontext = parentSCInstance.getContext(pstate);
 //                pcontext.setLocal("__@result@__", result);
 //            }
-//            
+//
 //            
 //            RequestContext requestContext = RequestContext.getCurrentInstance();
 //            FacesContext context = FacesContext.getCurrentInstance();
@@ -269,7 +307,7 @@ public class SubDialogInvoker implements Invoker, Serializable {
 //        }
     }
 
-    public void decode(FacesContext context, UIComponent component) throws InvokerException {
+    public void decode(FacesContext context) throws InvokerException {
         if (cancelled) {
             return;
         }
@@ -314,8 +352,10 @@ public class SubDialogInvoker implements Invoker, Serializable {
             viewMap.remove(VIEW_PARAM);
         }
 
-//        TriggerEvent te = new TriggerEvent(eventPrefix + invokeCancelResponse, TriggerEvent.SIGNAL_EVENT);
-//        new AsyncTrigger(parentSCInstance.getExecutor(), te).start();
+        RequestContext requestContext = RequestContext.getCurrentInstance();
+        Map<String, String> params = context.getExternalContext().getRequestParameterMap();
+        String pfdlgcid = params.get(Constants.DIALOG_FRAMEWORK.CONVERSATION_PARAM);
+        requestContext.getScriptsToExecute().add("FacesFlowUI.closeSCXMLDialog({pfdlgcid:'" + pfdlgcid + "'});");
     }
 
     private UIComponent createResource(FacesContext context, String name, String library, String renderer) {

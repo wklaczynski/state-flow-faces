@@ -41,8 +41,6 @@
                 <x:transition event="view.action.clear">
                     <x:assign location="#{main.assignedTest1}"
                               expr="I done transition for event clear in view process."/>
-                    <x:assign location="#{showState.assignedTest1}"
-                              expr="Cleared by test-view"/>
                 </x:transition>
 
                 <x:transition event="view.action.calculate">
@@ -57,8 +55,6 @@
                 <x:initial>
                     <x:transition target="test-process-1">
                         <x:assign location="#{currentState.assignedTest1}"
-                                  expr="Initialized by test-process"/>
-                        <x:assign location="#{showState.assignedTest1}"
                                   expr="Initialized by test-process"/>
                     </x:transition>
                 </x:initial>
