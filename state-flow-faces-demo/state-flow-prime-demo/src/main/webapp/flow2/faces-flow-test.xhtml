@@ -1,0 +1,179 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<f:metadata
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:x="http://xmlns.apache.org/faces/scxml"
+    xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+    >
+    <x:scxml id="main" initial="start">
+
+        <x:datamodel>
+            <x:data id="title" expr="Test Multiple State Flow Process"/>
+            <x:data id="view" expr="/flow1/faces-flow-test.xhtml"/>
+
+            <x:data id="test_data">I'm starting process, click any button to change my state.</x:data> 
+            <x:data id="test_hasnext" expr="true"/> 
+            <x:data id="test_hasback" expr="false"/> 
+        </x:datamodel>
+
+        <x:state id="start">
+            <x:onentry>
+                <x:assign location="#{currentState.assignedTest1}" expr="I'm Seting in start"/>
+                <x:if cond="#{main.prepare()}">
+                    <x:raise event="start.prepare.success"/>
+                    <x:else/>
+                    <x:raise event="start.prepare.failed"/>
+                </x:if>
+            </x:onentry>
+            <x:transition event="start.prepare.success" target="show"/>
+            <x:transition event="start.prepare.failed" target="cancel"/>
+        </x:state>
+
+
+        <x:parallel id="show">
+            <x:state id="test-view">
+                <x:invoke type="view" src="TestPage.xhtml"/>
+
+                <x:transition event="error.execution" target="error"/>
+
+                <x:transition event="view.action.cancel" target="cancel"/>
+
+                <x:transition event="view.action.clear">
+                    <x:assign location="#{main.assignedTest1}"
+                              expr="I done transition for event clear in view process."/>
+                    <x:assign location="#{showState.assignedTest1}"
+                              expr="Cleared by test-view"/>
+                </x:transition>
+
+                <x:transition event="view.action.calculate">
+                    <x:assign location="#{main.assignedTest1}"
+                              expr="I done transition for event calculate in view process."/>
+                </x:transition>
+
+                <x:transition event="view.action.go-view" target="view-process"/>
+            </x:state>
+
+            <x:state id="test-process">
+                <x:initial>
+                    <x:transition target="test-process-1">
+                        <x:assign location="#{currentState.assignedTest1}"
+                                  expr="Initialized by test-process"/>
+                        <x:assign location="#{showState.assignedTest1}"
+                                  expr="Initialized by test-process"/>
+                    </x:transition>
+                </x:initial>
+
+                <x:history id="test-process-return">
+                    <x:transition target="test-process-1"/>
+                </x:history>
+
+                <x:transition event="view.action.clear" 
+                              cond="#{!x:in('test-process-1')}" 
+                              target="test-process-1">
+                    <x:assign location="#{currentState.assignedTest1}"
+                              expr="I cleaned the data in test-process target, when not in target 'test-process-1'."/>
+                </x:transition>
+                <x:transition event="view.action.clear" target="test-process-1">
+                    <x:assign location="#{currentState.assignedTest1}"
+                              expr="I cleaned the data in 'test-process' target, when not in target 'test-process-1'."/>
+                </x:transition>
+
+                <x:state id="test-process-1">
+                    <x:onentry>
+                        <x:assign location="#{main.assignedTest1}" 
+                                  expr="I enty state in view process 1."/>
+                        <x:assign location="test_hasnext" expr="true"/>
+                        <x:assign location="test_hasback" expr="false"/>
+                    </x:onentry>
+                    <x:transition event="view.action.next" target="test-process-2"/>
+                </x:state>     
+
+                <x:state id="test-process-2">
+                    <x:onentry>
+                        <x:assign location="#{currentState.assignedTest1}"
+                                  expr="Changed by test-process 2"/>
+                        <x:assign location="#{main.assignedTest1}"
+                                  expr="I enty state in view process 2."/>
+                        <x:assign location="test_hasnext" expr="true"/>
+                        <x:assign location="test_hasback" expr="true"/>
+                    </x:onentry>
+                    <x:transition event="view.action.back" target="test-process-1"/>
+                    <x:transition event="view.action.next" target="test-process-3"/>
+                </x:state>             
+
+                <x:state id="test-process-3">
+                    <x:onentry>
+                        <x:assign location="#{main.assignedTest1}"
+                                  expr="I enty state in view process 3."/>
+                        <x:assign location="#{showState.assignedTest1}"
+                                  expr="Changed by test-process 3"/>
+                        <x:assign location="test_hasnext" expr="false"/>
+                        <x:assign location="test_hasback" expr="true"/>
+                    </x:onentry>
+                    <x:transition event="view.action.back" target="test-process-2"/>
+                </x:state>             
+            </x:state> 
+            
+            <x:state id="invoke-process">
+                <x:initial>
+                    <x:transition target="invoke-process-1"/>
+                </x:initial>
+                
+                <x:state id="invoke-process-1">
+                    <x:transition event="view.action.start-invoke" target="invoke-process-2"/>
+                </x:state>
+                
+                <x:state id="invoke-process-2">
+                    <x:invoke type="demo" src="show_my.png"/>
+                    
+                    <x:transition event="view.action.stop-invoke" target="invoke-process-1"/>
+                </x:state>
+            </x:state>
+            
+        </x:parallel>
+
+
+        <x:state id="view-process">
+            <x:onentry>
+                <x:assign location="test_data" expr="I left the multi process."/>
+            </x:onentry>
+            <x:invoke type="view" src="ViewPage.xhtml"/>
+
+            <x:transition event="error.execution" target="error"/>
+
+            <x:transition event="view.action.cancel" target="cancel"/>
+
+            <x:transition event="view.action.return" target="test-process-return"/>
+            <x:transition event="view.action.start-again" target="show"/>
+
+            <x:transition event="view.action.calculate-1">
+                <x:assign location="#{currentState.assignedTest1}"
+                          expr="Changed by 'calculate-1' in 'view-process' state"/>
+            </x:transition>
+
+            <x:transition event="view.action.calculate-2">
+                <x:assign location="#{currentState.assignedTest1}"
+                          expr="Changed by 'calculate-2' in 'view-process' state"/>
+                <x:assign location="#{main.assignedTest1}"
+                          expr="Changed by 'calculate-2' in 'view-process' state"/>
+            </x:transition>
+
+        </x:state>
+
+
+        <x:state id="error"> 
+            <x:invoke type="scxml" src="/common/error.scxml"/>
+
+            <x:transition event="error.invoke.cancel" target="cancel"/>
+            <x:transition event="error.invoke.failed" target="cancel"/>
+        </x:state>      
+
+        <x:final id="cancel">
+        </x:final>
+
+        <x:final id="success">
+        </x:final>
+
+    </x:scxml>    
+
+</f:metadata>

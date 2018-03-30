@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+    
+    <distributable/>
+    
+    <context-param>
+        <param-name>javax.faces.PROJECT_STAGE</param-name>
+        <param-value>Development</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>javax.faces.CLIENT_WINDOW_MODE</param-name>
+        <param-value>url</param-value>
+    </context-param>
+
+    <!--Register all no faces extension, not required when use only xhtml-->
+    <context-param>
+        <param-name>javax.faces.FACELETS_SUFFIX</param-name>
+        <param-value>.xhtml .scxml .shtml</param-value>
+    </context-param>
+    
+    <!--Extension for oryginal scxml file, without metadata tag-->
+    <context-param>
+        <param-name>org.apache.faces.ORYGINAL_SCXML_SUFIX</param-name>
+        <param-value>.shtml .flow</param-value>
+    </context-param>
+    
+    
+    <!--Request parametr for start other scxml definition, default is "flow",
+    when not set this parametr in request, then alweys start default scxml by name "main"-->
+    <context-param>
+        <param-name>org.apache.faces.STATE_CHART_REQUEST_PARAM_NAME</param-name>
+        <param-value>flow</param-value>
+    </context-param>
+    
+    <!--Used for test only, alweys disable in production stage-->
+    <!--Log all step and transition-->
+    <context-param>
+        <param-name>org.apache.faces.STATE_CHART_LOGSTEP</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    <!--Test save and restore executor and context state for distributable session-->
+    <context-param>
+        <param-name>org.apache.faces.STATE_CHART_ALWEYS_SERIALIZED</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    
+    <context-param>
+        <param-name>javax.faces.CONFIG_FILES</param-name>
+        <param-value>/WEB-INF/faces-config1.xml</param-value>
+    </context-param>
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>/faces/*</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+    <welcome-file-list>
+        <welcome-file>faces/index.xhtml</welcome-file>
+    </welcome-file-list>
+    <mime-mapping>
+        <extension>scxml</extension>
+        <mime-type>application/scxml+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>shtml</extension>
+        <mime-type>application/shtml+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>flow</extension>
+        <mime-type>application/flow+xml</mime-type>
+    </mime-mapping>
+</web-app>

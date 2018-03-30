@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html">
+    <h:head>
+        <title>Error State Flow Faces</title>
+        <h:outputStylesheet library="css" name="demo-style.css"  />
+    </h:head>
+    <h:body>
+        <h1>Error State Flow Faces Page</h1>
+        <hr/>
+        <h:form id="ibankForm">
+            <h:panelGrid columns="1">
+                <h:panelGroup style="min-height: 200px" layout="block">
+                    <h:messages 
+                        globalOnly="true" 
+                        showSummary="false" 
+                        showDetail="true"/>
+                </h:panelGroup>
+                <h:panelGroup id="navigation">
+                    <h:panelGroup layout="block" style=" text-align: left;">
+                        <h:panelGrid cellspacing="4" columns="2" style="bottom: 0px">
+                            <h:commandButton
+                                id="okButton"
+                                action="ok"
+                                value="OK"
+                                immediate="false"/>
+                        </h:panelGrid>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </h:panelGrid>
+        </h:form>
+    </h:body>
+
+</html>

@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title>State Flow Faces Basic Demo</title>
+    </h:head>
+    <h:body>
+        <h1> State Flow Faces Demo</h1><p/>
+        <hr/>
+        Demo integration State Machine Notation (State Chart XML) with JSF
+        <p/><p/>See olso:
+        <pre><a href="https://www.w3.org/TR/scxml/">State Chart XML (SCXML): State Machine Notation for Control Abstraction</a></pre>
+        <pre><a href="http://commons.apache.org/proper/commons-scxml/">Apache Commons SCXML</a></pre>
+        <p/>
+        <hr/>
+        <h2>Try It:</h2><p/>
+        <h3>State Flow Dialog start form xhtml metadata:</h3><p/>
+        <h:panelGrid columns="1">
+            <h:panelGroup>
+                <a href="${application.contextPath}/faces/flow1/faces-flow-main.xhtml">
+                    Start State Machine from the orginal xhtml file witch other view
+                </a>
+            </h:panelGroup>
+        </h:panelGrid>
+        <h3>State Flow Dialog start form oryginal file:</h3><p/>
+        <h:panelGrid columns="1">
+            <h:panelGroup>
+                <a href="${application.contextPath}/faces/flow1/scxml-flow-main.scxml">
+                    Start State Machine from the scxml file
+                </a>
+            </h:panelGroup>
+        </h:panelGrid>
+        <h3>Basic Complex Demos:</h3><p/>
+        <h:panelGrid columns="1">
+            <h:panelGroup>
+                <a href="${application.contextPath}/faces/flow2/faces-flow-test.xhtml">
+                    Start State Machine witch test multile process
+                </a>
+            </h:panelGroup>
+        </h:panelGrid>
+    </h:body>
+</html>
+
