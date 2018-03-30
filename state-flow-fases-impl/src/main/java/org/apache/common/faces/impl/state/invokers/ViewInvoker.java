@@ -42,7 +42,6 @@ import javax.faces.render.ResponseStateManager;
 import org.apache.common.faces.state.component.UIStateChartRoot;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
-import org.apache.common.faces.impl.state.StateFlowContext;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.SCXMLIOProcessor;
@@ -57,7 +56,6 @@ import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.InvokeContext;
-import org.apache.common.scxml.env.EffectiveContextMap;
 import org.apache.common.scxml.model.ModelException;
 
 /**
@@ -379,7 +377,7 @@ public class ViewInvoker implements Invoker, Serializable {
                     context.getELContext().putContext(SCXMLExecutor.class, executor);
                     
                     Context stateContext = ictx.getContext();
-                    context.getELContext().putContext(Context.class, getEffectiveContext(stateContext));
+                    context.getELContext().putContext(Context.class, stateContext);
                 } catch (ModelException ex) {
                     throw new InvokerException(ex);
                 }
@@ -403,10 +401,6 @@ public class ViewInvoker implements Invoker, Serializable {
                 executor.addEvent(evb.build());
             }
         }
-    }
-
-    protected StateFlowContext getEffectiveContext(final Context nodeCtx) {
-        return new StateFlowContext(nodeCtx, new EffectiveContextMap(nodeCtx));
     }
 
     /**
