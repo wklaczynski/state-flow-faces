@@ -16,6 +16,7 @@
  */
 package org.apache.common.faces.impl.state.invokers;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -128,7 +129,7 @@ public class ViewInvoker implements Invoker, Serializable {
      * {@inheritDoc}.
      */
     @Override
-    public void invoke(final InvokeContext ictx, final String url, final Map<String, Object> params) throws InvokerException {
+    public void invoke(final InvokeContext ictx, final String source, final Map<String, Object> params) throws InvokerException {
         FacesContext fc = FacesContext.getCurrentInstance();
         boolean oldProcessingEvents = fc.isProcessingEvents();
         try {
@@ -136,15 +137,14 @@ public class ViewInvoker implements Invoker, Serializable {
             ExternalContext ec = fc.getExternalContext();
             ViewHandler vh = fc.getApplication().getViewHandler();
 
-//            getViewParamsContext(fc).putAll(params);
-            NavigationCase navCase = findNavigationCase(fc, url);
-            viewId = url;
+            NavigationCase navCase = findNavigationCase(fc, source);
+            viewId = source;
             try {
                 viewId = navCase.getToViewId(fc);
             } catch (NullPointerException th) {
-                //throw new IOException(String.format("Invoke source \"%s\" not found", source));
+                throw new IOException(String.format("Invoke source \"%s\" not found", source));
             } catch (Throwable th) {
-                //throw new IOException(String.format("Invoke source \"%s\" not found", source), th);
+                throw new IOException(String.format("Invoke source \"%s\" not found", source), th);
             }
             viewId = vh.deriveLogicalViewId(fc, viewId);
 
@@ -222,12 +222,11 @@ public class ViewInvoker implements Invoker, Serializable {
                     param.put(ResponseStateManager.VIEW_STATE_PARAM, Arrays.asList(viewStateId));
                 }
 
-                String redirect = viewHandler.getRedirectURL(fc, viewId, SharedUtils.evaluateExpressions(fc, param), true);
+                String url = viewHandler.getBookmarkableURL(fc, viewId, SharedUtils.evaluateExpressions(fc, param), true);
+                //String url = viewHandler.getRedirectURL(fc, viewId, SharedUtils.evaluateExpressions(fc, param), true);
                 clearViewMapIfNecessary(fc.getViewRoot(), viewId);
                 updateRenderTargets(fc, viewId);
-                ec.getFlash().setRedirect(true);
-                ec.getFlash().setKeepMessages(true);
-                ec.redirect(redirect);
+                ec.redirect(url);
                 fc.responseComplete();
             } else {
                 UIViewRoot viewRoot;
@@ -334,16 +333,6 @@ public class ViewInvoker implements Invoker, Serializable {
 
     }
 
-//    private ViewParamsContext getViewParamsContext(FacesContext fc) {
-//        ExternalContext ec = fc.getExternalContext();
-//        ViewParamsContext viewParamsContext = (ViewParamsContext) ec.getRequestMap().get(ViewParamsContext.class.getName());
-//        if (viewParamsContext == null) {
-//            viewParamsContext = new ViewParamsContext();
-//            ec.getRequestMap().put(ViewParamsContext.class.getName(), viewParamsContext);
-//        }
-//        return viewParamsContext;
-//
-//    }
     protected NavigationCase findNavigationCase(FacesContext context, String outcome) {
         ConfigurableNavigationHandler navigationHandler = (ConfigurableNavigationHandler) context.getApplication().getNavigationHandler();
         return navigationHandler.getNavigationCase(context, null, outcome);
@@ -372,10 +361,10 @@ public class ViewInvoker implements Invoker, Serializable {
             if (viewId.equals(event.getSendId())) {
                 try {
                     FacesContext context = FacesContext.getCurrentInstance();
-                    
+
                     context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
                     context.getELContext().putContext(SCXMLExecutor.class, executor);
-                    
+
                     Context stateContext = ictx.getContext();
                     context.getELContext().putContext(Context.class, stateContext);
                 } catch (ModelException ex) {
