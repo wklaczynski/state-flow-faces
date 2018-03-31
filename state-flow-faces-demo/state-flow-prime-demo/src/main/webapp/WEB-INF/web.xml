@@ -13,6 +13,11 @@
         <param-value>url</param-value>
     </context-param>
 
+    <context-param>
+        <param-name>primefaces.THEME</param-name>
+        <param-value>delta</param-value>
+    </context-param>
+
     <!--Register all no faces extension, not required when use only xhtml-->
     <context-param>
         <param-name>javax.faces.FACELETS_SUFFIX</param-name>

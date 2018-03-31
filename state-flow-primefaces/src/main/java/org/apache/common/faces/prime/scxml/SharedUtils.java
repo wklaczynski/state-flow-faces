@@ -13,8 +13,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.application.Application;
+import javax.faces.application.ResourceDependencies;
+import javax.faces.application.ResourceDependency;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.context.Flash;
+import org.primefaces.util.ResourceUtils;
 
 /**
  *
@@ -23,7 +27,7 @@ import javax.faces.context.Flash;
 public class SharedUtils {
 
     private final static Logger logger = Logger.getLogger(SharedUtils.class.getName());
-    
+
     public static boolean isMixedExpression(String expression) {
 
         if (null == expression) {
@@ -88,6 +92,15 @@ public class SharedUtils {
             logger.log(Level.SEVERE, "Phase actions", e);
         }
     }
-    
-    
+
+    public static void loadResorces(FacesContext context, UIViewRoot view, Object instance, String target) {
+        ResourceDependencies aresorces = instance.getClass().getAnnotation(ResourceDependencies.class);
+        
+        for (ResourceDependency resource : aresorces.value()) {
+            String name = resource.name();
+            ResourceUtils.addComponentResource(context, name, resource.library(), target);
+        }
+
+    }
+
 }
