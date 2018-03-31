@@ -18,7 +18,6 @@ package org.apache.common.faces.impl.state.invokers;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,8 +51,9 @@ import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
 import org.apache.common.scxml.model.SCXML;
 import org.apache.common.faces.impl.state.utils.SharedUtils;
+import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
+import static org.apache.common.faces.state.StateFlow.BEFORE_RESTORE_VIEW;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
-import static org.apache.common.faces.state.StateFlow.FACES_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.scxml.EventBuilder;
@@ -68,7 +68,6 @@ public class ViewInvoker implements Invoker, Serializable {
 
     private final static Logger logger = Logger.getLogger(ViewInvoker.class.getName());
 
-    public static final String VIEW_PARAMS_MAP = "___@@@ParamsMap____";
     public static final String FACES_VIEW_STATE = "com.sun.faces.FACES_VIEW_STATE";
 
     /**
@@ -91,6 +90,9 @@ public class ViewInvoker implements Invoker, Serializable {
 
     private String control;
     private String viewId;
+    private String stateKey;
+    private Object lastViewState;
+    private Map<String, Object> vieparams;
 
     /**
      * {@inheritDoc}.
@@ -150,7 +152,7 @@ public class ViewInvoker implements Invoker, Serializable {
             viewId = vh.deriveLogicalViewId(fc, viewId);
 
             Map<String, Object> options = new HashMap();
-            Map<String, Object> vieparams = new HashMap();
+            vieparams = new HashMap();
             for (String key : params.keySet()) {
                 String skey = (String) key;
                 Object value = params.get(key);
@@ -171,9 +173,9 @@ public class ViewInvoker implements Invoker, Serializable {
                     transientState = (Boolean) val;
                 }
             }
-            
+
             boolean redirect = StateFlowParams.isDefaultViewRedirect();
-            
+
             if (options.containsKey("redirect")) {
                 Object val = options.get("redirect");
                 if (val instanceof String) {
@@ -183,19 +185,15 @@ public class ViewInvoker implements Invoker, Serializable {
                 }
             }
 
-            if (transientState) {
-                control = "stateless";
-            } else {
-                control = "statefull";
+            if (!transientState) {
+                stateKey = "__@@Invoke:" + invokeId + ":";
             }
 
-            Object viewState = null;
-            if (control.equals("statefull")) {
-
-                String stateKey = "__@@Invoke:" + invokeId + ":";
+            if (stateKey != null) {
+                stateKey = "__@@Invoke:" + invokeId + ":";
 
                 Context stateContext = executor.getGlobalContext();
-                viewState = stateContext.get(stateKey + "ViewState");
+                lastViewState = stateContext.get(stateKey + "ViewState");
                 String lastViewId = (String) stateContext.get(stateKey + "LastViewId");
                 if (lastViewId != null) {
                     viewId = lastViewId;
@@ -220,13 +218,6 @@ public class ViewInvoker implements Invoker, Serializable {
                 Application application = fc.getApplication();
                 ViewHandler viewHandler = application.getViewHandler();
 
-                if (viewState != null) {
-                    RenderKit renderKit = fc.getRenderKit();
-                    ResponseStateManager rsm = renderKit.getResponseStateManager();
-                    String viewStateId = rsm.getViewState(fc, viewState);
-                    param.put(ResponseStateManager.VIEW_STATE_PARAM, Arrays.asList(viewStateId));
-                }
-
                 String url = viewHandler.getRedirectURL(fc, viewId, SharedUtils.evaluateExpressions(fc, param), true);
                 clearViewMapIfNecessary(fc.getViewRoot(), viewId);
                 updateRenderTargets(fc, viewId);
@@ -248,13 +239,6 @@ public class ViewInvoker implements Invoker, Serializable {
                 Application application = fc.getApplication();
                 ViewHandler viewHandler = application.getViewHandler();
 
-                if (viewState != null) {
-                    RenderKit renderKit = fc.getRenderKit();
-                    ResponseStateManager rsm = renderKit.getResponseStateManager();
-                    String viewStateId = rsm.getViewState(fc, viewState);
-                    param.put(ResponseStateManager.VIEW_STATE_PARAM, Arrays.asList(viewStateId));
-                }
-
                 String url = viewHandler.getRedirectURL(fc, viewId, SharedUtils.evaluateExpressions(fc, param), true);
                 clearViewMapIfNecessary(fc.getViewRoot(), viewId);
                 updateRenderTargets(fc, viewId);
@@ -270,8 +254,8 @@ public class ViewInvoker implements Invoker, Serializable {
 
                 UIViewRoot viewRoot;
 
-                if (viewState != null) {
-                    fc.getAttributes().put(FACES_VIEW_STATE, viewState);
+                if (lastViewState != null) {
+                    fc.getAttributes().put(FACES_VIEW_STATE, lastViewState);
                     viewRoot = vh.restoreView(fc, viewId);
 
                     applyParams(fc, viewRoot, params);
@@ -279,6 +263,10 @@ public class ViewInvoker implements Invoker, Serializable {
                     fc.setViewRoot(viewRoot);
                     fc.setProcessingEvents(true);
                     vh.initView(fc);
+                    
+                    applyParams(fc, viewRoot, vieparams);
+                    vieparams = null;
+                    lastViewState = null;
                 } else {
                     SCXML stateChart = null;
                     viewRoot = null;
@@ -299,7 +287,8 @@ public class ViewInvoker implements Invoker, Serializable {
                         }
                     }
 
-                    applyParams(fc, viewRoot, params);
+                    applyParams(fc, viewRoot, vieparams);
+                    vieparams = null;
 
                     if (viewRoot != null) {
                         if (!ViewMetadata.hasMetadata(viewRoot)) {
@@ -317,8 +306,6 @@ public class ViewInvoker implements Invoker, Serializable {
 
                     viewRoot.setViewId(viewId);
                 }
-                viewRoot.getViewMap(true).put(VIEW_PARAMS_MAP, vieparams);
-                viewRoot.getViewMap(true).putAll(vieparams);
                 fc.setViewRoot(viewRoot);
                 fc.renderResponse();
             }
@@ -329,7 +316,7 @@ public class ViewInvoker implements Invoker, Serializable {
             fc.setProcessingEvents(oldProcessingEvents);
         }
     }
-    
+
     private void applyParams(FacesContext context, UIViewRoot viewRoot, Map<String, Object> params) {
         if (viewRoot != null) {
             if (ViewMetadata.hasMetadata(viewRoot)) {
@@ -395,11 +382,11 @@ public class ViewInvoker implements Invoker, Serializable {
             return;
         }
 
-        if (event.getType() == TriggerEvent.CALL_EVENT && (event.getName()
-                .startsWith(FACES_PHASE_EVENT_PREFIX))) {
-            if (viewId.equals(event.getSendId())) {
+        FacesContext context = FacesContext.getCurrentInstance();
+        if (viewId.equals(event.getSendId())) {
+            if (event.getType() == TriggerEvent.CALL_EVENT && (event.getName()
+                    .startsWith(AFTER_PHASE_EVENT_PREFIX))) {
                 try {
-                    FacesContext context = FacesContext.getCurrentInstance();
 
                     context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
                     context.getELContext().putContext(SCXMLExecutor.class, executor);
@@ -409,13 +396,15 @@ public class ViewInvoker implements Invoker, Serializable {
                 } catch (ModelException ex) {
                     throw new InvokerException(ex);
                 }
-            }
-            return;
-        }
+            } else if (event.getType() == TriggerEvent.CALL_EVENT && (event.getName()
+                    .startsWith(BEFORE_RESTORE_VIEW))) {
 
-        if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
-            if (viewId.equals(event.getSendId())) {
-                FacesContext context = FacesContext.getCurrentInstance();
+                if (lastViewState != null) {
+                    context.getAttributes().put(FACES_VIEW_STATE, lastViewState);
+                    lastViewState = null;
+                }
+
+            } else if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
                 ExternalContext ec = context.getExternalContext();
 
                 Map<String, String> params = new HashMap<>();
@@ -447,8 +436,6 @@ public class ViewInvoker implements Invoker, Serializable {
                 ResponseStateManager rsm = renderKit.getResponseStateManager();
                 Object viewState = rsm.getState(fc, lastViewId);
                 Context storeContext = executor.getGlobalContext();
-
-                String stateKey = "__@@Invoke:" + invokeId + ":";
 
                 storeContext.setLocal(stateKey + "ViewState", viewState);
                 storeContext.setLocal(stateKey + "LastViewId", lastViewId);
