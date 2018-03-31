@@ -29,7 +29,13 @@
         <param-name>org.apache.faces.ORYGINAL_SCXML_SUFIX</param-name>
         <param-value>.shtml .flow</param-value>
     </context-param>
-    
+
+    <!--If this parametr set "true", then view invoker default send redirect 
+    when is not defined in invoke params "@view.redirect". Default is "false"-->
+    <context-param>
+        <param-name>org.apache.faces.DEFAULT_VIEW_REDIRECT</param-name>
+        <param-value>true</param-value>
+    </context-param>
     
     <!--Request parametr for start other scxml definition, default is "flow",
     when not set this parametr in request, then alweys start default scxml by name "main"-->

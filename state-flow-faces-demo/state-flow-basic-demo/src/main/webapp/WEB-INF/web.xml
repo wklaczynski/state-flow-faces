@@ -32,7 +32,14 @@
         <param-name>org.apache.faces.STATE_CHART_REQUEST_PARAM_NAME</param-name>
         <param-value>flow</param-value>
     </context-param>
-    
+
+    <!--If this parametr set "true", then view invoker default send redirect 
+    when is not defined in invoke params "@view.redirect". Default is "false"-->
+    <context-param>
+        <param-name>org.apache.faces.DEFAULT_VIEW_REDIRECT</param-name>
+        <param-value>true</param-value>
+    </context-param>
+            
     <!--Used for test only, alweys disable in production stage-->
     <!--Log all step and transition-->
     <context-param>

@@ -33,11 +33,13 @@ public class StateFlowImplConstants {
 
     public final static String STATE_CHART_SERIALIZED_PARAM_NAME = STATE_FLOW_PREFIX + "STATE_CHART_ALWEYS_SERIALIZED";
 
+    public final static String STATE_CHART_VIEW_REDIRECT_PARAM_NAME = STATE_FLOW_PREFIX + "DEFAULT_VIEW_REDIRECT";
+
     public final static String LOCAL_XPATH_RESOLVER = STATE_FLOW_PREFIX + "LOCAL_XPATH_RESOLVER";
 
     public final static String ORYGINAL_SCXML_DEFAULT_SUFIX = ".scxml";
 
-    public final static String STATE_CHART_DEFAULT_PARAM_NAME = "flow";
+    public final static String STATE_CHART_DEFAULT_PARAM_NAME = "scxml";
 
     public static final String ANNOTATED_CLASSES = STATE_FLOW_PREFIX + "AnnotatedClasses";
 

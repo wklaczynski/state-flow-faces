@@ -43,6 +43,7 @@ import javax.faces.render.ResponseStateManager;
 import org.apache.common.faces.state.component.UIStateChartRoot;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
+import org.apache.common.faces.impl.state.StateFlowParams;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.SCXMLIOProcessor;
@@ -161,17 +162,28 @@ public class ViewInvoker implements Invoker, Serializable {
                 }
             }
 
-            boolean trans = false;
+            boolean transientState = false;
             if (options.containsKey("transient")) {
                 Object val = options.get("transient");
                 if (val instanceof String) {
-                    trans = Boolean.valueOf((String) val);
+                    transientState = Boolean.valueOf((String) val);
                 } else if (val instanceof Boolean) {
-                    trans = (Boolean) val;
+                    transientState = (Boolean) val;
+                }
+            }
+            
+            boolean redirect = StateFlowParams.isDefaultViewRedirect();
+            
+            if (options.containsKey("redirect")) {
+                Object val = options.get("redirect");
+                if (val instanceof String) {
+                    redirect = Boolean.valueOf((String) val);
+                } else if (val instanceof Boolean) {
+                    redirect = (Boolean) val;
                 }
             }
 
-            if (trans) {
+            if (transientState) {
                 control = "stateless";
             } else {
                 control = "statefull";
@@ -189,13 +201,6 @@ public class ViewInvoker implements Invoker, Serializable {
                     viewId = lastViewId;
                 }
 
-            }
-
-            if (fc.getViewRoot() != null) {
-                String currentViewId = fc.getViewRoot().getViewId();
-                if (currentViewId.equals(viewId)) {
-                    return;
-                }
             }
 
             PartialViewContext pvc = fc.getPartialViewContext();
@@ -222,13 +227,47 @@ public class ViewInvoker implements Invoker, Serializable {
                     param.put(ResponseStateManager.VIEW_STATE_PARAM, Arrays.asList(viewStateId));
                 }
 
-                String url = viewHandler.getBookmarkableURL(fc, viewId, SharedUtils.evaluateExpressions(fc, param), true);
-                //String url = viewHandler.getRedirectURL(fc, viewId, SharedUtils.evaluateExpressions(fc, param), true);
+                String url = viewHandler.getRedirectURL(fc, viewId, SharedUtils.evaluateExpressions(fc, param), true);
+                clearViewMapIfNecessary(fc.getViewRoot(), viewId);
+                updateRenderTargets(fc, viewId);
+                ec.redirect(url);
+                fc.responseComplete();
+            } else if (redirect) {
+                Map<String, List<String>> param = new HashMap<>();
+                Map<String, List<String>> navparams = navCase.getParameters();
+                if (navparams != null) {
+                    params.putAll(navparams);
+                }
+
+                Iterator<Map.Entry<String, Object>> it = ((Map<String, Object>) vieparams).entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry<String, Object> p = it.next();
+                    param.put(p.getKey(), Collections.singletonList(p.getValue().toString()));
+                }
+
+                Application application = fc.getApplication();
+                ViewHandler viewHandler = application.getViewHandler();
+
+                if (viewState != null) {
+                    RenderKit renderKit = fc.getRenderKit();
+                    ResponseStateManager rsm = renderKit.getResponseStateManager();
+                    String viewStateId = rsm.getViewState(fc, viewState);
+                    param.put(ResponseStateManager.VIEW_STATE_PARAM, Arrays.asList(viewStateId));
+                }
+
+                String url = viewHandler.getRedirectURL(fc, viewId, SharedUtils.evaluateExpressions(fc, param), true);
                 clearViewMapIfNecessary(fc.getViewRoot(), viewId);
                 updateRenderTargets(fc, viewId);
                 ec.redirect(url);
                 fc.responseComplete();
             } else {
+                if (fc.getViewRoot() != null) {
+                    String currentViewId = fc.getViewRoot().getViewId();
+                    if (currentViewId.equals(viewId)) {
+                        return;
+                    }
+                }
+
                 UIViewRoot viewRoot;
 
                 if (viewState != null) {
@@ -290,7 +329,7 @@ public class ViewInvoker implements Invoker, Serializable {
             fc.setProcessingEvents(oldProcessingEvents);
         }
     }
-
+    
     private void applyParams(FacesContext context, UIViewRoot viewRoot, Map<String, Object> params) {
         if (viewRoot != null) {
             if (ViewMetadata.hasMetadata(viewRoot)) {

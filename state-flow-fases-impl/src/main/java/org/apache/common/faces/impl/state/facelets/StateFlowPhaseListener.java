@@ -34,9 +34,7 @@ import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.component.UIStateChartRoot;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.scxml.model.SCXML;
-import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CHART_DEFAULT_PARAM_NAME;
-import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CHART_REQUEST_PARAM_NAME;
-import org.apache.common.faces.impl.state.config.StateWebConfiguration;
+import org.apache.common.faces.impl.state.StateFlowParams;
 import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
 import static org.apache.common.faces.state.StateFlow.FACES_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
@@ -78,10 +76,14 @@ public class StateFlowPhaseListener implements PhaseListener {
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
                 }
-                
+
                 Context.setCurrentInstance(
                         (Context) context.getELContext().getContext(Context.class));
-                
+
+                if (context.getResponseComplete()) {
+                    StateFlowHandler.getInstance().writeState(context);
+                }
+
             }
         }
 
@@ -111,11 +113,10 @@ public class StateFlowPhaseListener implements PhaseListener {
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
                 }
-                
+
                 Context.setCurrentInstance(
                         (Context) context.getELContext().getContext(Context.class));
 
-                
             }
         }
 
@@ -148,20 +149,18 @@ public class StateFlowPhaseListener implements PhaseListener {
         if (facet != null) {
             SCXML stateChart = null;
 
-            StateWebConfiguration wcfg = StateWebConfiguration.getInstance();
+            String pname = StateFlowParams.getRequestParamatrChartId();
 
-            String pname = wcfg.getOptionValue(STATE_CHART_REQUEST_PARAM_NAME, STATE_CHART_DEFAULT_PARAM_NAME);
+            String scxmlId = null;
 
-            String flowId = null;
-
-            if (flowId == null) {
-                flowId = context.getExternalContext().getRequestParameterMap().get(pname);
+            if (scxmlId == null) {
+                scxmlId = context.getExternalContext().getRequestParameterMap().get(pname);
             }
-            if (flowId == null) {
-                flowId = DEFAULT_STATECHART_NAME;
+            if (scxmlId == null) {
+                scxmlId = DEFAULT_STATECHART_NAME;
             }
 
-            UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent(flowId);
+            UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent(scxmlId);
             if (uichart != null) {
                 stateChart = uichart.getStateChart();
             }
@@ -191,9 +190,9 @@ public class StateFlowPhaseListener implements PhaseListener {
             for (String key : pmap.keySet()) {
                 params.put(key, pmap.get(key));
             }
-            
+
             SCXMLExecutor executor = flowHandler.createRootExecutor(context, stateFlow);
-            
+
             flowHandler.execute(context, executor, params);
             UIViewRoot result = context.getViewRoot();
 

@@ -32,7 +32,10 @@
 
         <x:parallel id="show">
             <x:state id="test-view">
-                <x:invoke type="view" src="TestPage.xhtml"/>
+                <x:invoke type="view" src="TestPage.xhtml">
+                    <!--Default is true if not set in web.xml-->
+                    <x:param name="@view.redirect" expr="true"/>
+                </x:invoke>
 
                 <x:transition event="error.execution" target="error"/>
 
