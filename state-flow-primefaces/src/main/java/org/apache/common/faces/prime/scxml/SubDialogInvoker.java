@@ -71,6 +71,7 @@ public class SubDialogInvoker implements Invoker, Serializable {
     private transient boolean cancelled;
     private String sourceId;
     private String viewId;
+    private String pfdlgcid;
 
     @Override
     public String getInvokeId() {
@@ -97,8 +98,6 @@ public class SubDialogInvoker implements Invoker, Serializable {
     public void invoke(final InvokeContext ictx, final String source, final Map params) throws InvokerException {
         try {
             FacesContext context = FacesContext.getCurrentInstance();
-            Flash flash = context.getExternalContext().getFlash();
-
             viewId = source;
 
             RequestContext requestContext = RequestContext.getCurrentInstance();
@@ -136,7 +135,7 @@ public class SubDialogInvoker implements Invoker, Serializable {
             String url = context.getApplication().getViewHandler().getBookmarkableURL(context, viewId, query, true);
             url = ComponentUtils.escapeEcmaScriptText(url);
 
-            String pfdlgcid = UUID.randomUUID().toString();
+            pfdlgcid = UUID.randomUUID().toString();
             StringBuilder sb = new StringBuilder();
             String sourceComponentId = (String) attrs.get(Constants.DIALOG_FRAMEWORK.SOURCE_COMPONENT);
             String sourceWidget = (String) attrs.get(Constants.DIALOG_FRAMEWORK.SOURCE_WIDGET);
@@ -337,7 +336,7 @@ public class SubDialogInvoker implements Invoker, Serializable {
         cancelled = true;
         FacesContext context = FacesContext.getCurrentInstance();
         Map<String, String> params = context.getExternalContext().getRequestParameterMap();
-        String pfdlgcid = ComponentUtils.escapeEcmaScriptText(params.get(Constants.DIALOG_FRAMEWORK.CONVERSATION_PARAM));
+        //String pfdlgcid = ComponentUtils.escapeEcmaScriptText(params.get(Constants.DIALOG_FRAMEWORK.CONVERSATION_PARAM));
 
         Object data = null;
 
