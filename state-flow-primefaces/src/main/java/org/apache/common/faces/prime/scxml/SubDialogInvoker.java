@@ -4,7 +4,6 @@
  */
 package org.apache.common.faces.prime.scxml;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,12 +15,9 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import javax.faces.application.ResourceDependencies;
 import javax.faces.application.ResourceDependency;
-import javax.faces.application.ViewHandler;
-import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.context.Flash;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.FACES_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.FACES_RENDER_VIEW;
@@ -38,10 +34,6 @@ import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
 import org.apache.common.scxml.model.ModelException;
 import org.primefaces.PrimeFaces;
-import org.primefaces.component.api.ClientBehaviorRenderingMode;
-import org.primefaces.context.RequestContext;
-import org.primefaces.util.AjaxRequestBuilder;
-import org.primefaces.util.ComponentTraversalUtils;
 import org.primefaces.util.ComponentUtils;
 import org.primefaces.util.Constants;
 
@@ -98,17 +90,11 @@ public class SubDialogInvoker implements Invoker, Serializable {
     public void invoke(final InvokeContext ictx, final String source, final Map params) throws InvokerException {
         try {
             FacesContext context = FacesContext.getCurrentInstance();
-            viewId = source;
-
-            RequestContext requestContext = RequestContext.getCurrentInstance();
+            Map<String, String> requestParams = context.getExternalContext().getRequestParameterMap();
             Map<Object, Object> attrs = context.getAttributes();
 
-            Map<String, List<String>> dialogParams = (Map<String, List<String>>) attrs.get(Constants.DIALOG_FRAMEWORK.PARAMS);
-            Map<String, List<String>> vparams = new LinkedHashMap();
-            if (dialogParams != null) {
-                vparams.putAll(dialogParams);
-            }
-
+            viewId = source;
+            
             Map<String, Object> options = new HashMap<>();
             options.put("resizable", "false");
             Map<String, Object> ajax = new HashMap<>();
@@ -124,11 +110,10 @@ public class SubDialogInvoker implements Invoker, Serializable {
                     skey = skey.substring(6);
                     ajax.put(skey, value);
                 } else {
-                    query.put(skey, Collections.singletonList(value));
+                    query.put(skey, Collections.singletonList(value.toString()));
                 }
             }
 
-            //vparams = SharedUtils.evaluateExpressions(context, vparams);
             UIViewRoot view = context.getViewRoot();
             SharedUtils.loadResorces(context, view, this, "head");
 
@@ -139,50 +124,12 @@ public class SubDialogInvoker implements Invoker, Serializable {
             StringBuilder sb = new StringBuilder();
             String sourceComponentId = (String) attrs.get(Constants.DIALOG_FRAMEWORK.SOURCE_COMPONENT);
             String sourceWidget = (String) attrs.get(Constants.DIALOG_FRAMEWORK.SOURCE_WIDGET);
-            pfdlgcid = ComponentUtils.escapeEcmaScriptText(pfdlgcid);
-
-            options.put("modal", "true");
-
-            view.getViewMap(true).put(VIEW_PARAM, this);
-
-            String formId = null;
-
-            AjaxRequestBuilder builder = requestContext.getAjaxRequestBuilder();
-            ClientBehaviorRenderingMode renderingMode = ClientBehaviorRenderingMode.OBSTRUSIVE;
-            UIComponent form = null;
-
-            if (sourceComponentId != null) {
-                UIComponent component = context.getViewRoot().findComponent(sourceComponentId);
-                if (component != null) {
-                    form = ComponentTraversalUtils.closestForm(context, component);
-                    if (form != null) {
-                        formId = form.getClientId(context);
-                    }
-                }
-                sourceId = form.getClientId();
+            pfdlgcid = requestParams.get(Constants.DIALOG_FRAMEWORK.CONVERSATION_PARAM);
+            if (pfdlgcid == null) {
+                pfdlgcid = UUID.randomUUID().toString();
             }
 
-            PrimeFaces.current().executeScript(sb.toString());
-            sb.setLength(0);
-
-            String script = builder.init()
-                    .source(sourceId)
-                    .form(formId)
-                    .event("scxmlHide")
-                    .process(form, "@none")
-                    .update(form, "@none")
-                    .async(false)
-                    .global(true)
-                    .delay(null)
-                    .timeout(0)
-                    .partialSubmit(false, false, null)
-                    .resetValues(false, false)
-                    .ignoreAutoUpdate(false)
-                    .onstart(null)
-                    .onerror(null)
-                    .onsuccess(null)
-                    .oncomplete(null)
-                    .buildBehavior(renderingMode);
+            options.put("modal", "true");
 
             sb.append("PrimeFaces.openDialog({url:'").append(url).append("',pfdlgcid:'").append(pfdlgcid)
                     .append("',sourceComponentId:'").append(sourceComponentId).append("'");
@@ -212,33 +159,6 @@ public class SubDialogInvoker implements Invoker, Serializable {
             sb.append("}});");
             PrimeFaces.current().executeScript(sb.toString());
             sb.setLength(0);
-
-//            sb.append("FacesFlowUI.openSCXMLDialog({url:'").append(gurl).append("',pfdlgcid:'").append(pfdlgcid)
-//                    .append("',sourceId:'").append(sourceId).append("'");
-//
-//            sb.append(",options:{");
-//            if (options != null && options.size() > 0) {
-//                for (Iterator<String> it = options.keySet().iterator(); it.hasNext();) {
-//                    String optionName = it.next();
-//                    Object optionValue = options.get(optionName);
-//
-//                    sb.append(optionName).append(":").append(optionValue);
-//
-//                    if (it.hasNext()) {
-//                        sb.append(",");
-//                    }
-//                }
-//            }
-//            sb.append("}");
-//            sb.append(",behaviors:{");
-//            sb.append("scxmlHide:");
-//            sb.append("function(ext) {");
-//            sb.append(script);
-//            sb.append("}");
-//            sb.append("}});");
-//            requestContext.getScriptsToExecute().add(sb.toString());
-//            sb.setLength(0);
-//            SharedUtils.doLastPhaseActions(context, true);
         } catch (Throwable ex) {
             throw new InvokerException(ex);
         }
@@ -299,36 +219,7 @@ public class SubDialogInvoker implements Invoker, Serializable {
 
     public void decode(FacesContext context) throws InvokerException {
         if (cancelled) {
-            return;
         }
-
-        Map<String, String> params = context.getExternalContext().getRequestParameterMap();
-        String behaviorEvent = params.get("javax.faces.behavior.event");
-        if ("scxmlHide".equals(behaviorEvent)) {
-            String behaviorSource = params.get("javax.faces.source");
-            if (behaviorSource != null && sourceId.equals(behaviorSource)) {
-                try {
-                    StateFlowHandler handler = StateFlowHandler.getInstance();
-
-                    String cviewId = context.getViewRoot().getViewId();
-
-                    ViewHandler viewHandler = context.getApplication().getViewHandler();
-
-                    String gurl = viewHandler.getRedirectURL(
-                            context,
-                            cviewId,
-                            null,
-                            true);
-
-                    context.getExternalContext().getFlash().setKeepMessages(true);
-                    context.getExternalContext().redirect(gurl);
-                    context.responseComplete();
-                } catch (IOException ex) {
-                    throw new InvokerException(ex);
-                }
-            }
-        }
-
     }
 
     @Override
@@ -336,7 +227,6 @@ public class SubDialogInvoker implements Invoker, Serializable {
         cancelled = true;
         FacesContext context = FacesContext.getCurrentInstance();
         Map<String, String> params = context.getExternalContext().getRequestParameterMap();
-        //String pfdlgcid = ComponentUtils.escapeEcmaScriptText(params.get(Constants.DIALOG_FRAMEWORK.CONVERSATION_PARAM));
 
         Object data = null;
 
@@ -346,7 +236,6 @@ public class SubDialogInvoker implements Invoker, Serializable {
         }
 
         PrimeFaces.current().executeScript("PrimeFaces.closeDialog({pfdlgcid:'" + pfdlgcid + "'});");
-
     }
 
 }
