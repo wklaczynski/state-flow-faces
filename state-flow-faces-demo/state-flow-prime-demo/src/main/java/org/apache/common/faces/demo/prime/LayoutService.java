@@ -66,6 +66,7 @@ public class LayoutService {
 
             String redirectPath = ec.encodeRedirectURL(actionURL, new HashMap<>());
             ec.redirect(redirectPath);
+            fc.responseComplete();
         } catch (IOException ex) {
             log.log(Level.SEVERE, null, ex);
         }

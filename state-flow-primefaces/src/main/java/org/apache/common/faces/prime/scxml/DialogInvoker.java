@@ -49,9 +49,9 @@ import org.primefaces.util.Constants;
     ,@ResourceDependency(library = "primefaces", name = "components.js")
     ,@ResourceDependency(library = "flowfaces", name = "flow.js")
 })
-public class SubDialogInvoker implements Invoker, Serializable {
+public class DialogInvoker implements Invoker, Serializable {
 
-    private final static Logger logger = Logger.getLogger(SubDialogInvoker.class.getName());
+    private final static Logger logger = Logger.getLogger(DialogInvoker.class.getName());
 
     public static final String VIEW_PARAM = "@@@SubDialogInvoker@@@";
 
