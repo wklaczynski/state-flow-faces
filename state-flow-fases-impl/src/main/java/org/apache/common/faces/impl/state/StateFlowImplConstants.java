@@ -60,6 +60,5 @@ public class StateFlowImplConstants {
     public static final String SCXML_DATA_MODEL = "http://xmlns.apache.org/faces/scxml";
     
     public static final String FXSCXML_DATA_MODEL = "http://xmlns.apache.org/faces/fxscxml";
-    
 
 }

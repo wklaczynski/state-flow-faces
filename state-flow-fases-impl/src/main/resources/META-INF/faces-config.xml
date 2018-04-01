@@ -22,6 +22,7 @@
     <application>
         <el-resolver>org.apache.common.faces.impl.state.el.StateFlowELResolver</el-resolver>
         <navigation-handler>org.apache.common.faces.impl.state.facelets.StateFlowNavigationHandler</navigation-handler>
+        <view-handler>org.apache.common.faces.impl.state.facelets.StateFlowViewHandler</view-handler>
     </application>
     
     <factory>

@@ -16,6 +16,7 @@
  */
 package org.apache.common.faces.impl.state.invokers;
 
+import static com.sun.faces.util.RequestStateManager.FACES_VIEW_STATE;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
@@ -67,8 +68,6 @@ public class ViewInvoker implements Invoker, Serializable {
 
     private final static Logger logger = Logger.getLogger(ViewInvoker.class.getName());
 
-    public static final String FACES_VIEW_STATE = "com.sun.faces.FACES_VIEW_STATE";
-
     /**
      * Serial version UID.
      */
@@ -89,7 +88,6 @@ public class ViewInvoker implements Invoker, Serializable {
 
     private String viewId;
     private String stateKey;
-    private Object lastViewState;
     private Map<String, Object> vieparams;
 
     /**
@@ -196,6 +194,7 @@ public class ViewInvoker implements Invoker, Serializable {
                 stateKey = "__@@Invoke:" + invokeId + ":";
             }
 
+            Object lastViewState = null;
             if (stateKey != null) {
                 stateKey = "__@@Invoke:" + invokeId + ":";
 
@@ -215,6 +214,9 @@ public class ViewInvoker implements Invoker, Serializable {
                 clearViewMapIfNecessary(fc.getViewRoot(), viewId);
                 updateRenderTargets(fc, viewId);
                 ec.redirect(url);
+                
+                Context rootContext = executor.getRootContext();
+                rootContext.setLocal(FACES_VIEW_STATE, lastViewState);
                 fc.responseComplete();
             } else {
                 if (fc.getViewRoot() != null) {
@@ -238,7 +240,6 @@ public class ViewInvoker implements Invoker, Serializable {
 
                     applyParams(fc, viewRoot, vieparams);
                     vieparams = null;
-                    lastViewState = null;
                 } else {
                     SCXML stateChart = null;
                     viewRoot = null;
@@ -358,10 +359,7 @@ public class ViewInvoker implements Invoker, Serializable {
         //filter all multicast call event from started viewId by this invoker
         if (event.getType() == TriggerEvent.CALL_EVENT && viewId.equals(event.getSendId())) {
             if (event.getName().startsWith(BEFORE_RESTORE_VIEW)) {
-                if (lastViewState != null) {
-                    context.getAttributes().put(FACES_VIEW_STATE, lastViewState);
-                    lastViewState = null;
-                }
+
             }
 
             if (event.getName().startsWith(AFTER_RESTORE_VIEW)) {

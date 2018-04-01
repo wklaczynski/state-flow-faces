@@ -15,6 +15,7 @@
  */
 package org.apache.common.faces.impl.state.facelets;
 
+import static com.sun.faces.util.RequestStateManager.FACES_VIEW_STATE;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -90,8 +91,7 @@ public class StateFlowPhaseListener implements PhaseListener {
     public void beforePhase(PhaseEvent event) {
         FacesContext context = event.getFacesContext();
 
-        if (event.getPhaseId() != PhaseId.RESTORE_VIEW && context.isPostback()) {
-
+        if (event.getPhaseId() != PhaseId.RESTORE_VIEW) {
             UIViewRoot viewRoot = context.getViewRoot();
             StateFlowHandler fh = StateFlowHandler.getInstance();
             if (viewRoot != null && fh.isActive(context)) {
@@ -107,6 +107,17 @@ public class StateFlowPhaseListener implements PhaseListener {
                     rootExecutor.triggerEvent(eb.build());
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
+                }
+            }
+        } else {
+            StateFlowHandler fh = StateFlowHandler.getInstance();
+            if (fh.isActive(context)) {
+                SCXMLExecutor executor = fh.getRootExecutor(context);
+                Context ctx = executor.getRootContext();
+                Object lastViewState = ctx.get(FACES_VIEW_STATE);
+                ctx.getVars().remove(FACES_VIEW_STATE);
+                if (lastViewState != null) {
+                    context.getAttributes().put(FACES_VIEW_STATE, lastViewState);
                 }
             }
         }
