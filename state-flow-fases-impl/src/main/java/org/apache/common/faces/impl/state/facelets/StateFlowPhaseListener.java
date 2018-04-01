@@ -81,10 +81,11 @@ public class StateFlowPhaseListener implements PhaseListener {
             Context.setCurrentInstance(
                     (Context) context.getELContext().getContext(Context.class));
 
-            if (context.getResponseComplete()) {
+            if (event.getPhaseId() == PhaseId.RENDER_RESPONSE || context.getResponseComplete()) {
                 StateFlowHandler.getInstance().writeState(context);
             }
         }
+
     }
 
     @Override

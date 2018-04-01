@@ -176,6 +176,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             log.log(Level.FINE, "Creating StateFlow for: {0}", viewId);
         }
 
+        UIViewRoot currentViewRoot = context.getViewRoot();
         try {
             context.getAttributes().put(SKIP_START_STATE_MACHINE_HINT, true);
             context.getAttributes().put(BUILD_STATE_MACHINE_HINT, id);
@@ -201,6 +202,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         } finally {
             context.getAttributes().remove(BUILD_STATE_MACHINE_HINT);
             context.getAttributes().remove(SKIP_START_STATE_MACHINE_HINT);
+            if(currentViewRoot != null) {
+                context.setViewRoot(currentViewRoot);
+            }
         }
 
     }
@@ -427,6 +431,11 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
 
         ExternalContext ec = context.getExternalContext();
+        Object session = ec.getSession(create);
+        if(session == null) {
+            return null; 
+        }
+        
         Map<String, Object> sessionMap = ec.getSessionMap();
         Map<String, Object> flowMap = (Map<String, Object>) sessionMap.get(LOGICAL_FLOW_MAP);
         if (flowMap == null && create) {

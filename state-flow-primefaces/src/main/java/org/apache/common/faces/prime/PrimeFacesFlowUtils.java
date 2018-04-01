@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.apache.common.faces.prime.scxml;
+package org.apache.common.faces.prime;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,18 +15,23 @@ import java.util.logging.Logger;
 import javax.faces.application.Application;
 import javax.faces.application.ResourceDependencies;
 import javax.faces.application.ResourceDependency;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewParameter;
 import javax.faces.component.UIViewRoot;
+import javax.faces.component.visit.VisitContext;
+import javax.faces.component.visit.VisitResult;
 import javax.faces.context.FacesContext;
 import javax.faces.context.Flash;
+import javax.faces.view.ViewMetadata;
 import org.primefaces.util.ResourceUtils;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class SharedUtils {
+public class PrimeFacesFlowUtils {
 
-    private final static Logger logger = Logger.getLogger(SharedUtils.class.getName());
+    private final static Logger logger = Logger.getLogger(PrimeFacesFlowUtils.class.getName());
 
     public static boolean isMixedExpression(String expression) {
 
@@ -95,10 +100,29 @@ public class SharedUtils {
 
     public static void loadResorces(FacesContext context, UIViewRoot view, Object instance, String target) {
         ResourceDependencies aresorces = instance.getClass().getAnnotation(ResourceDependencies.class);
-        
+
         for (ResourceDependency resource : aresorces.value()) {
             String name = resource.name();
             ResourceUtils.addComponentResource(context, name, resource.library(), target);
+        }
+    }
+
+    public static void applyParams(FacesContext context, UIViewRoot viewRoot, Map<String, Object> params) {
+        if (viewRoot != null) {
+            if (ViewMetadata.hasMetadata(viewRoot)) {
+                VisitContext vc = VisitContext.createVisitContext(context);
+                viewRoot.visitTree(vc, (VisitContext ivc, UIComponent target) -> {
+
+                    if (target instanceof UIViewParameter) {
+                        UIViewParameter parametr = (UIViewParameter) target;
+                        String name = parametr.getName();
+                        if (params.containsKey(name)) {
+                            parametr.setValue(params.get(name));
+                        }
+                    }
+                    return VisitResult.ACCEPT;
+                });
+            }
         }
 
     }

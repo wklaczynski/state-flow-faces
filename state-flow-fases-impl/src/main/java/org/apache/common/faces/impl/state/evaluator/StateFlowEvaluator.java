@@ -16,7 +16,6 @@
 package org.apache.common.faces.impl.state.evaluator;
 
 import com.sun.faces.facelets.el.ELText;
-import org.apache.common.faces.impl.state.el.CompositeFunctionMapper;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -40,6 +39,8 @@ import org.apache.common.scxml.SCXMLIOProcessor;
 import org.apache.common.scxml.SCXMLSystemContext;
 import org.apache.common.scxml.env.EffectiveContextMap;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
+import org.apache.common.faces.impl.state.el.CompositeFunctionMapper;
+import org.apache.common.scxml.model.SCXML;
 
 /**
  *
@@ -92,6 +93,14 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             SCXMLExecutor executor = (SCXMLExecutor) ioProcessors.get(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX + sessionId);
             fc.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
             ec.putContext(SCXMLExecutor.class, executor);
+            
+            SCXML scxml = executor.getStateMachine();
+            ec.addFunctionMaper(new EvaluatorBuiltinFunctionMapper(ec, scxml));
+            
+            Map<String, String> namespaces = scxml.getNamespaces();
+            String modelName = scxml.getDatamodelName();
+            
+            
         } else {
             fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
         }
@@ -108,6 +117,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             throw new SCXMLExpressionException(String.format("%s error: %s", expr, Util.getErrorMessage(ex)), ex);
         } finally {
             ec.putContext(Context.class, newContext(null));
+            ec.reset();
             Context.setCurrentInstance(null);
         }
     }
@@ -180,7 +190,8 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
 
         private final ELContext ctx;
         private VariableMapper varMapper;
-        private final FunctionMapper fnMapper;
+        private FunctionMapper fnMapper;
+        private final FunctionMapper defFnMapper;
         private final CompositeELResolver elResolver;
 
         private ContextWrapper(FacesContext facesContext) {
@@ -192,9 +203,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
                 this.varMapper = new EvaluatorVariableMapper();
             }
 
-            EvaluatorBuiltinFunctionMapper bfm = new EvaluatorBuiltinFunctionMapper(this);
-            
-            this.fnMapper = new CompositeFunctionMapper(bfm, ctx.getFunctionMapper());
+            this.defFnMapper = this.fnMapper = ctx.getFunctionMapper();
 
             this.elResolver = new CompositeELResolver();
             this.elResolver.add(new EvaluatorELResolver());
@@ -206,6 +215,10 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
         public FunctionMapper getFunctionMapper() {
             return this.fnMapper;
         }
+        
+        public void addFunctionMaper(FunctionMapper functionMapper) {
+            this.fnMapper = new CompositeFunctionMapper(functionMapper, this.fnMapper);
+        }
 
         @Override
         public VariableMapper getVariableMapper() {
@@ -215,6 +228,10 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
         @Override
         public ELResolver getELResolver() {
             return elResolver;
+        }
+        
+        public void reset() {
+            this.fnMapper =  defFnMapper;
         }
 
     }

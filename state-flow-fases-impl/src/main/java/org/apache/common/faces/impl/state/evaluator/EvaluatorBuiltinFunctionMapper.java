@@ -17,10 +17,13 @@ package org.apache.common.faces.impl.state.evaluator;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.el.ELContext;
 import javax.el.FunctionMapper;
 import org.apache.common.faces.impl.state.log.FlowLogger;
+import org.apache.common.faces.impl.state.tag.FacesFlowBuiltin;
+import org.apache.common.scxml.model.SCXML;
 
 /**
  *
@@ -28,49 +31,34 @@ import org.apache.common.faces.impl.state.log.FlowLogger;
  */
 public class EvaluatorBuiltinFunctionMapper extends FunctionMapper implements Serializable {
 
-        private static final long serialVersionUID = 1L;
-        public static final Logger log = FlowLogger.APPLICATION.getLogger();
+    private static final long serialVersionUID = 1L;
+    public static final Logger log = FlowLogger.APPLICATION.getLogger();
     private final ELContext context;
+    private final SCXML scxml;
 
-        public EvaluatorBuiltinFunctionMapper(ELContext context) {
-            super();
+    public EvaluatorBuiltinFunctionMapper(ELContext context, SCXML scxml) {
+        super();
         this.context = context;
-        }
-
-        @Override
-        public Method resolveFunction(final String prefix, final String localName) {
-//            switch (localName) {
-//                case "In": {
-//                    Class[] attrs = new Class[]{String.class};
-//                    try {
-//                        return Builtin.class.getMethod("isMember", attrs);
-//                    } catch (SecurityException | NoSuchMethodException e) {
-//                        log.log(Level.SEVERE, "resolving isMember(Set, String)", e);
-//                    }
-//                }
-//                case "Data": {
-//                    // rvalue in expressions, coerce to String
-//                    Class[] attrs =
-//                            new Class[]{Map.class, Object.class, String.class};
-//                    try {
-//                        return Builtin.class.getMethod("data", attrs);
-//                    } catch (SecurityException | NoSuchMethodException e) {
-//                        log.log(Level.SEVERE, "resolving data(Node, String)", e);
-//                    }
-//                }
-//                case "LData": {
-//                    // lvalue in expressions, retain as Node
-//                    Class[] attrs =
-//                            new Class[]{Map.class, Object.class, String.class};
-//                    try {
-//                        return Builtin.class.getMethod("dataNode", attrs);
-//                    } catch (SecurityException | NoSuchMethodException e) {
-//                        log.log(Level.SEVERE, "resolving data(Node, String)", e);
-//                    }
-//                }
-//                default:
-//                    break;
-//            }
-            return null;
-        }
+        this.scxml = scxml;
     }
+
+    @Override
+    public Method resolveFunction(final String prefix, final String localName) {
+        String namespace = scxml.getNamespaces().get(prefix);
+        if(namespace != null && namespace.equals(scxml.getDatamodelName())) {
+            switch (localName) {
+                case "in": {
+                    Class[] attrs = new Class[]{String.class};
+                    try {
+                        return FacesFlowBuiltin.class.getMethod("isMember", attrs);
+                    } catch (SecurityException | NoSuchMethodException e) {
+                        log.log(Level.SEVERE, "resolving isMember(String)", e);
+                    }
+                }
+                default:
+                    break;
+            }
+        }
+        return null;
+    }
+}

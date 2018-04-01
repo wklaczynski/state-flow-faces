@@ -4,6 +4,7 @@
  */
 package org.apache.common.faces.prime.scxml;
 
+import org.apache.common.faces.prime.PrimeFacesFlowUtils;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,15 +16,24 @@ import java.util.logging.Logger;
 import javax.faces.application.ResourceDependencies;
 import javax.faces.application.ResourceDependency;
 import javax.faces.component.UIViewRoot;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import static org.apache.common.faces.prime.PrimeFacesFlowUtils.applyParams;
+import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
+import static org.apache.common.faces.state.StateFlow.AFTER_RESTORE_VIEW;
+import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
+import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.annotation.StateChartInvoker;
+import org.apache.common.scxml.Context;
+import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.InvokeContext;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.SCXMLIOProcessor;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
+import org.apache.common.scxml.model.ModelException;
 import org.primefaces.PrimeFaces;
 import org.primefaces.util.ComponentUtils;
 import org.primefaces.util.Constants;
@@ -55,6 +65,7 @@ public class DialogInvoker implements Invoker, Serializable {
     private String sourceId;
     private String viewId;
     private String pfdlgcid;
+    private Map<String, Object> vieparams;
 
     @Override
     public String getInvokeId() {
@@ -80,35 +91,39 @@ public class DialogInvoker implements Invoker, Serializable {
     @Override
     public void invoke(final InvokeContext ictx, final String source, final Map params) throws InvokerException {
         try {
-            FacesContext context = FacesContext.getCurrentInstance();
-            Map<String, String> requestParams = context.getExternalContext().getRequestParameterMap();
-            Map<Object, Object> attrs = context.getAttributes();
+            FacesContext fc = FacesContext.getCurrentInstance();
+            Map<String, String> requestParams = fc.getExternalContext().getRequestParameterMap();
+            Map<Object, Object> attrs = fc.getAttributes();
 
             viewId = source;
-            
+
             Map<String, Object> options = new HashMap<>();
             options.put("resizable", "false");
             Map<String, Object> ajax = new HashMap<>();
             Map<String, List<String>> query = new HashMap<>();
 
+            vieparams = new HashMap();
             for (Object key : params.keySet()) {
                 String skey = (String) key;
                 Object value = params.get(key);
-                if (skey.startsWith("@dialog.")) {
-                    skey = skey.substring(8);
+                if (skey.startsWith("@query.param.")) {
+                    skey = skey.substring(16);
+                    query.put(skey, Collections.singletonList(value.toString()));
+                } else if (skey.startsWith("@dialog.param")) {
+                    skey = skey.substring(13);
                     options.put(skey, value.toString());
                 } else if (skey.startsWith("@ajax.")) {
                     skey = skey.substring(6);
                     ajax.put(skey, value);
                 } else {
-                    query.put(skey, Collections.singletonList(value.toString()));
+                    vieparams.put(skey, Collections.singletonList(value.toString()));
                 }
             }
 
-            UIViewRoot view = context.getViewRoot();
-            SharedUtils.loadResorces(context, view, this, "head");
+            UIViewRoot view = fc.getViewRoot();
+            PrimeFacesFlowUtils.loadResorces(fc, view, this, "head");
 
-            String url = context.getApplication().getViewHandler().getRedirectURL(context, viewId, query, true);
+            String url = fc.getApplication().getViewHandler().getRedirectURL(fc, viewId, query, true);
             url = ComponentUtils.escapeEcmaScriptText(url);
 
             pfdlgcid = UUID.randomUUID().toString();
@@ -168,6 +183,44 @@ public class DialogInvoker implements Invoker, Serializable {
             return;
         }
         StateFlowHandler handler = StateFlowHandler.getInstance();
+
+        FacesContext context = FacesContext.getCurrentInstance();
+        //filter all multicast call event from started viewId by this invoker
+        if (event.getType() == TriggerEvent.CALL_EVENT && viewId.equals(event.getSendId())) {
+            if (event.getName().startsWith(AFTER_RESTORE_VIEW)) {
+                if (vieparams != null && context.getResponseComplete()) {
+                    UIViewRoot viewRoot = context.getViewRoot();
+                    applyParams(context, viewRoot, vieparams);
+                    vieparams = null;
+                }
+            }
+
+            if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
+                try {
+                    context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
+                    context.getELContext().putContext(SCXMLExecutor.class, executor);
+
+                    Context stateContext = ictx.getContext();
+                    context.getELContext().putContext(Context.class, stateContext);
+                } catch (ModelException ex) {
+                    throw new InvokerException(ex);
+                }
+            }
+
+            if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
+                ExternalContext ec = context.getExternalContext();
+
+                Map<String, String> params = new HashMap<>();
+                params.putAll(ec.getRequestParameterMap());
+
+                String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
+                EventBuilder evb = new EventBuilder("view.action." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
+
+                evb.data(params);
+                evb.sendId(invokeId);
+                executor.addEvent(evb.build());
+            }
+        }
 
     }
 

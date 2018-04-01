@@ -42,7 +42,7 @@
                     <p/>
                     <b>Value:</b> #{main.assignedTest1}
                     <p/>
-                    <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
+                    <h:panelGrid cellspacing="4" columns="9" style="bottom: 0px">
                         <p:commandButton action="calculate" value="Calculate Test">
                         </p:commandButton>
                         <p:commandButton
@@ -67,6 +67,11 @@
                             update="@form"
                             action="go-view"
                             value="Go View">
+                        </p:commandButton>
+                        <p:commandButton
+                            update="@form"
+                            action="show-info"
+                            value="Show Info">
                         </p:commandButton>
                     </h:panelGrid>
                 </h:panelGroup>

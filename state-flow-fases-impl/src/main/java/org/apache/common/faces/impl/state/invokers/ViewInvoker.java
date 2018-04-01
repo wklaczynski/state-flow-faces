@@ -42,6 +42,7 @@ import javax.faces.render.ResponseStateManager;
 import org.apache.common.faces.state.component.UIStateChartRoot;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
+import org.apache.common.faces.impl.state.StateFlowContext;
 import org.apache.common.faces.impl.state.StateFlowParams;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.SCXMLExecutor;
@@ -52,12 +53,12 @@ import org.apache.common.scxml.invoke.InvokerException;
 import org.apache.common.scxml.model.SCXML;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RESTORE_VIEW;
-import static org.apache.common.faces.state.StateFlow.BEFORE_RESTORE_VIEW;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.InvokeContext;
+import org.apache.common.scxml.env.EffectiveContextMap;
 import org.apache.common.scxml.model.ModelException;
 
 /**
@@ -189,7 +190,7 @@ public class ViewInvoker implements Invoker, Serializable {
                     redirect = (Boolean) val;
                 }
             }
-
+            
             if (!transientState) {
                 stateKey = "__@@Invoke:" + invokeId + ":";
             }
@@ -358,12 +359,8 @@ public class ViewInvoker implements Invoker, Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
         //filter all multicast call event from started viewId by this invoker
         if (event.getType() == TriggerEvent.CALL_EVENT && viewId.equals(event.getSendId())) {
-            if (event.getName().startsWith(BEFORE_RESTORE_VIEW)) {
-
-            }
-
             if (event.getName().startsWith(AFTER_RESTORE_VIEW)) {
-                if (vieparams != null) {
+                if (vieparams != null && context.getResponseComplete()) {
                     UIViewRoot viewRoot = context.getViewRoot();
                     applyParams(context, viewRoot, vieparams);
                     vieparams = null;
@@ -375,7 +372,7 @@ public class ViewInvoker implements Invoker, Serializable {
                     context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
                     context.getELContext().putContext(SCXMLExecutor.class, executor);
 
-                    Context stateContext = ictx.getContext();
+                    Context stateContext = getEffectiveContext(ictx.getContext());
                     context.getELContext().putContext(Context.class, stateContext);
                 } catch (ModelException ex) {
                     throw new InvokerException(ex);
@@ -398,6 +395,10 @@ public class ViewInvoker implements Invoker, Serializable {
         }
     }
 
+    protected StateFlowContext getEffectiveContext(final Context nodeCtx) {
+        return new StateFlowContext(nodeCtx, new EffectiveContextMap(nodeCtx));
+    }
+    
     /**
      * {@inheritDoc}.
      */

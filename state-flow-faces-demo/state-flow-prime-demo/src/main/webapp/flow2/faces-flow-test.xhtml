@@ -49,6 +49,7 @@
                 </x:transition>
 
                 <x:transition event="view.action.go-view" target="view-process"/>
+                <x:transition event="view.action.show-info" target="info"/>
             </x:state>
 
             <x:state id="test-process">
@@ -154,6 +155,21 @@
 
         </x:state>
 
+        <x:state id="info">
+            <x:invoke type="dialog" src="InfoPage.xhtml"/>
+
+            <x:transition event="error.execution" target="error"/>
+
+            <x:transition event="view.action.cancel" target="cancel"/>
+            <x:transition event="view.action.return" target="test-process-return"/>
+            <x:transition event="view.action.start-again" target="show"/>
+            
+            <x:transition event="view.action.calculate-1">
+                <x:assign location="#{main.assignedTest1}"
+                          expr="Changed by 'calculate-1' in 'info-process' state"/>
+            </x:transition>
+        </x:state>
+        
 
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml"/>
