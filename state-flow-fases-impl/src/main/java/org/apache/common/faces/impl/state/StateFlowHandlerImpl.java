@@ -37,6 +37,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.context.FacesContextWrapper;
 import javax.faces.lifecycle.ClientWindow;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.SCXMLExecutor;
@@ -175,8 +176,29 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         if (log.isLoggable(Level.FINE)) {
             log.log(Level.FINE, "Creating StateFlow for: {0}", viewId);
         }
+        
+        FacesContext wcontext = new FacesContextWrapper() {
 
-        UIViewRoot currentViewRoot = context.getViewRoot();
+            UIViewRoot vrot;
+            
+            @Override
+            public FacesContext getWrapped() {
+                return context;
+            }
+
+            @Override
+            public void setViewRoot(UIViewRoot root) {
+                vrot = root;
+            }
+
+            @Override
+            public UIViewRoot getViewRoot() {
+                return vrot;
+            }
+            
+        };
+
+        context.setProcessingEvents(false);
         try {
             context.getAttributes().put(SKIP_START_STATE_MACHINE_HINT, true);
             context.getAttributes().put(BUILD_STATE_MACHINE_HINT, id);
@@ -184,11 +206,11 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             SCXML stateChart = null;
 
             ViewHandler vh = context.getApplication().getViewHandler();
-            ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(context, viewId);
+            ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(wcontext, viewId);
 
-            ViewMetadata viewMetadata = vdl.getViewMetadata(context, viewId);
+            ViewMetadata viewMetadata = vdl.getViewMetadata(wcontext, viewId);
 
-            UIViewRoot view = viewMetadata.createMetadataView(context);
+            UIViewRoot view = viewMetadata.createMetadataView(wcontext);
 
             UIComponent facet = view.getFacet(STATECHART_FACET_NAME);
             if (facet != null) {
@@ -202,9 +224,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         } finally {
             context.getAttributes().remove(BUILD_STATE_MACHINE_HINT);
             context.getAttributes().remove(SKIP_START_STATE_MACHINE_HINT);
-            if(currentViewRoot != null) {
-                context.setViewRoot(currentViewRoot);
-            }
+            context.setProcessingEvents(true);
         }
 
     }
