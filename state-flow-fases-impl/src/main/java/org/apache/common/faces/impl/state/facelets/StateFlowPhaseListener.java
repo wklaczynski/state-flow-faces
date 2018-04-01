@@ -59,8 +59,9 @@ public class StateFlowPhaseListener implements PhaseListener {
             restoreStateFlow(context);
         }
 
+        UIViewRoot viewRoot = context.getViewRoot();
         StateFlowHandler fh = StateFlowHandler.getInstance();
-        if (fh.isActive(context)) {
+        if (viewRoot != null && fh.isActive(context)) {
 
             SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
 
@@ -89,16 +90,17 @@ public class StateFlowPhaseListener implements PhaseListener {
     public void beforePhase(PhaseEvent event) {
         FacesContext context = event.getFacesContext();
 
-        if (event.getPhaseId() != PhaseId.RESTORE_VIEW) {
+        if (event.getPhaseId() != PhaseId.RESTORE_VIEW && context.isPostback()) {
 
+            UIViewRoot viewRoot = context.getViewRoot();
             StateFlowHandler fh = StateFlowHandler.getInstance();
-            if (fh.isActive(context)) {
+            if (viewRoot != null && fh.isActive(context)) {
 
                 String name = BEFORE_PHASE_EVENT_PREFIX
                         + event.getPhaseId().getName().toLowerCase();
 
                 EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
-                        .sendId(context.getViewRoot().getViewId());
+                        .sendId(viewRoot.getViewId());
 
                 SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
                 try {
@@ -188,10 +190,12 @@ public class StateFlowPhaseListener implements PhaseListener {
                     currentViewMapShallowCopy = new HashMap<>(currentViewMap);
                     Map<String, Object> resultViewMap = result.getViewMap(true);
                     resultViewMap.putAll(currentViewMapShallowCopy);
+
                 }
             }
         } catch (ModelException ex) {
-            Logger.getLogger(StateFlowPhaseListener.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(StateFlowPhaseListener.class
+                    .getName()).log(Level.SEVERE, null, ex);
         } finally {
             context.setProcessingEvents(true);
             if (!currentViewMapShallowCopy.isEmpty()) {

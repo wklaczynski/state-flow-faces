@@ -50,6 +50,7 @@ import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
 import org.apache.common.scxml.model.SCXML;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
+import static org.apache.common.faces.state.StateFlow.AFTER_RESTORE_VIEW;
 import static org.apache.common.faces.state.StateFlow.BEFORE_RESTORE_VIEW;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
@@ -86,7 +87,6 @@ public class ViewInvoker implements Invoker, Serializable {
      */
     private boolean cancelled;
 
-    private String control;
     private String viewId;
     private String stateKey;
     private Object lastViewState;
@@ -355,17 +355,25 @@ public class ViewInvoker implements Invoker, Serializable {
         }
 
         FacesContext context = FacesContext.getCurrentInstance();
-        if (viewId.equals(event.getSendId())) {
-            if (event.getType() == TriggerEvent.CALL_EVENT && (event.getName()
-                    .startsWith(AFTER_PHASE_EVENT_PREFIX))) {
+        //filter all multicast call event from started viewId by this invoker
+        if (event.getType() == TriggerEvent.CALL_EVENT && viewId.equals(event.getSendId())) {
+            if (event.getName().startsWith(BEFORE_RESTORE_VIEW)) {
+                if (lastViewState != null) {
+                    context.getAttributes().put(FACES_VIEW_STATE, lastViewState);
+                    lastViewState = null;
+                }
+            }
+
+            if (event.getName().startsWith(AFTER_RESTORE_VIEW)) {
+                if (vieparams != null) {
+                    UIViewRoot viewRoot = context.getViewRoot();
+                    applyParams(context, viewRoot, vieparams);
+                    vieparams = null;
+                }
+            }
+
+            if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
                 try {
-
-                    if (vieparams != null) {
-                        UIViewRoot viewRoot = context.getViewRoot();
-                        applyParams(context, viewRoot, vieparams);
-                        vieparams = null;
-                    }
-
                     context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
                     context.getELContext().putContext(SCXMLExecutor.class, executor);
 
@@ -374,14 +382,9 @@ public class ViewInvoker implements Invoker, Serializable {
                 } catch (ModelException ex) {
                     throw new InvokerException(ex);
                 }
-            } else if (event.getType() == TriggerEvent.CALL_EVENT && (event.getName()
-                    .startsWith(BEFORE_RESTORE_VIEW))) {
+            }
 
-                if (lastViewState != null) {
-                    context.getAttributes().put(FACES_VIEW_STATE, lastViewState);
-                    lastViewState = null;
-                }
-            } else if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
+            if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
                 ExternalContext ec = context.getExternalContext();
 
                 Map<String, String> params = new HashMap<>();
@@ -404,7 +407,7 @@ public class ViewInvoker implements Invoker, Serializable {
     public void cancel() throws InvokerException {
         cancelled = true;
 
-        if (control.equals("statefull")) {
+        if (stateKey != null) {
             FacesContext fc = FacesContext.getCurrentInstance();
             UIViewRoot viewRoot = fc.getViewRoot();
             if (viewRoot != null) {
