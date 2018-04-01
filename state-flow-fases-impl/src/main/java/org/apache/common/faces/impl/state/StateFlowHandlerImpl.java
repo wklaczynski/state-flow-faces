@@ -176,7 +176,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             log.log(Level.FINE, "Creating StateFlow for: {0}", viewId);
         }
 
-        UIViewRoot currnetViewRoot = context.getViewRoot();
         try {
             context.getAttributes().put(SKIP_START_STATE_MACHINE_HINT, true);
             context.getAttributes().put(BUILD_STATE_MACHINE_HINT, id);
@@ -202,8 +201,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         } finally {
             context.getAttributes().remove(BUILD_STATE_MACHINE_HINT);
             context.getAttributes().remove(SKIP_START_STATE_MACHINE_HINT);
-
-            context.setViewRoot(currnetViewRoot);
         }
 
     }
@@ -449,23 +446,18 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return null;
         }
 
-        if (clientWindow.isClientWindowRenderModeEnabled(context) || create) {
-            if (!clientWindow.isClientWindowRenderModeEnabled(context)) {
-                clientWindow.enableClientWindowRenderMode(context);
+        String sessionKey = clientWindow.getId() + "_stateFlowStack";
+        if (!getAlwaysSerialized()) {
+            result = (FlowDeque) flowMap.get(sessionKey);
+            if (null == result && create) {
+                result = new FlowDeque(sessionKey);
             }
-            String sessionKey = clientWindow.getId() + "_stateFlowStack";
-            if (!getAlwaysSerialized()) {
-                result = (FlowDeque) flowMap.get(sessionKey);
-                if (null == result && create) {
-                    result = new FlowDeque(sessionKey);
-                }
+        } else {
+            Object state = flowMap.get(sessionKey);
+            if (null == state && create) {
+                result = new FlowDeque(sessionKey);
             } else {
-                Object state = flowMap.get(sessionKey);
-                if (null == state && create) {
-                    result = new FlowDeque(sessionKey);
-                } else {
-                    result = restoreFlowDequeState(context, state, sessionKey);
-                }
+                result = restoreFlowDequeState(context, state, sessionKey);
             }
         }
 
@@ -477,14 +469,13 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     private void closeFlowDeque(FacesContext context) {
         ExternalContext extContext = context.getExternalContext();
         ClientWindow clientWindow = extContext.getClientWindow();
-        if (clientWindow != null && clientWindow.isClientWindowRenderModeEnabled(context)) {
-            String sessionKey = clientWindow.getId() + "_stateFlowStack";
-            Map<String, Object> sessionMap = extContext.getSessionMap();
-            if (sessionMap.containsKey(sessionKey)) {
-                sessionMap.remove(sessionKey);
-            }
-            clientWindow.disableClientWindowRenderMode(context);
+
+        String sessionKey = clientWindow.getId() + "_stateFlowStack";
+        Map<String, Object> sessionMap = extContext.getSessionMap();
+        if (sessionMap.containsKey(sessionKey)) {
+            sessionMap.remove(sessionKey);
         }
+        clientWindow.disableClientWindowRenderMode(context);
 
         context.getAttributes().put(STATE_FLOW_STACK, new FlowDeque(null));
     }
@@ -510,9 +501,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             throw new IllegalStateException("Client Window mode not found");
         }
 
-        if (!clientWindow.isClientWindowRenderModeEnabled(context)) {
-            clientWindow.enableClientWindowRenderMode(context);
-        }
         String sessionKey = clientWindow.getId() + "_stateFlowStack";
         if (!getAlwaysSerialized()) {
             flowMap.put(sessionKey, flowStack);

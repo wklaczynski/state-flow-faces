@@ -15,6 +15,7 @@
  */
 package org.apache.common.faces.impl.state.utils;
 
+import com.sun.faces.facelets.el.ELText;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,30 +28,6 @@ import javax.faces.context.FacesContext;
  * @author Waldemar Kłaczyński
  */
 public class SharedUtils {
-
-    public static boolean isMixedExpression(String expression) {
-
-        if (null == expression) {
-            return false;
-        }
-
-        // if it doesn't start and end with delimiters
-        return (!(expression.startsWith("#{") && expression.endsWith("}")))
-                && isExpression(expression);
-
-    }
-
-
-    public static boolean isExpression(String expression) {
-
-        if (null == expression) {
-            return false;
-        }
-
-        //check to see if attribute has an expression
-        int start = expression.indexOf("#{");
-        return start != -1 && expression.indexOf('}', start + 2) != -1;
-    }
 
     public static Map<String, List<String>> evaluateExpressions(FacesContext context, Map<String, List<String>> map) {
         if (map != null && !map.isEmpty()) {
@@ -72,7 +49,7 @@ public class SharedUtils {
             for (String val : values) {
                 if (val != null) {
                     String value = val.trim();
-                    if (isExpression(value)) {
+                    if (!ELText.isLiteral(value)) {
                         value = app.evaluateExpressionGet(context, value, String.class);
                     }
                     ret.add(value);

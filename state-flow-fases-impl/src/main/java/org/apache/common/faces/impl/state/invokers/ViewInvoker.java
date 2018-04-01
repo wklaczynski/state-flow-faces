@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -50,7 +49,6 @@ import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
 import org.apache.common.scxml.model.SCXML;
-import org.apache.common.faces.impl.state.utils.SharedUtils;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.BEFORE_RESTORE_VIEW;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
@@ -152,12 +150,22 @@ public class ViewInvoker implements Invoker, Serializable {
             viewId = vh.deriveLogicalViewId(fc, viewId);
 
             Map<String, Object> options = new HashMap();
+
+            Map<String, List<String>> reqparams = new HashMap<>();
+            Map<String, List<String>> navparams = navCase.getParameters();
+            if (navparams != null) {
+                reqparams.putAll(navparams);
+            }
+
             vieparams = new HashMap();
             for (String key : params.keySet()) {
                 String skey = (String) key;
                 Object value = params.get(key);
-                if (skey.startsWith("@view.")) {
-                    skey = skey.substring(6);
+                if (skey.startsWith("@redirect.param.")) {
+                    skey = skey.substring(16);
+                    reqparams.put(skey, Collections.singletonList(value.toString()));
+                } else if (skey.startsWith("@view.param.")) {
+                    skey = skey.substring(12);
                     options.put(skey, value.toString());
                 } else if (value != null) {
                     vieparams.put(skey, value);
@@ -175,7 +183,6 @@ public class ViewInvoker implements Invoker, Serializable {
             }
 
             boolean redirect = StateFlowParams.isDefaultViewRedirect();
-
             if (options.containsKey("redirect")) {
                 Object val = options.get("redirect");
                 if (val instanceof String) {
@@ -198,48 +205,13 @@ public class ViewInvoker implements Invoker, Serializable {
                 if (lastViewId != null) {
                     viewId = lastViewId;
                 }
-
             }
 
             PartialViewContext pvc = fc.getPartialViewContext();
-            if (pvc != null && pvc.isAjaxRequest()) {
-                Map<String, List<String>> param = new HashMap<>();
-                Map<String, List<String>> navparams = navCase.getParameters();
-                if (navparams != null) {
-                    params.putAll(navparams);
-                }
-
-                Iterator<Map.Entry<String, Object>> it = ((Map<String, Object>) vieparams).entrySet().iterator();
-                while (it.hasNext()) {
-                    Map.Entry<String, Object> p = it.next();
-                    param.put(p.getKey(), Collections.singletonList(p.getValue().toString()));
-                }
-
+            if (redirect || (pvc != null && pvc.isAjaxRequest())) {
                 Application application = fc.getApplication();
                 ViewHandler viewHandler = application.getViewHandler();
-
-                String url = viewHandler.getRedirectURL(fc, viewId, SharedUtils.evaluateExpressions(fc, param), true);
-                clearViewMapIfNecessary(fc.getViewRoot(), viewId);
-                updateRenderTargets(fc, viewId);
-                ec.redirect(url);
-                fc.responseComplete();
-            } else if (redirect) {
-                Map<String, List<String>> param = new HashMap<>();
-                Map<String, List<String>> navparams = navCase.getParameters();
-                if (navparams != null) {
-                    params.putAll(navparams);
-                }
-
-                Iterator<Map.Entry<String, Object>> it = ((Map<String, Object>) vieparams).entrySet().iterator();
-                while (it.hasNext()) {
-                    Map.Entry<String, Object> p = it.next();
-                    param.put(p.getKey(), Collections.singletonList(p.getValue().toString()));
-                }
-
-                Application application = fc.getApplication();
-                ViewHandler viewHandler = application.getViewHandler();
-
-                String url = viewHandler.getRedirectURL(fc, viewId, SharedUtils.evaluateExpressions(fc, param), true);
+                String url = viewHandler.getRedirectURL(fc, viewId, reqparams, true);
                 clearViewMapIfNecessary(fc.getViewRoot(), viewId);
                 updateRenderTargets(fc, viewId);
                 ec.redirect(url);
@@ -263,7 +235,7 @@ public class ViewInvoker implements Invoker, Serializable {
                     fc.setViewRoot(viewRoot);
                     fc.setProcessingEvents(true);
                     vh.initView(fc);
-                    
+
                     applyParams(fc, viewRoot, vieparams);
                     vieparams = null;
                     lastViewState = null;
@@ -388,6 +360,12 @@ public class ViewInvoker implements Invoker, Serializable {
                     .startsWith(AFTER_PHASE_EVENT_PREFIX))) {
                 try {
 
+                    if (vieparams != null) {
+                        UIViewRoot viewRoot = context.getViewRoot();
+                        applyParams(context, viewRoot, vieparams);
+                        vieparams = null;
+                    }
+
                     context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
                     context.getELContext().putContext(SCXMLExecutor.class, executor);
 
@@ -403,7 +381,6 @@ public class ViewInvoker implements Invoker, Serializable {
                     context.getAttributes().put(FACES_VIEW_STATE, lastViewState);
                     lastViewState = null;
                 }
-
             } else if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
                 ExternalContext ec = context.getExternalContext();
 

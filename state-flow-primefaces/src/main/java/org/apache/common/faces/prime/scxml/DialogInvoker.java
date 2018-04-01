@@ -15,23 +15,15 @@ import java.util.logging.Logger;
 import javax.faces.application.ResourceDependencies;
 import javax.faces.application.ResourceDependency;
 import javax.faces.component.UIViewRoot;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
-import static org.apache.common.faces.state.StateFlow.FACES_PHASE_EVENT_PREFIX;
-import static org.apache.common.faces.state.StateFlow.FACES_RENDER_VIEW;
-import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.annotation.StateChartInvoker;
-import org.apache.common.scxml.Context;
-import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.InvokeContext;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.SCXMLIOProcessor;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
-import org.apache.common.scxml.model.ModelException;
 import org.primefaces.PrimeFaces;
 import org.primefaces.util.ComponentUtils;
 import org.primefaces.util.Constants;
@@ -116,7 +108,7 @@ public class DialogInvoker implements Invoker, Serializable {
             UIViewRoot view = context.getViewRoot();
             SharedUtils.loadResorces(context, view, this, "head");
 
-            String url = context.getApplication().getViewHandler().getBookmarkableURL(context, viewId, query, true);
+            String url = context.getApplication().getViewHandler().getRedirectURL(context, viewId, query, true);
             url = ComponentUtils.escapeEcmaScriptText(url);
 
             pfdlgcid = UUID.randomUUID().toString();
@@ -177,43 +169,6 @@ public class DialogInvoker implements Invoker, Serializable {
         }
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
-        if (event.getType() == TriggerEvent.CALL_EVENT && (event.getName()
-                .startsWith(FACES_PHASE_EVENT_PREFIX))) {
-            if (viewId.equals(event.getSendId())) {
-                FacesContext context = FacesContext.getCurrentInstance();
-                try {
-                    context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
-                    context.getELContext().putContext(SCXMLExecutor.class, executor);
-
-                    Context stateContext = ictx.getContext();
-                    context.getELContext().putContext(Context.class, stateContext);
-
-                    if (event.getName().startsWith(FACES_RENDER_VIEW)) {
-
-                    }
-                } catch (ModelException ex) {
-                    throw new InvokerException(ex);
-                }
-            }
-            return;
-        }
-
-        if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
-            if (viewId.equals(event.getSendId())) {
-                FacesContext context = FacesContext.getCurrentInstance();
-                ExternalContext ec = context.getExternalContext();
-
-                Map<String, String> params = new HashMap<>();
-                params.putAll(ec.getRequestParameterMap());
-
-                String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
-                EventBuilder evb = new EventBuilder("view.action." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
-
-                evb.data(params);
-                evb.sendId(invokeId);
-                executor.addEvent(evb.build());
-            }
-        }
     }
 
     public void decode(FacesContext context) throws InvokerException {

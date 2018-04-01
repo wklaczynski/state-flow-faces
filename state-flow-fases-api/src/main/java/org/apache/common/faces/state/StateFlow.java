@@ -41,21 +41,40 @@ public class StateFlow {
 
     public static final String OUTCOME_EVENT_PREFIX = "faces.view.action.";
     
-    public static final String FACES_PHASE_EVENT_PREFIX = "faces.phase.";
+    public static final String PHASE_EVENT_PREFIX = "faces.phase.";
 
-    public static final String FACES_RESTORE_VIEW = FACES_PHASE_EVENT_PREFIX + 
+    public static final String BEFORE_PHASE_EVENT_PREFIX = PHASE_EVENT_PREFIX + ".before.";
+
+    public static final String AFTER_PHASE_EVENT_PREFIX = PHASE_EVENT_PREFIX + ".after.";
+
+    public static final String BEFORE_RESTORE_VIEW = BEFORE_PHASE_EVENT_PREFIX + 
+            PhaseId.RESTORE_VIEW.getName().toLowerCase();
+
+    public static final String AFTER_RESTORE_VIEW = AFTER_PHASE_EVENT_PREFIX + 
             PhaseId.RESTORE_VIEW.getName().toLowerCase();
     
-    public static final String FACES_RENDER_VIEW = FACES_PHASE_EVENT_PREFIX + 
+    public static final String BEFORE_RENDER_VIEW = BEFORE_PHASE_EVENT_PREFIX + 
+            PhaseId.RENDER_RESPONSE.getName().toLowerCase();
+    
+    public static final String AFTER_RENDER_VIEW = AFTER_PHASE_EVENT_PREFIX + 
             PhaseId.RENDER_RESPONSE.getName().toLowerCase();
 
-    public static final String FACES_INVOKE_APPLICATION = FACES_PHASE_EVENT_PREFIX + 
+    public static final String BEFORE_INVOKE_APPLICATION = BEFORE_PHASE_EVENT_PREFIX + 
             PhaseId.INVOKE_APPLICATION.getName().toLowerCase();
 
-    public static final String FACES_APPLY_REQUEST_VALUES = FACES_PHASE_EVENT_PREFIX + 
+    public static final String AFTER_INVOKE_APPLICATION = AFTER_PHASE_EVENT_PREFIX + 
+            PhaseId.INVOKE_APPLICATION.getName().toLowerCase();
+
+    public static final String BEFORE_APPLY_REQUEST_VALUES = BEFORE_PHASE_EVENT_PREFIX + 
             PhaseId.APPLY_REQUEST_VALUES.getName().toLowerCase();
 
-    public static final String FACES_PROCESS_VALIDATIONS = FACES_PHASE_EVENT_PREFIX + 
+    public static final String AFTER_APPLY_REQUEST_VALUES = AFTER_PHASE_EVENT_PREFIX + 
+            PhaseId.APPLY_REQUEST_VALUES.getName().toLowerCase();
+
+    public static final String BEFORE_PROCESS_VALIDATIONS = BEFORE_PHASE_EVENT_PREFIX + 
+            PhaseId.PROCESS_VALIDATIONS.getName().toLowerCase();
+
+    public static final String AFTER_PROCESS_VALIDATIONS = AFTER_PHASE_EVENT_PREFIX + 
             PhaseId.PROCESS_VALIDATIONS.getName().toLowerCase();
     
 }

@@ -35,8 +35,9 @@ import org.apache.common.faces.state.component.UIStateChartRoot;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.scxml.model.SCXML;
 import org.apache.common.faces.impl.state.StateFlowParams;
+import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
+import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
-import static org.apache.common.faces.state.StateFlow.FACES_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.scxml.Context;
@@ -53,40 +54,35 @@ public class StateFlowPhaseListener implements PhaseListener {
     @Override
     public void afterPhase(PhaseEvent event) {
         FacesContext context = event.getFacesContext();
+
         if (event.getPhaseId() == PhaseId.RESTORE_VIEW) {
             restoreStateFlow(context);
-
-            StateFlowHandler fh = StateFlowHandler.getInstance();
-            if (fh.isActive(context)) {
-
-                SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
-
-                String name = FACES_PHASE_EVENT_PREFIX
-                        + event.getPhaseId().getName().toLowerCase();
-
-                EventBuilder eb = new EventBuilder(
-                        name, TriggerEvent.CALL_EVENT);
-
-                eb.sendId(context.getViewRoot().getViewId());
-
-                rootExecutor.addEvent(eb.build());
-
-                try {
-                    rootExecutor.triggerEvents();
-                } catch (ModelException ex) {
-                    throw new FacesException(ex);
-                }
-
-                Context.setCurrentInstance(
-                        (Context) context.getELContext().getContext(Context.class));
-
-                if (context.getResponseComplete()) {
-                    StateFlowHandler.getInstance().writeState(context);
-                }
-
-            }
         }
 
+        StateFlowHandler fh = StateFlowHandler.getInstance();
+        if (fh.isActive(context)) {
+
+            SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
+
+            String name = AFTER_PHASE_EVENT_PREFIX
+                    + event.getPhaseId().getName().toLowerCase();
+
+            EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
+                    .sendId(context.getViewRoot().getViewId());
+
+            try {
+                rootExecutor.triggerEvent(eb.build());
+            } catch (ModelException ex) {
+                throw new FacesException(ex);
+            }
+
+            Context.setCurrentInstance(
+                    (Context) context.getELContext().getContext(Context.class));
+
+            if (context.getResponseComplete()) {
+                StateFlowHandler.getInstance().writeState(context);
+            }
+        }
     }
 
     @Override
@@ -94,34 +90,23 @@ public class StateFlowPhaseListener implements PhaseListener {
         FacesContext context = event.getFacesContext();
 
         if (event.getPhaseId() != PhaseId.RESTORE_VIEW) {
+
             StateFlowHandler fh = StateFlowHandler.getInstance();
             if (fh.isActive(context)) {
 
-                String name = FACES_PHASE_EVENT_PREFIX
+                String name = BEFORE_PHASE_EVENT_PREFIX
                         + event.getPhaseId().getName().toLowerCase();
 
-                EventBuilder eb = new EventBuilder(
-                        name, TriggerEvent.CALL_EVENT);
-
-                eb.sendId(context.getViewRoot().getViewId());
+                EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
+                        .sendId(context.getViewRoot().getViewId());
 
                 SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
-                rootExecutor.addEvent(eb.build());
-
                 try {
-                    rootExecutor.triggerEvents();
+                    rootExecutor.triggerEvent(eb.build());
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
                 }
-
-                Context.setCurrentInstance(
-                        (Context) context.getELContext().getContext(Context.class));
-
             }
-        }
-
-        if (event.getPhaseId() == PhaseId.RENDER_RESPONSE) {
-            StateFlowHandler.getInstance().writeState(context);
         }
     }
 
