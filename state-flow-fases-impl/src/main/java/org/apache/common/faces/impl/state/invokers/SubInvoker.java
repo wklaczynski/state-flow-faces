@@ -16,13 +16,18 @@
  */
 package org.apache.common.faces.impl.state.invokers;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Logger;
 import javax.faces.FacesException;
 import javax.faces.context.FacesContext;
+import static org.apache.common.faces.state.StateFlow.AFTER_APPLY_REQUEST_VALUES;
+import static org.apache.common.faces.state.StateFlow.BEFORE_RENDER_VIEW;
 import org.apache.common.faces.state.StateFlowHandler;
+import org.apache.common.faces.state.task.FacesProcessHolder;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.EventBuilder;
+import org.apache.common.scxml.EventDispatcher;
 import org.apache.common.scxml.InvokeContext;
 import org.apache.common.scxml.ParentSCXMLIOProcessor;
 import org.apache.common.scxml.SCXMLExecutor;
@@ -149,10 +154,19 @@ public class SubInvoker implements Invoker, StateHolder {
         if (cancelled) {
             return;
         }
+        FacesContext context = FacesContext.getCurrentInstance();
 
         if (executor != null) {
 
             executor.addEvent(event);
+
+            if (event.getName().startsWith(AFTER_APPLY_REQUEST_VALUES)
+                    && !(context.getResponseComplete() || context.getRenderResponse())) {
+                EventDispatcher ed = executor.getEventdispatcher();
+                if (ed instanceof FacesProcessHolder) {
+                    ((FacesProcessHolder) ed).processDecodes(context);
+                }
+            }
 
             try {
                 executor.triggerEvents();
@@ -160,6 +174,19 @@ public class SubInvoker implements Invoker, StateHolder {
                 throw new InvokerException(me);
             }
         }
+
+        if (event.getName().startsWith(BEFORE_RENDER_VIEW)
+                && !(context.getResponseComplete() || context.getRenderResponse())) {
+            EventDispatcher ed = executor.getEventdispatcher();
+            if (ed instanceof FacesProcessHolder) {
+                try {
+                    ((FacesProcessHolder) ed).encodeAll(context);
+                } catch (IOException ex) {
+                    throw new InvokerException(ex);
+                }
+            }
+        }
+
     }
 
     /**
@@ -200,7 +227,7 @@ public class SubInvoker implements Invoker, StateHolder {
         Object[] values = (Object[]) state;
 
         StateHolderSaver.restoreObjectState(context, values[0], this);
-        
+
         StateFlowHandler handler = StateFlowHandler.getInstance();
         FacesContext fc = FacesContext.getCurrentInstance();
 

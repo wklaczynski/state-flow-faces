@@ -16,24 +16,33 @@
  */
 package org.apache.common.faces.impl.state;
 
-import java.io.Serializable;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.context.FacesContext;
+import org.apache.common.faces.state.task.DelayedEventTask;
+import org.apache.common.faces.state.task.FacesProcessHolder;
+import org.apache.common.faces.state.task.TimerEventProducer;
+import org.apache.common.scxml.Context;
 import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.EventDispatcher;
 import org.apache.common.scxml.ParentSCXMLIOProcessor;
 import org.apache.common.scxml.SCXMLIOProcessor;
+import org.apache.common.scxml.SCXMLSystemContext;
 import org.apache.common.scxml.TriggerEvent;
+import org.apache.common.scxml.io.StateHolder;
 import org.apache.common.scxml.model.ActionExecutionError;
 
 /**
  * <p>
- * EventDispatcher implementation that can schedule <code>delay</code>ed
+ EventDispatcher implementation that can execute <code>delay</code>ed
  * &lt;send&gt; events for the &quot;scxml&quot; <code>type</code> attribute
  * value (which is also the default). This implementation uses J2SE
  * <code>Timer</code>s.</p>
@@ -45,7 +54,7 @@ import org.apache.common.scxml.model.ActionExecutionError;
  * counterparts for the &quot;scxml&quot; <code>type</code>.</p>
  *
  */
-public class StateFlowDispatcher implements EventDispatcher, Serializable {
+public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder, StateHolder {
 
     /**
      * Serial version UID.
@@ -53,62 +62,24 @@ public class StateFlowDispatcher implements EventDispatcher, Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * TimerTask implementation.
-     */
-    class DelayedEventTask extends TimerTask {
-
-        /**
-         * The ID of the &lt;send&gt; element.
-         */
-        private final String id;
-
-        /**
-         * The event
-         */
-        private final TriggerEvent event;
-
-        /**
-         * The target io processor
-         */
-        private final SCXMLIOProcessor target;
-
-        /**
-         * Constructor for events with payload.
-         *
-         * @param id The ID of the send element.
-         * @param event The event to be triggered.
-         * @param target The target io processor
-         */
-        DelayedEventTask(final String id, final TriggerEvent event, SCXMLIOProcessor target) {
-            super();
-            this.id = id;
-            this.event = event;
-            this.target = target;
-        }
-
-        /**
-         * What to do when timer expires.
-         */
-        @Override
-        public void run() {
-            timers.remove(id);
-            target.addEvent(event);
-            if (log.isLoggable(Level.FINE)) {
-                log.log(Level.FINE, "Fired event ''{0}'' as scheduled by <send> with id ''{1}''", new Object[]{event.getName(), id});
-            }
-        }
-    }
-
-    /**
      * Implementation independent log category.
      */
     protected static final Logger log = Logger.getLogger("javax.faces.state");
 
     /**
+     * Timer Event producer.
+     */
+    private final TimerEventProducer timerEventProducer;
+
+    /**
      * The <code>Map</code> of active <code>Timer</code>s, keyed by &lt;send&gt;
      * element <code>id</code>s.
      */
-    private final Map<String, Timer> timers = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, DelayedEventTask> tasks = Collections.synchronizedMap(new LinkedHashMap<>());
+
+    public StateFlowDispatcher(TimerEventProducer timerEventProducer) {
+        this.timerEventProducer = timerEventProducer;
+    }
 
     /**
      * Get the log instance.
@@ -120,17 +91,17 @@ public class StateFlowDispatcher implements EventDispatcher, Serializable {
     }
 
     /**
-     * Get the current timers.
+     * Get the current tasks.
      *
-     * @return The currently scheduled timers
+     * @return The currently scheduled tasks
      */
-    protected Map<String, Timer> getTimers() {
-        return timers;
+    protected Map<String, DelayedEventTask> getTasks() {
+        return tasks;
     }
 
     @Override
     public StateFlowDispatcher newInstance() {
-        return new StateFlowDispatcher();
+        return new StateFlowDispatcher(timerEventProducer);
     }
 
     /**
@@ -138,20 +109,18 @@ public class StateFlowDispatcher implements EventDispatcher, Serializable {
      */
     @Override
     public void cancel(final String sendId) {
-        if (log.isLoggable(Level.INFO)) {
-            log.log(Level.INFO, "cancel( sendId: {0})", sendId);
-        }
-        if (!timers.containsKey(sendId)) {
+        if (!tasks.containsKey(sendId)) {
             return; // done, we don't track this one or its already expired
         }
-        Timer timer = timers.get(sendId);
-        if (timer != null) {
-            timer.cancel();
-            if (log.isLoggable(Level.FINE)) {
-                log.log(Level.FINE, "Cancelled event scheduled by <send> with id ''{0}''", sendId);
+        DelayedEventTask task = tasks.get(sendId);
+        if (task != null) {
+            if (timerEventProducer.cancel(task)) {
+                tasks.remove(sendId);
+                if (log.isLoggable(Level.FINE)) {
+                    log.log(Level.FINE, "cancel( sendId: {0})", sendId);
+                }
             }
         }
-        timers.remove(sendId);
     }
 
     /**
@@ -220,10 +189,16 @@ public class StateFlowDispatcher implements EventDispatcher, Serializable {
                         eventBuilder.invokeId(((ParentSCXMLIOProcessor) ioProcessor).getInvokeId());
                     }
                     if (delay > 0L) {
-                        // Need to schedule this one
-                        Timer timer = new Timer(true);
-                        timer.schedule(new DelayedEventTask(id, eventBuilder.build(), ioProcessor), delay);
-                        timers.put(id, timer);
+                        // Need to execute this one
+                        DelayedEventTask eventTask = new DelayedEventTask(id,
+                                eventBuilder.build(),
+                                System.currentTimeMillis() + delay,
+                                ioProcessor);
+
+                        if (!timerEventProducer.execute(eventTask)) {
+                            tasks.put(id, eventTask);
+                        }
+
                         if (log.isLoggable(Level.FINE)) {
                             log.log(Level.FINE, "Scheduled event ''{0}'' with delay {1}ms, as specified by <send> with id ''{2}''", new Object[]{event, delay, id});
                         }
@@ -238,4 +213,90 @@ public class StateFlowDispatcher implements EventDispatcher, Serializable {
             throw new ActionExecutionError(true, "<send>: Unsupported type - " + type);
         }
     }
+
+    @Override
+    public Object saveState(Context context) {
+        Object values[] = new Object[3];
+
+        values[0] = saveTasksState(context);
+
+        return values;
+    }
+
+    @Override
+    public void restoreState(Context context, Object state) {
+        if (state == null) {
+            return;
+        }
+
+        Object[] values = (Object[]) state;
+
+        restoreInvokersState(context, values[0]);
+
+    }
+
+    private Object saveTasksState(Context context) {
+        Object state = null;
+        if (null != tasks && tasks.size() > 0) {
+            Object[] attached = new Object[tasks.size()];
+            int i = 0;
+            for (Map.Entry<String, DelayedEventTask> entry : tasks.entrySet()) {
+                Object values[] = new Object[3];
+
+                DelayedEventTask task = entry.getValue();
+                values[0] = task.getId();
+                values[1] = task.getTime();
+                values[2] = task.getEvent();
+                attached[i++] = values;
+            }
+            state = attached;
+        }
+        return state;
+    }
+
+    private void restoreInvokersState(Context context, Object state) {
+        tasks.clear();
+
+        Map<String, SCXMLIOProcessor> ioProcessors
+                = (Map<String, SCXMLIOProcessor>) context.get(SCXMLSystemContext.IOPROCESSORS_KEY);
+
+        if (null != state) {
+            Object[] values = (Object[]) state;
+            for (Object value : values) {
+                Object[] entry = (Object[]) value;
+
+                String id = (String) entry[0];
+                long time = (long) entry[1];
+                TriggerEvent triggerEvent = (TriggerEvent) entry[2];
+
+                String target = triggerEvent.getOrigin();
+                SCXMLIOProcessor ioProcessor = ioProcessors.get(target);
+
+                DelayedEventTask eventTask = new DelayedEventTask(id,
+                        triggerEvent,
+                        time,
+                        ioProcessor);
+
+                tasks.put(id, eventTask);
+            }
+        }
+    }
+
+    @Override
+    public void processDecodes(FacesContext context) {
+        Set<String> keys = new LinkedHashSet<>(tasks.keySet());
+        for (String key : keys) {
+            DelayedEventTask task = tasks.get(key);
+            if(timerEventProducer.execute(task)) {
+                tasks.remove(key);
+            }
+        }
+    }
+
+    @Override
+    public void encodeAll(FacesContext context) throws IOException {
+        List<DelayedEventTask> taskList = new ArrayList<>(tasks.values());
+        timerEventProducer.encode(taskList);
+    }
+
 }

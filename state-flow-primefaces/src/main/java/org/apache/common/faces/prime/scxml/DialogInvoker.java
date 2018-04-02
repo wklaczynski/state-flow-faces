@@ -6,7 +6,6 @@ package org.apache.common.faces.prime.scxml;
 
 import org.apache.common.faces.prime.PrimeFacesFlowUtils;
 import java.io.Serializable;
-import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,7 +21,6 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
 import static org.apache.common.faces.prime.PrimeFacesFlowUtils.applyParams;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RESTORE_VIEW;
@@ -47,7 +45,6 @@ import org.primefaces.util.AjaxRequestBuilder;
 import org.primefaces.util.ComponentTraversalUtils;
 import org.primefaces.util.ComponentUtils;
 import org.primefaces.util.Constants;
-import org.primefaces.util.WidgetBuilder;
 
 /**
  *

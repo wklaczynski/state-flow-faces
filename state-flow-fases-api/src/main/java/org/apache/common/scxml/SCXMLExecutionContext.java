@@ -29,6 +29,8 @@ import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
 import org.apache.common.scxml.io.StateHolder;
 import static org.apache.common.scxml.io.StateHolderSaver.findElement;
+import static org.apache.common.scxml.io.StateHolderSaver.restoreObjectState;
+import static org.apache.common.scxml.io.StateHolderSaver.saveObjectState;
 import org.apache.common.scxml.model.Invoke;
 import org.apache.common.scxml.model.ModelException;
 import org.apache.common.scxml.model.SCXML;
@@ -572,10 +574,18 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
 
     @Override
     public Object saveState(Context context) {
-        Object values[] = new Object[3];
+        Object values[] = new Object[4];
         values[0] = checkLegalConfiguration;
         values[1] = scInstance.saveState(context);
         values[2] = saveInvokersState(context);
+
+        context.setLocal(SCXMLSystemContext.IOPROCESSORS_KEY, ioProcessors);
+        
+        if (eventdispatcher instanceof StateHolder) {
+            values[3] = ((StateHolder) eventdispatcher).saveState(context);
+        } else {
+            values[3] = saveObjectState(context, eventdispatcher);
+        }
 
         return values;
     }
@@ -592,6 +602,14 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
         scInstance.restoreState(context, values[1]);
         restoreInvokersState(context, values[2]);
 
+        context.setLocal(SCXMLSystemContext.IOPROCESSORS_KEY, ioProcessors);
+        
+        if (eventdispatcher instanceof StateHolder) {
+            ((StateHolder) eventdispatcher).restoreState(context, values[3]);
+        } else {
+            restoreObjectState(context, eventdispatcher, values[3]);
+        }
+        
     }
 
     private Object saveInvokersState(Context context) {
@@ -604,7 +622,6 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
 
                 Invoke invoke = entry.getKey();
                 Invoker invoker = invokers.get(entry.getValue());
-                
 
                 values[0] = invoke.getClientId();
                 values[1] = invoker.getInvokeId();
@@ -634,9 +651,8 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
             for (Object value : values) {
                 Object[] entry = (Object[]) value;
 
-                Invoke invoke = (Invoke)
-                        findElement(context, stateMachine, (String) entry[0]);
-                
+                Invoke invoke = (Invoke) findElement(context, stateMachine, (String) entry[0]);
+
                 String invokeId = (String) entry[1];
                 String keyId = (String) entry[2];
                 Invoker invoker = null;

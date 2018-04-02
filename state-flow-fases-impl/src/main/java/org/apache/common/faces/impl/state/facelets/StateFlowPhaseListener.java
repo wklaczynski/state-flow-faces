@@ -16,6 +16,7 @@
 package org.apache.common.faces.impl.state.facelets;
 
 import static com.sun.faces.util.RequestStateManager.FACES_VIEW_STATE;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -41,8 +42,10 @@ import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
 import static org.apache.common.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
+import org.apache.common.faces.state.task.FacesProcessHolder;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.EventBuilder;
+import org.apache.common.scxml.EventDispatcher;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.model.ModelException;
 
@@ -82,8 +85,22 @@ public class StateFlowPhaseListener implements PhaseListener {
                     (Context) context.getELContext().getContext(Context.class));
 
             if (event.getPhaseId() == PhaseId.RENDER_RESPONSE || context.getResponseComplete()) {
-                StateFlowHandler.getInstance().writeState(context);
+                fh.writeState(context);
             }
+
+            if (event.getPhaseId() == PhaseId.APPLY_REQUEST_VALUES &&
+                    !(context.getResponseComplete() || context.getRenderResponse())) {
+                EventDispatcher ed = rootExecutor.getEventdispatcher();
+                if (ed instanceof FacesProcessHolder) {
+                    ((FacesProcessHolder) ed).processDecodes(context);
+                    try {
+                        rootExecutor.triggerEvents();
+                    } catch (ModelException ex) {
+                        throw new FacesException(ex);
+                    }
+                }
+            }
+
         }
 
     }
@@ -109,7 +126,22 @@ public class StateFlowPhaseListener implements PhaseListener {
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
                 }
+
+                if (event.getPhaseId() == PhaseId.RENDER_RESPONSE
+                        && !context.getResponseComplete()) {
+                    EventDispatcher ed = rootExecutor.getEventdispatcher();
+                    if (ed instanceof FacesProcessHolder) {
+                        try {
+                            ((FacesProcessHolder) ed).encodeAll(context);
+                        } catch (IOException ex) {
+                            throw new FacesException(ex);
+                        }
+                    }
+
+                }
+
             }
+
         } else {
             StateFlowHandler fh = StateFlowHandler.getInstance();
             if (fh.isActive(context)) {

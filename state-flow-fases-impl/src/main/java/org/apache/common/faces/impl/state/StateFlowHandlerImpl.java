@@ -23,8 +23,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.Stack;
 import java.util.logging.Level;
@@ -81,6 +83,7 @@ import static org.apache.common.faces.impl.state.StateFlowImplConstants.FXSCXML_
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
 import org.apache.common.faces.impl.state.tag.faces.MethodCall;
 import org.apache.common.faces.impl.state.tag.faces.Redirect;
+import org.apache.common.faces.state.task.TimerEventProducer;
 
 /**
  *
@@ -96,6 +99,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     private Boolean logstep;
     private Boolean alwaysSerialized;
+    
+    private TimerEventProducer eventProducer;
 
     public StateFlowHandlerImpl(ServletContext ctx) {
         super();
@@ -135,6 +140,21 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
     }
 
+    private TimerEventProducer getEventProducer() {
+        if (eventProducer == null) {
+            eventProducer = new TimerEventProducerImpl();
+            ServiceLoader<TimerEventProducer> loader = ServiceLoader.load(TimerEventProducer.class);
+            Iterator<TimerEventProducer> iterator = loader.iterator();
+            while (iterator.hasNext()) {
+                TimerEventProducer next = iterator.next();
+                next.setWrapped(eventProducer);
+                eventProducer = next;
+            }
+        }
+        return eventProducer;
+    }
+    
+    
     private Boolean getAlwaysSerialized() {
         if (alwaysSerialized == null) {
             FacesContext fc = FacesContext.getCurrentInstance();
@@ -277,9 +297,11 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     public SCXMLExecutor createRootExecutor(FacesContext context, SCXML scxml) throws ModelException {
 
         StateFlowEvaluator evaluator = new StateFlowEvaluator();
-        StateFlowDispatcher dispatcher = new StateFlowDispatcher();
+        
+        TimerEventProducer timerEventProducer = getEventProducer();
+        
+        StateFlowDispatcher dispatcher = new StateFlowDispatcher(timerEventProducer);
         StateFlowErrorReporter errorReporter = new StateFlowErrorReporter();
-
         Map tags = (Map) scxml.getMetadata().get("faces-tag-info");
         errorReporter.getTags().putAll(new HashMap<>(tags));
 
