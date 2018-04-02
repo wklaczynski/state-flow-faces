@@ -32,8 +32,8 @@ import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.semantics.ErrorConstants;
 
 /**
- * The class in this SCXML object model that corresponds to the
- * &lt;send&gt; SCXML element.
+ * The class in this SCXML object model that corresponds to the &lt;send&gt;
+ * SCXML element.
  *
  */
 public class Send extends Action implements ContentContainer, ParamsContainer {
@@ -74,7 +74,8 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
     private String id;
 
     /**
-     * Path expression evaluating to a location within a previously defined XML data tree.
+     * Path expression evaluating to a location within a previously defined XML
+     * data tree.
      */
     private String idlocation;
 
@@ -83,19 +84,20 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
      */
     private String target;
 
-
     /**
      * An expression specifying the target location of the event.
      */
     private String targetexpr;
 
     /**
-     * The type of the Event I/O Processor that the event should be dispatched to.
+     * The type of the Event I/O Processor that the event should be dispatched
+     * to.
      */
     private String type;
 
     /**
-     * An expression defining the type of the Event I/O Processor that the event should be dispatched to.
+     * An expression defining the type of the Event I/O Processor that the event
+     * should be dispatched to.
      */
     private String typeexpr;
 
@@ -110,7 +112,8 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
     private String delayexpr;
 
     /**
-     * The data containing information which may be used by the implementing platform to configure the event processor.
+     * The data containing information which may be used by the implementing
+     * platform to configure the event processor.
      */
     private String hints;
 
@@ -398,26 +401,26 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
         if (hints != null) {
             hintsValue = eval.eval(ctx, hints);
         }
+        if (id == null) {
+            id = ctx.getSystemContext().generateSessionId();
+        }
         if (idlocation != null) {
-            if (id == null) {
-                id = ctx.getSystemContext().generateSessionId();
-            }
             eval.evalAssign(ctx, idlocation, id);
         }
         String targetValue = target;
         if (targetValue == null && targetexpr != null) {
-            targetValue = (String)eval.eval(ctx, targetexpr);
+            targetValue = (String) eval.eval(ctx, targetexpr);
             if ((targetValue == null || targetValue.trim().length() == 0)
                     && exctx.getAppLog().isLoggable(Level.WARNING)) {
-                exctx.getAppLog().log(Level.WARNING, "<send>: target expression \"{0}\" evaluated to null or empty String", targetexpr);
+                //exctx.getAppLog().log(Level.WARNING, "<send>: target expression \"{0}\" evaluated to null or empty String", targetexpr);
             }
         }
         String typeValue = type;
         if (typeValue == null && typeexpr != null) {
-            typeValue = (String)eval.eval(ctx, typeexpr);
+            typeValue = (String) eval.eval(ctx, typeexpr);
             if ((typeValue == null || typeValue.trim().length() == 0)
                     && exctx.getAppLog().isLoggable(Level.WARNING)) {
-                exctx.getAppLog().log(Level.WARNING, "<send>: type expression \"{0}\" evaluated to null or empty String", typeexpr);
+                //exctx.getAppLog().log(Level.WARNING, "<send>: type expression \"{0}\" evaluated to null or empty String", typeexpr);
             }
         }
         if (typeValue == null) {
@@ -432,8 +435,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
         PayloadBuilder.addParamsToPayload(ctx, eval, paramsList, payloadDataMap);
         if (!payloadDataMap.isEmpty()) {
             payload = payloadDataMap;
-        }
-        else if (content != null) {
+        } else if (content != null) {
             if (content.getExpr() != null) {
                 Object evalResult;
                 try {
@@ -442,8 +444,8 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
                     exctx.getInternalIOProcessor().addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION,
                             TriggerEvent.ERROR_EVENT).build());
                     exctx.getErrorReporter().onError(ErrorConstants.EXPRESSION_ERROR,
-                            "Failed to evaluate <send> <content> expression due to error: "+ e.getMessage()
-                                    + ", Using empty value instead.", this, "expr", e);
+                            "Failed to evaluate <send> <content> expression due to error: " + e.getMessage()
+                            + ", Using empty value instead.", this, "expr", e);
                     evalResult = "";
                 }
                 payload = eval.cloneData(evalResult);
@@ -464,7 +466,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
         }
         String eventValue = event;
         if (eventValue == null && eventexpr != null) {
-            eventValue = (String)eval.eval(ctx, eventexpr);
+            eventValue = (String) eval.eval(ctx, eventexpr);
             if ((eventValue == null)) {
                 throw new SCXMLExpressionException("<send>: event expression \"" + eventexpr
                         + "\" evaluated to null");
@@ -486,7 +488,8 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
      *
      * @param delayString The String value of the delay, in CSS2 format
      * @param expression indicates if this is for a delayexpr or delay attribute
-     * @param delayStringSource the original delayString source (delayString might be different in case of a delayexpr)
+     * @param delayStringSource the original delayString source (delayString
+     * might be different in case of a delayexpr)
      * @return The parsed delay in milliseconds
      * @throws SCXMLExpressionException If the delay cannot be parsed
      */
@@ -504,10 +507,10 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
                 if (trimDelay.endsWith(MILLIS)) {
                     numericDelay = trimDelay.substring(0, trimDelay.length() - 2);
                 } else if (trimDelay.endsWith(SECONDS)) {
-                    multiplier = multiplier*MILLIS_IN_A_SECOND;
+                    multiplier = multiplier * MILLIS_IN_A_SECOND;
                     numericDelay = trimDelay.substring(0, trimDelay.length() - 1);
                 } else if (trimDelay.endsWith(MINUTES)) { // Not CSS2
-                    multiplier = multiplier*MILLIS_IN_A_MINUTE;
+                    multiplier = multiplier * MILLIS_IN_A_MINUTE;
                     numericDelay = trimDelay.substring(0, trimDelay.length() - 1);
                 }
                 int fractionIndex = numericDelay.indexOf('.');
@@ -516,14 +519,14 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
                         wait = Long.parseLong(numericDelay.substring(0, fractionIndex));
                         wait *= multiplier;
                     }
-                    numericDelay = numericDelay.substring(fractionIndex+1);
+                    numericDelay = numericDelay.substring(fractionIndex + 1);
                     multiplier /= Math.pow(10, numericDelay.length());
                 }
                 if (numericDelay.length() > 0) {
                     wait += Long.parseLong(numericDelay) * multiplier;
                 }
             } catch (NumberFormatException nfe) {
-                throw new SCXMLExpressionException("<send>: invalid " + (expression ? "delayexpr=\"" : "delay=\"") + delayStringSource +"\"");
+                throw new SCXMLExpressionException("<send>: invalid " + (expression ? "delayexpr=\"" : "delay=\"") + delayStringSource + "\"");
             }
         }
         return wait;

@@ -18,7 +18,6 @@ package org.apache.common.faces.impl.state.tag.scxml;
 import java.io.IOException;
 import javax.faces.component.UIComponent;
 import org.apache.common.scxml.model.Finalize;
-import org.apache.common.scxml.model.If;
 import org.apache.common.scxml.model.OnEntry;
 import org.apache.common.scxml.model.OnExit;
 import org.apache.common.scxml.model.Send;
@@ -40,6 +39,7 @@ public class SendTagHandler extends AbstractFlowTagHandler<Send> {
     protected final TagAttribute target;
     protected final TagAttribute type;
     protected final TagAttribute id;
+    protected final TagAttribute idlocation;
     protected final TagAttribute delay;
     protected final TagAttribute namelist;
 
@@ -50,7 +50,7 @@ public class SendTagHandler extends AbstractFlowTagHandler<Send> {
         in("onexit", OnExit.class);
         in("transition", Transition.class);
         in("finalize", Finalize.class);
-        
+
         impl("actions continer", ActionsContainer.class);
 
         top("onentry", OnEntry.class);
@@ -62,6 +62,7 @@ public class SendTagHandler extends AbstractFlowTagHandler<Send> {
         this.target = this.getAttribute("target");
         this.type = this.getAttribute("type");
         this.id = this.getAttribute("id");
+        this.idlocation = this.getAttribute("idlocation");
         this.delay = this.getAttribute("delay");
         this.namelist = this.getAttribute("namelist");
     }
@@ -71,12 +72,47 @@ public class SendTagHandler extends AbstractFlowTagHandler<Send> {
         Send action = new Send();
         decorate(ctx, parent, action);
 
-        action.setEvent(event.getValue());
-        action.setTarget(target != null ? target.getValue() : null);
-        action.setType(type != null ? type.getValue() : null);
-        action.setId(id != null ? id.getValue() : null);
-        action.setDelay(delay != null ? delay.getValue() : null);
-        action.setNamelist(namelist != null ? namelist.getValue() : null);
+        if (event.isLiteral()) {
+            action.setEvent(event.getValue());
+        } else {
+            action.setEventexpr(event.getValue());
+        }
+
+        if (target != null) {
+            if (target.isLiteral()) {
+                action.setTarget(target.getValue());
+            } else {
+                action.setTargetexpr(target.getValue());
+            }
+        }
+
+        if (type != null) {
+            if (type.isLiteral()) {
+                action.setType(type.getValue());
+            } else {
+                action.setTypeexpr(type.getValue());
+            }
+        }
+
+        if (id != null) {
+            action.setId(id.getValue());
+        }
+
+        if (idlocation != null) {
+            action.setIdlocation(idlocation.getValue());
+        }
+
+        if (delay != null) {
+            if (delay.isLiteral()) {
+                action.setDelay(delay.getValue());
+            } else {
+                action.setDelayexpr(delay.getValue());
+            }
+        }
+
+        if (namelist != null) {
+            action.setNamelist(namelist.getValue());
+        }
 
         addAction(ctx, parent, action);
 

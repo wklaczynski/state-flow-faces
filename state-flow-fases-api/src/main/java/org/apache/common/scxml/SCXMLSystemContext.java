@@ -194,7 +194,7 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
 
     @Override
     public Object saveState(Context context) {
-        Object values[] = new Object[1];
+        Object values[] = new Object[2];
 
         Context rctx = getSystemContext();
         if (rctx != null) {
@@ -203,6 +203,8 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
             }
         }
 
+        values[1] = nextSessionSequenceId;
+        
         return values;
     }
 
@@ -218,6 +220,8 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
         if (rctx != null) {
             restoreVarsState(context, values[0]);
         }
+        
+        nextSessionSequenceId = (long) values[1];
     }
 
     protected Object saveVarsState(Context context) {

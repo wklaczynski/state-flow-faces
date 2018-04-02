@@ -156,7 +156,10 @@
         </x:state>
 
         <x:state id="info">
-            <x:invoke type="dialog" src="InfoPage.xhtml"/>
+            <x:onentry>
+                <x:send event="info.dialog.timeout" delay="5000"/>
+            </x:onentry>
+            <x:invoke id="infodialog" type="dialog" src="InfoPage.xhtml"/>
 
             <x:transition event="error.execution" target="error"/>
 

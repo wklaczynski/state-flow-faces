@@ -8,6 +8,7 @@ package org.apache.common.faces.impl.state.facelets;
  * To change this template, choose Tools | Template Manager and open the
  * template in the editor.
  */
+import java.io.IOException;
 import javax.faces.FacesException;
 import javax.faces.application.ViewHandler;
 import javax.faces.application.ViewHandlerWrapper;
@@ -17,10 +18,13 @@ import javax.faces.event.PhaseId;
 import org.apache.common.faces.impl.state.config.StateWebConfiguration;
 import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
+import org.apache.common.faces.state.task.FacesProcessHolder;
 import org.apache.common.scxml.EventBuilder;
+import org.apache.common.scxml.EventDispatcher;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.model.ModelException;
+import static org.apache.common.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
 
 /**
  *
@@ -61,6 +65,31 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
             }
         }
         return super.restoreView(context, viewId);
+    }
+
+    @Override
+    public void renderView(FacesContext context, UIViewRoot viewRoot) throws IOException, FacesException {
+        super.renderView(context, viewRoot);
+
+        StateFlowHandler fh = StateFlowHandler.getInstance();
+
+        if (!context.getResponseComplete() && viewRoot != null && fh.isActive(context)) {
+            SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
+            EventDispatcher ed = rootExecutor.getEventdispatcher();
+            if (ed instanceof FacesProcessHolder) {
+                try {
+                    EventBuilder deb = new EventBuilder(ENCODE_DISPATCHER_EVENTS,
+                            TriggerEvent.CALL_EVENT)
+                            .sendId(viewRoot.getViewId());
+
+                    rootExecutor.triggerEvent(deb.build());
+                    ((FacesProcessHolder) ed).encodeAll(context);
+                } catch (ModelException | IOException ex) {
+                    throw new FacesException(ex);
+                }
+            }
+        }
+
     }
 
 }

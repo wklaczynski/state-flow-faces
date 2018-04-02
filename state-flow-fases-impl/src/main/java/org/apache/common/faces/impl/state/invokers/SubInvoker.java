@@ -16,13 +16,10 @@
  */
 package org.apache.common.faces.impl.state.invokers;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Logger;
 import javax.faces.FacesException;
 import javax.faces.context.FacesContext;
-import static org.apache.common.faces.state.StateFlow.AFTER_APPLY_REQUEST_VALUES;
-import static org.apache.common.faces.state.StateFlow.BEFORE_RENDER_VIEW;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.task.FacesProcessHolder;
 import org.apache.common.scxml.Context;
@@ -39,6 +36,8 @@ import org.apache.common.scxml.io.StateHolder;
 import org.apache.common.scxml.io.StateHolderSaver;
 import org.apache.common.scxml.model.ModelException;
 import org.apache.common.scxml.model.SCXML;
+import static org.apache.common.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
+import static org.apache.common.faces.state.StateFlow.DECODE_DISPATCHER_EVENTS;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -158,32 +157,26 @@ public class SubInvoker implements Invoker, StateHolder {
 
         if (executor != null) {
 
-            executor.addEvent(event);
-
-            if (event.getName().startsWith(AFTER_APPLY_REQUEST_VALUES)
-                    && !(context.getResponseComplete() || context.getRenderResponse())) {
-                EventDispatcher ed = executor.getEventdispatcher();
-                if (ed instanceof FacesProcessHolder) {
-                    ((FacesProcessHolder) ed).processDecodes(context);
-                }
-            }
-
             try {
+                executor.triggerEvent(event);
+
+                if (event.getName().startsWith(DECODE_DISPATCHER_EVENTS)) {
+                    EventDispatcher ed = executor.getEventdispatcher();
+                    if (ed instanceof FacesProcessHolder) {
+                        ((FacesProcessHolder) ed).processDecodes(context);
+                    }
+                }
+
+                if (event.getName().startsWith(ENCODE_DISPATCHER_EVENTS)) {
+                    EventDispatcher ed = executor.getEventdispatcher();
+                    if (ed instanceof FacesProcessHolder) {
+                        ((FacesProcessHolder) ed).encodeAll(context);
+                    }
+                }
+
                 executor.triggerEvents();
             } catch (Throwable me) {
                 throw new InvokerException(me);
-            }
-        }
-
-        if (event.getName().startsWith(BEFORE_RENDER_VIEW)
-                && !(context.getResponseComplete() || context.getRenderResponse())) {
-            EventDispatcher ed = executor.getEventdispatcher();
-            if (ed instanceof FacesProcessHolder) {
-                try {
-                    ((FacesProcessHolder) ed).encodeAll(context);
-                } catch (IOException ex) {
-                    throw new InvokerException(ex);
-                }
             }
         }
 

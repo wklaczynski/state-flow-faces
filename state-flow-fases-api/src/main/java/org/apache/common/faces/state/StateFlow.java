@@ -47,6 +47,10 @@ public class StateFlow {
     
     public static final String PHASE_EVENT_PREFIX = "faces.phase.";
 
+    public static final String DECODE_DISPATCHER_EVENTS = "faces.dipatrcher.events.decode";
+
+    public static final String ENCODE_DISPATCHER_EVENTS = "faces.dipatrcher.events.encode";
+    
     public static final String BEFORE_PHASE_EVENT_PREFIX = PHASE_EVENT_PREFIX + "before.";
 
     public static final String AFTER_PHASE_EVENT_PREFIX = PHASE_EVENT_PREFIX + "after.";

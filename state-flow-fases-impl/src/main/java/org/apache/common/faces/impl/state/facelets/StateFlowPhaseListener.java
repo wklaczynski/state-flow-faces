@@ -16,7 +16,6 @@
 package org.apache.common.faces.impl.state.facelets;
 
 import static com.sun.faces.util.RequestStateManager.FACES_VIEW_STATE;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -48,6 +47,7 @@ import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.EventDispatcher;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.model.ModelException;
+import static org.apache.common.faces.state.StateFlow.DECODE_DISPATCHER_EVENTS;
 
 /**
  *
@@ -88,19 +88,6 @@ public class StateFlowPhaseListener implements PhaseListener {
                 fh.writeState(context);
             }
 
-            if (event.getPhaseId() == PhaseId.APPLY_REQUEST_VALUES &&
-                    !(context.getResponseComplete() || context.getRenderResponse())) {
-                EventDispatcher ed = rootExecutor.getEventdispatcher();
-                if (ed instanceof FacesProcessHolder) {
-                    ((FacesProcessHolder) ed).processDecodes(context);
-                    try {
-                        rootExecutor.triggerEvents();
-                    } catch (ModelException ex) {
-                        throw new FacesException(ex);
-                    }
-                }
-            }
-
         }
 
     }
@@ -132,8 +119,13 @@ public class StateFlowPhaseListener implements PhaseListener {
                     EventDispatcher ed = rootExecutor.getEventdispatcher();
                     if (ed instanceof FacesProcessHolder) {
                         try {
-                            ((FacesProcessHolder) ed).encodeAll(context);
-                        } catch (IOException ex) {
+                            EventBuilder eeb = new EventBuilder(DECODE_DISPATCHER_EVENTS,
+                                    TriggerEvent.CALL_EVENT)
+                                    .sendId(viewRoot.getViewId());
+
+                            rootExecutor.triggerEvent(eeb.build());
+                            ((FacesProcessHolder) ed).processDecodes(context);
+                        } catch (ModelException ex) {
                             throw new FacesException(ex);
                         }
                     }
