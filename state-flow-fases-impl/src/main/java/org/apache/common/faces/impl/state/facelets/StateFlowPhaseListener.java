@@ -113,8 +113,8 @@ public class StateFlowPhaseListener implements PhaseListener {
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
                 }
-
-                if (event.getPhaseId() == PhaseId.RENDER_RESPONSE
+                
+                if (event.getPhaseId() == PhaseId.APPLY_REQUEST_VALUES
                         && !context.getResponseComplete()) {
                     EventDispatcher ed = rootExecutor.getEventdispatcher();
                     if (ed instanceof FacesProcessHolder) {
@@ -131,7 +131,7 @@ public class StateFlowPhaseListener implements PhaseListener {
                     }
 
                 }
-
+                
             }
 
         } else {

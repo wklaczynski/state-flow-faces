@@ -166,6 +166,8 @@
             <x:transition event="view.action.cancel" target="cancel"/>
             <x:transition event="view.action.return" target="test-process-return"/>
             <x:transition event="view.action.start-again" target="show"/>
+
+            <x:transition event="info.dialog.timeout" target="show"/>
             
             <x:transition event="view.action.calculate-1">
                 <x:assign location="#{main.assignedTest1}"

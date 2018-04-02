@@ -53,7 +53,7 @@ public abstract class TimerEventProducer {
      */
     public boolean execute(DelayedEventTask task) {
         long currentTime = System.currentTimeMillis();
-        if (currentTime <= task.getTime()) {
+        if (currentTime >= task.getTime()) {
             TriggerEvent event = task.getEvent();
             task.getTarget().addEvent(event);
             return true;

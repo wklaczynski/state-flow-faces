@@ -142,7 +142,7 @@ public class DialogInvoker implements Invoker, Serializable {
             }
 
             String widgetVar = "widget_" + invokeId;
-            
+
             options.put("modal", "true");
             options.put("closable", "false");
             options.put("invokeId", invokeId);
@@ -192,7 +192,6 @@ public class DialogInvoker implements Invoker, Serializable {
 
             StringBuilder sb = new StringBuilder();
 
-
             ResourceHandler resourceHandler = context.getApplication().getResourceHandler();
             Resource resource = resourceHandler.createResource("scxml.js", "flowfaces");
             String scpath = resource.getRequestPath();
@@ -200,19 +199,17 @@ public class DialogInvoker implements Invoker, Serializable {
             sb.append("PrimeFaces.getScript('").append(scpath)
                     .append("', function(){");
 
-            
             sb.append("PrimeFaces.cw(\"ScxmlDialogInvoker\",\"")
                     .append(widgetVar)
                     .append("\",{id:\"").append(invokeId).append("\"");
-            
+
             sb.append(",behaviors:{");
             sb.append("dialogReturn:")
                     .append("function(ext) {")
                     .append(ajaxscript)
                     .append("}");
             sb.append("}});");
-            
-            
+
             sb.append("PrimeFaces.scxml.openScxmlDialog({url:'").append(url)
                     .append("',pfdlgcid:'").append(pfdlgcid)
                     .append("',sourceComponentId:'")
@@ -221,7 +218,7 @@ public class DialogInvoker implements Invoker, Serializable {
             if (widgetVar != null) {
                 sb.append(",sourceWidgetVar:'").append(widgetVar).append("'");
             }
-            
+
             sb.append(",options:{");
             if (options != null && options.size() > 0) {
                 for (Iterator<String> it = options.keySet().iterator(); it.hasNext();) {
@@ -319,6 +316,8 @@ public class DialogInvoker implements Invoker, Serializable {
 
         PrimeFaces.current().executeScript(sb.toString());
         sb.setLength(0);
+        FacesContext context = FacesContext.getCurrentInstance();
+        context.renderResponse();
 
     }
 
