@@ -152,7 +152,7 @@ public class DialogInvoker implements Invoker, Serializable {
             ClientBehaviorRenderingMode renderingMode = ClientBehaviorRenderingMode.OBSTRUSIVE;
 
             String formId = null;
-            UIComponent form = null;
+            UIComponent form;
             String sourceId = null;
             UIComponent component = null;
 
@@ -183,7 +183,7 @@ public class DialogInvoker implements Invoker, Serializable {
                     .timeout(0)
                     .partialSubmit(false, false, null)
                     .resetValues(false, false)
-                    .ignoreAutoUpdate(false)
+                    .ignoreAutoUpdate(true)
                     .onstart(null)
                     .onerror(null)
                     .onsuccess(null)
