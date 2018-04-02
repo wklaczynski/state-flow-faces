@@ -6,6 +6,7 @@ package org.apache.common.faces.prime.scxml;
 
 import org.apache.common.faces.prime.PrimeFacesFlowUtils;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,14 +14,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
+import javax.faces.application.Resource;
 import javax.faces.application.ResourceDependencies;
 import javax.faces.application.ResourceDependency;
+import javax.faces.application.ResourceHandler;
+import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ResponseWriter;
 import static org.apache.common.faces.prime.PrimeFacesFlowUtils.applyParams;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RESTORE_VIEW;
+import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
@@ -35,8 +41,13 @@ import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
 import org.apache.common.scxml.model.ModelException;
 import org.primefaces.PrimeFaces;
+import org.primefaces.component.api.ClientBehaviorRenderingMode;
+import org.primefaces.context.RequestContext;
+import org.primefaces.util.AjaxRequestBuilder;
+import org.primefaces.util.ComponentTraversalUtils;
 import org.primefaces.util.ComponentUtils;
 import org.primefaces.util.Constants;
+import org.primefaces.util.WidgetBuilder;
 
 /**
  *
@@ -49,7 +60,6 @@ import org.primefaces.util.Constants;
     ,@ResourceDependency(library = "primefaces", name = "jquery/jquery-plugins.js")
     ,@ResourceDependency(library = "primefaces", name = "core.js")
     ,@ResourceDependency(library = "primefaces", name = "components.js")
-    ,@ResourceDependency(library = "flowfaces", name = "flow.js")
 })
 public class DialogInvoker implements Invoker, Serializable {
 
@@ -62,7 +72,6 @@ public class DialogInvoker implements Invoker, Serializable {
     private transient SCXMLExecutor executor;
     private transient String invokeId;
     private transient boolean cancelled;
-    private String sourceId;
     private String viewId;
     private String pfdlgcid;
     private Map<String, Object> vieparams;
@@ -91,14 +100,15 @@ public class DialogInvoker implements Invoker, Serializable {
     @Override
     public void invoke(final InvokeContext ictx, final String source, final Map params) throws InvokerException {
         try {
-            FacesContext fc = FacesContext.getCurrentInstance();
-            Map<String, String> requestParams = fc.getExternalContext().getRequestParameterMap();
-            Map<Object, Object> attrs = fc.getAttributes();
+            FacesContext context = FacesContext.getCurrentInstance();
+            Map<String, String> requestParams = context.getExternalContext().getRequestParameterMap();
+            Map<Object, Object> attrs = context.getAttributes();
 
             viewId = source;
 
             Map<String, Object> options = new HashMap<>();
             options.put("resizable", "false");
+
             Map<String, Object> ajax = new HashMap<>();
             Map<String, List<String>> query = new HashMap<>();
 
@@ -120,30 +130,101 @@ public class DialogInvoker implements Invoker, Serializable {
                 }
             }
 
-            UIViewRoot view = fc.getViewRoot();
-            PrimeFacesFlowUtils.loadResorces(fc, view, this, "head");
+            UIViewRoot view = context.getViewRoot();
+            PrimeFacesFlowUtils.loadResorces(context, view, this, "head");
 
-            String url = fc.getApplication().getViewHandler().getRedirectURL(fc, viewId, query, true);
+            String url = context.getApplication().getViewHandler().getBookmarkableURL(context, viewId, params, true);
             url = ComponentUtils.escapeEcmaScriptText(url);
 
             pfdlgcid = UUID.randomUUID().toString();
-            StringBuilder sb = new StringBuilder();
-            String sourceComponentId = (String) attrs.get(Constants.DIALOG_FRAMEWORK.SOURCE_COMPONENT);
-            String sourceWidget = (String) attrs.get(Constants.DIALOG_FRAMEWORK.SOURCE_WIDGET);
+            String sourceComponentId = (String) attrs.get(CURRENT_COMPONENT_HINT);
+
             pfdlgcid = requestParams.get(Constants.DIALOG_FRAMEWORK.CONVERSATION_PARAM);
             if (pfdlgcid == null) {
                 pfdlgcid = UUID.randomUUID().toString();
             }
 
+            String widgetVar = "widget_" + invokeId;
+            
             options.put("modal", "true");
+            options.put("closable", "false");
+            options.put("invokeId", invokeId);
 
-            sb.append("PrimeFaces.openDialog({url:'").append(url).append("',pfdlgcid:'").append(pfdlgcid)
-                    .append("',sourceComponentId:'").append(sourceComponentId).append("'");
+            RequestContext requestContext = RequestContext.getCurrentInstance();
+            AjaxRequestBuilder builder = requestContext.getAjaxRequestBuilder();
+            ClientBehaviorRenderingMode renderingMode = ClientBehaviorRenderingMode.OBSTRUSIVE;
 
-            if (sourceWidget != null) {
-                sb.append(",sourceWidgetVar:'").append(sourceWidget).append("'");
+            String formId = null;
+            UIComponent form = null;
+            String sourceId = null;
+            UIComponent component = null;
+
+            if (sourceComponentId != null) {
+                component = context.getViewRoot().findComponent(sourceComponentId);
+                if (component != null) {
+                    form = ComponentTraversalUtils.closestForm(context, component);
+                    if (form != null) {
+                        formId = form.getClientId(context);
+                    }
+                    sourceId = component.getClientId();
+                }
             }
 
+            String update = (String) ajax.get("update");
+            String process = (String) ajax.get("update");
+            String global = (String) ajax.get("global");
+
+            String ajaxscript = builder.init()
+                    .source(sourceId)
+                    .form(formId)
+                    .event("scxmlhide")
+                    .update(component, update != null ? update : "@form")
+                    .process(component, process != null ? process : "@none")
+                    .async(false)
+                    .global(global != null ? Boolean.parseBoolean(global) : true)
+                    .delay(null)
+                    .timeout(0)
+                    .partialSubmit(false, false, null)
+                    .resetValues(false, false)
+                    .ignoreAutoUpdate(false)
+                    .onstart(null)
+                    .onerror(null)
+                    .onsuccess(null)
+                    .oncomplete(null)
+                    .buildBehavior(renderingMode);
+
+            StringBuilder sb = new StringBuilder();
+
+
+            ResourceHandler resourceHandler = context.getApplication().getResourceHandler();
+            Resource resource = resourceHandler.createResource("scxml.js", "flowfaces");
+            String scpath = resource.getRequestPath();
+
+            sb.append("PrimeFaces.getScript('").append(scpath)
+                    .append("', function(){");
+
+            
+            sb.append("PrimeFaces.cw(\"ScxmlDialogInvoker\",\"")
+                    .append(widgetVar)
+                    .append("\",{id:\"").append(invokeId).append("\"");
+            
+            sb.append(",behaviors:{");
+            sb.append("dialogReturn:")
+                    .append("function(ext) {")
+                    .append(ajaxscript)
+                    .append("}");
+            sb.append("}});");
+            
+            
+            sb.append("PrimeFaces.scxml.openScxmlDialog({url:'").append(url)
+                    .append("',pfdlgcid:'").append(pfdlgcid)
+                    .append("',sourceComponentId:'")
+                    .append(sourceId).append("'");
+
+            if (widgetVar != null) {
+                sb.append(",sourceWidgetVar:'").append(widgetVar).append("'");
+            }
+            
             sb.append(",options:{");
             if (options != null && options.size() > 0) {
                 for (Iterator<String> it = options.keySet().iterator(); it.hasNext();) {
@@ -156,13 +237,14 @@ public class DialogInvoker implements Invoker, Serializable {
                     } else {
                         sb.append(optionValue);
                     }
-
                     if (it.hasNext()) {
                         sb.append(",");
                     }
                 }
             }
             sb.append("}});");
+
+            sb.append("});");
             PrimeFaces.current().executeScript(sb.toString());
             sb.setLength(0);
         } catch (Throwable ex) {
@@ -232,17 +314,15 @@ public class DialogInvoker implements Invoker, Serializable {
     @Override
     public void cancel() throws InvokerException {
         cancelled = true;
-        FacesContext context = FacesContext.getCurrentInstance();
-        Map<String, String> params = context.getExternalContext().getRequestParameterMap();
 
-        Object data = null;
+        StringBuilder sb = new StringBuilder();
 
-        if (data != null) {
-            Map<String, Object> session = context.getExternalContext().getSessionMap();
-            session.put(pfdlgcid, data);
-        }
+        sb.append("parent.PrimeFaces.scxml.closeScxmlDialog({pfdlgcid:'")
+                .append(pfdlgcid).append("'});");
 
-        PrimeFaces.current().executeScript("PrimeFaces.closeDialog({pfdlgcid:'" + pfdlgcid + "'});");
+        PrimeFaces.current().executeScript(sb.toString());
+        sb.setLength(0);
+
     }
 
 }

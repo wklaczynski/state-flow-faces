@@ -51,9 +51,11 @@ import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.push
 import org.apache.common.faces.impl.state.tag.ModelUpdater;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.CUSTOM_ACTIONS_HINT;
+import static org.apache.common.faces.state.StateFlow.CUSTOM_INVOKERS_HINT;
 import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.StateFlowHandler;
+import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.model.CustomAction;
 
 /**
@@ -181,26 +183,11 @@ public class StateChartTagHandler extends TagHandler {
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
         List<CustomAction> customActions = handler.getCustomActions();
+        Map<String, Class<? extends Invoker>> customInvokers = handler.getCustomInvokers();
 
         Map<Object, Tag> tags = new HashMap<>();
-        try {
-            build(ctx, uichart, chart, tags, resolver, customActions);
-        } finally {
-            ctx.setVariableMapper(corig);
-            ctx.setFunctionMapper(forig);
-        }
-
-        chart.getMetadata().put("faces-tag-info", new HashMap<>(tags));
-
-        ModelUpdater updater = new ModelUpdater(tags);
-        updater.updateSCXML(chart);
-
-        restored = chart;
-
-    }
-
-    protected void build(FaceletContext ctx, UIComponent parent, SCXML chart, Map<Object, Tag> tags, PathResolver resolver, List<CustomAction> customActions) throws IOException {
         pushElement(parent, CUSTOM_ACTIONS_HINT, customActions);
+        pushElement(parent, CUSTOM_INVOKERS_HINT, customInvokers);
         pushElement(parent, TAG_MAP, tags);
         pushElement(parent, SCXML.class, chart);
         pushElement(parent, PathResolver.class, resolver);
@@ -212,8 +199,19 @@ public class StateChartTagHandler extends TagHandler {
             popElement(parent, PathResolver.class);
             popElement(parent, SCXML.class);
             popElement(parent, TAG_MAP);
+            popElement(parent, CUSTOM_INVOKERS_HINT);
             popElement(parent, CUSTOM_ACTIONS_HINT);
+            ctx.setVariableMapper(corig);
+            ctx.setFunctionMapper(forig);
         }
+        
+        chart.getMetadata().put("faces-tag-info", new HashMap<>(tags));
+
+        ModelUpdater updater = new ModelUpdater(tags);
+        updater.updateSCXML(chart);
+
+        restored = chart;
+
     }
 
     private void pushMapper(FacesContext ctx, FunctionMapper mapper) {
