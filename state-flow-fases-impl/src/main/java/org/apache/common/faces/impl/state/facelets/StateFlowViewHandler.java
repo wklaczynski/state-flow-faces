@@ -25,6 +25,8 @@ import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.model.ModelException;
 import static org.apache.common.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
+import static org.apache.common.faces.state.StateFlow.VIEW_ENCODE_BEGIN;
+import static org.apache.common.faces.state.StateFlow.VIEW_ENCODE_END;
 
 /**
  *
@@ -69,24 +71,42 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
 
     @Override
     public void renderView(FacesContext context, UIViewRoot viewRoot) throws IOException, FacesException {
-        super.renderView(context, viewRoot);
-
         StateFlowHandler fh = StateFlowHandler.getInstance();
-
         if (!context.getResponseComplete() && viewRoot != null && fh.isActive(context)) {
             SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
-            EventDispatcher ed = rootExecutor.getEventdispatcher();
-            if (ed instanceof FacesProcessHolder) {
-                try {
+            try {
+                EventBuilder eb = new EventBuilder(VIEW_ENCODE_BEGIN,
+                        TriggerEvent.CALL_EVENT)
+                        .sendId(viewRoot.getViewId());
+                rootExecutor.triggerEvent(eb.build());
+
+                EventDispatcher ed = rootExecutor.getEventdispatcher();
+                if (ed instanceof FacesProcessHolder) {
                     EventBuilder deb = new EventBuilder(ENCODE_DISPATCHER_EVENTS,
                             TriggerEvent.CALL_EVENT)
                             .sendId(viewRoot.getViewId());
 
                     rootExecutor.triggerEvent(deb.build());
                     ((FacesProcessHolder) ed).encodeAll(context);
-                } catch (ModelException | IOException ex) {
-                    throw new FacesException(ex);
                 }
+            } catch (ModelException ex) {
+                throw new FacesException(ex);
+            }
+        }
+
+        super.renderView(context, viewRoot);
+
+        if (!context.getResponseComplete() && viewRoot != null && fh.isActive(context)) {
+            SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
+            try {
+                EventBuilder eb = new EventBuilder(VIEW_ENCODE_END,
+                        TriggerEvent.CALL_EVENT)
+                        .sendId(viewRoot.getViewId());
+
+                rootExecutor.triggerEvent(eb.build());
+                
+            } catch (ModelException ex) {
+                throw new FacesException(ex);
             }
         }
 
