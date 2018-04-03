@@ -72,12 +72,16 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
 
                 eb.sendId(context.getViewRoot().getViewId());
 
-                SCXMLExecutor root = handler.getRootExecutor(context);
+                SCXMLExecutor executor = handler.getRootExecutor(context);
                 try {
                     TriggerEvent ev = eb.build();
-                    root.triggerEvent(ev);
+                    executor.triggerEvent(ev);
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
+                }
+
+                if (!executor.isRunning()) {
+                    handler.close(context, executor);
                 }
 
                 if (context.getResponseComplete()) {

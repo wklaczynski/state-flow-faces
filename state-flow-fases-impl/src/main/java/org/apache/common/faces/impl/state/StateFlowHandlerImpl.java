@@ -376,16 +376,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
         }
 
-        executor.addListener(scxml, new AbstractSCXMLListener() {
-            @Override
-            public void onExit(EnterableState state) {
-                if (!executor.isRunning()) {
-                    FacesContext context = FacesContext.getCurrentInstance();
-                    close(context, executor);
-                }
-            }
-        });
-
         for (Map.Entry<String, Class<? extends Invoker>> entry : customInvokers.entrySet()) {
             executor.registerInvokerClass(entry.getKey(), entry.getValue());
         }

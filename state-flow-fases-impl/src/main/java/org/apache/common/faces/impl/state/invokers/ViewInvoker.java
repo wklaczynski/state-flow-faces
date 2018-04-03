@@ -236,7 +236,7 @@ public class ViewInvoker implements Invoker, Serializable {
             if (redirect || (pvc != null && pvc.isAjaxRequest())) {
                 Application application = fc.getApplication();
                 ViewHandler viewHandler = application.getViewHandler();
-                String url = viewHandler.getRedirectURL(fc, viewId, reqparams, true);
+                String url = viewHandler.getRedirectURL(fc, viewId, reqparams, false);
                 clearViewMapIfNecessary(fc.getViewRoot(), viewId);
                 updateRenderTargets(fc, viewId);
                 ec.redirect(url);
@@ -250,15 +250,9 @@ public class ViewInvoker implements Invoker, Serializable {
                 if (viewState != null) {
                     fc.getAttributes().put(FACES_VIEW_STATE, viewState);
                     viewRoot = vh.restoreView(fc, viewId);
-
-                    applyParams(fc, viewRoot, params);
-
                     fc.setViewRoot(viewRoot);
                     fc.setProcessingEvents(true);
                     vh.initView(fc);
-
-                    applyParams(fc, viewRoot, vieparams);
-                    vieparams = null;
                 } else {
                     SCXML stateChart = null;
                     viewRoot = null;
@@ -278,9 +272,6 @@ public class ViewInvoker implements Invoker, Serializable {
                             }
                         }
                     }
-
-                    applyParams(fc, viewRoot, vieparams);
-                    vieparams = null;
 
                     if (viewRoot != null) {
                         if (!ViewMetadata.hasMetadata(viewRoot)) {

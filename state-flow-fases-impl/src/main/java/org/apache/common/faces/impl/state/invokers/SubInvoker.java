@@ -119,6 +119,8 @@ public class SubInvoker implements Invoker, StateHolder {
             }
 
             scxml = handler.createStateMachine(fc, viewId);
+        } catch (FacesException ex) {
+            throw ex;
         } catch (Throwable ex) {
             throw new InvokerException(ex);
         }
@@ -175,6 +177,8 @@ public class SubInvoker implements Invoker, StateHolder {
                 }
 
                 executor.triggerEvents();
+            } catch (FacesException ex) {
+                throw ex;
             } catch (Throwable me) {
                 throw new InvokerException(me);
             }
@@ -195,6 +199,8 @@ public class SubInvoker implements Invoker, StateHolder {
                 ioProcessor.close();
             }
         }
+        FacesContext context = FacesContext.getCurrentInstance();
+        StateFlowHandler.getInstance().close(context, executor);
     }
 
     @Override

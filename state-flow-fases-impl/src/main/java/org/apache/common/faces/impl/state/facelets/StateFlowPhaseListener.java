@@ -64,10 +64,10 @@ public class StateFlowPhaseListener implements PhaseListener {
         }
 
         UIViewRoot viewRoot = context.getViewRoot();
-        StateFlowHandler fh = StateFlowHandler.getInstance();
-        if (viewRoot != null && fh.isActive(context)) {
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        if (viewRoot != null && handler.isActive(context)) {
 
-            SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
+            SCXMLExecutor executor = handler.getRootExecutor(context);
 
             String name = AFTER_PHASE_EVENT_PREFIX
                     + event.getPhaseId().getName().toLowerCase();
@@ -76,16 +76,20 @@ public class StateFlowPhaseListener implements PhaseListener {
                     .sendId(context.getViewRoot().getViewId());
 
             try {
-                rootExecutor.triggerEvent(eb.build());
+                executor.triggerEvent(eb.build());
             } catch (ModelException ex) {
                 throw new FacesException(ex);
+            }
+
+            if (!executor.isRunning()) {
+                handler.close(context, executor);
             }
 
             Context.setCurrentInstance(
                     (Context) context.getELContext().getContext(Context.class));
 
             if (event.getPhaseId() == PhaseId.RENDER_RESPONSE || context.getResponseComplete()) {
-                fh.writeState(context);
+                handler.writeState(context);
             }
 
         }
@@ -98,8 +102,8 @@ public class StateFlowPhaseListener implements PhaseListener {
 
         if (event.getPhaseId() != PhaseId.RESTORE_VIEW) {
             UIViewRoot viewRoot = context.getViewRoot();
-            StateFlowHandler fh = StateFlowHandler.getInstance();
-            if (viewRoot != null && fh.isActive(context)) {
+            StateFlowHandler handler = StateFlowHandler.getInstance();
+            if (viewRoot != null && handler.isActive(context)) {
 
                 String name = BEFORE_PHASE_EVENT_PREFIX
                         + event.getPhaseId().getName().toLowerCase();
@@ -107,42 +111,46 @@ public class StateFlowPhaseListener implements PhaseListener {
                 EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
                         .sendId(viewRoot.getViewId());
 
-                SCXMLExecutor rootExecutor = fh.getRootExecutor(context);
+                SCXMLExecutor executor = handler.getRootExecutor(context);
                 try {
-                    rootExecutor.triggerEvent(eb.build());
+                    executor.triggerEvent(eb.build());
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
                 }
 
                 if (event.getPhaseId() == PhaseId.APPLY_REQUEST_VALUES
                         && !context.getResponseComplete()) {
-                    EventDispatcher ed = rootExecutor.getEventdispatcher();
+                    EventDispatcher ed = executor.getEventdispatcher();
                     if (ed instanceof FacesProcessHolder) {
                         try {
                             EventBuilder eeb = new EventBuilder(DECODE_DISPATCHER_EVENTS,
                                     TriggerEvent.CALL_EVENT)
                                     .sendId(viewRoot.getViewId());
 
-                            rootExecutor.triggerEvent(eeb.build());
+                            executor.triggerEvent(eeb.build());
                             ((FacesProcessHolder) ed).processDecodes(context);
                         } catch (ModelException ex) {
                             throw new FacesException(ex);
                         }
                     }
-
                 }
+
+                if (!executor.isRunning()) {
+                    handler.close(context, executor);
+                }
+
             } else if (event.getPhaseId() == PhaseId.APPLY_REQUEST_VALUES
                     && !context.getResponseComplete()) {
 
-                if (fh.isFinal(context)) {
-                    fh.close(context);
+                if (handler.isFinal(context)) {
+                    handler.close(context);
                 }
             }
 
         } else {
-            StateFlowHandler fh = StateFlowHandler.getInstance();
-            if (fh.isActive(context)) {
-                SCXMLExecutor executor = fh.getRootExecutor(context);
+            StateFlowHandler handler = StateFlowHandler.getInstance();
+            if (handler.isActive(context)) {
+                SCXMLExecutor executor = handler.getRootExecutor(context);
                 Context ctx = executor.getRootContext();
                 Object lastViewState = ctx.get(FACES_VIEW_STATE);
                 ctx.getVars().remove(FACES_VIEW_STATE);
