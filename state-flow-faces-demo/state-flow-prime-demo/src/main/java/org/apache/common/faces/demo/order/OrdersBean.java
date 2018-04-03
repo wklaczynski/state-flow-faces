@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Named;
+import org.apache.common.faces.demo.order.data.Order;
 import org.apache.common.faces.demo.order.data.Product;
 import org.apache.common.faces.state.annotation.StateDialogScoped;
 
@@ -32,7 +33,9 @@ public class OrdersBean implements Serializable {
     
     private final List<Product> products = new ArrayList<>();
 
-    private final List<Product> orders = new ArrayList<>();
+    private final List<Order> data = new ArrayList<>();
+    
+    private Order selected;
     
     public boolean prepare() {
         products.add(new Product(
@@ -54,8 +57,28 @@ public class OrdersBean implements Serializable {
         return products;
     }
 
-    public List<Product> getOrders() {
-        return orders;
+    public List<Order> getData() {
+        return data;
+    }
+
+    public Order getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Order selected) {
+        this.selected = selected;
+    }
+    
+    public boolean isEditable() {
+        return selected != null;
+    }
+    
+    public boolean isRemovable() {
+        return selected != null;
+    }
+    
+    public boolean isOpenable() {
+        return selected != null;
     }
     
 }

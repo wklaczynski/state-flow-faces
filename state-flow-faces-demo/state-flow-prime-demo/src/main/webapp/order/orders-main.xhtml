@@ -29,85 +29,28 @@
                 <x:param name="page_description" expr="Page description from scxml."/>
             </x:invoke>
 
-            <x:transition event="error.execution" target="main"/>
-
-            <x:transition event="view.action.show" target="show-client"/>
-            <x:transition event="view.action.update" target="update-client"/>
+            <x:transition event="error.execution" target="error"/>
+            
+            <x:transition event="view.action.insert" target="insert-order"/>
 
             <x:transition event="view.action.exit" target="exit"/>
-            <x:transition event="view.action.assign" target="assing-test"/>
-            <x:transition event="view.action.clear" target="clear-test"/>
         </x:state> 
-
-        <x:state id="show-client"> 
-            <x:onentry>
-                <x:var name="selected" expr="#{book.client['@id'][param.clid]}"/>
-            </x:onentry>
-            <x:invoke type="scxml" src="faces-flow-client-show.xhtml">
-                <x:param name="clientId" expr="#{selected.id.$text}"/>
-                <x:param name="clientName" expr="#{selected.name.$text}"/>
-                <x:param name="clientSurname" expr="#{selected.surname.$text}"/>
-                <x:param name="clientMobilePhone" expr="#{selected.phone['@type=\'mobile\''].$text}"/>
-                <x:param name="clientHomePhone" expr="#{selected.phone['@type=\'home\''].$text}"/>
+        
+        <x:state id="view-order"> 
+            <x:invoke type="scxml" src="order-view.xhtml">
+                <x:param name="order" expr="#{orders.selected}"/>
             </x:invoke>
             <x:transition event="error.execution" target="main"/>
-            <x:transition event="done.invoke.show-client" target="main"/>
+            <x:transition event="done.invoke" target="main"/>
         </x:state>      
-
-        <x:state id="update-client"> 
-            <x:onentry>
-                <x:var name="selected" expr="#{book.client['@id'][param.clid]}"/>
-            </x:onentry>
-            <x:invoke type="scxml" src="faces-flow-client-update.xhtml">
-                <x:param name="clientId" expr="#{selected.id.$text}"/>
-                <x:param name="clientName" expr="#{selected.name.$text}"/>
-                <x:param name="clientSurname" expr="#{selected.surname.$text}"/>
-                <x:param name="clientMobilePhone" expr="#{selected.phone['@type=\'mobile\''].$text}"/>
-                <x:param name="clientHomePhone" expr="#{selected.phone['@type=\'home\''].$text}"/>
+        
+        <x:state id="insert-order"> 
+            <x:invoke type="scxml" src="order-insert.xhtml">
             </x:invoke>
             <x:transition event="error.execution" target="main"/>
-
-            <x:transition 
-                event="done.invoke.update-client" 
-                cond="#{done.success}" 
-                target="main">
-                <x:assign location="#{selected.name.$text}" expr="#{done.name}"/>
-                <x:assign location="#{selected.surname.$text}" expr="#{done.surname}"/>
-                <x:assign location="#{selected.phone['@type=\'mobile\''].$text}" expr="#{done.mobilePhone}"/>
-                <x:assign location="#{selected.phone['@type=\'home\''].$text}" expr="#{done.homePhone}"/>
-            </x:transition> 
-            <x:transition event="done.invoke.update-client" target="main"/>
+            <x:transition event="done.invoke" target="main"/>
         </x:state>      
-
-        <x:state id="assing-test">
-            <x:onentry>
-                <x:assign 
-                    location="#{main.assignedTest1}" 
-                    expr="#{book['client[last()]/phone[@type=\'mobile\']'].$text}"
-                    />
-                <x:assign 
-                    location="#{client.assignedTest1}" 
-                    expr="#{book['client[last()]/phone[@type=\'home\']'].$text}"
-                    />
-                <x:assign 
-                    location="chartAssignedTest" 
-                    expr="#{book['client[1]/phone[@type=\'home\']'].$text}"
-                    />
-                <x:raise event="assing-test.finish"/>
-            </x:onentry>
-            <x:transition event="assing-test.finish" target="main"/>
-        </x:state> 
-
-        <x:state id="clear-test">
-            <x:onentry>
-                <x:assign location="#{main.assignedTest1}"/>
-                <x:assign location="#{client.assignedTest1}"/>
-                <x:assign location="chartAssignedTest"/>
-                <x:raise event="clear-test.finish"/>
-            </x:onentry>
-            <x:transition event="clear-test.finish" target="main">
-            </x:transition>
-        </x:state> 
+        
         
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml">

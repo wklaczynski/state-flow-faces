@@ -59,4 +59,14 @@ public class Order implements Serializable {
         return products;
     }
     
+    @Override
+    public Order clone() throws CloneNotSupportedException {
+        Order result = new Order();
+        result.name = name;
+        result.description = description;
+        result.cost = cost;
+        result.products.addAll(products);
+        return result;        
+    }
+    
 }

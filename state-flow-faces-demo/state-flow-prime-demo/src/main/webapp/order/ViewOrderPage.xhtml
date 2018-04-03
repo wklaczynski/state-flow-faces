@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:fn="http://xmlns.jcp.org/jsp/jstl/functions"
+      xmlns:p="http://primefaces.org/ui">
+
+    <f:metadata>
+        <f:viewParam name="page_description"/>
+    </f:metadata>
+
+    <h:head>
+        <title>#{chart.title}</title>
+        <h:outputStylesheet library="css" name="demo-style.css"  />
+    </h:head>
+    <h:body>
+        <h1>#{chart.title}</h1>
+        <p:separator/>
+        <h:form>
+            <h:panelGroup>
+                <h3>Demostrate State Flow Faces use #{chart.title}</h3>
+                <h:panelGroup>
+                    <p:messages/> 
+                </h:panelGroup>
+                <h:panelGrid columns="2">
+                    <p:outputLabel
+                        for="name"
+                        value="Name:"
+                        />
+                    <p:inputText
+                        id="name"
+                        value="#{order.data.name}"
+                        required="true"
+                        readonly="true"
+                        accesskey="N"
+                        />
+                    <p:outputLabel
+                        for="description"
+                        value="Description:"
+                        />
+                    <p:inputText
+                        id="description"
+                        value="#{order.data.description}"
+                        required="true"
+                        readonly="true"
+                        accesskey="D"
+                        />
+                    <p:outputLabel
+                        value="Cost:"
+                        />
+                    <h:outputText
+                        id="cost"
+                        value="#{order.data.cost}"
+                        />
+                </h:panelGrid>
+                <p:separator/>
+                <h3>Order at the cost of #{order.data.cost}€. Do you want to approve changes?</h3>
+                <p:separator/>
+                <h:panelGroup id="navigation">
+                    <h:panelGroup layout="block" style=" text-align: left;">
+                        <h:panelGrid cellspacing="4" columns="8" style="bottom: 0px">
+                            <p:commandButton
+                                action="cancel"
+                                value="Cancel"
+                                immediate="false">
+                            </p:commandButton>
+                            <p:commandButton
+                                action="back"
+                                value="Back"
+                                immediate="false">
+                            </p:commandButton>
+                            <p:commandButton
+                                action="accept"
+                                value="Accept"
+                                immediate="false">
+                            </p:commandButton>
+                        </h:panelGrid>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </h:panelGroup>
+        </h:form>
+    </h:body>
+</html>
+

@@ -11,7 +11,7 @@
     </f:metadata>
 
     <h:head>
-        <title>Orders Demo</title>
+        <title>#{chart.title}</title>
         <h:outputStylesheet library="css" name="demo-style.css"  />
     </h:head>
     <h:body>
@@ -19,46 +19,60 @@
         <p:separator/>
         <h:form>
             <h:panelGroup>
-                <h3>Demostrate State Flow Faces use with orders </h3>
+                <h3>Demostrate State Flow Faces use #{chart.title}</h3>
                 <h:panelGroup>
                     <p:messages/> 
                 </h:panelGroup>
-                <h:panelGroup >
+                <h:panelGrid columns="2">
+                    <p:outputLabel
+                        for="name"
+                        value="Name:"
+                        />
+                    <p:inputText
+                        id="name"
+                        value="#{order.data.name}"
+                        required="true"
+                        accesskey="N"
+                        />
+                    <p:outputLabel
+                        for="description"
+                        value="Description:"
+                        />
+                    <p:inputText
+                        id="description"
+                        value="#{order.data.description}"
+                        required="true"
+                        accesskey="D"
+                        />
+                    <p:outputLabel
+                        value="Cost:"
+                        />
+                    <h:outputText
+                        id="cost"
+                        value="#{order.data.cost}"
+                        />
+                </h:panelGrid>
+                <p:separator/>
+                <h:panelGroup id="products">
                     <p:toolbar id="toolbar">
                         <p:toolbarGroup align="left">
                             <p:commandButton
-                                value="New Order"
-                                action="insert"
-                                icon="ui-icon-document" />
+                                value="Add Product"
+                                action="insert-product"
+                                icon="ui-icon-plusthick"/>
                             <p:commandButton
-                                value="Open"
-                                action="open"
-                                disabled="#{not orders.openable}"
-                                icon="ui-icon-folder-open"/>
-                            <p:commandButton
-                                value="Edit"
-                                action="edit"
-                                disabled="#{not orders.editable}"
-                                icon="ui-icon-pencil"/>
-                            <p:commandButton
-                                value="Remove"
+                                value="Remove Product"
                                 action="remove"
-                                disabled="#{not orders.removable}"
-                                icon="ui-icon-trash"/>
-                            <p:separator/>
-                            <p:commandButton
-                                value="Quit" 
-                                action="exit" 
-                                immediate="true"
-                                icon="ui-icon-close" />
+                                disabled="#{not order.removableProduct}"
+                                icon="ui-icon-minusthick"/>
                         </p:toolbarGroup>
                     </p:toolbar>
                     <p:dataTable
                         var="entry"
-                        value="#{orders.data}">
+                        value="#{order.products}">
 
                         <f:facet name="header">
-                            List of Orders
+                            List of Products
                         </f:facet>                        
 
                         <p:column headerText="Name">
@@ -74,17 +88,22 @@
                         </p:column>
 
                         <f:facet name="footer">
-                            In total there are #{fn:length(orders.data)} orders.
+                            In total there are #{fn:length(order.products)} products.
                         </f:facet>                        
                     </p:dataTable>                    
                 </h:panelGroup>
                 <p:separator/>
                 <h:panelGroup id="navigation">
                     <h:panelGroup layout="block" style=" text-align: left;">
-                        <h:panelGrid cellspacing="4" columns="2" style="bottom: 0px">
+                        <h:panelGrid cellspacing="4" columns="8" style="bottom: 0px">
                             <p:commandButton
-                                action="exit"
-                                value="Exit"
+                                action="accept"
+                                update="@form"
+                                value="Accept">
+                            </p:commandButton>
+                            <p:commandButton
+                                action="cancel"
+                                value="Cancel"
                                 immediate="false">
                             </p:commandButton>
                         </h:panelGrid>
