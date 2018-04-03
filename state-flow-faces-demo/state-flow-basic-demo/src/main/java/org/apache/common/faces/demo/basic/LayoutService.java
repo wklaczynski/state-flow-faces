@@ -59,6 +59,9 @@ public class LayoutService {
     public void goToMainPage() {
         try {
             FacesContext fc = FacesContext.getCurrentInstance();
+            if(fc.getResponseComplete()) {
+                return;
+            }
             ExternalContext ec = fc.getExternalContext();
 
             String actionURL = fc.getApplication().
