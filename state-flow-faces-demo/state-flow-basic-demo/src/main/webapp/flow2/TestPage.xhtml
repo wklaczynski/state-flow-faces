@@ -45,7 +45,7 @@
                     <p/>
                     <b>Value:</b> #{main.assignedTest1}
                     <p/>
-                    <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
+                    <h:panelGrid cellspacing="4" columns="10" style="bottom: 0px">
                         <h:commandButton action="calculate" value="Calculate Test">
                             <f:ajax render="@form"/>
                         </h:commandButton>
@@ -65,6 +65,9 @@
                             <f:ajax render="@form"/>
                         </h:commandButton>
                         <h:commandButton action="go-view" value="Go View">
+                            <f:ajax render="@form"/>
+                        </h:commandButton>
+                        <h:commandButton action="go-delay-view" value="Go Delayed 5 sec. View">
                             <f:ajax render="@form"/>
                         </h:commandButton>
                     </h:panelGrid>

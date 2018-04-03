@@ -37,7 +37,7 @@
     when is not defined in invoke params "@view.redirect". Default is "false"-->
     <context-param>
         <param-name>org.apache.faces.DEFAULT_VIEW_REDIRECT</param-name>
-        <param-value>true</param-value>
+        <param-value>false</param-value>
     </context-param>
             
     <!--Used for test only, alweys disable in production stage-->

@@ -61,4 +61,7 @@ public class StateFlowImplConstants {
     
     public static final String FXSCXML_DATA_MODEL = "http://xmlns.apache.org/faces/fxscxml";
 
+    public final static String STATE_FLOW_DISPATCH_TASK = "org.apache.faces.state.STATE_FLOW_DISPATCH_TASK";
+    
+    
 }

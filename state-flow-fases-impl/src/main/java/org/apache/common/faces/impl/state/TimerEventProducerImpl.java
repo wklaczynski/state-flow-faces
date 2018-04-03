@@ -15,7 +15,16 @@
  */
 package org.apache.common.faces.impl.state;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import javax.faces.application.Application;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIOutput;
+import javax.faces.context.FacesContext;
+import javax.faces.context.PartialViewContext;
+import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_FLOW_DISPATCH_TASK;
 import org.apache.common.faces.state.task.DelayedEventTask;
 import org.apache.common.faces.state.task.TimerEventProducer;
 
@@ -25,8 +34,43 @@ import org.apache.common.faces.state.task.TimerEventProducer;
  */
 public class TimerEventProducerImpl extends TimerEventProducer {
 
+    
+    
     @Override
     public void encode(List<DelayedEventTask> taskList) {
+
+        FacesContext context = FacesContext.getCurrentInstance();
+        Map<Object, Object> attrs = context.getAttributes();
+        if (!taskList.isEmpty()) {
+            DelayedEventTask curTask = (DelayedEventTask) attrs.get(STATE_FLOW_DISPATCH_TASK);
+            taskList = new ArrayList<>(taskList);
+
+            Collections.sort(taskList, (o1, o2) -> {
+                return (int) (o1.getTime() - o2.getTime());
+            });
+            DelayedEventTask newTask = taskList.get(0);
+            
+            if(curTask == null) {
+                curTask = newTask;
+            } else if (curTask.getTime() > newTask.getTime()) {
+                curTask = newTask;
+            }
+            attrs.put(STATE_FLOW_DISPATCH_TASK, curTask);
+
+            PartialViewContext partial = context.getPartialViewContext();
+            if (!partial.isAjaxRequest()) {
+                Application application = context.getApplication();
+
+                UIComponent componentResource = application.createComponent(UIOutput.COMPONENT_TYPE);
+                componentResource.setRendererType("org.apache.common.faces.StateFlowScriptRenderer");
+                componentResource.getAttributes().put("target", "head");
+                componentResource.setId("stateFlowDispatcher");
+                componentResource.setRendered(true);
+                
+                context.getViewRoot().addComponentResource(context, componentResource, "head");
+
+            }
+        }
 
     }
 

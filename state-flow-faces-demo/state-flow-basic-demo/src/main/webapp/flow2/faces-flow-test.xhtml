@@ -54,6 +54,7 @@
                 </x:transition>
 
                 <x:transition event="view.action.go-view" target="view-process"/>
+                <x:transition event="view.action.go-delay-view" target="delay-view-process"/>
             </x:state>
 
             <x:state id="test-process">
@@ -145,7 +146,7 @@
             <x:transition event="error.execution" target="error"/>
 
             <x:transition event="view.action.cancel" target="cancel"/>
-
+            
             <x:transition event="view.action.return" target="test-process-return"/>
             <x:transition event="view.action.start-again" target="show"/>
 
@@ -163,6 +164,38 @@
 
         </x:state>
 
+        <x:state id="delay-view-process">
+            <x:onentry>
+                <x:send id="delay-process" event="delay-view-process.view.timeout" delay="5000"/>
+                <x:assign location="test_data" expr="I left the multi process."/>
+            </x:onentry>
+            <x:onexit>
+                <x:cancel sendid="delay-process"/>
+            </x:onexit>>
+            <x:invoke type="view" src="ViewPage.xhtml"/>
+
+            <x:transition event="error.execution" target="error"/>
+
+            <x:transition event="view.action.cancel" target="cancel"/>
+
+            <x:transition event="delay-view-process.view.timeout" target="show"/>
+            
+            <x:transition event="view.action.return" target="test-process-return"/>
+            <x:transition event="view.action.start-again" target="show"/>
+
+            <x:transition event="view.action.calculate-1">
+                <x:assign location="#{currentState.assignedTest1}"
+                          expr="Changed by 'calculate-1' in 'view-process' state"/>
+            </x:transition>
+
+            <x:transition event="view.action.calculate-2">
+                <x:assign location="#{currentState.assignedTest1}"
+                          expr="Changed by 'calculate-2' in 'view-process' state"/>
+                <x:assign location="#{main.assignedTest1}"
+                          expr="Changed by 'calculate-2' in 'view-process' state"/>
+            </x:transition>
+        </x:state>
+        
 
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml"/>

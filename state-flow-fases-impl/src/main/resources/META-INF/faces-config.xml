@@ -14,7 +14,7 @@
         </before>
     </ordering>    
     
-   <lifecycle>
+    <lifecycle>
         <phase-listener>org.apache.common.faces.impl.state.facelets.StateFlowPhaseListener</phase-listener>
     </lifecycle>
     
@@ -28,12 +28,23 @@
     
     <factory>
         <view-declaration-language-factory>org.apache.common.faces.impl.state.facelets.StateFlowViewDeclarationLanguageFactory</view-declaration-language-factory>
+        <partial-view-context-factory>org.apache.common.faces.impl.state.facelets.StateFlowPartialViewContextFactory</partial-view-context-factory>
     </factory>
 
     <component>
         <component-type>org.apache.common.faces.UIStateChartRoot</component-type>
         <component-class>org.apache.common.faces.state.component.UIStateChartRoot</component-class>
     </component>
+    
+    <render-kit>
+        <render-kit-id>HTML_BASIC</render-kit-id>
+        <renderer>
+            <component-family>javax.faces.Output</component-family>
+            <renderer-type>org.apache.common.faces.StateFlowScriptRenderer</renderer-type>
+            <renderer-class>org.apache.common.faces.impl.state.script.StateFlowScriptRenderer</renderer-class>
+        </renderer>
+    </render-kit>
+    
     
     
 </faces-config>
