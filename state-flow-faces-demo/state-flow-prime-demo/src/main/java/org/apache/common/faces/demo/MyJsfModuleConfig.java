@@ -28,7 +28,7 @@ public class MyJsfModuleConfig extends JsfModuleConfig {
 
     @Override
     public ClientWindowConfig.ClientWindowRenderMode getDefaultWindowMode() {
-         return ClientWindowConfig.ClientWindowRenderMode.LAZY;
+         return ClientWindowConfig.ClientWindowRenderMode.DELEGATED;
     }
     
 

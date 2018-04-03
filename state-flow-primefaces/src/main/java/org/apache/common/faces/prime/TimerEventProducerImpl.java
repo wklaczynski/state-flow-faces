@@ -22,8 +22,8 @@ import java.util.Map;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
-import javax.faces.context.PartialViewContext;
 import static org.apache.common.faces.prime.StateFlowImplConstants.STATE_FLOW_DISPATCH_TASK;
+import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import org.apache.common.faces.state.task.DelayedEventTask;
 import org.apache.common.faces.state.task.TimerEventProducer;
 import org.primefaces.PrimeFaces;
@@ -64,21 +64,22 @@ public class TimerEventProducerImpl extends TimerEventProducer {
     public void encodeEnd() {
         FacesContext context = FacesContext.getCurrentInstance();
         Map<Object, Object> attrs = context.getAttributes();
-        PartialViewContext partial = context.getPartialViewContext();
         DelayedEventTask curTask = (DelayedEventTask) attrs.get(STATE_FLOW_DISPATCH_TASK);
         if (curTask != null) {
-
             UIViewRoot viewRoot = context.getViewRoot();
-            String sourceComponentId = viewRoot.getViewId();
+            String update = "@form";
+
+            String sourceComponentId = (String) attrs.get(CURRENT_COMPONENT_HINT);
 
             RequestContext requestContext = RequestContext.getCurrentInstance();
             AjaxRequestBuilder builder = requestContext.getAjaxRequestBuilder();
-            ClientBehaviorRenderingMode renderingMode = ClientBehaviorRenderingMode.OBSTRUSIVE;
+            ClientBehaviorRenderingMode renderingMode
+                    = ClientBehaviorRenderingMode.OBSTRUSIVE;
 
             String formId = null;
             UIComponent form;
-            String sourceId = null;
-            UIComponent component = null;
+            String sourceId = viewRoot.getId();
+            UIComponent component;
 
             if (sourceComponentId != null) {
                 component = context.getViewRoot().findComponent(sourceComponentId);
@@ -89,6 +90,10 @@ public class TimerEventProducerImpl extends TimerEventProducer {
                     }
                     sourceId = component.getClientId();
                 }
+            } else {
+                update = "@all";
+                sourceId = viewRoot.getId();
+                component = viewRoot;
             }
 
             long delay = curTask.getTime() - System.currentTimeMillis();
@@ -96,11 +101,11 @@ public class TimerEventProducerImpl extends TimerEventProducer {
             String ajaxscript = builder.init()
                     .source(sourceId)
                     .form(formId)
-                    .event("scxmlhide")
-                    .update(component, "@all")
+                    .event("scxmltask")
+                    .update(component, update)
                     .process(component, "@none")
                     .async(false)
-                    .global(true)
+                    .global(false)
                     .delay(null)
                     .timeout(0)
                     .partialSubmit(false, false, null)

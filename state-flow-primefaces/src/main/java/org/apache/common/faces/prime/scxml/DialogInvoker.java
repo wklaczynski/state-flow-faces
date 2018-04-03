@@ -147,14 +147,18 @@ public class DialogInvoker implements Invoker, Serializable {
             options.put("closable", "false");
             options.put("invokeId", invokeId);
 
+            String update = (String) ajax.get("update");
+            String process = (String) ajax.get("update");
+            String global = (String) ajax.get("global");
+            
             RequestContext requestContext = RequestContext.getCurrentInstance();
             AjaxRequestBuilder builder = requestContext.getAjaxRequestBuilder();
             ClientBehaviorRenderingMode renderingMode = ClientBehaviorRenderingMode.OBSTRUSIVE;
 
             String formId = null;
             UIComponent form;
-            String sourceId = null;
-            UIComponent component = null;
+            String sourceId = view.getId();
+            UIComponent component;
 
             if (sourceComponentId != null) {
                 component = context.getViewRoot().findComponent(sourceComponentId);
@@ -165,11 +169,11 @@ public class DialogInvoker implements Invoker, Serializable {
                     }
                     sourceId = component.getClientId();
                 }
+            } else {
+                sourceId = view.getId();
+                component = view;
+                update = "@all";
             }
-
-            String update = (String) ajax.get("update");
-            String process = (String) ajax.get("update");
-            String global = (String) ajax.get("global");
 
             String ajaxscript = builder.init()
                     .source(sourceId)

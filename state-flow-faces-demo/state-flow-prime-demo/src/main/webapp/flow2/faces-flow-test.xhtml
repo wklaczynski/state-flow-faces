@@ -49,7 +49,9 @@
                 </x:transition>
 
                 <x:transition event="view.action.go-view" target="view-process"/>
+                <x:transition event="view.action.go-delay-view" target="delay-view-process"/>
                 <x:transition event="view.action.show-info" target="info"/>
+                <x:transition event="view.action.show-delay-info" target="delay-info"/>
             </x:state>
 
             <x:state id="test-process">
@@ -108,23 +110,23 @@
                     <x:transition event="view.action.back" target="test-process-2"/>
                 </x:state>             
             </x:state> 
-            
+
             <x:state id="invoke-process">
                 <x:initial>
                     <x:transition target="invoke-process-1"/>
                 </x:initial>
-                
+
                 <x:state id="invoke-process-1">
                     <x:transition event="view.action.start-invoke" target="invoke-process-2"/>
                 </x:state>
-                
+
                 <x:state id="invoke-process-2">
                     <x:invoke type="demo" src="show_my.png"/>
-                    
+
                     <x:transition event="view.action.stop-invoke" target="invoke-process-1"/>
                 </x:state>
             </x:state>
-            
+
         </x:parallel>
 
 
@@ -155,10 +157,62 @@
 
         </x:state>
 
-        <x:state id="info">
+        <x:state id="delay-view-process">
             <x:onentry>
-                <x:send event="info.dialog.timeout" delay="5000"/>
+                <x:send id="delay-view-timeout" event="delay-view.view.timeout" delay="5000"/>
+                <x:assign location="test_data" expr="I left the multi process."/>
             </x:onentry>
+            <x:onexit>
+                <x:cancel sendid="delay-view-timeout"/>
+            </x:onexit>
+            <x:invoke type="view" src="ViewPage.xhtml"/>
+
+            <x:transition event="error.execution" target="error"/>
+
+            <x:transition event="view.action.cancel" target="cancel"/>
+
+            <x:transition event="view.action.return" target="test-process-return"/>
+            <x:transition event="view.action.start-again" target="show"/>
+
+            <x:transition event="delay-view.view.timeout" target="show"/>
+            
+            <x:transition event="view.action.calculate-1">
+                <x:assign location="#{currentState.assignedTest1}"
+                          expr="Changed by 'calculate-1' in 'view-process' state"/>
+            </x:transition>
+
+            <x:transition event="view.action.calculate-2">
+                <x:assign location="#{currentState.assignedTest1}"
+                          expr="Changed by 'calculate-2' in 'view-process' state"/>
+                <x:assign location="#{main.assignedTest1}"
+                          expr="Changed by 'calculate-2' in 'view-process' state"/>
+            </x:transition>
+
+        </x:state>
+
+        <x:state id="info">
+            <x:invoke id="infodialog" type="dialog" src="InfoPage.xhtml"/>
+
+            <x:transition event="error.execution" target="error"/>
+
+            <x:transition event="view.action.cancel" target="cancel"/>
+            <x:transition event="view.action.return" target="test-process-return"/>
+            <x:transition event="view.action.start-again" target="show"/>
+
+            <x:transition event="view.action.calculate-1">
+                <x:assign location="#{main.assignedTest1}"
+                          expr="Changed by 'calculate-1' in 'info-process' state"/>
+            </x:transition>
+        </x:state>
+
+        <x:state id="delay-info">
+            <x:onentry>
+                <x:send id="delay-info-timeout" event="info.dialog.timeout" delay="5000"/>
+            </x:onentry>
+            <x:onexit>
+                <x:cancel sendid="delay-info-timeout"/>
+            </x:onexit>
+
             <x:invoke id="infodialog" type="dialog" src="InfoPage.xhtml"/>
 
             <x:transition event="error.execution" target="error"/>
@@ -168,13 +222,14 @@
             <x:transition event="view.action.start-again" target="show"/>
 
             <x:transition event="info.dialog.timeout" target="show"/>
-            
+
             <x:transition event="view.action.calculate-1">
                 <x:assign location="#{main.assignedTest1}"
                           expr="Changed by 'calculate-1' in 'info-process' state"/>
             </x:transition>
         </x:state>
-        
+
+
 
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml"/>
