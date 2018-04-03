@@ -72,6 +72,7 @@ public class DialogInvoker implements Invoker, Serializable {
     private String viewId;
     private String pfdlgcid;
     private Map<String, Object> vieparams;
+    private String ownerViewId;
 
     @Override
     public String getInvokeId() {
@@ -128,6 +129,9 @@ public class DialogInvoker implements Invoker, Serializable {
             }
 
             UIViewRoot view = context.getViewRoot();
+            
+            ownerViewId = view.getViewId();
+            
             PrimeFacesFlowUtils.loadResorces(context, view, this, "head");
 
             String url = context.getApplication().getViewHandler().getBookmarkableURL(context, viewId, params, true);

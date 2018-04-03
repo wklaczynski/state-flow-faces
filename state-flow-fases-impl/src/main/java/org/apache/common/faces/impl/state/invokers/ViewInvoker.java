@@ -52,7 +52,9 @@ import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
 import org.apache.common.scxml.model.SCXML;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
+import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static org.apache.common.faces.state.StateFlow.AFTER_RESTORE_VIEW;
+import static org.apache.common.faces.state.StateFlow.BEFORE_APPLY_REQUEST_VALUES;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
@@ -68,6 +70,9 @@ import org.apache.common.scxml.model.ModelException;
 public class ViewInvoker implements Invoker, Serializable {
 
     private final static Logger logger = Logger.getLogger(ViewInvoker.class.getName());
+
+    private static final String CURRENT_INVOKED_VIEW_ID
+            = ViewInvoker.class.getName() + ":CurrentViewId";
 
     /**
      * Serial version UID.
@@ -89,7 +94,11 @@ public class ViewInvoker implements Invoker, Serializable {
 
     private String viewId;
     private String stateKey;
+    private boolean resolved;
     private Map<String, Object> vieparams;
+    private Map<String, List<String>> reqparams;
+    private String lastViewId;
+    private Object viewState;
 
     /**
      * {@inheritDoc}.
@@ -148,9 +157,16 @@ public class ViewInvoker implements Invoker, Serializable {
             }
             viewId = vh.deriveLogicalViewId(fc, viewId);
 
+            String oldInvokeViewId = (String) executor.getRootContext().get(CURRENT_INVOKED_VIEW_ID);
+            if (oldInvokeViewId != null) {
+                throw new InvokerException(String.format(
+                        "Can not start invoke new view: \"%s\", in other view: \"%s\".",
+                        viewId, oldInvokeViewId));
+            }
+
             Map<String, Object> options = new HashMap();
 
-            Map<String, List<String>> reqparams = new HashMap<>();
+            reqparams = new HashMap<>();
             Map<String, List<String>> navparams = navCase.getParameters();
             if (navparams != null) {
                 reqparams.putAll(navparams);
@@ -190,20 +206,29 @@ public class ViewInvoker implements Invoker, Serializable {
                     redirect = (Boolean) val;
                 }
             }
-            
+
             if (!transientState) {
                 stateKey = "__@@Invoke:" + invokeId + ":";
             }
 
-            Object lastViewState = null;
             if (stateKey != null) {
                 stateKey = "__@@Invoke:" + invokeId + ":";
 
                 Context stateContext = executor.getGlobalContext();
-                lastViewState = stateContext.get(stateKey + "ViewState");
-                String lastViewId = (String) stateContext.get(stateKey + "LastViewId");
+                viewState = stateContext.get(stateKey + "ViewState");
+                lastViewId = (String) stateContext.get(stateKey + "LastViewId");
                 if (lastViewId != null) {
                     viewId = lastViewId;
+                }
+            } else {
+                lastViewId = null;
+                viewState = null;
+            }
+
+            if (fc.getViewRoot() != null) {
+                String currentViewId = fc.getViewRoot().getViewId();
+                if (currentViewId.equals(viewId)) {
+                    return;
                 }
             }
 
@@ -215,22 +240,15 @@ public class ViewInvoker implements Invoker, Serializable {
                 clearViewMapIfNecessary(fc.getViewRoot(), viewId);
                 updateRenderTargets(fc, viewId);
                 ec.redirect(url);
-                
+
                 Context rootContext = executor.getRootContext();
-                rootContext.setLocal(FACES_VIEW_STATE, lastViewState);
+                rootContext.setLocal(FACES_VIEW_STATE, viewState);
                 fc.responseComplete();
             } else {
-                if (fc.getViewRoot() != null) {
-                    String currentViewId = fc.getViewRoot().getViewId();
-                    if (currentViewId.equals(viewId)) {
-                        return;
-                    }
-                }
-
                 UIViewRoot viewRoot;
 
-                if (lastViewState != null) {
-                    fc.getAttributes().put(FACES_VIEW_STATE, lastViewState);
+                if (viewState != null) {
+                    fc.getAttributes().put(FACES_VIEW_STATE, viewState);
                     viewRoot = vh.restoreView(fc, viewId);
 
                     applyParams(fc, viewRoot, params);
@@ -283,6 +301,8 @@ public class ViewInvoker implements Invoker, Serializable {
                 fc.setViewRoot(viewRoot);
                 fc.renderResponse();
             }
+            executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
+
         } catch (Throwable ex) {
             logger.log(Level.SEVERE, "Invoke failed", ex);
             throw new InvokerException(ex);
@@ -358,39 +378,77 @@ public class ViewInvoker implements Invoker, Serializable {
 
         FacesContext context = FacesContext.getCurrentInstance();
         //filter all multicast call event from started viewId by this invoker
-        if (event.getType() == TriggerEvent.CALL_EVENT && viewId.equals(event.getSendId())) {
-            if (event.getName().startsWith(AFTER_RESTORE_VIEW)) {
-                if (vieparams != null && context.getResponseComplete()) {
+        if (event.getType() == TriggerEvent.CALL_EVENT) {
+            //fix view redirect current view
+            if (event.getName().startsWith(BEFORE_APPLY_REQUEST_VALUES)) {
+                if (context.getViewRoot() != null) {
+                    String currentViewId = context.getViewRoot().getViewId();
+                    if (!currentViewId.equals(viewId)) {
+                        try {
+                            ExternalContext ec = context.getExternalContext();
+                            Application application = context.getApplication();
+                            ViewHandler viewHandler = application.getViewHandler();
+                            String url = viewHandler.getRedirectURL(
+                                    context, viewId, reqparams, true);
+                            clearViewMapIfNecessary(context.getViewRoot(), viewId);
+                            updateRenderTargets(context, viewId);
+                            ec.redirect(url);
+                            if (viewState != null) {
+                                Context rootContext = executor.getRootContext();
+                                rootContext.setLocal(FACES_VIEW_STATE, viewState);
+                            }
+                            context.responseComplete();
+                        } catch (IOException ex) {
+                            throw new InvokerException(ex);
+                        }
+                    }
+                }
+            }
+
+            if (viewId.equals(event.getSendId())) {
+
+                if (event.getName().startsWith(AFTER_RESTORE_VIEW)) {
+                    if (!resolved && context.getResponseComplete()) {
+                        UIViewRoot viewRoot = context.getViewRoot();
+                        applyParams(context, viewRoot, vieparams);
+                        resolved = true;
+                    }
+                }
+
+                if (event.getName().startsWith(AFTER_RENDER_VIEW)) {
                     UIViewRoot viewRoot = context.getViewRoot();
-                    applyParams(context, viewRoot, vieparams);
-                    vieparams = null;
+                    if (viewRoot != null) {
+                        lastViewId = viewRoot.getViewId();
+                        RenderKit renderKit = context.getRenderKit();
+                        ResponseStateManager rsm = renderKit.getResponseStateManager();
+                        viewState = rsm.getState(context, lastViewId);
+                    }
                 }
-            }
 
-            if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
-                try {
-                    context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
-                    context.getELContext().putContext(SCXMLExecutor.class, executor);
-
-                    Context stateContext = getEffectiveContext(ictx.getContext());
-                    context.getELContext().putContext(Context.class, stateContext);
-                } catch (ModelException ex) {
-                    throw new InvokerException(ex);
+                if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
+                    try {
+                        context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
+                        context.getELContext().putContext(SCXMLExecutor.class, executor);
+                        Context stateContext = getEffectiveContext(ictx.getContext());
+                        context.getELContext().putContext(Context.class, stateContext);
+                    } catch (ModelException ex) {
+                        throw new InvokerException(ex);
+                    }
                 }
-            }
 
-            if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
-                ExternalContext ec = context.getExternalContext();
+                if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
+                    ExternalContext ec = context.getExternalContext();
 
-                Map<String, String> params = new HashMap<>();
-                params.putAll(ec.getRequestParameterMap());
+                    Map<String, String> params = new HashMap<>();
+                    params.putAll(ec.getRequestParameterMap());
 
-                String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
-                EventBuilder evb = new EventBuilder("view.action." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
+                    String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
+                    EventBuilder evb = new EventBuilder("view.action." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
 
-                evb.data(params);
-                evb.sendId(invokeId);
-                executor.addEvent(evb.build());
+                    evb.data(params);
+                    evb.sendId(invokeId);
+                    executor.addEvent(evb.build());
+                }
             }
         }
     }
@@ -398,7 +456,7 @@ public class ViewInvoker implements Invoker, Serializable {
     protected StateFlowContext getEffectiveContext(final Context nodeCtx) {
         return new StateFlowContext(nodeCtx, new EffectiveContextMap(nodeCtx));
     }
-    
+
     /**
      * {@inheritDoc}.
      */
@@ -410,15 +468,16 @@ public class ViewInvoker implements Invoker, Serializable {
             FacesContext fc = FacesContext.getCurrentInstance();
             UIViewRoot viewRoot = fc.getViewRoot();
             if (viewRoot != null) {
-                String lastViewId = viewRoot.getViewId();
+                lastViewId = viewRoot.getViewId();
                 RenderKit renderKit = fc.getRenderKit();
                 ResponseStateManager rsm = renderKit.getResponseStateManager();
-                Object viewState = rsm.getState(fc, lastViewId);
+                viewState = rsm.getState(fc, lastViewId);
                 Context storeContext = executor.getGlobalContext();
 
                 storeContext.setLocal(stateKey + "ViewState", viewState);
                 storeContext.setLocal(stateKey + "LastViewId", lastViewId);
             }
         }
+        executor.getRootContext().getVars().remove(CURRENT_INVOKED_VIEW_ID, viewId);
     }
 }
