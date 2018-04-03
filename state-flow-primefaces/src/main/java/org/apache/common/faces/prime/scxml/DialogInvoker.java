@@ -320,9 +320,6 @@ public class DialogInvoker implements Invoker, Serializable {
 
         PrimeFaces.current().executeScript(sb.toString());
         sb.setLength(0);
-        FacesContext context = FacesContext.getCurrentInstance();
-        context.renderResponse();
-
     }
 
 }

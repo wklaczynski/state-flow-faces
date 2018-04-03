@@ -27,6 +27,7 @@ import org.apache.common.faces.state.events.OnEntryEvent;
 import org.apache.common.faces.state.events.OnExitEvent;
 import org.apache.common.faces.state.events.OnFinishEvent;
 import org.apache.common.faces.state.events.OnTransitionEvent;
+import org.primefaces.PrimeFaces;
 
 /**
  *
@@ -62,11 +63,14 @@ public class LayoutService {
             ExternalContext ec = fc.getExternalContext();
 
             String actionURL = fc.getApplication().
-                    getViewHandler().getActionURL(fc, "/index.xhtml");
+                    getViewHandler().getBookmarkableURL(fc, "/index.xhtml", new HashMap<>(), false);
 
-            String redirectPath = ec.encodeRedirectURL(actionURL, new HashMap<>());
+            String redirectPath = actionURL;
             ec.redirect(redirectPath);
-            fc.responseComplete();
+            fc.renderResponse();
+            if (!PrimeFaces.current().isAjaxRequest()) {
+                fc.responseComplete();
+            }
         } catch (IOException ex) {
             log.log(Level.SEVERE, null, ex);
         }

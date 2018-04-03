@@ -47,6 +47,10 @@ public abstract class StateFlowHandler {
 
     public abstract boolean isActive(FacesContext context);
 
+    public abstract boolean isFinal(FacesContext context);
+    
+    public abstract boolean isInWindow(FacesContext context);
+
     public abstract SCXMLExecutor createRootExecutor(FacesContext context, SCXML scxml) throws ModelException;
     
     public abstract SCXMLExecutor createChildExecutor(FacesContext context, SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException;

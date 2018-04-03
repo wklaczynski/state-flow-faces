@@ -99,7 +99,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     private Boolean logstep;
     private Boolean alwaysSerialized;
-    
+
     private TimerEventProducer eventProducer;
 
     public StateFlowHandlerImpl(ServletContext ctx) {
@@ -153,8 +153,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
         return eventProducer;
     }
-    
-    
+
     private Boolean getAlwaysSerialized() {
         if (alwaysSerialized == null) {
             FacesContext fc = FacesContext.getCurrentInstance();
@@ -196,11 +195,11 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         if (log.isLoggable(Level.FINE)) {
             log.log(Level.FINE, "Creating StateFlow for: {0}", viewId);
         }
-        
+
         FacesContext wcontext = new FacesContextWrapper() {
 
             UIViewRoot vrot;
-            
+
             @Override
             public FacesContext getWrapped() {
                 return context;
@@ -215,7 +214,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             public UIViewRoot getViewRoot() {
                 return vrot;
             }
-            
+
         };
 
         context.setProcessingEvents(false);
@@ -294,12 +293,27 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
+    public boolean isFinal(FacesContext context) {
+        FlowDeque fs = getFlowDeque(context, false);
+        if (fs == null) {
+            return false;
+        }
+        return fs.isClosed();
+    }
+    
+    @Override
+    public boolean isInWindow(FacesContext context) {
+        FlowDeque fs = getFlowDeque(context, false);
+        return fs != null;
+    }
+    
+    @Override
     public SCXMLExecutor createRootExecutor(FacesContext context, SCXML scxml) throws ModelException {
 
         StateFlowEvaluator evaluator = new StateFlowEvaluator();
-        
+
         TimerEventProducer timerEventProducer = getEventProducer();
-        
+
         StateFlowDispatcher dispatcher = new StateFlowDispatcher(timerEventProducer);
         StateFlowErrorReporter errorReporter = new StateFlowErrorReporter();
         Map tags = (Map) scxml.getMetadata().get("faces-tag-info");
@@ -390,6 +404,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             boolean root = executor.getParentSCXMLIOProcessor() == null;
 
             FlowDeque fs = getFlowDeque(context, true);
+            
+            if(fs.isClosed()) {
+                throw new FacesException("Can not execute new executor in finished flow istance.");
+            }
 
             Stack<SCXMLExecutor> stack = fs.getRoots();
 
@@ -413,8 +431,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             if (!executor.isRunning()) {
                 close(context, executor);
             }
+        } catch (FacesException ex) {
+            throw new FacesException(ex);
         } catch (Throwable ex) {
-            throw new IllegalStateException(ex);
+            throw new FacesException(ex);
         }
     }
 
@@ -474,10 +494,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         ExternalContext ec = context.getExternalContext();
         Object session = ec.getSession(create);
-        if(session == null) {
-            return null; 
+        if (session == null) {
+            return null;
         }
-        
+
         Map<String, Object> sessionMap = ec.getSessionMap();
         Map<String, Object> flowMap = (Map<String, Object>) sessionMap.get(LOGICAL_FLOW_MAP);
         if (flowMap == null && create) {
@@ -520,15 +540,13 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     private void closeFlowDeque(FacesContext context) {
         ExternalContext extContext = context.getExternalContext();
         ClientWindow clientWindow = extContext.getClientWindow();
-
-        String sessionKey = clientWindow.getId() + "_stateFlowStack";
-        Map<String, Object> sessionMap = extContext.getSessionMap();
-        if (sessionMap.containsKey(sessionKey)) {
-            sessionMap.remove(sessionKey);
+        
+        FlowDeque flowDeque = getFlowDeque(context, false);
+        if(flowDeque != null) {
+            flowDeque.close();
         }
-        clientWindow.disableClientWindowRenderMode(context);
 
-        context.getAttributes().put(STATE_FLOW_STACK, new FlowDeque(null));
+        clientWindow.disableClientWindowRenderMode(context);
     }
 
     @Override
@@ -567,6 +585,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
 
         Object states[] = new Object[2];
+        
+        states[1] = flowDeque.closed;
 
         Stack<SCXMLExecutor> executors = flowDeque.executors;
         if (null != executors && executors.size() > 0) {
@@ -596,6 +616,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         if (null != state) {
             Object[] blocks = (Object[]) state;
+            
+            result.closed = (boolean) blocks[1];
+            
             if (blocks[0] != null) {
                 Object[] entries = (Object[]) blocks[0];
                 for (Object entry : entries) {
@@ -641,6 +664,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         private final Stack<SCXMLExecutor> executors;
         private final String key;
+        private boolean closed;
 
         public FlowDeque(final String sessionKey) {
             executors = new Stack<>();
@@ -655,6 +679,13 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return executors;
         }
 
+        public boolean isClosed() {
+            return closed;
+        }
+        
+        public void close() {
+            closed = true;
+        }
         // ----------------------------------------------- Serialization Methods
         // This is dependent on serialization occuring with in a
         // a Faces request, however, since SCXMLExecutor.{save,restore}State()
@@ -663,6 +694,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         private void writeObject(ObjectOutputStream out) throws IOException {
             Object[] states = new Object[2];
 
+            states[1] = closed;
+            
             if (null != executors && executors.size() > 0) {
                 Object[] attached = new Object[executors.size()];
                 int i = 0;
@@ -692,6 +725,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             FacesContext fc = FacesContext.getCurrentInstance();
             executors.clear();
             Object[] states = (Object[]) in.readObject();
+            
+            closed = (boolean) states[1];
+            
             if (states[0] != null) {
                 Object[] entries = (Object[]) states[0];
                 for (Object entry : entries) {
