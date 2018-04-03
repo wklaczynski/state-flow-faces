@@ -300,13 +300,13 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
         return fs.isClosed();
     }
-    
+
     @Override
     public boolean isInWindow(FacesContext context) {
         FlowDeque fs = getFlowDeque(context, false);
         return fs != null;
     }
-    
+
     @Override
     public SCXMLExecutor createRootExecutor(FacesContext context, SCXML scxml) throws ModelException {
 
@@ -404,8 +404,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             boolean root = executor.getParentSCXMLIOProcessor() == null;
 
             FlowDeque fs = getFlowDeque(context, true);
-            
-            if(fs.isClosed()) {
+
+            if (fs.isClosed()) {
                 throw new FacesException("Can not execute new executor in finished flow istance.");
             }
 
@@ -450,37 +450,28 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
 
             if (stack.contains(executor)) {
-                SCXMLExecutor last = stack.pop();
                 while (!stack.empty()) {
+                    SCXMLExecutor last = stack.pop();
+                    StateFlowCDIHelper.executorExited(last);
                     if (last == executor) {
                         break;
                     }
-                    StateFlowCDIHelper.executorExited(last);
-                    last = stack.peek();
                 }
-
-                if (stack.isEmpty()) {
-                    closeFlowDeque(context);
-                    if (CdiUtil.isCdiAvailable(context)) {
-                        BeanManager bm = CdiUtil.getCdiBeanManager(context);
-                        bm.fireEvent(new OnFinishEvent(executor));
-                    }
-                    return;
-                }
-
-                if (executor == null) {
-                    executor = stack.get(0);
+            } else {
+                if (executor != null) {
+                    StateFlowCDIHelper.executorExited(executor);
                 }
             }
         }
 
-        if (executor != null) {
-            StateFlowCDIHelper.executorExited(executor);
-        }
-
         if (stack.isEmpty()) {
             closeFlowDeque(context);
+            if (CdiUtil.isCdiAvailable(context)) {
+                BeanManager bm = CdiUtil.getCdiBeanManager(context);
+                bm.fireEvent(new OnFinishEvent(executor));
+            }
         }
+
     }
 
     private FlowDeque getFlowDeque(FacesContext context, boolean create) {
@@ -540,9 +531,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     private void closeFlowDeque(FacesContext context) {
         ExternalContext extContext = context.getExternalContext();
         ClientWindow clientWindow = extContext.getClientWindow();
-        
+
         FlowDeque flowDeque = getFlowDeque(context, false);
-        if(flowDeque != null) {
+        if (flowDeque != null) {
             flowDeque.close();
         }
 
@@ -585,7 +576,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
 
         Object states[] = new Object[2];
-        
+
         states[1] = flowDeque.closed;
 
         Stack<SCXMLExecutor> executors = flowDeque.executors;
@@ -616,9 +607,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         if (null != state) {
             Object[] blocks = (Object[]) state;
-            
+
             result.closed = (boolean) blocks[1];
-            
+
             if (blocks[0] != null) {
                 Object[] entries = (Object[]) blocks[0];
                 for (Object entry : entries) {
@@ -682,10 +673,11 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         public boolean isClosed() {
             return closed;
         }
-        
+
         public void close() {
             closed = true;
         }
+
         // ----------------------------------------------- Serialization Methods
         // This is dependent on serialization occuring with in a
         // a Faces request, however, since SCXMLExecutor.{save,restore}State()
@@ -695,7 +687,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             Object[] states = new Object[2];
 
             states[1] = closed;
-            
+
             if (null != executors && executors.size() > 0) {
                 Object[] attached = new Object[executors.size()];
                 int i = 0;
@@ -725,9 +717,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             FacesContext fc = FacesContext.getCurrentInstance();
             executors.clear();
             Object[] states = (Object[]) in.readObject();
-            
+
             closed = (boolean) states[1];
-            
+
             if (states[0] != null) {
                 Object[] entries = (Object[]) states[0];
                 for (Object entry : entries) {

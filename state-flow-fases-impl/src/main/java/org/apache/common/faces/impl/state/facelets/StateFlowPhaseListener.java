@@ -138,11 +138,7 @@ public class StateFlowPhaseListener implements PhaseListener {
                     && !context.getResponseComplete()) {
 
                 if (fh.isFinal(context)) {
-                    if (CdiUtil.isCdiAvailable(context)) {
-                        BeanManager bm = CdiUtil.getCdiBeanManager(context);
-                        bm.fireEvent(new OnFinishEvent(null));
-                    }
-
+                    fh.close(context);
                 }
             }
 

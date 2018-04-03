@@ -234,13 +234,21 @@ public class StateTargetCDIContext implements Context, Serializable {
         BeanManager beanManager = (BeanManager) Util.getCdiBeanManager(facesContext);
 
         for (Map.Entry<String, Object> entry : flowScopedBeanMap.entrySet()) {
-            String passivationCapableId = entry.getKey();
-            if (TARGET_SCOPE_MAP_KEY.equals(passivationCapableId)) {
+            String beanId = entry.getKey();
+            if (TARGET_SCOPE_MAP_KEY.equals(beanId)) {
                 continue;
             }
+
+            String passivationCapableId = beanId;
+            int sep = passivationCapableId.indexOf(":");
+            if (sep > -1) {
+                passivationCapableId = passivationCapableId.substring(
+                        sep +1, passivationCapableId.length());
+            }
+
             Contextual owner = beanManager.getPassivationCapableBean(passivationCapableId);
             Object bean = entry.getValue();
-            CreationalContext creational = creationalMap.get(passivationCapableId);
+            CreationalContext creational = creationalMap.get(beanId);
 
             owner.destroy(bean, creational);
         }
