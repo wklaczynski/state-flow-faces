@@ -88,11 +88,11 @@
             <scope>runtime</scope>
         </dependency>
         
-        <dependency>
+        <!--dependency>
             <groupId>org.omnifaces</groupId>
             <artifactId>omnifaces</artifactId>
             <version>2.6.8</version>
-        </dependency>        
+        </dependency-->        
         
     </dependencies>
 

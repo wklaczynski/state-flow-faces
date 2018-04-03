@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.faces.FacesException;
 import javax.faces.context.FacesContext;
 import javax.faces.context.PartialResponseWriter;
 import javax.faces.context.PartialViewContext;
@@ -163,15 +162,17 @@ public final class StateFlowPartialViewContext extends PartialViewContextWrapper
                 if (curTask != null) {
                     long delay = curTask.getTime() - System.currentTimeMillis();
                     startEval();
-                    write("setTimeout(function(){");
-                    write("jsf.ajax.request(this,event,{");
+                    write("if(window.scxmltask){");
+                    write("clearTimeout(window.scxmltask)");
+                    write("};");
+                    write("window.scxmltask = setTimeout(function(){");
+                    write("jsf.ajax.request(this,'scxmltask',{");
                     write("execute:'@none',render:'@all'");
                     write("})},");
                     write(String.valueOf(delay));
                     write(")");
                     endEval();
                 }
-
             }
 
             wrapped.endDocument();
