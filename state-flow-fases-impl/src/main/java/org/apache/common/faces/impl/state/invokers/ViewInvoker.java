@@ -379,7 +379,7 @@ public class ViewInvoker implements Invoker, Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
         //filter all multicast call event from started viewId by this invoker
         if (event.getType() == TriggerEvent.CALL_EVENT) {
-            //fix view redirect current view
+            //fix view, if current view not equal request view, request redirect to current view
             if (event.getName().startsWith(BEFORE_APPLY_REQUEST_VALUES)) {
                 if (context.getViewRoot() != null) {
                     String currentViewId = context.getViewRoot().getViewId();
