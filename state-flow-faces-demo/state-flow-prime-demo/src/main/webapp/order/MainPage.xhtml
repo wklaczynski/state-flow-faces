@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <f:metadata>
+        <f:viewParam name="page_description"/>
+    </f:metadata>
+
+    <h:head>
+        <title>Orders Demo</title>
+        <h:outputStylesheet library="css" name="demo-style.css"  />
+    </h:head>
+    <h:body>
+        <h1>#{chart.title}</h1>
+        <hr/>
+        <h:form>
+            <h:panelGroup>
+                <h3>Demostrate State Flow Faces use case with Orders </h3>
+                <h:panelGroup>
+                    <h:messages/> 
+                </h:panelGroup>
+
+                <h:panelGroup >
+                </h:panelGroup>
+                <h:panelGroup id="navigation">
+                    <h:panelGroup layout="block" style=" text-align: left;">
+                        <h:panelGrid cellspacing="4" columns="2" style="bottom: 0px">
+                            <h:commandButton
+                                action="exit"
+                                value="Exit"
+                                immediate="false">
+                            </h:commandButton>
+                        </h:panelGrid>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </h:panelGroup>
+        </h:form>
+    </h:body>
+</html>
+

@@ -16,7 +16,10 @@
 package org.apache.common.faces.demo.order;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Named;
+import org.apache.common.faces.demo.order.data.Product;
 import org.apache.common.faces.state.annotation.StateDialogScoped;
 
 /**
@@ -27,9 +30,32 @@ import org.apache.common.faces.state.annotation.StateDialogScoped;
 @Named("orders")
 public class OrdersBean implements Serializable {
     
+    private final List<Product> products = new ArrayList<>();
+
+    private final List<Product> orders = new ArrayList<>();
+    
     public boolean prepare() {
+        products.add(new Product(
+                "Phone", "Microtec Phonee Model 1.0 ", 230.56
+        ));
+        products.add(new Product(
+                "Computer", "Coomputer Intel Model 1.0 ", 230.56
+        ));
+        products.add(new Product(
+                "Processor", "Processor Intel i7 ", 230.56
+        ));
+        products.add(new Product(
+                "Nvidia GTX 8000", "Graphics Cart Nvidia GTX 8000", 230.56
+        ));
         return true;
     }
-    
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public List<Product> getOrders() {
+        return orders;
+    }
     
 }
