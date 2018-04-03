@@ -59,6 +59,7 @@
                     <x:transition target="test-process-1">
                         <x:assign location="#{currentState.assignedTest1}"
                                   expr="Initialized by test-process"/>
+                        <x:send event="view.action.next" delay="5000"/>
                     </x:transition>
                 </x:initial>
 
@@ -175,7 +176,7 @@
             <x:transition event="view.action.start-again" target="show"/>
 
             <x:transition event="delay-view.view.timeout" target="show"/>
-            
+
             <x:transition event="view.action.calculate-1">
                 <x:assign location="#{currentState.assignedTest1}"
                           expr="Changed by 'calculate-1' in 'view-process' state"/>
