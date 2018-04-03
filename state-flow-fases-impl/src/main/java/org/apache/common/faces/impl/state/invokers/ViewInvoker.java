@@ -408,7 +408,7 @@ public class ViewInvoker implements Invoker, Serializable {
             if (viewId.equals(event.getSendId())) {
 
                 if (event.getName().startsWith(AFTER_RESTORE_VIEW)) {
-                    if (!resolved && context.getResponseComplete()) {
+                    if (!resolved && !context.getResponseComplete()) {
                         UIViewRoot viewRoot = context.getViewRoot();
                         applyParams(context, viewRoot, vieparams);
                         resolved = true;
