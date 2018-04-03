@@ -39,13 +39,23 @@ public interface FacesProcessHolder {
     void processDecodes(FacesContext context);
 
     /**
-     * <p>Render this element and all its children
+     * <p>Begin render this element and all children
      * @param context {@link FacesContext} for the request we are processing
      *
      * @throws IOException if an input/output error occurs while rendering
      * @throws NullPointerException if <code>context</code>
      *  is <code>null</code>
      */
-    void encodeAll(FacesContext context) throws IOException;
+    void encodeBegin(FacesContext context) throws IOException;
+
+    /**
+     * <p>End render this element, only root execution 
+     * @param context {@link FacesContext} for the request we are processing
+     *
+     * @throws IOException if an input/output error occurs while rendering
+     * @throws NullPointerException if <code>context</code>
+     *  is <code>null</code>
+     */
+    void encodeEnd(FacesContext context) throws IOException;
     
 }

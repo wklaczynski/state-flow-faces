@@ -294,9 +294,14 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
     }
 
     @Override
-    public void encodeAll(FacesContext context) throws IOException {
+    public void encodeBegin(FacesContext context) throws IOException {
         List<DelayedEventTask> taskList = new ArrayList<>(tasks.values());
-        timerEventProducer.encode(taskList);
+        timerEventProducer.encodeBegin(taskList);
+    }
+
+    @Override
+    public void encodeEnd(FacesContext context) throws IOException {
+        timerEventProducer.encodeEnd();
     }
 
 }

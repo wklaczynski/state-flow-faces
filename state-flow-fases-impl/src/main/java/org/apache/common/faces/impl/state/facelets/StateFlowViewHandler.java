@@ -87,7 +87,8 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
                             .sendId(viewRoot.getViewId());
 
                     rootExecutor.triggerEvent(deb.build());
-                    ((FacesProcessHolder) ed).encodeAll(context);
+                    ((FacesProcessHolder) ed).encodeBegin(context);
+                    ((FacesProcessHolder) ed).encodeEnd(context);
                 }
             } catch (ModelException ex) {
                 throw new FacesException(ex);

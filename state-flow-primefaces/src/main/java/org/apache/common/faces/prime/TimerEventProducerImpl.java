@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.common.faces.impl.state;
+package org.apache.common.faces.prime;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.faces.application.Application;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.PartialViewContext;
-import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_FLOW_DISPATCH_TASK;
+import static org.apache.common.faces.prime.StateFlowImplConstants.STATE_FLOW_DISPATCH_TASK;
 import org.apache.common.faces.state.task.DelayedEventTask;
 import org.apache.common.faces.state.task.TimerEventProducer;
 
@@ -33,7 +30,7 @@ import org.apache.common.faces.state.task.TimerEventProducer;
  * @author Waldemar Kłaczyński
  */
 public class TimerEventProducerImpl extends TimerEventProducer {
-
+    
     @Override
     public void encodeBegin(List<DelayedEventTask> taskList) {
         FacesContext context = FacesContext.getCurrentInstance();
@@ -46,15 +43,14 @@ public class TimerEventProducerImpl extends TimerEventProducer {
                 return (int) (o1.getTime() - o2.getTime());
             });
             DelayedEventTask newTask = taskList.get(0);
-
-            if (curTask == null) {
+            
+            if(curTask == null) {
                 curTask = newTask;
             } else if (curTask.getTime() > newTask.getTime()) {
                 curTask = newTask;
             }
             attrs.put(STATE_FLOW_DISPATCH_TASK, curTask);
         }
-
     }
 
     @Override
@@ -64,15 +60,16 @@ public class TimerEventProducerImpl extends TimerEventProducer {
         PartialViewContext partial = context.getPartialViewContext();
         DelayedEventTask curTask = (DelayedEventTask) attrs.get(STATE_FLOW_DISPATCH_TASK);
         if (curTask != null && !partial.isAjaxRequest()) {
-            Application application = context.getApplication();
+//            Application application = context.getApplication();
+//
+//            UIComponent componentResource = application.createComponent(UIOutput.COMPONENT_TYPE);
+//            componentResource.setRendererType("org.apache.common.faces.StateFlowScriptRenderer");
+//            componentResource.getAttributes().put("target", "head");
+//            componentResource.setId("stateFlowDispatcher");
+//            componentResource.setRendered(true);
+//
+//            context.getViewRoot().addComponentResource(context, componentResource, "head");
 
-            UIComponent componentResource = application.createComponent(UIOutput.COMPONENT_TYPE);
-            componentResource.setRendererType("org.apache.common.faces.StateFlowScriptRenderer");
-            componentResource.getAttributes().put("target", "head");
-            componentResource.setId("stateFlowDispatcher");
-            componentResource.setRendered(true);
-
-            context.getViewRoot().addComponentResource(context, componentResource, "head");
         }
     }
 

@@ -88,8 +88,10 @@ public abstract class TimerEventProducer {
     /**
      * The action to be performed by this timer task.
      *
-     * @param taskList list of tasks to encode
+     * @param taskList list of tasks to encodeBegin
      */
-    public abstract void encode(List<DelayedEventTask> taskList);
+    public abstract void encodeBegin(List<DelayedEventTask> taskList);
 
+    public abstract void encodeEnd();
+    
 }

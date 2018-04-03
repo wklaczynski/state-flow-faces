@@ -170,7 +170,7 @@ public class SubInvoker implements Invoker, StateHolder {
                 if (event.getName().startsWith(ENCODE_DISPATCHER_EVENTS)) {
                     EventDispatcher ed = executor.getEventdispatcher();
                     if (ed instanceof FacesProcessHolder) {
-                        ((FacesProcessHolder) ed).encodeAll(context);
+                        ((FacesProcessHolder) ed).encodeBegin(context);
                     }
                 }
 
