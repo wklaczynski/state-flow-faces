@@ -33,6 +33,11 @@
             </x:invoke>
             <x:transition event="error.execution" target="error"/>
 
+            <x:transition event="view.action.insert-product" target="select-product"/>
+            <x:transition event="view.action.remove-product">
+                <fx:call expr="#{order.removeProduct(order.selectedProduct)}"/>
+            </x:transition>
+            
             <x:transition event="view.action.accept" target="commit"/>
             <x:transition event="view.action.cancel" target="cancel"/>
         </x:state>
@@ -43,11 +48,21 @@
             </x:invoke>
 
             <x:transition event="error.execution" target="error"/>
-
+            
             <x:transition event="view.action.accept" target="success"/>
             <x:transition event="view.action.cancel" target="cancel"/>
             <x:transition event="view.action.back" target="edit"/>
         </x:state>
+
+        <x:state id="select-product"> 
+            <x:invoke type="scxml" src="select-product.xhtml">
+            </x:invoke>
+            <x:transition event="error.execution" target="error"/>
+            <x:transition event="done.invoke" cond="#{$done.success}" target="edit">
+                <fx:call expr="#{order.addProduct($done.result)}"/>
+            </x:transition> 
+            <x:transition event="done.invoke" target="edit"/>
+        </x:state>      
         
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml">

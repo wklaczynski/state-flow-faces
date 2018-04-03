@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:fn="http://xmlns.jcp.org/jsp/jstl/functions"
+      xmlns:p="http://primefaces.org/ui">
+
+    <f:metadata>
+        <f:viewParam name="page_description"/>
+    </f:metadata>
+
+    <h:head>
+        <title>#{chart.title}</title>
+        <h:outputStylesheet library="css" name="demo-style.css"  />
+    </h:head>
+    <h:body>
+        <p:separator/>
+        <h:form>
+            <h:panelGroup>
+                <h3>Selet one product and click [Select]</h3>
+                <h:panelGroup>
+                    <p:messages/> 
+                </h:panelGroup>
+                <p:separator/>
+                <h:panelGroup >
+                    <p:dataTable
+                        var="entry"
+                        value="#{products.data}"
+                        selectionMode="single" 
+                        selection="#{products.selected}"
+                        rowKey="#{entry.id}"
+                        >
+                        <p:ajax event="rowSelect" update="@form:navigation" />
+                        <p:ajax event="rowUnselect" update="@form:navigation" />
+                        <f:facet name="header">
+                            List of Orders
+                        </f:facet>                        
+
+                        <p:column headerText="Name">
+                            <h:outputText value="#{entry.name}" />
+                        </p:column>
+
+                        <p:column headerText="Description">
+                            <h:outputText value="#{entry.description}" />
+                        </p:column>
+
+                        <p:column headerText="Cost">
+                            <h:outputText value="#{entry.cost}" />
+                        </p:column>
+
+                        <f:facet name="footer">
+                            In total there are #{fn:length(orders.data)} products.
+                        </f:facet>                        
+                    </p:dataTable>                    
+                </h:panelGroup>
+                <p:separator/>
+                <h:panelGroup id="navigation">
+                    <h:panelGroup layout="block" style=" text-align: left;">
+                        <h:panelGrid cellspacing="4" columns="2" style="bottom: 0px">
+                            <p:commandButton
+                                action="select"
+                                value="Select"
+                                disabled="#{products.selected == null}"
+                                immediate="false">
+                            </p:commandButton>
+                            <p:commandButton
+                                action="cancel"
+                                value="Cancel"
+                                immediate="false">
+                            </p:commandButton>
+                        </h:panelGrid>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </h:panelGroup>
+        </h:form>
+    </h:body>
+</html>
+

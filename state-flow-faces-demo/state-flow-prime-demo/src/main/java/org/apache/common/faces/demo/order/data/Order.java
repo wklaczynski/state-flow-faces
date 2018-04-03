@@ -18,6 +18,7 @@ package org.apache.common.faces.demo.order.data;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -25,12 +26,21 @@ import java.util.List;
  */
 public class Order implements Serializable {
 
+    private String id;
     private String name;
     private String description;
     private Double cost;
 
     private final List<Product> products = new ArrayList<>();
 
+    public Order() {
+        this.id = UUID.randomUUID().toString();
+    }
+
+    public String getId() {
+        return id;
+    }
+    
     public String getName() {
         return name;
     }
@@ -62,6 +72,7 @@ public class Order implements Serializable {
     @Override
     public Order clone() throws CloneNotSupportedException {
         Order result = new Order();
+        result.id = id;
         result.name = name;
         result.description = description;
         result.cost = cost;

@@ -59,10 +59,16 @@
                             <p:commandButton
                                 value="Add Product"
                                 action="insert-product"
+                                process="@this"
+                                update="@form"
+                                immediate="true"
                                 icon="ui-icon-plusthick"/>
                             <p:commandButton
                                 value="Remove Product"
-                                action="remove"
+                                action="remove-product"
+                                process="@this"
+                                update="@form"
+                                immediate="true"
                                 disabled="#{not order.removableProduct}"
                                 icon="ui-icon-minusthick"/>
                         </p:toolbarGroup>

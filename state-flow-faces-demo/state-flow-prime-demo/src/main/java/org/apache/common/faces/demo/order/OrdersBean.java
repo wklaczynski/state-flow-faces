@@ -42,13 +42,13 @@ public class OrdersBean implements Serializable {
                 "Phone", "Microtec Phonee Model 1.0 ", 230.56
         ));
         products.add(new Product(
-                "Computer", "Coomputer Intel Model 1.0 ", 230.56
+                "Computer", "Coomputer Intel Model 1.0 ", 556.55
         ));
         products.add(new Product(
-                "Processor", "Processor Intel i7 ", 230.56
+                "Processor", "Processor Intel i7 ", 456.34
         ));
         products.add(new Product(
-                "Nvidia GTX 8000", "Graphics Cart Nvidia GTX 8000", 230.56
+                "Nvidia GTX 8000", "Graphics Cart Nvidia GTX 8000", 234.34
         ));
         return true;
     }

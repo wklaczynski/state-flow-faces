@@ -16,10 +16,9 @@
 package org.apache.common.faces.demo.order;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
 import javax.inject.Named;
-import org.apache.common.faces.demo.order.data.Order;
 import org.apache.common.faces.demo.order.data.Product;
 import org.apache.common.faces.state.annotation.StateChartScoped;
 
@@ -28,44 +27,31 @@ import org.apache.common.faces.state.annotation.StateChartScoped;
  * @author Waldemar Kłaczyński
  */
 @StateChartScoped
-@Named("order")
-public class OrderBean implements Serializable {
+@Named("products")
+public class ProductsBean implements Serializable {
     
-    private Order data;
+    private List<Product> data;
+
+    @Inject
+    private OrdersBean orders;
     
-    private Product selectedProduct;
+    private Product selected;
     
-    public boolean prepareInsert() {
-        data = new Order();
+    public boolean prepare() {
+        data = orders.getProducts();
         return true;
     }
 
-    public Order getData() {
+    public List<Product> getData() {
         return data;
     }
 
-    public List<Product> getProducts() {
-        return data.getProducts();
-    }
-    
-    public Product getSelectedProduct() {
-        return selectedProduct;
+    public Product getSelected() {
+        return selected;
     }
 
-    public void setSelectedProduct(Product selectedProduct) {
-        this.selectedProduct = selectedProduct;
-    }
-    
-    public boolean isRemovableProduct() {
-       return selectedProduct != null;
-    }
-
-    public void addProduct(Product product) {
-        data.getProducts().add(product);
-    }
-
-    public void removeProduct(Product product) {
-        data.getProducts().remove(product);
+    public void setSelected(Product selected) {
+        this.selected = selected;
     }
     
 }

@@ -16,6 +16,8 @@
 package org.apache.common.faces.demo.order.data;
 
 import java.io.Serializable;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  *
@@ -23,16 +25,22 @@ import java.io.Serializable;
  */
 public class Product implements Serializable {
 
+    private final String id;
     private String name;
     private String description;
     private Double cost;
 
     public Product(String name, String description, Double cost) {
+        this.id = UUID.randomUUID().toString();
         this.name = name;
         this.description = description;
         this.cost = cost;
     }
 
+    public String getId() {
+        return id;
+    }
+    
     public String getName() {
         return name;
     }
@@ -55,6 +63,40 @@ public class Product implements Serializable {
 
     public void setCost(Double cost) {
         this.cost = cost;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 79 * hash + Objects.hashCode(this.id);
+        hash = 79 * hash + Objects.hashCode(this.name);
+        hash = 79 * hash + Objects.hashCode(this.description);
+        hash = 79 * hash + Objects.hashCode(this.cost);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Product other = (Product) obj;
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.description, other.description)) {
+            return false;
+        }
+        return Objects.equals(this.cost, other.cost);
     }
 
 }

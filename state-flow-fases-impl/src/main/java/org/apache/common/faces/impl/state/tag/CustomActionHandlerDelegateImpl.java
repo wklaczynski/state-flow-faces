@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.component.UIComponent;
 import javax.faces.view.facelets.FaceletContext;
@@ -74,8 +73,6 @@ public class CustomActionHandlerDelegateImpl extends TagHandlerDelegate {
             prefix = prefix.substring(0, ind);
         }
         
-        log.log(Level.INFO, "Handle custom action: {0}", aqname);
-
         Map<String, String> namespaces = new HashMap<>();
         namespaces.put(prefix, anamespace);
 

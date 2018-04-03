@@ -10,11 +10,13 @@
 
         <x:datamodel>
             <x:data id="hasback" expr="#{scxml_has_parent == true}"/>
-            <x:data id="title" expr="Orders Demo"/>
+            <x:data id="title" expr="Select Products"/>
+            <x:data id="select_type" expr="dialog"/>
         </x:datamodel>
+        
         <x:state id="start">
             <x:onentry>
-                <x:if cond="#{orders.prepare()}">
+                <x:if cond="#{products.prepare()}">
                     <x:raise event="start.prepare.success"/>
                     <x:else/>
                     <x:raise event="start.prepare.failed"/>
@@ -25,31 +27,14 @@
         </x:state>
 
         <x:state id="main">
-            <x:invoke type="view" src="MainPage.xhtml">
-                <x:param name="page_description" expr="Page description from scxml."/>
+            <x:invoke type="view" src="ProductsPage.xhtml">
             </x:invoke>
 
             <x:transition event="error.execution" target="error"/>
             
-            <x:transition event="view.action.insert" target="insert-order"/>
-
-            <x:transition event="view.action.exit" target="exit"/>
+            <x:transition event="view.action.select" target="success"/>
+            <x:transition event="view.action.cancel" target="cancel"/>
         </x:state> 
-        
-        <x:state id="view-order"> 
-            <x:invoke type="scxml" src="order-view.xhtml">
-            </x:invoke>
-            <x:transition event="error.execution" target="main"/>
-            <x:transition event="done.invoke" target="main"/>
-        </x:state>      
-        
-        <x:state id="insert-order"> 
-            <x:invoke type="scxml" src="order-insert.xhtml">
-            </x:invoke>
-            <x:transition event="error.execution" target="main"/>
-            <x:transition event="done.invoke" target="main"/>
-        </x:state>      
-        
         
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml">
@@ -59,7 +44,22 @@
         </x:state>      
 
         <x:final id="exit">
-
+            <x:donedata>
+                <x:param name="success" expr="false"/>
+            </x:donedata>
+        </x:final>
+        
+        <x:final id="cancel">
+            <x:donedata>
+                <x:param name="success" expr="false"/>
+            </x:donedata>
+        </x:final>
+        
+        <x:final id="success">
+            <x:donedata>
+                <x:param name="success" expr="true"/>
+                <x:param name="result" expr="#{products.selected}"/>
+            </x:donedata>
         </x:final>
 
 
