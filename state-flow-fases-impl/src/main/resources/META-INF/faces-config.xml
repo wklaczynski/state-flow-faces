@@ -41,7 +41,7 @@
         <renderer>
             <component-family>javax.faces.Output</component-family>
             <renderer-type>org.apache.common.faces.StateFlowScriptRenderer</renderer-type>
-            <renderer-class>org.apache.common.faces.impl.state.script.StateFlowScriptRenderer</renderer-class>
+            <renderer-class>org.apache.common.faces.impl.state.renderer.StateFlowScriptRenderer</renderer-class>
         </renderer>
     </render-kit>
     

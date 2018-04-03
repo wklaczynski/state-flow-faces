@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.common.faces.impl.state.script;
+package org.apache.common.faces.impl.state.renderer;
 
 import java.io.IOException;
 import java.util.Map;
@@ -46,6 +46,9 @@ public class StateFlowScriptRenderer extends Renderer {
             long delay = curTask.getTime() - System.currentTimeMillis();
             writer.startElement("script", component);
             writer.writeAttribute("type", "text/javascript", "type");
+            writer.write("if(window.scxmltask){");
+            writer.write("clearTimeout(window.scxmltask)");
+            writer.write("};");
             writer.write("window.scxmltask = setTimeout(function(){");
             writer.write("jsf.ajax.request(this,'scxmltask',{");
             writer.write("execute:'@none',render:'@all'");
