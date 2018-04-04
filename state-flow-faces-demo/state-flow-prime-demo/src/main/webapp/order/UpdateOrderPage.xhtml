@@ -53,7 +53,7 @@
                         />
                 </h:panelGrid>
                 <p:separator/>
-                <h:panelGroup id="products">
+                <h:panelGroup>
                     <p:toolbar id="toolbar">
                         <p:toolbarGroup align="left">
                             <p:commandButton
@@ -81,8 +81,8 @@
                         rowKey="#{entry.id}"                        
                         >
 
-                        <p:ajax event="rowSelect" update="@form:navigation @form:content" />
-                        <p:ajax event="rowUnselect" update="@form:navigation @form:content" />
+                        <p:ajax event="rowSelect" update="@form:navigation @form:content @form:toolbar" />
+                        <p:ajax event="rowUnselect" update="@form:navigation @form:content @form:toolbar" />
 
                         <f:facet name="header">
                             List of Products

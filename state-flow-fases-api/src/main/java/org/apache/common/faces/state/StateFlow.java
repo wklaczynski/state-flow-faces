@@ -15,7 +15,13 @@
  */
 package org.apache.common.faces.state;
 
+import javax.faces.component.UIViewRoot;
+import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
+import org.apache.common.scxml.Context;
+import org.apache.common.scxml.SCXMLExecutor;
+import org.apache.common.scxml.env.EffectiveContextMap;
+import org.apache.common.scxml.env.SimpleContext;
 
 /**
  *
@@ -70,10 +76,10 @@ public class StateFlow {
 
     public static final String CURRENT_INVOKED_VIEW_ID
             = "state.flow.faces:CurrentViewId";
-    
-    public static final String FACES_VIEW_STATE =
-          "com.sun.faces.FACES_VIEW_STATE";
-    
+
+    public static final String FACES_VIEW_STATE
+            = "com.sun.faces.FACES_VIEW_STATE";
+
     public static final String OUTCOME_EVENT_PREFIX = "faces.view.action.";
 
     public static final String PHASE_EVENT_PREFIX = "faces.phase.";
@@ -115,5 +121,25 @@ public class StateFlow {
 
     public static final String AFTER_PROCESS_VALIDATIONS = AFTER_PHASE_EVENT_PREFIX
             + PhaseId.PROCESS_VALIDATIONS.getName().toLowerCase();
+
+    public static void applyViewContext(FacesContext context) {
+        UIViewRoot viewRoot = context.getViewRoot();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        if (viewRoot != null && handler.isActive(context)) {
+            StateFlowViewContext viewContext = (StateFlowViewContext) context.getAttributes()
+                    .get(VIEW_INVOKE_CONTEXT.get(viewRoot.getViewId()));
+
+            if (viewContext != null) {
+                context.getAttributes().put(CURRENT_EXECUTOR_HINT, viewContext.getExecutor());
+                context.getELContext().putContext(SCXMLExecutor.class, viewContext.getExecutor());
+                Context stateContext = getEffectiveContext(viewContext.getContext());
+                context.getELContext().putContext(Context.class, stateContext);
+            }
+        }
+    }
+
+    private static Context getEffectiveContext(final Context nodeCtx) {
+        return new SimpleContext(nodeCtx, new EffectiveContextMap(nodeCtx));
+    }
 
 }

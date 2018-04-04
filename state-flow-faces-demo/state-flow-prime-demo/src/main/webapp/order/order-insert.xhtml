@@ -44,7 +44,8 @@
 
         <x:state id="commit">
             <x:invoke type="view" src="ViewOrderPage.xhtml">
-                <x:param name="editable" expr="true"/>
+                <x:param name="acceptable" expr="true"/>
+                <x:param name="hasback" expr="true"/>
             </x:invoke>
 
             <x:transition event="error.execution" target="error"/>

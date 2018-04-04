@@ -31,7 +31,10 @@
 
             <x:transition event="error.execution" target="error"/>
             
+            <x:transition event="view.action.open" target="view-order"/>
             <x:transition event="view.action.insert" target="insert-order"/>
+            <x:transition event="view.action.edit" target="edit-order"/>
+            <x:transition event="view.action.remove" target="remove-order"/>
 
             <x:transition event="view.action.info" target="info"/>
             <x:transition event="view.action.exit" target="exit"/>
@@ -39,6 +42,7 @@
         
         <x:state id="view-order"> 
             <x:invoke type="scxml" src="order-view.xhtml">
+                <x:param name="order" expr="#{orders.selected}"/>
             </x:invoke>
             <x:transition event="error.execution" target="main"/>
             <x:transition event="done.invoke" target="main"/>
@@ -48,9 +52,36 @@
             <x:invoke type="scxml" src="order-insert.xhtml">
             </x:invoke>
             <x:transition event="error.execution" target="main"/>
+
+            <x:transition event="done.invoke" cond="#{done.success}" target="main">
+                <fx:call expr="#{orders.addOrder(done.result)}"/>
+            </x:transition> 
             <x:transition event="done.invoke" target="main"/>
         </x:state>      
         
+        <x:state id="edit-order"> 
+            <x:invoke type="scxml" src="order-update.xhtml">
+                <x:param name="order" expr="#{orders.selected}"/>
+            </x:invoke>
+            <x:transition event="error.execution" target="main"/>
+
+            <x:transition event="done.invoke" cond="#{done.success}" target="main">
+                <fx:call expr="#{orders.updateOrder(done.result)}"/>
+            </x:transition> 
+            <x:transition event="done.invoke" target="main"/>
+        </x:state>      
+        
+        <x:state id="remove-order"> 
+            <x:invoke type="scxml" src="order-remove.xhtml">
+                <x:param name="order" expr="#{orders.selected}"/>
+            </x:invoke>
+            <x:transition event="error.execution" target="main"/>
+
+            <x:transition event="done.invoke" cond="#{done.success}" target="main">
+                <fx:call expr="#{orders.updateOrder(done.result)}"/>
+            </x:transition> 
+            <x:transition event="done.invoke" target="main"/>
+        </x:state>      
         
         <x:state id="info">
             <x:onentry>

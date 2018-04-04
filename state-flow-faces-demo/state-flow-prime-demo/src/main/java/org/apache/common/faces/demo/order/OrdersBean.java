@@ -81,4 +81,25 @@ public class OrdersBean implements Serializable {
         return selected != null;
     }
     
+    public void addOrder(Order order) {
+        data.add(order);
+    }
+    
+    public void updateOrder(Order order) {
+        int pos = data.indexOf(order);
+        if(pos > -1) {
+            data.remove(pos);
+            data.add(pos, order);
+        }
+    }
+    
+    public void removeOrder(Order order) {
+        int pos = data.indexOf(order);
+        if(pos > -1) {
+            data.remove(pos);
+        }
+    }
+
+    
+    
 }

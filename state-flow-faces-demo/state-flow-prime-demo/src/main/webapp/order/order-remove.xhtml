@@ -10,7 +10,7 @@
 
         <x:datamodel>
             <x:data id="hasback" expr="#{scxml_has_parent == true}"/>
-            <x:data id="title" expr="Update Order"/>
+            <x:data id="title" expr="Remove Order"/>
             <x:data id="conversation" expr="edit"/>
             <x:data id="order"/>
         </x:datamodel>
@@ -18,54 +18,28 @@
         
         <x:state id="start">
             <x:onentry>
-                <x:if cond="#{order.prepareEdit(order)}">
+                <x:if cond="#{order.prepareRemove(order)}">
                     <x:raise event="start.prepare.success"/>
                     <x:else/>
                     <x:raise event="start.prepare.failed"/>
                 </x:if>
             </x:onentry>
-            <x:transition event="start.prepare.success" target="edit"/>
+            <x:transition event="start.prepare.success" target="commit"/>
             <x:transition event="start.prepare.failed" target="exit"/>
-        </x:state>
-
-        <x:state id="edit">
-            <x:invoke type="view" src="UpdateOrderPage.xhtml">
-                <x:param name="editable" expr="true"/>
-            </x:invoke>
-            <x:transition event="error.execution" target="error"/>
-
-            <x:transition event="view.action.insert-product" target="select-product"/>
-            <x:transition event="view.action.remove-product">
-                <fx:call expr="#{order.removeProduct(order.selectedProduct)}"/>
-            </x:transition>
-            
-            <x:transition event="view.action.accept" target="commit"/>
-            <x:transition event="view.action.cancel" target="cancel"/>
         </x:state>
 
         <x:state id="commit">
             <x:invoke type="view" src="ViewOrderPage.xhtml">
-                <x:param name="acceptable" expr="true"/>
-                <x:param name="hasback" expr="true"/>
+                <x:param name="acceptable" expr="false"/>
+                <x:param name="hasback" expr="false"/>
             </x:invoke>
 
             <x:transition event="error.execution" target="error"/>
             
             <x:transition event="view.action.accept" target="success"/>
             <x:transition event="view.action.cancel" target="cancel"/>
-            <x:transition event="view.action.back" target="edit"/>
         </x:state>
 
-        <x:state id="select-product"> 
-            <x:invoke type="scxml" src="select-product.xhtml">
-            </x:invoke>
-            <x:transition event="error.execution" target="error"/>
-            <x:transition event="done.invoke" cond="#{done.success}" target="edit">
-                <fx:call expr="#{order.addProduct(done.result)}"/>
-            </x:transition> 
-            <x:transition event="done.invoke" target="edit"/>
-        </x:state>      
-        
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml">
                 <x:finalize/>
@@ -85,13 +59,14 @@
                 <x:param name="success" expr="false"/>
             </x:donedata>
         </x:final>
-
+        
         <x:final id="success">
             <x:donedata>
                 <x:param name="success" expr="true"/>
                 <x:param name="result" expr="#{order.data}"/>
             </x:donedata>
         </x:final>
+        
     </x:scxml>    
         
 </f:metadata>

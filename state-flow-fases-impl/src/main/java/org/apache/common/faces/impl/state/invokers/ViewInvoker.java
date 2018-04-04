@@ -44,6 +44,7 @@ import org.apache.common.faces.state.component.UIStateChartRoot;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
 import org.apache.common.faces.impl.state.StateFlowParams;
+import org.apache.common.faces.state.StateFlow;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.SCXMLIOProcessor;
@@ -54,6 +55,7 @@ import org.apache.common.scxml.model.SCXML;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static org.apache.common.faces.state.StateFlow.BEFORE_APPLY_REQUEST_VALUES;
+import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.BEFORE_RENDER_VIEW;
 import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
@@ -177,9 +179,9 @@ public class ViewInvoker implements Invoker, Serializable {
                 if (value instanceof String) {
                     if (containsOnlyDigits((String) value)) {
                         value = NumberFormat.getInstance().parse((String) value);
-                    } else if("true".equals(value)) {
+                    } else if ("true".equals(value)) {
                         value = true;
-                    } else if("false".equals(value)) {
+                    } else if ("false".equals(value)) {
                         value = false;
                     }
                 }
@@ -190,7 +192,7 @@ public class ViewInvoker implements Invoker, Serializable {
                     skey = skey.substring(12);
                     options.put(skey, value.toString());
                 } else if (value != null) {
-                    vieparams.put(skey, value);
+                    vieparams.put(skey, value.toString());
                 }
             }
 
@@ -327,7 +329,7 @@ public class ViewInvoker implements Invoker, Serializable {
         }
         return true;
     }
-    
+
     private void applyParams(FacesContext context, UIViewRoot viewRoot, Map<String, Object> params) {
         if (viewRoot != null) {
             if (ViewMetadata.hasMetadata(viewRoot)) {
@@ -425,8 +427,21 @@ public class ViewInvoker implements Invoker, Serializable {
             if (viewId.equals(event.getSendId())) {
                 UIViewRoot viewRoot = context.getViewRoot();
 
-                if (event.getName().startsWith(BEFORE_APPLY_REQUEST_VALUES)
-                        || event.getName().startsWith(BEFORE_RENDER_VIEW)) {
+                if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
+                    if (viewRoot != null) {
+                        try {
+                            StateFlowViewContext viewContext = new StateFlowViewContext(
+                                    invokeId, executor, ictx.getContext());
+                            context.getAttributes().put(
+                                    VIEW_INVOKE_CONTEXT.get(viewId), viewContext);
+
+                            StateFlow.applyViewContext(context);
+
+                        } catch (ModelException ex) {
+                            throw new InvokerException(ex);
+                        }
+                    }
+                    
                     if (!resolved && !context.getResponseComplete()) {
                         applyParams(context, viewRoot, vieparams);
                         resolved = true;
@@ -439,19 +454,6 @@ public class ViewInvoker implements Invoker, Serializable {
                         RenderKit renderKit = context.getRenderKit();
                         ResponseStateManager rsm = renderKit.getResponseStateManager();
                         viewState = rsm.getState(context, lastViewId);
-                    }
-                }
-
-                if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
-                    if (viewRoot != null) {
-                        try {
-                            StateFlowViewContext viewContext = new StateFlowViewContext(
-                                    invokeId, executor, ictx.getContext());
-                            context.getAttributes().put(
-                                    VIEW_INVOKE_CONTEXT.get(viewId), viewContext);
-                        } catch (ModelException ex) {
-                            throw new InvokerException(ex);
-                        }
                     }
                 }
 

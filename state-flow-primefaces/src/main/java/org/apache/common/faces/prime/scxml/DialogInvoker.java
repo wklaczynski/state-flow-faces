@@ -25,10 +25,9 @@ import javax.faces.context.FacesContext;
 import javax.faces.render.RenderKit;
 import javax.faces.render.ResponseStateManager;
 import static org.apache.common.faces.prime.PrimeFacesFlowUtils.applyParams;
+import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
-import static org.apache.common.faces.state.StateFlow.BEFORE_APPLY_REQUEST_VALUES;
-import static org.apache.common.faces.state.StateFlow.BEFORE_RENDER_VIEW;
 import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.FACES_VIEW_STATE;
@@ -83,6 +82,7 @@ public class DialogInvoker implements Invoker, Serializable {
     private String stateKey;
     private String lastViewId;
     private Object viewState;
+    private boolean resolved;
 
     @Override
     public String getInvokeId() {
@@ -134,9 +134,9 @@ public class DialogInvoker implements Invoker, Serializable {
                 if (value instanceof String) {
                     if (containsOnlyDigits((String) value)) {
                         value = NumberFormat.getInstance().parse((String) value);
-                    } else if("true".equals(value)) {
+                    } else if ("true".equals(value)) {
                         value = true;
-                    } else if("false".equals(value)) {
+                    } else if ("false".equals(value)) {
                         value = false;
                     }
                 }
@@ -149,7 +149,7 @@ public class DialogInvoker implements Invoker, Serializable {
                     options.put(skey, value);
                 } else if (skey.startsWith("@ajax.")) {
                     skey = skey.substring(6);
-                    ajax.put(skey, value);
+                    ajax.put(skey, value.toString());
                 } else {
                     vieparams.put(skey, value);
                 }
@@ -306,6 +306,7 @@ public class DialogInvoker implements Invoker, Serializable {
                 Context rootContext = executor.getRootContext();
                 rootContext.setLocal(FACES_VIEW_STATE, viewState);
             }
+            resolved = false;
             executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
         } catch (InvokerException ex) {
             throw ex;
@@ -332,12 +333,25 @@ public class DialogInvoker implements Invoker, Serializable {
         //filter all multicast call event from started viewId by this invoker
         if (event.getType() == TriggerEvent.CALL_EVENT && viewId.equals(event.getSendId())) {
 
-            if (event.getName().startsWith(BEFORE_APPLY_REQUEST_VALUES)
-                    || event.getName().startsWith(BEFORE_RENDER_VIEW)) {
-                if (vieparams != null && !context.getResponseComplete()) {
-                    UIViewRoot viewRoot = context.getViewRoot();
+            if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
+                UIViewRoot viewRoot = context.getViewRoot();
+                if (viewRoot != null) {
+                    try {
+                        StateFlowViewContext viewContext = new StateFlowViewContext(
+                                invokeId, executor, ictx.getContext());
+                        context.getAttributes().put(
+                                VIEW_INVOKE_CONTEXT.get(viewId), viewContext);
+
+                        StateFlow.applyViewContext(context);
+
+                    } catch (ModelException ex) {
+                        throw new InvokerException(ex);
+                    }
+                }
+
+                if (!resolved && !context.getResponseComplete()) {
                     applyParams(context, viewRoot, vieparams);
-                    vieparams = null;
+                    resolved = true;
                 }
             }
 
@@ -399,8 +413,7 @@ public class DialogInvoker implements Invoker, Serializable {
         }
         return true;
     }
-    
-    
+
     @Override
     public void cancel() throws InvokerException {
         cancelled = true;

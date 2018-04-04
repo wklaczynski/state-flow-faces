@@ -7,7 +7,8 @@
       xmlns:p="http://primefaces.org/ui">
 
     <f:metadata>
-        <f:viewParam name="page_description"/>
+        <f:viewParam name="hasback"/>
+        <f:viewParam name="acceptable"/>
     </f:metadata>
 
     <h:head>
@@ -63,17 +64,20 @@
                             <p:commandButton
                                 action="cancel"
                                 value="Cancel"
-                                immediate="false">
+                                immediate="true">
                             </p:commandButton>
                             <p:commandButton
                                 action="back"
                                 value="Back"
-                                immediate="false">
+                                disabled="#{!hasback}"
+                                immediate="true">
                             </p:commandButton>
                             <p:commandButton
                                 action="accept"
                                 value="Accept"
-                                immediate="false">
+                                update="@form"
+                                process="@form"
+                                disabled="#{!acceptable}">
                             </p:commandButton>
                         </h:panelGrid>
                     </h:panelGroup>

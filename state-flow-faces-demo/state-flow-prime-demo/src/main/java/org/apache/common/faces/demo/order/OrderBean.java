@@ -17,6 +17,8 @@ package org.apache.common.faces.demo.order;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.inject.Named;
 import org.apache.common.faces.demo.order.data.Order;
 import org.apache.common.faces.demo.order.data.OrderProduct;
@@ -41,13 +43,23 @@ public class OrderBean implements Serializable {
     }
 
     public boolean prepareEdit(Order data) {
-        this.data = data;
-        return true;
+        try {
+            this.data = data.clone();
+            return true;
+        } catch (CloneNotSupportedException ex) {
+            Logger.getLogger(OrderBean.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
     }
 
     public boolean prepareRemove(Order data) {
-        this.data = data;
-        return true;
+        try {
+            this.data = data.clone();
+            return true;
+        } catch (CloneNotSupportedException ex) {
+            Logger.getLogger(OrderBean.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
     }
 
     public boolean prepareView(Order data) {

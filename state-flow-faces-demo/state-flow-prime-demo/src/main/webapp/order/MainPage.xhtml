@@ -23,7 +23,7 @@
                 <h:panelGroup>
                     <p:messages/> 
                 </h:panelGroup>
-                <h:panelGroup >
+                <h:panelGroup id="tool" >
                     <p:toolbar id="toolbar">
                         <p:toolbarGroup align="left">
                             <p:commandButton
@@ -59,12 +59,19 @@
                     </p:toolbar>
                     <p:dataTable
                         var="entry"
-                        value="#{orders.data}">
+                        value="#{orders.data}"
+                        selectionMode="single" 
+                        selection="#{orders.selected}"
+                        rowKey="#{entry.id}"                        
+                        >
 
                         <f:facet name="header">
                             List of Orders
                         </f:facet>                        
 
+                        <p:ajax event="rowSelect" update="@form:navigation @form:tool" />
+                        <p:ajax event="rowUnselect" update="@form:navigation @form:tool" />
+                        
                         <p:column headerText="Name">
                             <h:outputText value="#{entry.name}" />
                         </p:column>

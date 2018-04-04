@@ -37,6 +37,7 @@ import org.apache.common.faces.state.component.UIStateChartRoot;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.scxml.model.SCXML;
 import org.apache.common.faces.impl.state.StateFlowParams;
+import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
@@ -109,16 +110,8 @@ public class StateFlowPhaseListener implements PhaseListener {
             UIViewRoot viewRoot = context.getViewRoot();
             StateFlowHandler handler = StateFlowHandler.getInstance();
             if (viewRoot != null && handler.isActive(context)) {
-
-                StateFlowViewContext viewContext = (StateFlowViewContext) context.getAttributes()
-                        .get(VIEW_INVOKE_CONTEXT.get(viewRoot.getViewId()));
-
-                if (viewContext != null) {
-                    context.getAttributes().put(CURRENT_EXECUTOR_HINT, viewContext.getExecutor());
-                    context.getELContext().putContext(SCXMLExecutor.class, viewContext.getExecutor());
-                    Context stateContext = getEffectiveContext(viewContext.getContext());
-                    context.getELContext().putContext(Context.class, stateContext);
-                }
+                
+                StateFlow.applyViewContext(context);
 
                 String name = BEFORE_PHASE_EVENT_PREFIX
                         + event.getPhaseId().getName().toLowerCase();
@@ -181,9 +174,6 @@ public class StateFlowPhaseListener implements PhaseListener {
         return PhaseId.ANY_PHASE;
     }
 
-    protected StateFlowContext getEffectiveContext(final Context nodeCtx) {
-        return new StateFlowContext(nodeCtx, new EffectiveContextMap(nodeCtx));
-    }
 
     private void restoreStateFlow(FacesContext context) {
         if (context.isPostback()) {
