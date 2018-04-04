@@ -317,102 +317,102 @@ public class StateTargetCDIContext implements Context, Serializable {
         }
     }
 
-    static void stateExited(SCXMLExecutor executor, EnterableState state) {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
-        Map<String, Object> scopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
-        Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
-        assert (!scopedBeanMap.isEmpty());
-        assert (!creationalMap.isEmpty());
-
-        BeanManager beanManager = (BeanManager) Util.getCdiBeanManager(facesContext);
-
-        String prefix = state.getId() + ":";
-
-        Set<String> toRemove = new HashSet<>();
-
-        for (Map.Entry<String, Object> entry : scopedBeanMap.entrySet()) {
-            String beanId = entry.getKey();
-            if (TARGET_SCOPE_MAP_KEY.equals(beanId)) {
-                continue;
-            }
-            if (!prefix.startsWith(beanId)) {
-                continue;
-            }
-            toRemove.add(beanId);
-            String passivationCapableId = beanId.substring(prefix.length());
-
-            Contextual owner = beanManager.getPassivationCapableBean(passivationCapableId);
-            Object bean = entry.getValue();
-            CreationalContext creational = creationalMap.get(beanId);
-
-            owner.destroy(bean, creational);
-        }
-
-        for (String key : toRemove) {
-            scopedBeanMap.remove(key);
-            creationalMap.remove(key);
-        }
-
-        mapHelper.updateSession();
-
-        if (CdiUtil.isCdiOneOneOrLater(facesContext)) {
-            Class flowCDIEventFireHelperImplClass = null;
-            try {
-                flowCDIEventFireHelperImplClass = Class.forName(StateFlowCDIEventFireHelperImpl.class.getName());
-            } catch (ClassNotFoundException ex) {
-                if (LOGGER.isLoggable(Level.SEVERE)) {
-                    LOGGER.log(Level.SEVERE, "CDI 1.1 events not enabled", ex);
-                }
-            }
-
-            if (null != flowCDIEventFireHelperImplClass) {
-                Set<Bean<?>> availableBeans = beanManager.getBeans(flowCDIEventFireHelperImplClass);
-                if (null != availableBeans && !availableBeans.isEmpty()) {
-                    Bean<?> bean = beanManager.resolve(availableBeans);
-                    CreationalContext<?> creationalContext
-                            = beanManager.createCreationalContext(null);
-                    StateFlowCDIEventFireHelper eventHelper
-                            = (StateFlowCDIEventFireHelper) beanManager.getReference(bean, bean.getBeanClass(),
-                                    creationalContext);
-                    eventHelper.fireExecutorDestroyedEvent(executor);
-                }
-            }
-        }
-    }
-
-    static void stateEntered(SCXMLExecutor executor, EnterableState state) {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
-
-        mapHelper.createMaps();
-        getCurrentFlowScopeAndUpdateSession(mapHelper);
-
-        if (CdiUtil.isCdiOneOneOrLater(facesContext)) {
-            Class flowCDIEventFireHelperImplClass = null;
-            try {
-                flowCDIEventFireHelperImplClass = Class.forName(StateFlowCDIEventFireHelperImpl.class.getName());
-            } catch (ClassNotFoundException ex) {
-                if (LOGGER.isLoggable(Level.SEVERE)) {
-                    LOGGER.log(Level.SEVERE, "CDI 1.1 events not enabled", ex);
-                }
-            }
-            if (null != flowCDIEventFireHelperImplClass) {
-                BeanManager beanManager = (BeanManager) Util.getCdiBeanManager(facesContext);
-                Set<Bean<?>> availableBeans = beanManager.getBeans(flowCDIEventFireHelperImplClass);
-                if (null != availableBeans && !availableBeans.isEmpty()) {
-                    Bean<?> bean = beanManager.resolve(availableBeans);
-                    CreationalContext<?> creationalContext
-                            = beanManager.createCreationalContext(null);
-                    StateFlowCDIEventFireHelper eventHelper
-                            = (StateFlowCDIEventFireHelper) beanManager.getReference(bean, bean.getBeanClass(),
-                                    creationalContext);
-                    eventHelper.fireExecutorInitializedEvent(executor);
-                }
-            }
-        }
-    }
+//    static void stateExited(SCXMLExecutor executor, EnterableState state) {
+//        FacesContext facesContext = FacesContext.getCurrentInstance();
+//
+//        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
+//        Map<String, Object> scopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
+//        Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
+//        assert (!scopedBeanMap.isEmpty());
+//        assert (!creationalMap.isEmpty());
+//
+//        BeanManager beanManager = (BeanManager) Util.getCdiBeanManager(facesContext);
+//
+//        String prefix = state.getId() + ":";
+//
+//        Set<String> toRemove = new HashSet<>();
+//
+//        for (Map.Entry<String, Object> entry : scopedBeanMap.entrySet()) {
+//            String beanId = entry.getKey();
+//            if (TARGET_SCOPE_MAP_KEY.equals(beanId)) {
+//                continue;
+//            }
+//            if (!prefix.startsWith(beanId)) {
+//                continue;
+//            }
+//            toRemove.add(beanId);
+//            String passivationCapableId = beanId.substring(prefix.length());
+//
+//            Contextual owner = beanManager.getPassivationCapableBean(passivationCapableId);
+//            Object bean = entry.getValue();
+//            CreationalContext creational = creationalMap.get(beanId);
+//
+//            owner.destroy(bean, creational);
+//        }
+//
+//        for (String key : toRemove) {
+//            scopedBeanMap.remove(key);
+//            creationalMap.remove(key);
+//        }
+//
+//        mapHelper.updateSession();
+//
+//        if (CdiUtil.isCdiOneOneOrLater(facesContext)) {
+//            Class flowCDIEventFireHelperImplClass = null;
+//            try {
+//                flowCDIEventFireHelperImplClass = Class.forName(StateFlowCDIEventFireHelperImpl.class.getName());
+//            } catch (ClassNotFoundException ex) {
+//                if (LOGGER.isLoggable(Level.SEVERE)) {
+//                    LOGGER.log(Level.SEVERE, "CDI 1.1 events not enabled", ex);
+//                }
+//            }
+//
+//            if (null != flowCDIEventFireHelperImplClass) {
+//                Set<Bean<?>> availableBeans = beanManager.getBeans(flowCDIEventFireHelperImplClass);
+//                if (null != availableBeans && !availableBeans.isEmpty()) {
+//                    Bean<?> bean = beanManager.resolve(availableBeans);
+//                    CreationalContext<?> creationalContext
+//                            = beanManager.createCreationalContext(null);
+//                    StateFlowCDIEventFireHelper eventHelper
+//                            = (StateFlowCDIEventFireHelper) beanManager.getReference(bean, bean.getBeanClass(),
+//                                    creationalContext);
+//                    eventHelper.fireExecutorDestroyedEvent(executor);
+//                }
+//            }
+//        }
+//    }
+//
+//    static void stateEntered(SCXMLExecutor executor, EnterableState state) {
+//        FacesContext facesContext = FacesContext.getCurrentInstance();
+//        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
+//
+//        mapHelper.createMaps();
+//        getCurrentFlowScopeAndUpdateSession(mapHelper);
+//
+//        if (CdiUtil.isCdiOneOneOrLater(facesContext)) {
+//            Class flowCDIEventFireHelperImplClass = null;
+//            try {
+//                flowCDIEventFireHelperImplClass = Class.forName(StateFlowCDIEventFireHelperImpl.class.getName());
+//            } catch (ClassNotFoundException ex) {
+//                if (LOGGER.isLoggable(Level.SEVERE)) {
+//                    LOGGER.log(Level.SEVERE, "CDI 1.1 events not enabled", ex);
+//                }
+//            }
+//            if (null != flowCDIEventFireHelperImplClass) {
+//                BeanManager beanManager = (BeanManager) Util.getCdiBeanManager(facesContext);
+//                Set<Bean<?>> availableBeans = beanManager.getBeans(flowCDIEventFireHelperImplClass);
+//                if (null != availableBeans && !availableBeans.isEmpty()) {
+//                    Bean<?> bean = beanManager.resolve(availableBeans);
+//                    CreationalContext<?> creationalContext
+//                            = beanManager.createCreationalContext(null);
+//                    StateFlowCDIEventFireHelper eventHelper
+//                            = (StateFlowCDIEventFireHelper) beanManager.getReference(bean, bean.getBeanClass(),
+//                                    creationalContext);
+//                    eventHelper.fireExecutorInitializedEvent(executor);
+//                }
+//            }
+//        }
+//    }
 
     @SuppressWarnings({"FinalPrivateMethod"})
     private final void assertNotReleased() {

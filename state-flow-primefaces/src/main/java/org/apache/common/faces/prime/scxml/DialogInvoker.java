@@ -25,11 +25,11 @@ import static org.apache.common.faces.prime.PrimeFacesFlowUtils.applyParams;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RESTORE_VIEW;
 import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
-import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
+import static org.apache.common.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 import org.apache.common.faces.state.StateFlowHandler;
+import org.apache.common.faces.state.StateFlowViewContext;
 import org.apache.common.faces.state.annotation.StateChartInvoker;
-import org.apache.common.scxml.Context;
 import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.InvokeContext;
 import org.apache.common.scxml.SCXMLExecutor;
@@ -129,9 +129,9 @@ public class DialogInvoker implements Invoker, Serializable {
             }
 
             UIViewRoot view = context.getViewRoot();
-            
+
             ownerViewId = view.getViewId();
-            
+
             PrimeFacesFlowUtils.loadResorces(context, view, this, "head");
 
             String url = context.getApplication().getViewHandler().getBookmarkableURL(context, viewId, params, true);
@@ -154,7 +154,7 @@ public class DialogInvoker implements Invoker, Serializable {
             String update = (String) ajax.get("update");
             String process = (String) ajax.get("update");
             String global = (String) ajax.get("global");
-            
+
             RequestContext requestContext = RequestContext.getCurrentInstance();
             AjaxRequestBuilder builder = requestContext.getAjaxRequestBuilder();
             ClientBehaviorRenderingMode renderingMode = ClientBehaviorRenderingMode.OBSTRUSIVE;
@@ -280,14 +280,16 @@ public class DialogInvoker implements Invoker, Serializable {
             }
 
             if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
-                try {
-                    context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
-                    context.getELContext().putContext(SCXMLExecutor.class, executor);
-
-                    Context stateContext = ictx.getContext();
-                    context.getELContext().putContext(Context.class, stateContext);
-                } catch (ModelException ex) {
-                    throw new InvokerException(ex);
+                UIViewRoot viewRoot = context.getViewRoot();
+                if (viewRoot != null) {
+                    try {
+                        StateFlowViewContext viewContext = new StateFlowViewContext(
+                                invokeId, executor, ictx.getContext());
+                        context.getAttributes().put(
+                                VIEW_INVOKE_CONTEXT.get(viewId), viewContext);
+                    } catch (ModelException ex) {
+                        throw new InvokerException(ex);
+                    }
                 }
             }
 

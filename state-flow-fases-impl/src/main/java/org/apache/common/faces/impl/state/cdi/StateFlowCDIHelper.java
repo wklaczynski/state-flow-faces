@@ -41,11 +41,11 @@ public class StateFlowCDIHelper {
     }
 
     public static void stateEntered(SCXMLExecutor executor, EnterableState state) {
-        StateTargetCDIContext.stateEntered(executor, state);
+        //StateTargetCDIContext.stateEntered(executor, state);
     }
 
     public static void stateExited(SCXMLExecutor executor, EnterableState state) {
-        StateTargetCDIContext.stateExited(executor, state);
+        //StateTargetCDIContext.stateExited(executor, state);
     }
     
     
