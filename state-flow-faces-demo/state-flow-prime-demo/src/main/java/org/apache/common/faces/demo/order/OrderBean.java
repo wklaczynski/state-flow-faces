@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.List;
 import javax.inject.Named;
 import org.apache.common.faces.demo.order.data.Order;
+import org.apache.common.faces.demo.order.data.OrderProduct;
 import org.apache.common.faces.demo.order.data.Product;
 import org.apache.common.faces.state.annotation.StateChartScoped;
 
@@ -29,52 +30,77 @@ import org.apache.common.faces.state.annotation.StateChartScoped;
 @StateChartScoped
 @Named("order")
 public class OrderBean implements Serializable {
-    
+
     private Order data;
-    
-    private Product selectedProduct;
-    
+
+    private OrderProduct selectedProduct;
+
     public boolean prepareInsert() {
         data = new Order();
         return true;
     }
 
+    public boolean prepareEdit(Order data) {
+        this.data = data;
+        return true;
+    }
+
+    public boolean prepareRemove(Order data) {
+        this.data = data;
+        return true;
+    }
+
+    public boolean prepareView(Order data) {
+        this.data = data;
+        return true;
+    }
+    
+    
     public Order getData() {
         return data;
     }
 
-    public List<Product> getProducts() {
+    public List<OrderProduct> getProducts() {
         return data.getProducts();
     }
-    
-    public Product getSelectedProduct() {
+
+    public OrderProduct getSelectedProduct() {
         return selectedProduct;
     }
 
-    public void setSelectedProduct(Product selectedProduct) {
+    public void setSelectedProduct(OrderProduct selectedProduct) {
         this.selectedProduct = selectedProduct;
     }
-    
+
     public boolean isRemovableProduct() {
-       return selectedProduct != null;
+        return selectedProduct != null;
     }
 
-    public void addProduct(Product product) {
+    public void addProduct(OrderProduct product) {
         data.getProducts().add(product);
         calculate();
     }
 
-    public void removeProduct(Product product) {
+    public void addProduct(Product product) {
+        OrderProduct orderProduct = new OrderProduct();
+        orderProduct.setProductId(product.getId());
+        orderProduct.setName(product.getName());
+        orderProduct.setDescription(product.getDescription());
+        orderProduct.setCost(product.getCost());
+        addProduct(orderProduct);
+    }
+
+    public void removeProduct(OrderProduct product) {
         data.getProducts().remove(product);
         calculate();
     }
 
     private void calculate() {
         Double sum = 0.0;
-        for (Product product : data.getProducts()) {
+        for (OrderProduct product : data.getProducts()) {
             sum += product.getCost();
         }
         data.setCost(sum);
     }
-    
+
 }

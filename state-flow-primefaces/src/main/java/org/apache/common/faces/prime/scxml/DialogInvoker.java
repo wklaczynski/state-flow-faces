@@ -122,6 +122,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
             Map<String, Object> options = new HashMap<>();
             options.put("resizable", false);
+            options.put("responsive", false);
 
             Map<String, Object> ajax = new HashMap<>();
             Map<String, List<String>> query = new HashMap<>();

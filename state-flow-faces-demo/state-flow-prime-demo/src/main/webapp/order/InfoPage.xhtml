@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <f:metadata>
+        <f:viewParam name="info_message"/>
+    </f:metadata>
+    <h:head>
+        <title>Orders Demo</title>
+        <h:outputStylesheet library="css" name="demo-style.css"  />
+    </h:head>
+    <h:body>
+        <h:form>
+            <h:panelGroup>
+                <h:panelGroup>
+                    <h:messages/> 
+                </h:panelGroup>
+                <h:panelGroup>
+                    <p/>
+                    <b>Information:</b>
+                    <p/>#{info_message}
+                </h:panelGroup>
+                <h:panelGroup>
+                    <p:separator/>
+                </h:panelGroup>
+                <h:panelGroup id="navigation">
+                    <h:panelGroup layout="block" style=" text-align: left;">
+                        <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
+                            <p:commandButton
+                                action="cancel"
+                                value="Cancel"
+                                immediate="false">
+                            </p:commandButton>
+                        </h:panelGrid>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </h:panelGroup>
+        </h:form>
+    </h:body>
+
+</html>
+

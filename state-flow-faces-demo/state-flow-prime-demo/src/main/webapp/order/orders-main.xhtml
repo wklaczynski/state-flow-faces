@@ -33,6 +33,7 @@
             
             <x:transition event="view.action.insert" target="insert-order"/>
 
+            <x:transition event="view.action.info" target="info"/>
             <x:transition event="view.action.exit" target="exit"/>
         </x:state> 
         
@@ -50,6 +51,25 @@
             <x:transition event="done.invoke" target="main"/>
         </x:state>      
         
+        
+        <x:state id="info">
+            <x:onentry>
+                <x:send id="info-timeout" event="info.timeout" delay="5000"/> 
+            </x:onentry>
+            <x:onexit>
+                <x:cancel sendid="info-timeout"/>
+            </x:onexit>
+            
+            <x:invoke type="dialog" src="InfoPage.xhtml">
+                <x:param name="info_message"
+                         expr="This is the demostration usages State Flow Faces in the orders process."/>
+            </x:invoke>
+
+            <x:transition event="error.execution" target="main"/>
+            
+            <x:transition event="view.action.cancel" target="main"/>
+            <x:transition event="info.timeout" target="main"/>
+        </x:state> 
         
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml">

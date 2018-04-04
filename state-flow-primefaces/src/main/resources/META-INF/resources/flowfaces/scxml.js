@@ -3,9 +3,6 @@ if (!PrimeFaces.scxml) {
     PrimeFaces.scxml = {
 
         openScxmlDialog: function (cfg) {
-            cfg.options.closable = false;
-            cfg.options.resizable = false;
-            
             PrimeFaces.dialog.DialogHandler.openDialog(cfg);
         },
         closeScxmlDialog: function (cfg) {
