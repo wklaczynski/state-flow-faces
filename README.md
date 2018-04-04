@@ -81,14 +81,24 @@ These instructions will get you a copy of the project up and running on your loc
 <dependency>
     <groupId>org.ssoft.faces</groupId>
     <artifactId>state-flow-fases-api</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-RC1</version>
 </dependency>
 <dependency>
     <groupId>org.ssoft.faces</groupId>
     <artifactId>state-flow-fases-impl</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-RC1</version>
 </dependency>
 ```
+And primefaces extension to add dialog invoker and pull task with primefaces ajax script:
+
+```
+<dependency>
+    <groupId>org.ssoft.faces</groupId>
+    <artifactId>state-flow-primefaces</artifactId>
+    <version>1.0-RC1</version>
+</dependency>
+```
+
 
 Srate Flow Faces are not available at Maven Central,  add the following repository definition to your pom.xml in repositories section.
 ```
