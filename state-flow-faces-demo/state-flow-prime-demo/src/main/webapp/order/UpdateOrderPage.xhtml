@@ -23,7 +23,7 @@
                 <h:panelGroup>
                     <p:messages/> 
                 </h:panelGroup>
-                <h:panelGrid columns="2">
+                <h:panelGrid id="content" columns="2">
                     <p:outputLabel
                         for="name"
                         value="Name:"
@@ -75,7 +75,14 @@
                     </p:toolbar>
                     <p:dataTable
                         var="entry"
-                        value="#{order.products}">
+                        value="#{order.products}"
+                        selectionMode="single" 
+                        selection="#{order.selectedProduct}"
+                        rowKey="#{entry.id}"                        
+                        >
+
+                        <p:ajax event="rowSelect" update="@form:navigation @form:content" />
+                        <p:ajax event="rowUnselect" update="@form:navigation @form:content" />
 
                         <f:facet name="header">
                             List of Products

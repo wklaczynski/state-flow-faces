@@ -16,7 +16,6 @@
 package org.apache.common.faces.demo.order;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Named;
 import org.apache.common.faces.demo.order.data.Order;
@@ -62,10 +61,20 @@ public class OrderBean implements Serializable {
 
     public void addProduct(Product product) {
         data.getProducts().add(product);
+        calculate();
     }
 
     public void removeProduct(Product product) {
         data.getProducts().remove(product);
+        calculate();
+    }
+
+    private void calculate() {
+        Double sum = 0.0;
+        for (Product product : data.getProducts()) {
+            sum += product.getCost();
+        }
+        data.setCost(sum);
     }
     
 }
