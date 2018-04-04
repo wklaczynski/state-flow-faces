@@ -16,9 +16,6 @@
 package org.apache.common.faces.state;
 
 import javax.faces.event.PhaseId;
-import javax.naming.CompoundName;
-import javax.naming.NameClassPair;
-import javax.naming.NameParser;
 
 /**
  *
@@ -74,10 +71,6 @@ public class StateFlow {
     public static final String OUTCOME_EVENT_PREFIX = "faces.view.action.";
 
     public static final String PHASE_EVENT_PREFIX = "faces.phase.";
-
-    public static final String VIEW_ENCODE_BEGIN = "faces.view.encode.begin";
-
-    public static final String VIEW_ENCODE_END = "faces.view.encode.end";
 
     public static final String DECODE_DISPATCHER_EVENTS = "faces.dipatrcher.events.decode";
 
