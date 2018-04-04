@@ -104,7 +104,7 @@ Srate Flow Faces are not available at Maven Central,  add the following reposito
 ```
 <repository>
    <id>state-flow-faces-mvn-repo</id>
-   <url>https://raw.github.com/wklaczynski/state-flow-faces/mvn-repo/</url>
+   <url>https://raw.github.com/wklaczynski/state-flow-faces/mvn-repo</url>
    <snapshots>
       <enabled>true</enabled>
       <updatePolicy>always</updatePolicy>
