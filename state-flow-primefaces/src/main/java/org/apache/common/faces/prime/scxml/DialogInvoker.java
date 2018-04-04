@@ -151,7 +151,7 @@ public class DialogInvoker implements Invoker, Serializable {
                     skey = skey.substring(6);
                     ajax.put(skey, value);
                 } else {
-                    vieparams.put(skey, Collections.singletonList(value.toString()));
+                    vieparams.put(skey, value);
                 }
             }
 
@@ -334,7 +334,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
             if (event.getName().startsWith(BEFORE_APPLY_REQUEST_VALUES)
                     || event.getName().startsWith(BEFORE_RENDER_VIEW)) {
-                if (vieparams != null && context.getResponseComplete()) {
+                if (vieparams != null && !context.getResponseComplete()) {
                     UIViewRoot viewRoot = context.getViewRoot();
                     applyParams(context, viewRoot, vieparams);
                     vieparams = null;
