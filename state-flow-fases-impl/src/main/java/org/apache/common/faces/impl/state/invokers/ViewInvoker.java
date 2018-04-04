@@ -54,6 +54,7 @@ import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static org.apache.common.faces.state.StateFlow.BEFORE_APPLY_REQUEST_VALUES;
 import static org.apache.common.faces.state.StateFlow.BEFORE_RENDER_VIEW;
+import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.StateFlowViewContext;
@@ -69,9 +70,6 @@ import static org.apache.common.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 public class ViewInvoker implements Invoker, Serializable {
 
     private final static Logger logger = Logger.getLogger(ViewInvoker.class.getName());
-
-    private static final String CURRENT_INVOKED_VIEW_ID
-            = ViewInvoker.class.getName() + ":CurrentViewId";
 
     /**
      * Serial version UID.

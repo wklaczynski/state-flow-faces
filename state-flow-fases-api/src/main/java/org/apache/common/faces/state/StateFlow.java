@@ -68,6 +68,12 @@ public class StateFlow {
     public static final Name VIEW_INVOKE_CONTEXT = new NameResolver(
             "state.flow.faces:", ":ViewState");
 
+    public static final String CURRENT_INVOKED_VIEW_ID
+            = "state.flow.faces:CurrentViewId";
+    
+    public static final String FACES_VIEW_STATE =
+          "com.sun.faces.FACES_VIEW_STATE";
+    
     public static final String OUTCOME_EVENT_PREFIX = "faces.view.action.";
 
     public static final String PHASE_EVENT_PREFIX = "faces.phase.";
