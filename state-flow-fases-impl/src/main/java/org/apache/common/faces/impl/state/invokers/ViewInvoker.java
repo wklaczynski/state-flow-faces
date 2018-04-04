@@ -19,6 +19,7 @@ package org.apache.common.faces.impl.state.invokers;
 import static com.sun.faces.util.RequestStateManager.FACES_VIEW_STATE;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -173,6 +174,15 @@ public class ViewInvoker implements Invoker, Serializable {
             for (String key : params.keySet()) {
                 String skey = (String) key;
                 Object value = params.get(key);
+                if (value instanceof String) {
+                    if (containsOnlyDigits((String) value)) {
+                        value = NumberFormat.getInstance().parse((String) value);
+                    } else if("true".equals(value)) {
+                        value = true;
+                    } else if("false".equals(value)) {
+                        value = false;
+                    }
+                }
                 if (skey.startsWith("@redirect.param.")) {
                     skey = skey.substring(16);
                     reqparams.put(skey, Collections.singletonList(value.toString()));
@@ -300,6 +310,24 @@ public class ViewInvoker implements Invoker, Serializable {
         }
     }
 
+    private boolean containsOnlyAlphaNumeric(String s) {
+        for (int i = 0, n = s.length(); i < n; i++) {
+            if (!Character.isLetterOrDigit(s.codePointAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean containsOnlyDigits(String s) {
+        for (int i = 0, n = s.length(); i < n; i++) {
+            if (!Character.isDigit(s.codePointAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
     private void applyParams(FacesContext context, UIViewRoot viewRoot, Map<String, Object> params) {
         if (viewRoot != null) {
             if (ViewMetadata.hasMetadata(viewRoot)) {

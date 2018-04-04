@@ -27,7 +27,8 @@
         </x:state>
 
         <x:state id="main">
-            <x:invoke type="dialog" src="ProductsPage.xhtml">
+            <x:invoke type="#{select_type}" src="ProductsPage.xhtml">
+                <x:param name="@dialog.param.width" expr="620"/>
             </x:invoke>
 
             <x:transition event="error.execution" target="error"/>

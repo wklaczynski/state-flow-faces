@@ -6,6 +6,7 @@ package org.apache.common.faces.prime.scxml;
 
 import org.apache.common.faces.prime.PrimeFacesFlowUtils;
 import java.io.Serializable;
+import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -120,7 +121,7 @@ public class DialogInvoker implements Invoker, Serializable {
             }
 
             Map<String, Object> options = new HashMap<>();
-            options.put("resizable", "false");
+            options.put("resizable", false);
 
             Map<String, Object> ajax = new HashMap<>();
             Map<String, List<String>> query = new HashMap<>();
@@ -129,12 +130,22 @@ public class DialogInvoker implements Invoker, Serializable {
             for (Object key : params.keySet()) {
                 String skey = (String) key;
                 Object value = params.get(key);
+                if (value instanceof String) {
+                    if (containsOnlyDigits((String) value)) {
+                        value = NumberFormat.getInstance().parse((String) value);
+                    } else if("true".equals(value)) {
+                        value = true;
+                    } else if("false".equals(value)) {
+                        value = false;
+                    }
+                }
+
                 if (skey.startsWith("@query.param.")) {
-                    skey = skey.substring(16);
-                    query.put(skey, Collections.singletonList(value.toString()));
-                } else if (skey.startsWith("@dialog.param")) {
                     skey = skey.substring(13);
-                    options.put(skey, value.toString());
+                    query.put(skey, Collections.singletonList(value.toString()));
+                } else if (skey.startsWith("@dialog.param.")) {
+                    skey = skey.substring(14);
+                    options.put(skey, value);
                 } else if (skey.startsWith("@ajax.")) {
                     skey = skey.substring(6);
                     ajax.put(skey, value);
@@ -175,7 +186,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
             PrimeFacesFlowUtils.loadResorces(context, view, this, "head");
 
-            String url = context.getApplication().getViewHandler().getBookmarkableURL(context, viewId, params, true);
+            String url = context.getApplication().getViewHandler().getBookmarkableURL(context, viewId, query, false);
             url = ComponentUtils.escapeEcmaScriptText(url);
 
             pfdlgcid = UUID.randomUUID().toString();
@@ -188,8 +199,8 @@ public class DialogInvoker implements Invoker, Serializable {
 
             String widgetVar = "widget_" + invokeId;
 
-            options.put("modal", "true");
-            options.put("closable", "false");
+            options.put("modal", true);
+            options.put("closable", false);
             options.put("invokeId", invokeId);
 
             String update = (String) ajax.get("update");
@@ -370,11 +381,25 @@ public class DialogInvoker implements Invoker, Serializable {
 
     }
 
-    public void decode(FacesContext context) throws InvokerException {
-        if (cancelled) {
+    private boolean containsOnlyAlphaNumeric(String s) {
+        for (int i = 0, n = s.length(); i < n; i++) {
+            if (!Character.isLetterOrDigit(s.codePointAt(i))) {
+                return false;
+            }
         }
+        return true;
     }
 
+    private boolean containsOnlyDigits(String s) {
+        for (int i = 0, n = s.length(); i < n; i++) {
+            if (!Character.isDigit(s.codePointAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    
     @Override
     public void cancel() throws InvokerException {
         cancelled = true;
