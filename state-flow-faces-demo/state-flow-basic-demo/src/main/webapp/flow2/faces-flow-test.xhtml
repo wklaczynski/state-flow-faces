@@ -19,6 +19,10 @@
         <x:state id="start">
             <x:onentry>
                 <x:assign location="#{currentState.assignedTest1}" expr="I'm Seting in start"/>
+                <x:foreach array="#{main.logs}" item="var">
+                    <x:log expr="#{var}"/>
+                </x:foreach>
+                    
                 <x:if cond="#{main.prepare()}">
                     <x:raise event="start.prepare.success"/>
                     <x:else/>

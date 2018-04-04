@@ -16,6 +16,8 @@
 package org.apache.common.faces.demo.basic;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import javax.faces.application.FacesMessage;
 import static javax.faces.application.FacesMessage.SEVERITY_INFO;
 import javax.faces.context.FacesContext;
@@ -34,8 +36,14 @@ public class MainBean implements Serializable {
     private String assignedTest2 = "";
     private String description = "";
     
+    private final List<String> logs = Arrays.asList("Hellow 1","Hellow 2","Hellow 3");
+    
     public boolean prepare() {
         return true;
+    }
+
+    public List<String> getLogs() {
+        return logs;
     }
     
     public String getBeanTitle() {
