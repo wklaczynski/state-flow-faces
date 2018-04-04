@@ -238,8 +238,10 @@ public class ViewInvoker implements Invoker, Serializable {
                 updateRenderTargets(fc, viewId);
                 ec.redirect(url);
 
-                Context rootContext = executor.getRootContext();
-                rootContext.setLocal(FACES_VIEW_STATE, viewState);
+                if (viewState != null) {
+                    Context rootContext = executor.getRootContext();
+                    rootContext.setLocal(FACES_VIEW_STATE, viewState);
+                }
                 fc.responseComplete();
             } else {
                 UIViewRoot viewRoot;
@@ -395,8 +397,8 @@ public class ViewInvoker implements Invoker, Serializable {
             if (viewId.equals(event.getSendId())) {
                 UIViewRoot viewRoot = context.getViewRoot();
 
-                if (event.getName().startsWith(BEFORE_APPLY_REQUEST_VALUES) ||
-                        event.getName().startsWith(BEFORE_RENDER_VIEW) ) {
+                if (event.getName().startsWith(BEFORE_APPLY_REQUEST_VALUES)
+                        || event.getName().startsWith(BEFORE_RENDER_VIEW)) {
                     if (!resolved && !context.getResponseComplete()) {
                         applyParams(context, viewRoot, vieparams);
                         resolved = true;
@@ -416,7 +418,7 @@ public class ViewInvoker implements Invoker, Serializable {
                     if (viewRoot != null) {
                         try {
                             StateFlowViewContext viewContext = new StateFlowViewContext(
-                                    invokeId, executor, ictx.getContext()); 
+                                    invokeId, executor, ictx.getContext());
                             context.getAttributes().put(
                                     VIEW_INVOKE_CONTEXT.get(viewId), viewContext);
                         } catch (ModelException ex) {

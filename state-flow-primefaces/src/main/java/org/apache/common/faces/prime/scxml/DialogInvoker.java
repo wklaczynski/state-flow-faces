@@ -143,7 +143,7 @@ public class DialogInvoker implements Invoker, Serializable {
                 }
             }
 
-            boolean transientState = false;
+            boolean transientState = true;
             if (options.containsKey("transient")) {
                 Object val = options.get("transient");
                 if (val instanceof String) {
@@ -290,8 +290,10 @@ public class DialogInvoker implements Invoker, Serializable {
             sb.append("});");
             PrimeFaces.current().executeScript(sb.toString());
             sb.setLength(0);
-            Context rootContext = executor.getRootContext();
-            rootContext.setLocal(FACES_VIEW_STATE, viewState);
+            if (viewState != null) {
+                Context rootContext = executor.getRootContext();
+                rootContext.setLocal(FACES_VIEW_STATE, viewState);
+            }
             executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
         } catch (InvokerException ex) {
             throw ex;
