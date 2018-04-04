@@ -113,7 +113,7 @@ Srate Flow Faces are not available at Maven Central,  add the following reposito
 ```
 ## Running the tests
 
-To run the test, deploy "state-flow-basic-demo.war" on the server.
+To run the test, deploy "state-flow-basic-demo.war" or "state-flow-prime-demo.war" on the server.
 
 ## Built With
 
