@@ -58,8 +58,8 @@
             <x:invoke type="scxml" src="select-product.xhtml">
             </x:invoke>
             <x:transition event="error.execution" target="error"/>
-            <x:transition event="done.invoke" cond="#{$done.success}" target="edit">
-                <fx:call expr="#{order.addProduct($done.result)}"/>
+            <x:transition event="done.invoke" cond="#{done.success}" target="edit">
+                <fx:call expr="#{order.addProduct(done.result)}"/>
             </x:transition> 
             <x:transition event="done.invoke" target="edit"/>
         </x:state>      

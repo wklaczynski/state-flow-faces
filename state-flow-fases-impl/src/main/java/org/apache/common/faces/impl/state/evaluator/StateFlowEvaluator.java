@@ -186,6 +186,11 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
         return new StateFlowContext(nodeCtx, new EffectiveContextMap(nodeCtx));
     }
 
+    @Override
+    protected Object cloneUnknownDataType(Object data) {
+        return data;
+    }
+    
     public class ContextWrapper extends ELContext implements Serializable {
 
         private final ELContext ctx;
