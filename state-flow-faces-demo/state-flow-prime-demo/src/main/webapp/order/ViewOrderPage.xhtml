@@ -3,7 +3,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:fn="http://xmlns.jcp.org/jsp/jstl/functions"
       xmlns:p="http://primefaces.org/ui">
 
     <f:metadata>
@@ -69,7 +68,7 @@
                             <p:commandButton
                                 action="back"
                                 value="Back"
-                                disabled="#{!hasback}"
+                                rendered="#{order.updatable || order.insertable}"
                                 immediate="true">
                             </p:commandButton>
                             <p:commandButton
@@ -77,7 +76,7 @@
                                 value="Accept"
                                 update="@form"
                                 process="@form"
-                                disabled="#{!acceptable}">
+                                rendered="#{order.insertable || order.updatable || order.removable}">
                             </p:commandButton>
                         </h:panelGrid>
                     </h:panelGroup>

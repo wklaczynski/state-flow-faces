@@ -42,7 +42,7 @@
         
         <x:state id="view-order"> 
             <x:invoke type="scxml" src="order-view.xhtml">
-                <x:param name="order" expr="#{orders.selected}"/>
+                <x:param name="data" expr="#{orders.selected}"/>
             </x:invoke>
             <x:transition event="error.execution" target="main"/>
             <x:transition event="done.invoke" target="main"/>
@@ -61,7 +61,7 @@
         
         <x:state id="edit-order"> 
             <x:invoke type="scxml" src="order-update.xhtml">
-                <x:param name="order" expr="#{orders.selected}"/>
+                <x:param name="data" expr="#{orders.selected}"/>
             </x:invoke>
             <x:transition event="error.execution" target="main"/>
 
@@ -73,12 +73,12 @@
         
         <x:state id="remove-order"> 
             <x:invoke type="scxml" src="order-remove.xhtml">
-                <x:param name="order" expr="#{orders.selected}"/>
+                <x:param name="data" expr="#{orders.selected}"/>
             </x:invoke>
             <x:transition event="error.execution" target="main"/>
 
             <x:transition event="done.invoke" cond="#{done.success}" target="main">
-                <fx:call expr="#{orders.updateOrder(done.result)}"/>
+                <fx:call expr="#{orders.removeOrder(done.result)}"/>
             </x:transition> 
             <x:transition event="done.invoke" target="main"/>
         </x:state>      

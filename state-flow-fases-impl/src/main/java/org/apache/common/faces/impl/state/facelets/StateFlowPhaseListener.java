@@ -31,7 +31,6 @@ import javax.faces.context.Flash;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
-import org.apache.common.faces.impl.state.StateFlowContext;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.component.UIStateChartRoot;
 import org.apache.common.faces.state.StateFlowHandler;
@@ -40,7 +39,6 @@ import org.apache.common.faces.impl.state.StateFlowParams;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
-import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
 import static org.apache.common.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
@@ -51,9 +49,6 @@ import org.apache.common.scxml.EventDispatcher;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.model.ModelException;
 import static org.apache.common.faces.state.StateFlow.DECODE_DISPATCHER_EVENTS;
-import org.apache.common.faces.state.StateFlowViewContext;
-import org.apache.common.scxml.env.EffectiveContextMap;
-import static org.apache.common.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 
 /**
  *

@@ -34,16 +34,22 @@ import org.apache.common.faces.state.annotation.StateChartScoped;
 public class OrderBean implements Serializable {
 
     private Order data;
+    
+    private boolean insertable;
+    private boolean removable;
+    private boolean updatable;
 
     private OrderProduct selectedProduct;
 
     public boolean prepareInsert() {
+        insertable = true;
         data = new Order();
         return true;
     }
 
     public boolean prepareEdit(Order data) {
         try {
+            updatable = true;
             this.data = data.clone();
             return true;
         } catch (CloneNotSupportedException ex) {
@@ -54,6 +60,7 @@ public class OrderBean implements Serializable {
 
     public boolean prepareRemove(Order data) {
         try {
+            removable = true;
             this.data = data.clone();
             return true;
         } catch (CloneNotSupportedException ex) {
@@ -115,4 +122,28 @@ public class OrderBean implements Serializable {
         data.setCost(sum);
     }
 
+    public boolean isRemovable() {
+        return removable;
+    }
+
+    public void setRemovable(boolean removable) {
+        this.removable = removable;
+    }
+
+    public boolean isUpdatable() {
+        return updatable;
+    }
+
+    public void setUpdatable(boolean updatable) {
+        this.updatable = updatable;
+    }
+
+    public boolean isInsertable() {
+        return insertable;
+    }
+
+    public void setInsertable(boolean insertable) {
+        this.insertable = insertable;
+    }
+    
 }

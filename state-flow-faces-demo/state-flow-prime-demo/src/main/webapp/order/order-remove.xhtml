@@ -12,13 +12,13 @@
             <x:data id="hasback" expr="#{scxml_has_parent == true}"/>
             <x:data id="title" expr="Remove Order"/>
             <x:data id="conversation" expr="edit"/>
-            <x:data id="order"/>
+            <x:data id="data"/>
         </x:datamodel>
         
         
         <x:state id="start">
             <x:onentry>
-                <x:if cond="#{order.prepareRemove(order)}">
+                <x:if cond="#{order.prepareRemove(data)}">
                     <x:raise event="start.prepare.success"/>
                     <x:else/>
                     <x:raise event="start.prepare.failed"/>
