@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>org.apache.faces.demo</groupId>
+  <artifactId>state-flow-basic-demo</artifactId>
+  <versioning>
+    <versions>
+      <version>1.0-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20180404161950</lastUpdated>
+  </versioning>
+</metadata>
