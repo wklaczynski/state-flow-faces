@@ -4,7 +4,7 @@
     <parent>
         <artifactId>state-flow-faces-demo</artifactId>
         <groupId>org.apache.faces</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-RC1</version>
     </parent>
 
     <groupId>org.apache.faces.demo</groupId>
@@ -40,12 +40,12 @@
         <dependency>
             <groupId>org.apache.faces</groupId>
             <artifactId>state-flow-fases-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0-RC1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.faces</groupId>
             <artifactId>state-flow-fases-impl</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0-RC1</version>
             <scope>runtime</scope>
         </dependency>
     </dependencies>
