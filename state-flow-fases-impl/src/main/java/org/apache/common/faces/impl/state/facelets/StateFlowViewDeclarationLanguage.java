@@ -29,9 +29,16 @@ import org.apache.common.faces.impl.state.config.StateWebConfiguration;
  */
 public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWrapper {
 
+    /**
+     *
+     */
     public final ViewDeclarationLanguage wrapped;
     private final StateWebConfiguration webConfig;
 
+    /**
+     *
+     * @param wrapped
+     */
     public StateFlowViewDeclarationLanguage(ViewDeclarationLanguage wrapped) {
         super();
         this.wrapped = wrapped;

@@ -27,14 +27,23 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class UIStateChartRoot extends UIComponentBase {
 
+    /**
+     *
+     */
     public static final String COMPONENT_FAMILY = "org.apache.common.faces.StateFlow";
     
+    /**
+     *
+     */
     public static final String COMPONENT_TYPE = "org.apache.common.faces.UIStateChartRoot";
 
     enum PropertyKeys {
         stateChart
     }
 
+    /**
+     *
+     */
     @SuppressWarnings("OverridableMethodCallInConstructor")
     public UIStateChartRoot() {
         super();
@@ -49,10 +58,18 @@ public class UIStateChartRoot extends UIComponentBase {
         });
     }
 
+    /**
+     *
+     * @return
+     */
     public SCXML getStateChart() {
         return (SCXML) getStateHelper().eval(PropertyKeys.stateChart);
     }
 
+    /**
+     *
+     * @param stateChart
+     */
     public void setStateChart(SCXML stateChart) {
         getStateHelper().put(PropertyKeys.stateChart, stateChart);
     }

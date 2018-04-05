@@ -54,6 +54,12 @@ public class FlowMetaRulesetImpl extends MetaRuleset {
     private final List<MetaRule> rules;
 
     // ------------------------------------------------------------ Constructors
+
+    /**
+     *
+     * @param tag
+     * @param type
+     */
     public FlowMetaRulesetImpl(Tag tag, Class<?> type) {
 
         this.tag = tag;
@@ -170,6 +176,11 @@ public class FlowMetaRulesetImpl extends MetaRuleset {
     }
 
     // ------------------------------------------------------- Protected Methods
+
+    /**
+     *
+     * @return
+     */
     protected MetadataTarget getMetadataTarget() {
         WeakReference<MetadataTarget> metaRef = metadata.get(type);
         MetadataTarget meta = metaRef == null ? null : metaRef.get();
@@ -196,11 +207,18 @@ public class FlowMetaRulesetImpl extends MetaRuleset {
 
     };
 
+    /**
+     *
+     */
     public static class FlowMetadataImpl extends Metadata {
 
         private final Metadata[] mappers;
         private final int size;
 
+        /**
+         *
+         * @param mappers
+         */
         public FlowMetadataImpl(Metadata[] mappers) {
             this.mappers = mappers;
             this.size = mappers.length;

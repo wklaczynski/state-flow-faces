@@ -33,15 +33,28 @@ public class CompositeContext implements Context {
     
     private final List<Context> contexts = new ArrayList<>();
 
+    /**
+     *
+     * @param root
+     * @param contexts
+     */
     public CompositeContext(Context root, Context... contexts) {
         this.root = root;
         this.contexts.addAll(Arrays.asList(contexts));
     }
 
+    /**
+     *
+     * @return
+     */
     public List<Context> getContexts() {
         return contexts;
     }
 
+    /**
+     *
+     * @param context
+     */
     public void add(Context context) {
         contexts.add(root);
     }

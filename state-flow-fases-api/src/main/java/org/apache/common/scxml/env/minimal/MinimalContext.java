@@ -48,6 +48,10 @@ public class MinimalContext extends SimpleContext {
         throw new IllegalStateException("A MinimalContext instance requires a non MinimalContext based parent.");
     }
 
+    /**
+     *
+     * @param parent
+     */
     public MinimalContext(final Context parent) {
         super(getMinimalContextParent(parent));
     }

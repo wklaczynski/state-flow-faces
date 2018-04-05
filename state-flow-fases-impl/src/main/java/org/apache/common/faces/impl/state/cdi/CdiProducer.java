@@ -157,48 +157,93 @@ public abstract class CdiProducer<T> implements Bean<T>, PassivationCapable, Ser
         return false;
     }
     
+    /**
+     *
+     * @param name
+     * @return
+     */
     protected CdiProducer<T> name(String name) {
         this.name = name;
         return this;
     }
     
+    /**
+     *
+     * @param create
+     * @return
+     */
     protected CdiProducer<T> create(Function<CreationalContext<T>, T> create) {
         this.create = create;
         return this;
     }
     
+    /**
+     *
+     * @param beanClass
+     * @return
+     */
     protected CdiProducer<T> beanClass(Class<?> beanClass) {
         this.beanClass = beanClass;
         return this;
     }
     
+    /**
+     *
+     * @param types
+     * @return
+     */
     protected CdiProducer<T> types(Type... types) {
         this.types = asSet(types);
         return this;
     }
     
+    /**
+     *
+     * @param beanClass
+     * @return
+     */
     protected CdiProducer<T> beanClassAndType(Class<?> beanClass) {
         beanClass(beanClass);
         types(beanClass);
         return this;
     }
     
+    /**
+     *
+     * @param qualifiers
+     * @return
+     */
     protected CdiProducer<T> qualifiers(Annotation... qualifiers) {
         this.qualifiers = asSet(qualifiers);
         return this;
     }
     
-    
+    /**
+     *
+     * @param scope
+     * @return
+     */
     protected CdiProducer<T> scope(Class<? extends Annotation> scope) {
         this.scope = scope;
         return this;
     }
     
+    /**
+     *
+     * @param object
+     * @return
+     */
     protected CdiProducer<T> addToId(Object object) {
         id = id + " " + object.toString();
         return this;
     }
     
+    /**
+     *
+     * @param <T>
+     * @param a
+     * @return
+     */
     @SafeVarargs
     protected static <T> Set<T> asSet(T... a) {
         return new HashSet<>(asList(a));

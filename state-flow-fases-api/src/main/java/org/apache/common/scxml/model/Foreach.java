@@ -47,6 +47,9 @@ public class Foreach extends Action implements ActionsContainer {
      */
     private final List<Action> actions;
 
+    /**
+     *
+     */
     public Foreach() {
         this.actions = new ArrayList<>();
     }
@@ -63,26 +66,50 @@ public class Foreach extends Action implements ActionsContainer {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public String getArray() {
         return array;
     }
 
+    /**
+     *
+     * @param array
+     */
     public void setArray(final String array) {
         this.array = array;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getItem() {
         return item;
     }
 
+    /**
+     *
+     * @param item
+     */
     public void setItem(final String item) {
         this.item = item;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getIndex() {
         return index;
     }
 
+    /**
+     *
+     * @param index
+     */
     public void setIndex(final String index) {
         this.index = index;
     }

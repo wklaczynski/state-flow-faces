@@ -80,10 +80,17 @@ public class XPathELResolver extends ELResolver {
     private final boolean isReadOnly;
     static private Class<?> theUnmodifiableListClass = Collections.unmodifiableList(new ArrayList<>()).getClass();
 
+    /**
+     *
+     */
     public XPathELResolver() {
         this.isReadOnly = false;
     }
 
+    /**
+     *
+     * @param isReadOnly
+     */
     public XPathELResolver(boolean isReadOnly) {
         this.isReadOnly = isReadOnly;
     }
@@ -355,6 +362,14 @@ public class XPathELResolver extends ELResolver {
         return -1;
     }
 
+    /**
+     *
+     * @param context
+     * @param base
+     * @param xpathString
+     * @return
+     * @throws ELException
+     */
     public Object selectObject(ELContext context, Object base, String xpathString) throws ELException {
         if (base != null) {
             if (base instanceof Node) {
@@ -425,6 +440,14 @@ public class XPathELResolver extends ELResolver {
         return null;
     }
 
+    /**
+     *
+     * @param context
+     * @param base
+     * @param xpathString
+     * @return
+     * @throws ELException
+     */
     public Node selectNode(ELContext context, Object base, String xpathString) throws ELException {
         if (base != null) {
             if (base instanceof Node) {
@@ -442,6 +465,14 @@ public class XPathELResolver extends ELResolver {
         return null;
     }
 
+    /**
+     *
+     * @param context
+     * @param base
+     * @param expression
+     * @return
+     * @throws ELException
+     */
     public Object findNodes(ELContext context, Object base, String expression) throws ELException {
         expression = expression.trim();
 
@@ -501,6 +532,14 @@ public class XPathELResolver extends ELResolver {
         }
     }
 
+    /**
+     *
+     * @param context
+     * @param base
+     * @param expression
+     * @return
+     * @throws ELException
+     */
     public Object selectNodes(ELContext context, Object base, String expression) throws ELException {
         staticInit();
 
@@ -599,6 +638,13 @@ public class XPathELResolver extends ELResolver {
         return null;
     }
 
+    /**
+     *
+     * @param context
+     * @param map
+     * @param property
+     * @return
+     */
     public Node getFromNodeMap(ELContext context, NamedNodeMap map, Object property) {
         context.setPropertyResolved(true);
         int index = toIndex(property);
@@ -663,6 +709,12 @@ public class XPathELResolver extends ELResolver {
         return null;
     }
 
+    /**
+     *
+     * @param base
+     * @param xpath
+     * @return
+     */
     protected Node adaptParamsForXalan(Object base, String xpath) {
         Node boundDocument = null;
         try {

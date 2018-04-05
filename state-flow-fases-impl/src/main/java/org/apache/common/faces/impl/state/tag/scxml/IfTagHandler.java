@@ -35,8 +35,15 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class IfTagHandler extends AbstractFlowTagHandler<If> {
 
+    /**
+     *
+     */
     protected final TagAttribute cond;
     
+    /**
+     *
+     * @param config
+     */
     public IfTagHandler(TagConfig config) {
         super(config, If.class);
         
@@ -55,6 +62,14 @@ public class IfTagHandler extends AbstractFlowTagHandler<If> {
         this.cond = this.getRequiredAttribute("cond");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         If action = new If();

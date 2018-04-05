@@ -54,6 +54,9 @@ public abstract class TransitionalState extends EnterableState {
      */
     private final List<EnterableState> children;
 
+    /**
+     *
+     */
     public TransitionalState() {
         transitions = new ArrayList<>();
         history = new ArrayList<>();

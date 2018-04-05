@@ -43,10 +43,19 @@ public final class StateWebConfiguration {
         cachedListParams = new HashMap<>(3);
     }
 
+    /**
+     *
+     * @return
+     */
     public static StateWebConfiguration getInstance() {
         return getInstance(FacesContext.getCurrentInstance().getExternalContext());
     }
 
+    /**
+     *
+     * @param extContext
+     * @return
+     */
     public static StateWebConfiguration getInstance(ExternalContext extContext) {
 
         StateWebConfiguration config = (StateWebConfiguration) extContext.getApplicationMap().get(WEB_CONFIG_KEY);
@@ -57,6 +66,11 @@ public final class StateWebConfiguration {
         }
     }
 
+    /**
+     *
+     * @param servletContext
+     * @return
+     */
     public static StateWebConfiguration getInstance(ServletContext servletContext) {
 
         StateWebConfiguration webConfig = (StateWebConfiguration) servletContext.getAttribute(WEB_CONFIG_KEY);
@@ -69,6 +83,10 @@ public final class StateWebConfiguration {
         return webConfig;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getServletContextName() {
 
         if (servletContext.getMajorVersion() == 2 && servletContext.getMinorVersion() <= 4) {
@@ -78,11 +96,21 @@ public final class StateWebConfiguration {
         return servletContext.getContextPath();
     }
 
+    /**
+     *
+     * @param param
+     * @return
+     */
     public String getOptionValue(String param) {
         return getOptionValue(param, null);
     }
     
-    
+    /**
+     *
+     * @param param
+     * @param def
+     * @return
+     */
     public String getOptionValue(String param, String def) {
         String[] values = getOptionValues(param, def, " ");
         if(values.length == 0) {
@@ -92,11 +120,23 @@ public final class StateWebConfiguration {
         }
     }
 
+    /**
+     *
+     * @param param
+     * @param sep
+     * @return
+     */
     public String[] getOptionValues(String param, String sep) {
         return getOptionValues(param, null, sep);
     }
     
-    
+    /**
+     *
+     * @param param
+     * @param def
+     * @param sep
+     * @return
+     */
     public String[] getOptionValues(String param, String def, String sep) {
         String[] result;
 

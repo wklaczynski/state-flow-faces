@@ -64,16 +64,34 @@ import org.apache.common.scxml.model.CustomAction;
  */
 public class StateChartTagHandler extends TagHandler {
 
+    /**
+     *
+     */
     public static final String KEY = "facelets.STATECHART_FACET_NAME";
+
+    /**
+     *
+     */
     public static final String BASE_PATH_RESOLVER = "facelets.stateflow.BASE_PATH_RESOLVER";
 
     private static final Logger LOGGER = FlowLogger.TAGLIB.getLogger();
 
+    /**
+     *
+     */
     protected final TagAttribute id;
+
+    /**
+     *
+     */
     protected final TagAttribute initial;
 
     private static SCXML restored;
 
+    /**
+     *
+     * @param config
+     */
     public StateChartTagHandler(TagConfig config) {
         super(config);
         this.id = this.getAttribute("id");

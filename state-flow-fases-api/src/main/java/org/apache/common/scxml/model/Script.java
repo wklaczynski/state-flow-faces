@@ -45,18 +45,34 @@ public class Script extends Action {
         super();
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isGlobalScript() {
         return globalScript;
     }
 
+    /**
+     *
+     * @param globalScript
+     */
     public void setGlobalScript(final boolean globalScript) {
         this.globalScript = globalScript;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getSrc() {
         return src;
     }
 
+    /**
+     *
+     * @param src
+     */
     public void setSrc(final String src) {
         this.src = src;
     }
@@ -70,6 +86,10 @@ public class Script extends Action {
         return script;
     }
 
+    /**
+     *
+     * @param script
+     */
     public void setScript(final String script) {
         this.script = script;
     }

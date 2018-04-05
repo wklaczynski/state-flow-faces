@@ -28,6 +28,9 @@ public class EvaluatorVariableMapper extends VariableMapper {
 
     private Map vars;
 
+    /**
+     *
+     */
     public EvaluatorVariableMapper() {
         super();
     }

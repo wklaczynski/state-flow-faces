@@ -56,6 +56,9 @@ public class BeanPropertyTagRule extends MetaRule {
         }
     }
 
+    /**
+     *
+     */
     public final static BeanPropertyTagRule Instance = new BeanPropertyTagRule();
 
     @Override

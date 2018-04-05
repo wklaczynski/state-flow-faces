@@ -158,10 +158,18 @@ public class SCXML implements Serializable, Observable {
         return GENERATED_TT_ID_PREFIX + ttNextId++;
     }
 
+    /**
+     *
+     * @return
+     */
     public final Script getGlobalScript() {
         return globalScript;
     }
 
+    /**
+     *
+     * @param script
+     */
     public final void setGlobalScript(Script script) {
         this.globalScript = script;
     }
@@ -226,10 +234,18 @@ public class SCXML implements Serializable, Observable {
         this.datamodel = datamodel;
     }
 
+    /**
+     *
+     * @param lateBinding
+     */
     public final void setLateBinding(final Boolean lateBinding) {
         this.lateBinding = lateBinding;
     }
 
+    /**
+     *
+     * @return
+     */
     public final Boolean isLateBinding() {
         return lateBinding;
     }

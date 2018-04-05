@@ -28,8 +28,19 @@ public class EventVariable implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
+    /**
+     *
+     */
     public static final String TYPE_PLATFORM = "platform";
+
+    /**
+     *
+     */
     public static final String TYPE_INTERNAL = "internal";
+
+    /**
+     *
+     */
     public static final String TYPE_EXTERNAL = "external";
 
     /**
@@ -67,6 +78,16 @@ public class EventVariable implements Serializable {
      */
     private final Object data;
 
+    /**
+     *
+     * @param name
+     * @param type
+     * @param sendid
+     * @param origin
+     * @param origintype
+     * @param invokeid
+     * @param data
+     */
     public EventVariable(final String name, final String type, final String sendid, final String origin, final String origintype, final String invokeid, final Object data) {
         this.name = name;
         this.type = type;
@@ -77,30 +98,58 @@ public class EventVariable implements Serializable {
         this.data = data;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getType() {
         return type;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getSendid() {
         return sendid;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getOrigin() {
         return origin;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getOrigintype() {
         return origintype;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getInvokeid() {
         return invokeid;
     }
 
+    /**
+     *
+     * @return
+     */
     public Object getData() {
         return data;
     }

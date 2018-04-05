@@ -168,14 +168,26 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
 //        registerInvokerClass(SCXML_INVOKER_TYPE, SimpleSCXMLInvoker.class);
     }
 
+    /**
+     *
+     * @return
+     */
     public SCXMLExecutor getSCXMLExecutor() {
         return scxmlExecutor;
     }
 
+    /**
+     *
+     * @return
+     */
     public SCXMLIOProcessor getExternalIOProcessor() {
         return externalIOProcessor;
     }
 
+    /**
+     *
+     * @return
+     */
     public SCXMLIOProcessor getInternalIOProcessor() {
         return this;
     }
@@ -572,6 +584,11 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
         return !internalEventQueue.isEmpty();
     }
 
+    /**
+     *
+     * @param context
+     * @return
+     */
     @Override
     public Object saveState(Context context) {
         Object values[] = new Object[4];
@@ -590,6 +607,11 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
         return values;
     }
 
+    /**
+     *
+     * @param context
+     * @param state
+     */
     @Override
     public void restoreState(Context context, Object state) {
         if (state == null) {

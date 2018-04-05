@@ -24,17 +24,30 @@ import org.apache.common.scxml.TriggerEvent;
  */
 public abstract class TimerEventProducer {
     
-    
+    /**
+     *
+     */
     protected TimerEventProducer wrapped;
 
+    /**
+     *
+     */
     public TimerEventProducer() {
         this.wrapped = null;
     }
 
+    /**
+     *
+     * @return
+     */
     public TimerEventProducer getWrapped() {
         return wrapped;
     }
 
+    /**
+     *
+     * @param wrapped
+     */
     public void setWrapped(TimerEventProducer wrapped) {
         this.wrapped = wrapped;
     }
@@ -92,6 +105,9 @@ public abstract class TimerEventProducer {
      */
     public abstract void encodeBegin(List<DelayedEventTask> taskList);
 
+    /**
+     *
+     */
     public abstract void encodeEnd();
     
 }

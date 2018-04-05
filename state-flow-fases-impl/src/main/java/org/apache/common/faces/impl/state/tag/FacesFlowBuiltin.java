@@ -28,6 +28,9 @@ import org.apache.common.scxml.SCXMLExecutor;
  */
 public class FacesFlowBuiltin implements Serializable {
 
+    /**
+     *
+     */
     public static final Logger log = FlowLogger.TAGLIB.getLogger();
 
     /**

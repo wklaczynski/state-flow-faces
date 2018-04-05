@@ -30,6 +30,9 @@ import org.apache.common.scxml.SCXMLConstants;
  */
 public class CommonsSCXML extends SCXML {
 
+    /**
+     *
+     */
     public CommonsSCXML() {
         setNamespaces(new HashMap<>());
         getNamespaces().put(SCXMLConstants.XMLNS_COMMONS_SCXML_PREFIX, SCXMLConstants.XMLNS_COMMONS_SCXML);

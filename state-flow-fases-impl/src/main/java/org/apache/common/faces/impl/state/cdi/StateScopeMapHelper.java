@@ -42,6 +42,12 @@ public class StateScopeMapHelper {
     private transient Map<String, Object> sessionMap;
     private final String prefix;
 
+    /**
+     *
+     * @param facesContext
+     * @param executor
+     * @param prefix
+     */
     public StateScopeMapHelper(FacesContext facesContext, SCXMLExecutor executor, String prefix) {
         this(prefix);
         ExternalContext extContext = facesContext.getExternalContext();
@@ -50,6 +56,10 @@ public class StateScopeMapHelper {
         generateKeyForCDIBeansBelongToAExecutor(facesContext, executor);
     }
 
+    /**
+     *
+     * @param prefix
+     */
     public StateScopeMapHelper(String prefix) {
         this.prefix = prefix;
     }
@@ -67,23 +77,42 @@ public class StateScopeMapHelper {
         }
     }
 
+    /**
+     *
+     */
     public void createMaps() {
         getScopedBeanMapForCurrentExecutor();
         getScopedCreationalMapForCurrentExecutor();
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isExecutorExists() {
         return (null != beansForExecutorKey && null != creationalForExecutorKey);
     }
 
+    /**
+     *
+     * @return
+     */
     public String getCreationalForExecutorKey() {
         return creationalForExecutorKey;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getBeansForExecutorKey() {
         return beansForExecutorKey;
     }
 
+    /**
+     *
+     * @return
+     */
     public Map<String, Object> getScopedBeanMapForCurrentExecutor() {
         if (null == beansForExecutorKey && null == creationalForExecutorKey) {
             return Collections.emptyMap();
@@ -98,6 +127,10 @@ public class StateScopeMapHelper {
         return result;
     }
 
+    /**
+     *
+     * @return
+     */
     public Map<String, CreationalContext<?>> getScopedCreationalMapForCurrentExecutor() {
         if (null == beansForExecutorKey && null == creationalForExecutorKey) {
             return Collections.emptyMap();
@@ -112,6 +145,9 @@ public class StateScopeMapHelper {
         return result;
     }
 
+    /**
+     *
+     */
     public void updateSession() {
         if (null == beansForExecutorKey && null == creationalForExecutorKey) {
             return;
@@ -147,6 +183,10 @@ public class StateScopeMapHelper {
         beanMapList.add(creationalForExecutor);
     }
 
+    /**
+     *
+     * @param session
+     */
     public static void sessionDestroyed(HttpSession session) {
         List<String> beanMapList = (List<String>) session.getAttribute(PER_SESSION_BEAN_MAP_LIST);
         if (null != beanMapList) {

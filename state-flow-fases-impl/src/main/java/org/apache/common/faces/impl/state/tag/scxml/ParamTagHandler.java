@@ -32,10 +32,25 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class ParamTagHandler extends AbstractFlowTagHandler<Param> {
 
+    /**
+     *
+     */
     protected final TagAttribute name;
+
+    /**
+     *
+     */
     protected final TagAttribute expr;
+
+    /**
+     *
+     */
     protected final TagAttribute location;
     
+    /**
+     *
+     * @param config
+     */
     public ParamTagHandler(TagConfig config) {
         super(config, Param.class);
         
@@ -46,6 +61,14 @@ public class ParamTagHandler extends AbstractFlowTagHandler<Param> {
         this.location = this.getAttribute("location");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         List<Param> params = null;

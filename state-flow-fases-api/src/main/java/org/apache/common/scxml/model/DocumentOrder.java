@@ -29,8 +29,14 @@ import java.util.Comparator;
  */
 public interface DocumentOrder {
 
+    /**
+     *
+     */
     Comparator<DocumentOrder> documentOrderComparator = Comparator.comparingInt(DocumentOrder::getOrder);
 
+    /**
+     *
+     */
     Comparator<DocumentOrder> reverseDocumentOrderComparator = (o1, o2) -> o2.getOrder() - o1.getOrder();
 
     /**

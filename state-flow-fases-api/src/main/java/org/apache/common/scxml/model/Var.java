@@ -46,6 +46,9 @@ public class Var extends Action {
      */
     private static final long serialVersionUID = 1L;
 
+    /**
+     *
+     */
     public static final CustomAction CUSTOM_ACTION =
             new CustomAction(SCXMLConstants.XMLNS_COMMONS_SCXML, SCXMLConstants.ELEM_VAR, Var.class);
 

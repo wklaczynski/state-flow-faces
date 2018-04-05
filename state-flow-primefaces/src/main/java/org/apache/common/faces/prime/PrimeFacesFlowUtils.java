@@ -33,6 +33,11 @@ public class PrimeFacesFlowUtils {
 
     private final static Logger logger = Logger.getLogger(PrimeFacesFlowUtils.class.getName());
 
+    /**
+     *
+     * @param expression
+     * @return
+     */
     public static boolean isMixedExpression(String expression) {
 
         if (null == expression) {
@@ -45,6 +50,11 @@ public class PrimeFacesFlowUtils {
 
     }
 
+    /**
+     *
+     * @param expression
+     * @return
+     */
     public static boolean isExpression(String expression) {
 
         if (null == expression) {
@@ -56,6 +66,12 @@ public class PrimeFacesFlowUtils {
         return start != -1 && expression.indexOf('}', start + 2) != -1;
     }
 
+    /**
+     *
+     * @param context
+     * @param map
+     * @return
+     */
     public static Map<String, List<String>> evaluateExpressions(FacesContext context, Map<String, List<String>> map) {
         if (map != null && !map.isEmpty()) {
             Map<String, List<String>> ret = new HashMap<>(map.size());
@@ -69,6 +85,12 @@ public class PrimeFacesFlowUtils {
         return map;
     }
 
+    /**
+     *
+     * @param context
+     * @param values
+     * @return
+     */
     public static List<String> evaluateExpressions(FacesContext context, List<String> values) {
         if (!values.isEmpty()) {
             List<String> ret = new ArrayList<>(values.size());
@@ -88,6 +110,11 @@ public class PrimeFacesFlowUtils {
         return values;
     }
 
+    /**
+     *
+     * @param context
+     * @param isRedirect
+     */
     public static void doLastPhaseActions(FacesContext context, boolean isRedirect) {
         try {
             Flash flash = context.getExternalContext().getFlash();
@@ -98,6 +125,13 @@ public class PrimeFacesFlowUtils {
         }
     }
 
+    /**
+     *
+     * @param context
+     * @param view
+     * @param instance
+     * @param target
+     */
     public static void loadResorces(FacesContext context, UIViewRoot view, Object instance, String target) {
         ResourceDependencies aresorces = instance.getClass().getAnnotation(ResourceDependencies.class);
 
@@ -107,6 +141,12 @@ public class PrimeFacesFlowUtils {
         }
     }
 
+    /**
+     *
+     * @param context
+     * @param viewRoot
+     * @param params
+     */
     public static void applyParams(FacesContext context, UIViewRoot viewRoot, Map<String, Object> params) {
         if (viewRoot != null) {
             if (ViewMetadata.hasMetadata(viewRoot)) {

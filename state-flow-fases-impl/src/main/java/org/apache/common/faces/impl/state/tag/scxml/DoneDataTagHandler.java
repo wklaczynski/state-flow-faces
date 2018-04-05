@@ -31,12 +31,24 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class DoneDataTagHandler extends AbstractFlowTagHandler<DoneData> {
 
+    /**
+     *
+     * @param config
+     */
     public DoneDataTagHandler(TagConfig config) {
         super(config, DoneData.class);
         
         in("final", Final.class);
     }
     
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Final continer = (Final) parentElement;

@@ -260,10 +260,19 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
         exctx.getScInstance().setRootContext(rootContext);
     }
 
+    /**
+     *
+     * @param singleContext
+     * @throws ModelException
+     */
     public void setSingleContext(boolean singleContext) throws ModelException {
         getSCInstance().setSingleContext(singleContext);
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isSingleContext() {
         return getSCInstance().isSingleContext();
     }
@@ -447,6 +456,10 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
         return exctx.isRunning();
     }
 
+    /**
+     *
+     * @throws ModelException
+     */
     public void go() throws ModelException {
         go(Collections.emptyMap());
     }
@@ -483,10 +496,21 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
         go();
     }
 
+    /**
+     *
+     * @return
+     * @throws ModelException
+     */
     public Thread run() throws ModelException {
         return run(Collections.emptyMap());
     }
 
+    /**
+     *
+     * @param data
+     * @return
+     * @throws ModelException
+     */
     public Thread run(final Map<String, Object> data) throws ModelException {
         go(data);
         Thread t = new Thread(() -> {
@@ -581,6 +605,11 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
         }
     }
 
+    /**
+     *
+     * @param event
+     * @throws ModelException
+     */
     protected void eventStep(TriggerEvent event) throws ModelException {
         semantics.nextStep(exctx, event);
         logState();
@@ -610,6 +639,11 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
         }
     }
 
+    /**
+     *
+     * @param context
+     * @return
+     */
     @Override
     public Object saveState(Context context) {
         Object values[] = new Object[1];
@@ -620,6 +654,11 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
         return values;
     }
 
+    /**
+     *
+     * @param context
+     * @param state
+     */
     @Override
     public void restoreState(Context context, Object state) {
         if (state == null) {

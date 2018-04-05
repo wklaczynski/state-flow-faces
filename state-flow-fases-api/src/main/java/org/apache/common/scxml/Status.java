@@ -34,7 +34,10 @@ public class Status implements Serializable {
 
     private final StateConfiguration configuration;
 
-
+    /**
+     *
+     * @param configuration
+     */
     public Status(StateConfiguration configuration) {
         this.configuration = configuration;
     }
@@ -78,6 +81,11 @@ public class Status implements Serializable {
         return configuration.getActiveStates();
     }
 
+    /**
+     *
+     * @param state
+     * @return
+     */
     public boolean isInState(final String state) {
         for (EnterableState es : configuration.getActiveStates()) {
             if (state.equals(es.getId())) {

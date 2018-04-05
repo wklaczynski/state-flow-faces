@@ -40,10 +40,30 @@ public interface ParsedValue extends Serializable {
      * The supported body value types
      */
     enum ValueType {
+
+        /**
+         *
+         */
         TEXT,
+
+        /**
+         *
+         */
         JSON,
+
+        /**
+         *
+         */
         NODE,
+
+        /**
+         *
+         */
         NODE_LIST,
+
+        /**
+         *
+         */
         NODE_TEXT
     }
 

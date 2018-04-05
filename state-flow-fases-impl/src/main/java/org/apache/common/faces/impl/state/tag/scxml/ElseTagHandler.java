@@ -30,12 +30,24 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class ElseTagHandler extends AbstractFlowTagHandler<Else> {
 
+    /**
+     *
+     * @param config
+     */
     public ElseTagHandler(TagConfig config) {
         super(config, Else.class);
 
         in("if", If.class);
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Else action = new Else();

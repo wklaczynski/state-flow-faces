@@ -31,6 +31,11 @@ public class ScxmlViewMetadataImpl extends ViewMetadata {
     private final ViewDeclarationLanguage vdl;
     private final String viewId;
 
+    /**
+     *
+     * @param vdl
+     * @param viewId
+     */
     public ScxmlViewMetadataImpl(ViewDeclarationLanguage vdl, String viewId) {
         this.viewId = viewId;
         this.vdl = vdl;
@@ -41,6 +46,12 @@ public class ScxmlViewMetadataImpl extends ViewMetadata {
         return viewId;
     }
 
+    /**
+     *
+     * @param context
+     * @return
+     * @throws IOException
+     */
     protected UIViewRoot createView(FacesContext context) throws IOException {
         UIViewRoot viewRoot = vdl.createView(context, viewId);
         vdl.buildView(context, viewRoot);

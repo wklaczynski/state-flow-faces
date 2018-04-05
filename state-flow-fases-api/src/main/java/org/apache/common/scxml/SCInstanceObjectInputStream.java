@@ -78,6 +78,7 @@ public class SCInstanceObjectInputStream extends ObjectInputStream {
      * }
      * </code></pre>
      * </p>
+     * @return 
      * @see org.apache.commons.scxml2.env.groovy.GroovyContext#readObject(ObjectInputStream)
      * @param classResolver custom class resolver
      */

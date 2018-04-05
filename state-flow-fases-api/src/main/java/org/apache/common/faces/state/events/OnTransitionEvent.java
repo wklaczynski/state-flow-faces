@@ -31,6 +31,14 @@ public class OnTransitionEvent {
     private final Transition transition;
     private final String event;
 
+    /**
+     *
+     * @param executor
+     * @param from
+     * @param to
+     * @param transition
+     * @param event
+     */
     public OnTransitionEvent(SCXMLExecutor executor, TransitionTarget from, TransitionTarget to, Transition transition, String event) {
         this.executor = executor;
         this.from = from;
@@ -39,22 +47,42 @@ public class OnTransitionEvent {
         this.event = event;
     }
 
+    /**
+     *
+     * @return
+     */
     public SCXMLExecutor getExecutor() {
         return executor;
     }
 
+    /**
+     *
+     * @return
+     */
     public TransitionTarget getFrom() {
         return from;
     }
 
+    /**
+     *
+     * @return
+     */
     public TransitionTarget getTo() {
         return to;
     }
 
+    /**
+     *
+     * @return
+     */
     public Transition getTransition() {
         return transition;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getEvent() {
         return event;
     }

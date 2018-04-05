@@ -31,9 +31,20 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class HistoryTagHandler extends AbstractFlowTagHandler<History> {
 
+    /**
+     *
+     */
     protected final TagAttribute id;
+
+    /**
+     *
+     */
     protected final TagAttribute type;
     
+    /**
+     *
+     * @param config
+     */
     public HistoryTagHandler(TagConfig config) {
         super(config, History.class);
         
@@ -43,6 +54,14 @@ public class HistoryTagHandler extends AbstractFlowTagHandler<History> {
         this.type = this.getAttribute("type");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         History target = new History();

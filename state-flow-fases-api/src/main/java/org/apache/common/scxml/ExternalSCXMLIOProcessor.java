@@ -27,6 +27,10 @@ public class ExternalSCXMLIOProcessor implements SCXMLIOProcessor {
 
     private final SCXMLIOProcessor processor;
 
+    /**
+     *
+     * @param processor
+     */
     public ExternalSCXMLIOProcessor(final SCXMLIOProcessor processor) {
         this.processor = processor;
     }
@@ -36,6 +40,10 @@ public class ExternalSCXMLIOProcessor implements SCXMLIOProcessor {
         processor.addEvent(event);
     }
 
+    /**
+     *
+     * @return
+     */
     public String getLocation() {
         return SCXML_EVENT_PROCESSOR;
     }

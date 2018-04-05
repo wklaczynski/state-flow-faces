@@ -42,19 +42,34 @@ public class StateFlowCDIExtension implements Extension {
 
     private final Map<Contextual<?>, StateTargetCDIContext.TargetBeanInfo> targetScopedBeanFlowIds;
 
+    /**
+     *
+     */
     public static final Logger log = FlowLogger.CDI.getLogger();
 
+    /**
+     *
+     */
     public StateFlowCDIExtension() {
         cdiOneOneOrGreater = CdiUtil.isCdiOneOneOrGreater();
         targetScopedBeanFlowIds = new ConcurrentHashMap<>();
     }
 
+    /**
+     *
+     * @param event
+     * @param beanManager
+     */
     public void beforeBean(@Observes final BeforeBeanDiscovery event, BeanManager beanManager) {
         event.addScope(StateChartScoped.class, true, true);
         event.addScope(StateDialogScoped.class, true, true);
         event.addScope(StateTargetScoped.class, true, true);
     }
 
+    /**
+     *
+     * @param event
+     */
     public void processBean(@Observes ProcessBean<?> event) {
         StateDialogScoped dialogScoped = event.getAnnotated().getAnnotation(StateDialogScoped.class);
         if (dialogScoped != null && log.isLoggable(Level.FINE)) {
@@ -74,6 +89,11 @@ public class StateFlowCDIExtension implements Extension {
        }
     }
 
+    /**
+     *
+     * @param event
+     * @param beanManager
+     */
     public void afterBean(@Observes final AfterBeanDiscovery event, BeanManager beanManager) {
 
         event.addContext(new StateChartCDIContext());

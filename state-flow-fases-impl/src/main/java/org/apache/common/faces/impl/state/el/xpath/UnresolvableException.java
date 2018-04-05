@@ -23,10 +23,18 @@ import javax.xml.xpath.XPathException;
  */
 public class UnresolvableException extends XPathException {
 
+    /**
+     *
+     * @param message
+     */
     public UnresolvableException(String message) {
         super(message);
     }
     
+    /**
+     *
+     * @param cause
+     */
     public UnresolvableException(Throwable cause) {
         super(cause);
     }

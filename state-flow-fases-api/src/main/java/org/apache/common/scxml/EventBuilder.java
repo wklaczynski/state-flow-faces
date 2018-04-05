@@ -16,6 +16,10 @@
  */
 package org.apache.common.scxml;
 
+/**
+ *
+ * @author Waldemar Kłaczyński
+ */
 public class EventBuilder {
 
     private final String name;
@@ -26,64 +30,126 @@ public class EventBuilder {
     private String invokeId;
     private Object data;
 
+    /**
+     *
+     * @param name
+     * @param type
+     */
     public EventBuilder(final String name, final int type) {
         this.name = name;
         this.type = type;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getType() {
         return type;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getSendId() {
         return sendId;
     }
 
+    /**
+     *
+     * @param sendId
+     * @return
+     */
     public EventBuilder sendId(final String sendId) {
         this.sendId = sendId;
         return this;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getOrigin() {
         return origin;
     }
 
+    /**
+     *
+     * @param origin
+     * @return
+     */
     public EventBuilder origin(final String origin) {
         this.origin = origin;
         return this;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getOriginType() {
         return originType;
     }
 
+    /**
+     *
+     * @param originType
+     * @return
+     */
     public EventBuilder originType(final String originType) {
         this.originType = originType;
         return this;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getInvokeId() {
         return invokeId;
     }
 
+    /**
+     *
+     * @param invokeId
+     * @return
+     */
     public EventBuilder invokeId(final String invokeId) {
         this.invokeId = invokeId;
         return this;
     }
 
+    /**
+     *
+     * @return
+     */
     public Object getData() {
         return data;
     }
 
+    /**
+     *
+     * @param data
+     * @return
+     */
     public EventBuilder data(final Object data) {
         this.data = data;
         return this;
     }
 
+    /**
+     *
+     * @return
+     */
     public TriggerEvent build() {
         return new TriggerEvent(name, type, sendId, origin, originType, invokeId, data);
     }

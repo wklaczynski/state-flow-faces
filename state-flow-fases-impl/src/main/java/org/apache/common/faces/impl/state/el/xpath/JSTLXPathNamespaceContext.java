@@ -34,17 +34,33 @@ import org.w3c.dom.Document;
  */
 public class JSTLXPathNamespaceContext implements NamespaceContext {
 
+    /**
+     *
+     */
     protected Map< String, String> map = new HashMap<>();
     private final Document document;
 
+    /**
+     *
+     * @param document
+     */
     public JSTLXPathNamespaceContext(Document document) {
         this.document = document;
     }
 
+    /**
+     *
+     * @param namespaceURI
+     * @param prefix
+     */
     public void addNamespace(String namespaceURI, String prefix) {
         map.put(prefix, namespaceURI);
     }
 
+    /**
+     *
+     * @param prefix
+     */
     public void removeNamespace(String prefix) {
         map.remove(prefix);
     }
@@ -86,6 +102,12 @@ public class JSTLXPathNamespaceContext implements NamespaceContext {
 
     }
 
+    /**
+     *
+     * @param namespaceURI
+     * @param defaultNS
+     * @return
+     */
     protected String commonPrefixCheck(String namespaceURI, boolean defaultNS) {
         if (namespaceURI == null) {
             throw new IllegalArgumentException(namespaceURI);
@@ -126,6 +148,11 @@ public class JSTLXPathNamespaceContext implements NamespaceContext {
         return prefixIterator(namespaceURI);
     }
 
+    /**
+     *
+     * @param namespaceURI
+     * @return
+     */
     protected Iterator< String> prefixIterator(final String namespaceURI) {
         return new Iterator< String>() {
             private final Iterator< Map.Entry< String, String>> iterator = map.entrySet().iterator();

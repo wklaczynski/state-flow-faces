@@ -26,6 +26,10 @@ public class StateFlowViewDeclarationLanguageFactory extends ViewDeclarationLang
 
     private final ViewDeclarationLanguageFactory wrapped;
 
+    /**
+     *
+     * @param wrapped
+     */
     public StateFlowViewDeclarationLanguageFactory(ViewDeclarationLanguageFactory wrapped) {
         this.wrapped = wrapped;
     }

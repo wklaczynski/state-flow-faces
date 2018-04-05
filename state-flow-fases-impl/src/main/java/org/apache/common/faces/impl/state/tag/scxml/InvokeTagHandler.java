@@ -32,10 +32,25 @@ import org.apache.common.scxml.model.TransitionalState;
  */
 public class InvokeTagHandler extends AbstractFlowTagHandler<Invoke> {
 
+    /**
+     *
+     */
     protected final TagAttribute type;
+
+    /**
+     *
+     */
     protected final TagAttribute src;
+
+    /**
+     *
+     */
     protected final TagAttribute id;
 
+    /**
+     *
+     * @param config
+     */
     public InvokeTagHandler(TagConfig config) {
         super(config, Invoke.class);
 
@@ -46,6 +61,14 @@ public class InvokeTagHandler extends AbstractFlowTagHandler<Invoke> {
         this.id = this.getAttribute("id");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Invoke target = new Invoke();

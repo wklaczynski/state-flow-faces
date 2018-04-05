@@ -40,35 +40,73 @@ public class WebMessage {
     private static final int SUMMARYID = 0;
     private static final int DETAILID = 1;
     
-    
+    /**
+     *
+     * @param fc
+     * @param message
+     * @param params
+     */
     public static void info(FacesContext fc, String message, Object... params) {
         FacesMessage facesMessage = getFacesMessage(fc, message, params);
         facesMessage.setSeverity(FacesMessage.SEVERITY_INFO);
         fc.addMessage(null, facesMessage);
     }
 
+    /**
+     *
+     * @param fc
+     * @param message
+     * @param params
+     */
     public static void error(FacesContext fc, String message, Object... params) {
         FacesMessage facesMessage = getFacesMessage(fc, message, params);
         facesMessage.setSeverity(FacesMessage.SEVERITY_ERROR);
         fc.addMessage(null, facesMessage);
     }
 
+    /**
+     *
+     * @param fc
+     * @param message
+     * @param params
+     */
     public static void warn(FacesContext fc, String message, Object... params) {
         FacesMessage facesMessage = getFacesMessage(fc, message, params);
         facesMessage.setSeverity(FacesMessage.SEVERITY_WARN);
         fc.addMessage(null, facesMessage);
     }
 
+    /**
+     *
+     * @param fc
+     * @param message
+     * @param params
+     */
     public static void fatal(FacesContext fc, String message, Object... params) {
         FacesMessage facesMessage = getFacesMessage(fc, message, params);
         facesMessage.setSeverity(FacesMessage.SEVERITY_FATAL);
         fc.addMessage(null, facesMessage);
     }
     
+    /**
+     *
+     * @param fc
+     * @param message
+     * @param params
+     * @return
+     */
     public static FacesMessage getFacesMessage(FacesContext fc, String message, Object... params) {
         return getFacesMessage(fc, message, null, params);
     }
 
+    /**
+     *
+     * @param fc
+     * @param summary
+     * @param detail
+     * @param params
+     * @return
+     */
     public static FacesMessage getFacesMessage(FacesContext fc, String summary, String detail, Object... params) {
         String messageInfo[] = new String[2];
         Locale locale;
@@ -137,6 +175,11 @@ public class WebMessage {
         }
     }
 
+    /**
+     *
+     * @param o
+     * @return
+     */
     public static ClassLoader getCurrentLoader(Object o) {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         return loader != null ? loader : o.getClass().getClassLoader();

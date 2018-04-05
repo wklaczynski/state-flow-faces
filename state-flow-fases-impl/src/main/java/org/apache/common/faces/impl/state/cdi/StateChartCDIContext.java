@@ -130,7 +130,10 @@ public class StateChartCDIContext implements Context, Serializable {
         return null != getExecutor();
     }
 
-
+    /**
+     *
+     * @param hse
+     */
     public static void sessionDestroyed(HttpSessionEvent hse) {
         HttpSession session = hse.getSession();
         StateScopeMapHelper.sessionDestroyed(session);

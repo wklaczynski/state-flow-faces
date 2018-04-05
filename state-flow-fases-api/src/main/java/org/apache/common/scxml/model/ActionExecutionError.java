@@ -30,23 +30,43 @@ public final class ActionExecutionError extends RuntimeException {
 
     private final boolean eventRaised;
 
+    /**
+     *
+     */
     public ActionExecutionError() {
         this(false, null);
     }
 
+    /**
+     *
+     * @param eventRaised
+     */
     public ActionExecutionError(final boolean eventRaised) {
         this(eventRaised, null);
     }
 
+    /**
+     *
+     * @param message
+     */
     public ActionExecutionError(final String message) {
         this(false, message);
     }
 
+    /**
+     *
+     * @param eventRaised
+     * @param message
+     */
     public ActionExecutionError(final boolean eventRaised, final String message) {
         super(message);
         this.eventRaised = eventRaised;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isEventRaised() {
         return eventRaised;
     }

@@ -35,9 +35,20 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class AssignTagHandler extends AbstractFlowTagHandler<Assign> {
 
+    /**
+     *
+     */
     protected final TagAttribute location;
+
+    /**
+     *
+     */
     protected final TagAttribute expr;
 
+    /**
+     *
+     * @param config
+     */
     public AssignTagHandler(TagConfig config) {
         super(config, Assign.class);
 
@@ -57,6 +68,14 @@ public class AssignTagHandler extends AbstractFlowTagHandler<Assign> {
         this.expr = this.getAttribute("expr");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Assign action = new Assign();

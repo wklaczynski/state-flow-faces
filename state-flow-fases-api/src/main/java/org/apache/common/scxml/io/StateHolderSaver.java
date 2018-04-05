@@ -48,6 +48,11 @@ public class StateHolderSaver implements Serializable {
         LastMember
     };
 
+    /**
+     *
+     * @param context
+     * @param toSave
+     */
     public StateHolderSaver(Context context, Object toSave) {
         if (toSave != null) {
             className = toSave.getClass().getName();
@@ -125,6 +130,13 @@ public class StateHolderSaver implements Serializable {
         return result;
     }
 
+    /**
+     *
+     * @param name
+     * @param fallbackClass
+     * @return
+     * @throws ClassNotFoundException
+     */
     public static Class loadClass(String name, Object fallbackClass) throws ClassNotFoundException {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         if (loader == null) {
@@ -133,6 +145,12 @@ public class StateHolderSaver implements Serializable {
         return Class.forName(name, false, loader);
     }
 
+    /**
+     *
+     * @param context
+     * @param attachedObject
+     * @return
+     */
     public static Object saveAttachedState(Context context, Object attachedObject) {
         if (null == context) {
             throw new NullPointerException();
@@ -190,6 +208,13 @@ public class StateHolderSaver implements Serializable {
         return result;
     }
 
+    /**
+     *
+     * @param context
+     * @param stateObj
+     * @return
+     * @throws IllegalStateException
+     */
     @SuppressWarnings("UseSpecificCatch")
     public static Object restoreAttachedState(Context context, Object stateObj)
             throws IllegalStateException {
@@ -260,6 +285,12 @@ public class StateHolderSaver implements Serializable {
         return result;
     }
 
+    /**
+     *
+     * @param context
+     * @param instance
+     * @return
+     */
     public static Object saveObjectState(Context context, Object instance) {
         return saveObjectState(context, instance.getClass(), instance);
     }
@@ -280,6 +311,13 @@ public class StateHolderSaver implements Serializable {
         return !Modifier.isVolatile(modifiers);
     }
 
+    /**
+     *
+     * @param context
+     * @param clazz
+     * @param instance
+     * @return
+     */
     public static Object saveObjectState(Context context, Class<?> clazz, Object instance) {
         if (clazz == null) {
             return null;
@@ -315,10 +353,23 @@ public class StateHolderSaver implements Serializable {
         return results;
     }
 
+    /**
+     *
+     * @param context
+     * @param state
+     * @param instance
+     */
     public static void restoreObjectState(Context context, Object state, Object instance) {
         restoreObjectState(context, state, instance.getClass(), instance);
     }
 
+    /**
+     *
+     * @param context
+     * @param state
+     * @param clazz
+     * @param instance
+     */
     public static void restoreObjectState(Context context, Object state, Class<?> clazz, Object instance) {
         if (clazz == null || null == state) {
             return;
@@ -349,6 +400,13 @@ public class StateHolderSaver implements Serializable {
 
     }
 
+    /**
+     *
+     * @param context
+     * @param name
+     * @param value
+     * @return
+     */
     public static Object saveValueState(Context context, String name, Object value) {
         if (value == null) {
             return null;
@@ -357,6 +415,13 @@ public class StateHolderSaver implements Serializable {
         return value;
     }
 
+    /**
+     *
+     * @param context
+     * @param name
+     * @param state
+     * @return
+     */
     public static Object restoreValueState(Context context, String name, Object state) {
         if (state == null) {
             return null;
@@ -365,6 +430,12 @@ public class StateHolderSaver implements Serializable {
         return value;
     }
 
+    /**
+     *
+     * @param context
+     * @param ctx
+     * @return
+     */
     public static Object saveContext(Context context, Context ctx) {
         Object state = null;
         if (ctx != null) {
@@ -377,6 +448,12 @@ public class StateHolderSaver implements Serializable {
         return state;
     }
 
+    /**
+     *
+     * @param context
+     * @param ctx
+     * @param state
+     */
     public static void restoreContext(Context context, Context ctx, Object state) {
         if (ctx != null) {
             if (ctx instanceof StateHolder) {
@@ -388,6 +465,13 @@ public class StateHolderSaver implements Serializable {
         }
     }
 
+    /**
+     *
+     * @param context
+     * @param chart
+     * @param id
+     * @return
+     */
     public static Object findElement(Context context, SCXML chart, String id) {
         Object found = chart.findElement(id);
         if (found == null) {

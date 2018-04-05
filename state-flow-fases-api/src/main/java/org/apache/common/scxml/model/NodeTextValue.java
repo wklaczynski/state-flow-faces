@@ -26,6 +26,10 @@ public class NodeTextValue implements ParsedValue {
      */
     private final String nodeText;
 
+    /**
+     *
+     * @param nodeText
+     */
     public NodeTextValue(final String nodeText) {
         this.nodeText = nodeText;
     }

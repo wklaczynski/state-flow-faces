@@ -26,6 +26,14 @@ package org.apache.common.scxml.model;
  *     https://www.w3.org/TR/2015/REC-scxml-20150901/#transition</a>
  */
 public enum TransitionType {
+
+    /**
+     *
+     */
     internal,
+
+    /**
+     *
+     */
     external
 }

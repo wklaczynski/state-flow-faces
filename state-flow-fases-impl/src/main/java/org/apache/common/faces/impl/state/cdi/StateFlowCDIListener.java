@@ -37,6 +37,10 @@ public class StateFlowCDIListener implements SCXMLListener, Serializable {
 
     private final SCXMLExecutor executor;
 
+    /**
+     *
+     * @param executor
+     */
     public StateFlowCDIListener(SCXMLExecutor executor) {
         this.executor = executor;
     }

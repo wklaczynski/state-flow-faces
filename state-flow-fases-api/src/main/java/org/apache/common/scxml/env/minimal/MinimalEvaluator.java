@@ -36,8 +36,14 @@ public class MinimalEvaluator implements Evaluator, Serializable {
     /** Serial version UID. */
     private static final long serialVersionUID = 1L;
 
+    /**
+     *
+     */
     public static final String SUPPORTED_DATA_MODEL = Evaluator.NULL_DATA_MODEL;
 
+    /**
+     *
+     */
     public static class MinimalEvaluatorProvider implements EvaluatorProvider {
 
         @Override

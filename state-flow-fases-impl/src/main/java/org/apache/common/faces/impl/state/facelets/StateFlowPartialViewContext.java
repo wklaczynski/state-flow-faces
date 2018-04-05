@@ -39,6 +39,10 @@ public final class StateFlowPartialViewContext extends PartialViewContextWrapper
     private final PartialViewContext wrapped;
     private StateFlowPartialResponseWriter writer;
 
+    /**
+     *
+     * @param wrapped
+     */
     @SuppressWarnings("LeakingThisInConstructor")
     public StateFlowPartialViewContext(PartialViewContext wrapped) {
         this.wrapped = wrapped;
@@ -75,10 +79,19 @@ public final class StateFlowPartialViewContext extends PartialViewContextWrapper
         callbackScripts.add(callbackScript);
     }
 
+    /**
+     *
+     * @return
+     */
     public static StateFlowPartialViewContext getCurrentInstance() {
         return getCurrentInstance(FacesContext.getCurrentInstance());
     }
 
+    /**
+     *
+     * @param context
+     * @return
+     */
     public static StateFlowPartialViewContext getCurrentInstance(FacesContext context) {
         StateFlowPartialViewContext instance = (StateFlowPartialViewContext) context.getAttributes().get(StateFlowPartialViewContext.class);
 

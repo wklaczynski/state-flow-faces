@@ -35,6 +35,10 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
     private final ViewHandler wrapped;
     private final StateWebConfiguration webcfg;
 
+    /**
+     *
+     * @param wrapped
+     */
     public StateFlowViewHandler(ViewHandler wrapped) {
         this.wrapped = wrapped;
         webcfg = StateWebConfiguration.getInstance();

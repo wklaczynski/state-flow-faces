@@ -35,12 +35,20 @@ public class CdiBeanWrapper implements Bean {
        private final Class beanClass;
        private InjectionTarget injectionTarget = null;
        
-       public CdiBeanWrapper( Class beanClass) {
+    /**
+     *
+     * @param beanClass
+     */
+    public CdiBeanWrapper( Class beanClass) {
            this.beanClass = beanClass;
            
        }
        
-       public void setInjectionTarget(InjectionTarget injectionTarget) {
+    /**
+     *
+     * @param injectionTarget
+     */
+    public void setInjectionTarget(InjectionTarget injectionTarget) {
            this.injectionTarget = injectionTarget;
        }
        

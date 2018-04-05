@@ -204,6 +204,10 @@ public class StateTargetCDIContext implements Context, Serializable {
         return null != executor && executor.isRunning();
     }
 
+    /**
+     *
+     * @param hse
+     */
     public static void sessionDestroyed(HttpSessionEvent hse) {
         HttpSession session = hse.getSession();
         StateScopeMapHelper.sessionDestroyed(session);

@@ -27,6 +27,10 @@ import org.apache.common.faces.impl.state.config.StateWebConfiguration;
  */
 public class StateFlowParams {
 
+    /**
+     *
+     * @return
+     */
     public static boolean isDefaultViewRedirect() {
         FacesContext context = FacesContext.getCurrentInstance();
         Boolean redirect = (Boolean) context.getExternalContext()
@@ -41,6 +45,10 @@ public class StateFlowParams {
         return redirect;
     }
 
+    /**
+     *
+     * @return
+     */
     public static String getRequestParamatrChartId() {
         FacesContext context = FacesContext.getCurrentInstance();
         String result = (String) context.getExternalContext()

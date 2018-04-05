@@ -30,11 +30,20 @@ public class XPathNodeList extends AbstractList<Node> {
     List<Node> nodes;
     private final Node parent;
 
+    /**
+     *
+     * @param parent
+     */
     public XPathNodeList(Node parent) {
         nodes = new ArrayList<>();
         this.parent = parent;
     }
     
+    /**
+     *
+     * @param parent
+     * @param o
+     */
     public XPathNodeList(Node parent, Object o) {
         this.parent = parent;
         nodes = new ArrayList<>();
@@ -49,6 +58,10 @@ public class XPathNodeList extends AbstractList<Node> {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public Node getParent() {
         return parent;
     }

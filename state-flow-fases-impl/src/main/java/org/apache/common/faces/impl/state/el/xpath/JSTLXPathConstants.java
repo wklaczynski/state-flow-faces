@@ -26,6 +26,9 @@ public class JSTLXPathConstants {
     private JSTLXPathConstants() {
     }
     
+    /**
+     *
+     */
     public static final QName OBJECT = new QName("http://www.w3.org/1999/XSL/Transform", "OBJECT");
     
 }

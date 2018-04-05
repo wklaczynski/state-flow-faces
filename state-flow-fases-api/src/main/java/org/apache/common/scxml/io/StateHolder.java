@@ -23,7 +23,17 @@ import org.apache.common.scxml.Context;
  */
 public interface StateHolder {
     
+    /**
+     *
+     * @param context
+     * @return
+     */
     Object saveState(Context context);
 
+    /**
+     *
+     * @param context
+     * @param state
+     */
     void restoreState(Context context, Object state);
 }

@@ -69,64 +69,139 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
 
     private static final Logger log = FlowLogger.TAGLIB.getLogger();
 
+    /**
+     *
+     */
     public static final String CURRENT_FLOW_OBJECT = "facelets.flow.CURRENT_FLOW_OBJECT";
+
+    /**
+     *
+     */
     public static final String ELEMENT_MAP = "facelets.flow.ELEMENT_MAP";
+
+    /**
+     *
+     */
     public static final String TAG_MAP = "facelets.flow.TAG_MAP";
 
+    /**
+     *
+     */
     public static final String ELEMENT_PREFIX = "facelets.flow.PARENT:";
 
+    /**
+     *
+     */
     protected static final Pattern inFct = Pattern.compile("In\\(");
+
+    /**
+     *
+     */
     protected static final Pattern dataFct = Pattern.compile("Data\\(");
 
     private final Map<String, Class> parentMap = new LinkedHashMap<>();
     private final Map<String, Class> parentImplMap = new LinkedHashMap<>();
     private final Map<String, Class> topParentMap = new LinkedHashMap<>();
 
+    /**
+     *
+     */
     protected final String alias;
 
     private final Class<T> type;
 
+    /**
+     *
+     * @param config
+     * @param type
+     */
     public AbstractFlowTagHandler(TagConfig config, Class<T> type) {
         this(config, config.getTag().getLocalName(), type);
     }
 
+    /**
+     *
+     * @param config
+     * @param alias
+     * @param type
+     */
     public AbstractFlowTagHandler(TagConfig config, String alias, Class<T> type) {
         super(config);
         this.alias = alias;
         this.type = type;
     }
 
+    /**
+     *
+     * @param alias
+     * @param type
+     */
     protected void in(String alias, Class type) {
         parentMap.put(alias, type);
         topParentMap.put(alias, type);
     }
 
+    /**
+     *
+     * @param alias
+     * @param type
+     */
     protected void impl(String alias, Class type) {
         parentImplMap.put(alias, type);
     }
 
+    /**
+     *
+     * @param alias
+     * @param type
+     */
     protected void top(String alias, Class type) {
         topParentMap.put(alias, type);
     }
 
+    /**
+     *
+     * @return
+     */
     public String getAlias() {
         return alias;
     }
 
+    /**
+     *
+     * @return
+     */
     public Class<T> getType() {
         return type;
     }
 
+    /**
+     *
+     * @param ctx
+     * @return
+     */
     public boolean isProductionMode(FaceletContext ctx) {
         ProjectStage projectStage = ctx.getFacesContext().getApplication().getProjectStage();
         return projectStage == ProjectStage.Production;
     }
 
+    /**
+     *
+     * @param ctx
+     * @return
+     */
     public boolean isVerifyMode(FaceletContext ctx) {
         ProjectStage projectStage = ctx.getFacesContext().getApplication().getProjectStage();
         return projectStage != ProjectStage.Production;
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentFlow
+     */
     protected void verifyAssign(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentFlow) {
         if (!isVerifyMode(ctx)) {
             return;
@@ -207,8 +282,23 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         return sb.toString();
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     public abstract void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException;
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param element
+     * @throws IOException
+     */
     protected void decorate(FaceletContext ctx, UIComponent parent, Object element) throws IOException {
 
     }
@@ -228,12 +318,28 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         }
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @return
+     * @throws IOException
+     */
     public T findElement(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Map<String, Object> elementMap = (Map<String, Object>) getElement(parent, ELEMENT_MAP);
         Object element = elementMap.get(tag.toString());
         return (T) element;
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param element
+     * @throws IOException
+     */
     protected void applyNext(FaceletContext ctx, UIComponent parent, Object element) throws IOException {
         applyNext(ctx, tag, type, parent, element, () -> {
             nextHandler.apply(ctx, parent);
@@ -241,6 +347,16 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         });
     }
 
+    /**
+     *
+     * @param ctx
+     * @param tag
+     * @param type
+     * @param parent
+     * @param element
+     * @param call
+     * @throws IOException
+     */
     public static void applyNext(FaceletContext ctx, Tag tag, Class type, UIComponent parent, Object element, Callable call) throws IOException {
         Map<String, Object> elementMap = (Map<String, Object>) getElement(parent, ELEMENT_MAP);
         if (elementMap != null) {
@@ -265,11 +381,23 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         }
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @return
+     */
     public static List<CustomAction> getCustomActions(FaceletContext ctx, UIComponent parent) {
         List<CustomAction> customActions = (List<CustomAction>) getElement(parent, CUSTOM_ACTIONS_HINT);
         return customActions;
     }
 
+    /**
+     *
+     * @param parent
+     * @param name
+     * @param element
+     */
     public static final void pushElement(UIComponent parent, String name, Object element) {
         Stack stack = (Stack) parent.getAttributes().get(name);
         if (stack == null) {
@@ -279,6 +407,12 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         parent.getAttributes().put(name, stack);
     }
 
+    /**
+     *
+     * @param parent
+     * @param name
+     * @return
+     */
     public static final Object getElement(UIComponent parent, String name) {
         Stack stack = (Stack) parent.getAttributes().get(name);
         if (stack == null || stack.empty()) {
@@ -287,6 +421,12 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         return stack.peek();
     }
 
+    /**
+     *
+     * @param parent
+     * @param name
+     * @return
+     */
     public static final Stack getElementStack(UIComponent parent, String name) {
         Stack stack = (Stack) parent.getAttributes().get(name);
         if (stack == null || stack.empty()) {
@@ -295,6 +435,12 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         return stack;
     }
 
+    /**
+     *
+     * @param parent
+     * @param name
+     * @return
+     */
     public static final Object popElement(UIComponent parent, String name) {
         Stack stack = (Stack) parent.getAttributes().get(name);
         if (stack == null) {
@@ -307,26 +453,60 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         return result;
     }
 
+    /**
+     *
+     * @param parent
+     * @param type
+     * @param element
+     */
     public static final void pushElement(UIComponent parent, Class type, Object element) {
         String elname = ELEMENT_PREFIX + type.getName();
         pushElement(parent, elname, element);
     }
 
+    /**
+     *
+     * @param <E>
+     * @param parent
+     * @param type
+     * @return
+     */
     public static final <E> E getElement(UIComponent parent, Class<E> type) {
         String elname = ELEMENT_PREFIX + type.getName();
         return (E) getElement(parent, elname);
     }
 
+    /**
+     *
+     * @param <E>
+     * @param parent
+     * @param type
+     * @return
+     */
     public static final <E> Stack<E> getElementStack(UIComponent parent, Class<E> type) {
         String elname = ELEMENT_PREFIX + type.getName();
         return (Stack<E>) getElementStack(parent, elname);
     }
 
+    /**
+     *
+     * @param <E>
+     * @param parent
+     * @param type
+     * @return
+     */
     public static final <E> E popElement(UIComponent parent, Class<E> type) {
         String elname = ELEMENT_PREFIX + type.getName();
         return (E) popElement(parent, elname);
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param child
+     * @throws IOException
+     */
     protected void addChild(FaceletContext ctx, UIComponent parent, EnterableState child) throws IOException {
         SCXML chart = getElement(parent, SCXML.class);
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
@@ -356,6 +536,13 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         }
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param child
+     * @throws IOException
+     */
     protected void addHistory(FaceletContext ctx, UIComponent parent, History child) throws IOException {
         SCXML chart = getElement(parent, SCXML.class);
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
@@ -371,6 +558,15 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
 
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param child
+     * @param prefix
+     * @return
+     * @throws IOException
+     */
     protected String generateUniqueId(FaceletContext ctx, UIComponent parent, TransitionTarget child, String prefix) throws IOException {
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
         if (currentFlow instanceof SCXML) {
@@ -384,6 +580,13 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         }
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param target
+     * @throws IOException
+     */
     protected void addTransitionTarget(FaceletContext ctx, UIComponent parent, TransitionTarget target) throws IOException {
         String tid = target.getId();
         if (!(tid == null && tid.isEmpty())) {
@@ -395,6 +598,13 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         }
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param transition
+     * @throws IOException
+     */
     protected void addTransition(FaceletContext ctx, UIComponent parent, Transition transition) throws IOException {
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
         if (currentFlow instanceof Initial) {
@@ -411,6 +621,13 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         }
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param action
+     * @throws IOException
+     */
     protected void addAction(FaceletContext ctx, UIComponent parent, Action action) throws IOException {
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
         if (currentFlow instanceof Executable) {
@@ -429,10 +646,23 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         }
     }
 
+    /**
+     *
+     * @param <T>
+     * @param type
+     * @return
+     */
     protected final <T> Iterator<T> findNextByType(Class<T> type) {
         return findNextByType(nextHandler, type);
     }
 
+    /**
+     *
+     * @param <T>
+     * @param nextHandler
+     * @param type
+     * @return
+     */
     public static final <T> Iterator<T> findNextByType(FaceletHandler nextHandler, Class<T> type) {
         List found = new ArrayList();
         if (type.isAssignableFrom(nextHandler.getClass())) {
@@ -448,10 +678,25 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         return found.iterator();
     }
 
+    /**
+     *
+     * @param <T>
+     * @param type
+     * @param eq
+     * @return
+     */
     public final <T> Iterator<T> findNextByFlowType(Class<T> type, boolean eq) {
         return findNextByFlowType(nextHandler, type, eq);
     }
 
+    /**
+     *
+     * @param <T>
+     * @param nextHandler
+     * @param type
+     * @param eq
+     * @return
+     */
     public static final <T> Iterator<T> findNextByFlowType(FaceletHandler nextHandler, Class<T> type, boolean eq) {
         List found = new ArrayList();
         Iterator<AbstractFlowTagHandler> nextFlowTags = findNextByType(nextHandler, AbstractFlowTagHandler.class);
@@ -466,6 +711,14 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         return found.iterator();
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param url
+     * @return
+     * @throws IOException
+     */
     public String getResourceScript(FaceletContext ctx, UIComponent parent, String url) throws IOException {
         String result = null;
         try {
@@ -479,6 +732,13 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         return result;
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @return
+     * @throws IOException
+     */
     public String getBodyScript(FaceletContext ctx, UIComponent parent) throws IOException {
         String result = null;
         UIPanel panel = new UIPanel();
@@ -524,6 +784,14 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         return result;
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param url
+     * @return
+     * @throws IOException
+     */
     public ParsedValue getParsedResorceValue(FaceletContext ctx, UIComponent parent, String url) throws IOException {
         ParsedValue result = null;
         try {
@@ -537,6 +805,13 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
         return result;
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @return
+     * @throws IOException
+     */
     public ParsedValue getParsedBodyValue(FaceletContext ctx, UIComponent parent) throws IOException {
         ParsedValue result = null;
         UIPanel panel = new UIPanel();

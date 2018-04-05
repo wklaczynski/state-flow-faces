@@ -211,6 +211,11 @@ public class StateFlowPhaseListener implements PhaseListener {
         }
     }
 
+    /**
+     *
+     * @param context
+     * @param stateFlow
+     */
     public void startStateMachine(FacesContext context, SCXML stateFlow) {
         UIViewRoot currentViewRoot = context.getViewRoot();
         Map<String, Object> currentViewMapShallowCopy = Collections.emptyMap();

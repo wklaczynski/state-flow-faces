@@ -48,8 +48,19 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class StateFlowEvaluator extends AbstractBaseEvaluator {
 
+    /**
+     *
+     */
     public static final String CURRENT_STACK_KEY = "javax.faces.state.CURRENT_STACK";
+
+    /**
+     *
+     */
     public static final String FLOW_EL_CONTEXT_KEY = "javax.faces.FLOW_CONTEXT_KEY".intern();
+
+    /**
+     *
+     */
     public static final String FLOW_ISTANCE_KEY = "javax.faces.FLOW_CONTEXT_KEY".intern();
 
     private final transient ThreadLocal<ContextWrapper> eccashe;
@@ -57,6 +68,9 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     private transient ContextWrapper ec;
     private transient ExpressionFactory ef;
 
+    /**
+     *
+     */
     public StateFlowEvaluator() {
         super();
         eccashe = new ThreadLocal<>();
@@ -182,6 +196,11 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
         return new StateFlowContext(parent);
     }
 
+    /**
+     *
+     * @param nodeCtx
+     * @return
+     */
     protected StateFlowContext getEffectiveContext(final Context nodeCtx) {
         return new StateFlowContext(nodeCtx, new EffectiveContextMap(nodeCtx));
     }
@@ -191,6 +210,9 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
         return data;
     }
     
+    /**
+     *
+     */
     public class ContextWrapper extends ELContext implements Serializable {
 
         private final ELContext ctx;
@@ -221,6 +243,10 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             return this.fnMapper;
         }
         
+        /**
+         *
+         * @param functionMapper
+         */
         public void addFunctionMaper(FunctionMapper functionMapper) {
             this.fnMapper = new CompositeFunctionMapper(functionMapper, this.fnMapper);
         }
@@ -235,6 +261,9 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             return elResolver;
         }
         
+        /**
+         *
+         */
         public void reset() {
             this.fnMapper =  defFnMapper;
         }

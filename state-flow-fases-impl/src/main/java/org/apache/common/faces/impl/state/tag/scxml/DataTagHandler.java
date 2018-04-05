@@ -33,13 +33,28 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class DataTagHandler extends AbstractFlowTagHandler<Data> {
 
+    /**
+     *
+     */
     protected final TagAttribute id;
+
+    /**
+     *
+     */
     protected final TagAttribute src;
+
+    /**
+     *
+     */
     protected final TagAttribute expr;
 
     private ParsedValue staticValue;
     private boolean resolved;
 
+    /**
+     *
+     * @param config
+     */
     public DataTagHandler(TagConfig config) {
         super(config, Data.class);
 
@@ -50,6 +65,14 @@ public class DataTagHandler extends AbstractFlowTagHandler<Data> {
         this.expr = this.getAttribute("expr");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Data data = new Data();

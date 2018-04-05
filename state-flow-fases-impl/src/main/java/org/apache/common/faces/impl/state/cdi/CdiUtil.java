@@ -39,6 +39,13 @@ import static org.apache.common.faces.impl.state.utils.Util.log;
  */
 public class CdiUtil {
 
+    /**
+     *
+     * @param <T>
+     * @param beanManager
+     * @param instance
+     * @return
+     */
     public static <T> T injectFields(BeanManager beanManager, T instance) {
         if (instance == null) {
             return null;
@@ -52,6 +59,12 @@ public class CdiUtil {
         return instance;
     }
 
+    /**
+     *
+     * @param beanManager
+     * @param beanClass
+     * @return
+     */
     public static Bean createHelperBean(BeanManager beanManager, Class beanClass) {
         CdiBeanWrapper result;
 
@@ -67,6 +80,13 @@ public class CdiUtil {
         return result;
     }
 
+    /**
+     *
+     * @param <T>
+     * @param type
+     * @param qualifiers
+     * @return
+     */
     public static <T> T getBeanReference(Class<T> type, Annotation... qualifiers) {
         return type.cast(getBeanReferenceByType(Util.getCdiBeanManager(FacesContext.getCurrentInstance()), type, qualifiers));
     }
@@ -82,6 +102,13 @@ public class CdiUtil {
         return type.cast(getBeanReferenceByType(beanManager, type, qualifiers));
     }
 
+    /**
+     *
+     * @param beanManager
+     * @param type
+     * @param qualifiers
+     * @return
+     */
     public static Object getBeanReferenceByType(BeanManager beanManager, Type type, Annotation... qualifiers) {
 
         Object beanReference = null;
@@ -121,6 +148,10 @@ public class CdiUtil {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public static boolean isCdiOneOneOrGreater() {
 
         // The following try/catch is a hack to discover

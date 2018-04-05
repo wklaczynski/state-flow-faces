@@ -33,7 +33,11 @@ public class FlowMetadataTargetImpl extends MetadataTarget {
     private final Map pdmap;
     private final Class type;
     
-    
+    /**
+     *
+     * @param type
+     * @throws IntrospectionException
+     */
     public FlowMetadataTargetImpl(Class type) throws IntrospectionException {
         this.type = type;
         this.pdmap = new HashMap();

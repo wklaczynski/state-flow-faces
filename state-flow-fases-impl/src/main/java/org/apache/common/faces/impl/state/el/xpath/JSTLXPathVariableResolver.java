@@ -30,6 +30,10 @@ public class JSTLXPathVariableResolver implements XPathVariableResolver {
 
     private final ELContext context;
 
+    /**
+     *
+     * @param context
+     */
     public JSTLXPathVariableResolver(ELContext context) {
         this.context = context;
     }
@@ -56,6 +60,14 @@ public class JSTLXPathVariableResolver implements XPathVariableResolver {
         return varObject;
     }
 
+    /**
+     *
+     * @param namespace
+     * @param prefix
+     * @param localName
+     * @return
+     * @throws UnresolvableException
+     */
     protected Object getVariableValue(String namespace, String prefix, String localName) throws UnresolvableException {
         if (namespace == null || namespace.equals("")) {
             FacesContext fc = FacesContext.getCurrentInstance();

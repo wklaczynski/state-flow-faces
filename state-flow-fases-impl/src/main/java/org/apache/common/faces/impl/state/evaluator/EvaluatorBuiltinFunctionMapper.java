@@ -32,10 +32,19 @@ import org.apache.common.scxml.model.SCXML;
 public class EvaluatorBuiltinFunctionMapper extends FunctionMapper implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     *
+     */
     public static final Logger log = FlowLogger.APPLICATION.getLogger();
     private final ELContext context;
     private final SCXML scxml;
 
+    /**
+     *
+     * @param context
+     * @param scxml
+     */
     public EvaluatorBuiltinFunctionMapper(ELContext context, SCXML scxml) {
         super();
         this.context = context;

@@ -31,8 +31,15 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class ParallelTagHandler extends AbstractFlowTagHandler<Parallel> {
 
+    /**
+     *
+     */
     protected final TagAttribute id;
     
+    /**
+     *
+     * @param config
+     */
     public ParallelTagHandler(TagConfig config) {
         super(config, Parallel.class);
         
@@ -42,6 +49,14 @@ public class ParallelTagHandler extends AbstractFlowTagHandler<Parallel> {
         this.id = this.getAttribute("id");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Parallel parallel = new Parallel();

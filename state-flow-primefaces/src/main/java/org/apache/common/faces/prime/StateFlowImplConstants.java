@@ -21,6 +21,9 @@ package org.apache.common.faces.prime;
  */
 public class StateFlowImplConstants {
 
+    /**
+     *
+     */
     public final static String STATE_FLOW_DISPATCH_TASK = "org.apache.faces.prime.STATE_FLOW_DISPATCH_TASK";
     
     

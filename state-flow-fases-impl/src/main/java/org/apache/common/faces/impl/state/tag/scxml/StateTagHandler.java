@@ -31,8 +31,15 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class StateTagHandler extends AbstractFlowTagHandler<State> {
 
+    /**
+     *
+     */
     protected final TagAttribute id;
 
+    /**
+     *
+     * @param config
+     */
     public StateTagHandler(TagConfig config) {
         super(config, State.class);
 
@@ -43,6 +50,14 @@ public class StateTagHandler extends AbstractFlowTagHandler<State> {
         this.id = this.getRequiredAttribute("id");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         State state = new State();

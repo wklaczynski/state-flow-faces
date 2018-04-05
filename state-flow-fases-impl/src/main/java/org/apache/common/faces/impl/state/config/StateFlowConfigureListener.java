@@ -34,6 +34,10 @@ import org.apache.common.faces.state.tag.TagHandlerDelegateFactory;
  */
 public class StateFlowConfigureListener implements ServletContextListener, HttpSessionListener {
 
+    /**
+     *
+     * @param sce
+     */
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext context = sce.getServletContext();
@@ -46,16 +50,28 @@ public class StateFlowConfigureListener implements ServletContextListener, HttpS
         
     }
 
+    /**
+     *
+     * @param sce
+     */
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         // Do Nothing
     }
 
+    /**
+     *
+     * @param se
+     */
     @Override
     public void sessionCreated(HttpSessionEvent se) {
 
     }
 
+    /**
+     *
+     * @param se
+     */
     @Override
     public void sessionDestroyed(HttpSessionEvent se) {
         StateChartCDIContext.sessionDestroyed(se);

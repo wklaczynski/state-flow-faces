@@ -41,6 +41,9 @@ public abstract class EnterableState extends TransitionTarget implements Documen
      */
     private final List<OnExit> onExits;
 
+    /**
+     *
+     */
     public EnterableState() {
         onEntries = new ArrayList<>();
         onExits = new ArrayList<>();

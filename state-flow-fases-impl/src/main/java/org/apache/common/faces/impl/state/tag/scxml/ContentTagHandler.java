@@ -36,11 +36,18 @@ import org.apache.common.scxml.model.Send;
  */
 public class ContentTagHandler extends AbstractFlowTagHandler<Content> {
 
+    /**
+     *
+     */
     protected final TagAttribute expr;
 
     private ParsedValue staticValue;
     private boolean resolved;
 
+    /**
+     *
+     * @param config
+     */
     public ContentTagHandler(TagConfig config) {
         super(config, Content.class);
 
@@ -51,6 +58,14 @@ public class ContentTagHandler extends AbstractFlowTagHandler<Content> {
         this.expr = this.getAttribute("expr");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         ContentContainer continer = (ContentContainer) parentElement;

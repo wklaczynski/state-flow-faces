@@ -28,6 +28,9 @@ public class ViewParamsContext extends AbstractMap<String, Object> implements Ma
 
     Map<String, Object> map = new HashMap<>();
     
+    /**
+     *
+     */
     public ViewParamsContext() {
         super();
     }

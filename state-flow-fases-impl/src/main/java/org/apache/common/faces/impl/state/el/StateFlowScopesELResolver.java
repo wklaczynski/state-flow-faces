@@ -32,15 +32,44 @@ import org.apache.common.scxml.SCXMLExecutor;
  */
 public class StateFlowScopesELResolver extends ELResolver {
     
+    /**
+     *
+     */
     public static final String DIALOG_SCOPE = "dialogScope";
+
+    /**
+     *
+     */
     public static final String DIALOG_VARIABLE_NAME = "dialog";
 
+    /**
+     *
+     */
     public static final String CHART_SCOPE = "chartScope";
+
+    /**
+     *
+     */
     public static final String CHART_VARIABLE_NAME = "chart";
+
+    /**
+     *
+     */
     public static final String SCXML_SCOPE = "scxmlScope";
+
+    /**
+     *
+     */
     public static final String SCXML_VARIABLE_NAME = "scxml";
     
+    /**
+     *
+     */
     public static final String STATE_VARIABLE_NAME = "state";
+
+    /**
+     *
+     */
     public static final String CHART_PARAM_MAP = "org.scxml.attr";
 
     @Override
@@ -362,12 +391,21 @@ public class StateFlowScopesELResolver extends ELResolver {
         return attrScope;
     }
 
+    /**
+     *
+     */
     public class DialogScope extends ConcurrentHashMap<String, Object> implements Serializable {
 
+        /**
+         *
+         */
         public DialogScope() {
             super();
         }
 
+        /**
+         *
+         */
         public void onCreate() {
             FacesContext ctx = FacesContext.getCurrentInstance();
             ScopeContext context = new ScopeContext(CHART_SCOPE, this);
@@ -375,12 +413,21 @@ public class StateFlowScopesELResolver extends ELResolver {
         }
     }
 
+    /**
+     *
+     */
     public class ChartScope extends ConcurrentHashMap<String, Object> implements Serializable {
 
+        /**
+         *
+         */
         public ChartScope() {
             super();
         }
 
+        /**
+         *
+         */
         public void onCreate() {
             FacesContext ctx = FacesContext.getCurrentInstance();
             ScopeContext context = new ScopeContext(CHART_SCOPE, this);

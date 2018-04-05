@@ -25,10 +25,18 @@ public class OnFinishEvent {
     
     private final SCXMLExecutor executor;
 
+    /**
+     *
+     * @param executor
+     */
     public OnFinishEvent(SCXMLExecutor executor) {
         this.executor = executor;
     }
 
+    /**
+     *
+     * @return
+     */
     public SCXMLExecutor getExecutor() {
         return executor;
     }

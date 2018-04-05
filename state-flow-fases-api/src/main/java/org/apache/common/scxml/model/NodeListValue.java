@@ -30,6 +30,10 @@ public class NodeListValue implements ParsedValue {
      */
     private final List<Node> nodeList;
 
+    /**
+     *
+     * @param nodeList
+     */
     public NodeListValue(final List<Node> nodeList) {
         this.nodeList = nodeList;
     }

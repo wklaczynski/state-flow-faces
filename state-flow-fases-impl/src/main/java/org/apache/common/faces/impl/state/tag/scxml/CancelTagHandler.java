@@ -36,8 +36,15 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class CancelTagHandler extends AbstractFlowTagHandler<Cancel> {
 
+    /**
+     *
+     */
     protected final TagAttribute sendid;
 
+    /**
+     *
+     * @param config
+     */
     public CancelTagHandler(TagConfig config) {
         super(config, Cancel.class);
 
@@ -56,6 +63,14 @@ public class CancelTagHandler extends AbstractFlowTagHandler<Cancel> {
         this.sendid = this.getRequiredAttribute("sendid");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Cancel action = new Cancel();

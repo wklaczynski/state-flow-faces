@@ -50,6 +50,11 @@ public class Util {
      */
     public static final Logger log = FlowLogger.APPLICATION.getLogger();
 
+    /**
+     *
+     * @param fallbackClass
+     * @return
+     */
     public static ClassLoader getCurrentLoader(Object fallbackClass) {
         ClassLoader loader = getContextClassLoader();
         if (loader == null) {
@@ -73,6 +78,11 @@ public class Util {
         }
     }
 
+    /**
+     *
+     * @param url
+     * @return
+     */
     public static long getLastModified(URL url) {
         long lastModified;
         URLConnection conn;
@@ -112,6 +122,10 @@ public class Util {
         return lastModified;
     }
 
+    /**
+     *
+     * @param instance
+     */
     public static void postConstruct(Object instance) {
         Class<?> clazz = instance.getClass();
 
@@ -142,6 +156,10 @@ public class Util {
         }
     }
 
+    /**
+     *
+     * @param instance
+     */
     public static void preDestroy(Object instance) {
         Class<?> clazz = instance.getClass();
 
@@ -175,6 +193,10 @@ public class Util {
 
     private static final String FACES_CONTEXT_ATTRIBUTES_XMLDECL_KEY = Util.class.getName() + "_FACES_CONTEXT_ATTRS_XMLDECL_KEY";
 
+    /**
+     *
+     * @param XMLDECL
+     */
     public static void saveXMLDECLToFacesContextAttributes(String XMLDECL) {
         FacesContext context = FacesContext.getCurrentInstance();
         if (null == context) {
@@ -185,6 +207,11 @@ public class Util {
 
     }
 
+    /**
+     *
+     * @param context
+     * @return
+     */
     public static String getXMLDECLFromFacesContextAttributes(FacesContext context) {
         if (null == context) {
             return null;
@@ -195,6 +222,11 @@ public class Util {
 
     private static final Pattern EXTENSION_PATTERN = Pattern.compile("\\.[^/]+$");
 
+    /**
+     *
+     * @param alias
+     * @return
+     */
     public static String getExtension(String alias) {
         String ext = null;
 
@@ -208,6 +240,13 @@ public class Util {
         return (ext == null) ? "xhtml" : ext;
     }
 
+    /**
+     *
+     * @param appMap
+     * @param toSplit
+     * @param regex
+     * @return
+     */
     public synchronized static String[] split(Map<String, Object> appMap, String toSplit, String regex) {
         Map<String, Pattern> patternCache = getPatternCache(appMap);
         Pattern pattern = patternCache.get(regex);
@@ -231,10 +270,21 @@ public class Util {
         return result;
     }
     
+    /**
+     *
+     * @param context
+     * @return
+     * @throws FacesException
+     */
     public static StateManager getStateManager(FacesContext context) throws FacesException {
         return (context.getApplication().getStateManager());
     }
     
+    /**
+     *
+     * @param th
+     * @return
+     */
     public static String getErrorMessage(Throwable th) {
         String result = th.getMessage();
         
@@ -245,6 +295,11 @@ public class Util {
         return result;
     }
 
+    /**
+     *
+     * @param varname
+     * @param var
+     */
     public static void notNull(String varname, Object var) {
 
         if (var == null) {
@@ -253,6 +308,12 @@ public class Util {
         
     }
     
+    /**
+     *
+     * @param resourceURL
+     * @return
+     * @throws IOException
+     */
     public static String readResource(final URL resourceURL) throws IOException {
         try (InputStream in = resourceURL.openStream()) {
             int bufferSize = 1024;
@@ -271,6 +332,11 @@ public class Util {
         }
     }
     
+    /**
+     *
+     * @param content
+     * @return
+     */
     public static String trimContent(final String content) {
         if (content != null) {
             int start = 0;
@@ -289,6 +355,11 @@ public class Util {
         return null;
     }
     
+    /**
+     *
+     * @param c
+     * @return
+     */
     public static boolean isWhiteSpace(final char c) {
         return c == ' ' || c == '\n' || c == '\t' || c == '\r';
     }

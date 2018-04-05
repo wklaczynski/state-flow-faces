@@ -34,6 +34,11 @@ public class JsonValue implements ParsedValue {
      */
     private final boolean cdata;
 
+    /**
+     *
+     * @param jsonObject
+     * @param cdata
+     */
     public JsonValue(final Object jsonObject, final boolean cdata) {
         this.jsonObject = jsonObject;
         this.cdata = cdata;

@@ -42,6 +42,10 @@ public class StateFlowURLResolver implements PathResolver, Serializable {
     private transient String base;
     private transient String contextPath;
 
+    /**
+     *
+     * @param root
+     */
     public StateFlowURLResolver(String root) {
         this.root = root;
     }

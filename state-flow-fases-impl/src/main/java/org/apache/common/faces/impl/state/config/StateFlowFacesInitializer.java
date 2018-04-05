@@ -40,6 +40,12 @@ import org.apache.common.faces.state.annotation.StateChartInvokers;
 })
 public class StateFlowFacesInitializer implements ServletContainerInitializer {
 
+    /**
+     *
+     * @param classes
+     * @param ctx
+     * @throws ServletException
+     */
     @Override
     public void onStartup(Set<Class<?>> classes, ServletContext ctx) throws ServletException {
 

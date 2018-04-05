@@ -100,6 +100,11 @@ public class StateConfiguration implements Serializable {
         atomicStates.clear();
     }
     
+    /**
+     *
+     * @param context
+     * @return
+     */
     public Object saveState(Context context) {
         if (context == null) {
             throw new NullPointerException();
@@ -113,6 +118,11 @@ public class StateConfiguration implements Serializable {
         return values;
     }
 
+    /**
+     *
+     * @param context
+     * @param state
+     */
     public void restoreState(Context context, Object state) {
         if (context == null) {
             throw new NullPointerException();

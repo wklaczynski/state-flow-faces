@@ -127,30 +127,58 @@ public class TriggerEvent implements Serializable {
     private final String invokeId;
     private final Object data;
 
+    /**
+     *
+     * @return
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getType() {
         return type;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getSendId() {
         return sendId;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getOrigin() {
         return origin;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getOriginType() {
         return originType;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getInvokeId() {
         return invokeId;
     }
 
+    /**
+     *
+     * @return
+     */
     public Object getData() {
         return data;
     }

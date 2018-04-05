@@ -34,6 +34,11 @@ public class TextValue implements ParsedValue {
      */
     private final boolean cdata;
 
+    /**
+     *
+     * @param text
+     * @param cdata
+     */
     public TextValue(final String text, final boolean cdata) {
         this.text = text;
         this.cdata = cdata;

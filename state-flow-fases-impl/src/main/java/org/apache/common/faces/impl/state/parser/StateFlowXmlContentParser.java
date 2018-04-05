@@ -41,6 +41,9 @@ import org.xml.sax.SAXException;
  */
 public class StateFlowXmlContentParser extends ContentParser {
 
+    /**
+     *
+     */
     public StateFlowXmlContentParser() {
         super();
     }

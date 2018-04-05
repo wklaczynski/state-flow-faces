@@ -52,10 +52,18 @@ public class CustomActionWrapper extends Action {
      */
     private Map<String, String> attributes;
 
+    /**
+     *
+     * @return
+     */
     public Action getAction() {
         return action;
     }
 
+    /**
+     *
+     * @param action
+     */
     public void setAction(final Action action) {
         this.action = action;
     }

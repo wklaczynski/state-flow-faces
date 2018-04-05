@@ -39,6 +39,12 @@ public class StateFlowViewContext {
      */
     private final Context context;
 
+    /**
+     *
+     * @param invokeId
+     * @param executor
+     * @param context
+     */
     public StateFlowViewContext(String invokeId, SCXMLExecutor executor, Context context) {
         this.invokeId = invokeId;
         this.executor = executor;

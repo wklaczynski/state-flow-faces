@@ -35,8 +35,15 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class RaiseTagHandler extends AbstractFlowTagHandler<Raise> {
 
+    /**
+     *
+     */
     protected final TagAttribute event;
     
+    /**
+     *
+     * @param config
+     */
     public RaiseTagHandler(TagConfig config) {
         super(config, Raise.class);
         
@@ -55,6 +62,14 @@ public class RaiseTagHandler extends AbstractFlowTagHandler<Raise> {
         this.event = this.getRequiredAttribute("event");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Raise action = new Raise();

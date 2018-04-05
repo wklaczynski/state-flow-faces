@@ -67,6 +67,10 @@ public class StateFlowErrorReporter implements ErrorReporter, Serializable {
         this.tags = new HashMap<>();
     }
 
+    /**
+     *
+     * @return
+     */
     public Map<Object, Object> getTags() {
         return tags;
     }
@@ -213,6 +217,11 @@ public class StateFlowErrorReporter implements ErrorReporter, Serializable {
         }
     }
 
+    /**
+     *
+     * @param cause
+     * @return
+     */
     protected boolean isTagExeption(Throwable cause) {
         boolean result = false;
 

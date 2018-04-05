@@ -31,6 +31,9 @@ public class ExecutorResolverProducer extends CdiProducer<SCXMLExecutor> {
      */
     private static final long serialVersionUID = 1L;
 
+    /**
+     *
+     */
     public ExecutorResolverProducer() {
 
         super.name("scxmlExecutor")

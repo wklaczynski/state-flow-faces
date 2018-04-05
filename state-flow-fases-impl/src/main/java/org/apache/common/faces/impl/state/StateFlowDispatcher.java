@@ -77,6 +77,10 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
      */
     private final Map<String, DelayedEventTask> tasks = Collections.synchronizedMap(new LinkedHashMap<>());
 
+    /**
+     *
+     * @param timerEventProducer
+     */
     public StateFlowDispatcher(TimerEventProducer timerEventProducer) {
         this.timerEventProducer = timerEventProducer;
     }

@@ -71,10 +71,18 @@ public class Redirect extends Action implements ParamsContainer {
      */
     private String url;
 
+    /**
+     *
+     * @return
+     */
     public String getUrl() {
         return url;
     }
 
+    /**
+     *
+     * @param url
+     */
     public void setUrl(String url) {
         this.url = url;
     }
@@ -142,6 +150,12 @@ public class Redirect extends Action implements ParamsContainer {
         }
     }
 
+    /**
+     *
+     * @param context
+     * @param outcome
+     * @return
+     */
     protected NavigationCase findNavigationCase(FacesContext context, String outcome) {
         ConfigurableNavigationHandler navigationHandler = (ConfigurableNavigationHandler) context.getApplication().getNavigationHandler();
         return navigationHandler.getNavigationCase(context, null, outcome);

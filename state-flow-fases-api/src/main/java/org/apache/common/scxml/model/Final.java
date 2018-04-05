@@ -75,14 +75,28 @@ public class Final extends EnterableState {
         return true;
     }
 
+    /**
+     *
+     * @return
+     */
     public DoneData getDoneData() {
         return doneData;
     }
 
+    /**
+     *
+     * @param doneData
+     */
     public void setDoneData(final DoneData doneData) {
         this.doneData = doneData;
     }
 
+    /**
+     *
+     * @param exctx
+     * @return
+     * @throws ModelException
+     */
     public Object processDoneData(SCXMLExecutionContext exctx) throws ModelException {
         Object result = null;
         if (doneData != null) {

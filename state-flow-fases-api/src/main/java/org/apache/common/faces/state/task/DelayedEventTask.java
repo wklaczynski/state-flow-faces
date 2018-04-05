@@ -63,18 +63,34 @@ public class DelayedEventTask implements Serializable {
         this.target = target;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     *
+     * @return
+     */
     public TriggerEvent getEvent() {
         return event;
     }
 
+    /**
+     *
+     * @return
+     */
     public long getTime() {
         return time;
     }
 
+    /**
+     *
+     * @return
+     */
     public SCXMLIOProcessor getTarget() {
         return target;
     }

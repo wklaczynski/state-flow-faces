@@ -27,6 +27,10 @@ public class StateFlowPartialViewContextFactory extends PartialViewContextFactor
 
     private final PartialViewContextFactory wrapped;
 
+    /**
+     *
+     * @param wrapped
+     */
     public StateFlowPartialViewContextFactory(PartialViewContextFactory wrapped) {
         this.wrapped = wrapped;
     }

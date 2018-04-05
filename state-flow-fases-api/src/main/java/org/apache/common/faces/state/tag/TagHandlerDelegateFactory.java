@@ -24,8 +24,14 @@ import javax.faces.view.facelets.TagHandlerDelegate;
  */
 public abstract class TagHandlerDelegateFactory implements FacesWrapper<TagHandlerDelegateFactory> {
 
+    /**
+     *
+     */
     public static final String KEY = "javax.faces.state.TagHandlerDelegateFactory";
     
+    /**
+     *
+     */
     public TagHandlerDelegateFactory() {
     }
 
@@ -34,6 +40,11 @@ public abstract class TagHandlerDelegateFactory implements FacesWrapper<TagHandl
         return null;
     }
     
+    /**
+     *
+     * @param owner
+     * @return
+     */
     public abstract TagHandlerDelegate createStateFlowActionDelegate(ActionHandler owner);
 
 

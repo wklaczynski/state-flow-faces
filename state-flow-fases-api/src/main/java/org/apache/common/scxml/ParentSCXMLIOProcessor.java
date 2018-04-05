@@ -16,11 +16,20 @@
  */
 package org.apache.common.scxml;
 
+/**
+ *
+ * @author Waldemar Kłaczyński
+ */
 public class ParentSCXMLIOProcessor implements SCXMLIOProcessor {
 
     private SCXMLIOProcessor processor;
     private final String invokeId;
 
+    /**
+     *
+     * @param processor
+     * @param invokeId
+     */
     public ParentSCXMLIOProcessor(final SCXMLIOProcessor processor, final String invokeId) {
         this.processor = processor;
         this.invokeId = invokeId;
@@ -33,14 +42,25 @@ public class ParentSCXMLIOProcessor implements SCXMLIOProcessor {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public String getInvokeId() {
         return invokeId;
     }
 
+    /**
+     *
+     */
     public synchronized void close() {
         processor = null;
     }
 
+    /**
+     *
+     * @return
+     */
     public synchronized boolean isClosed() {
         return processor == null;
     }

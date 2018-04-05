@@ -49,6 +49,9 @@ public class AbstractContext implements Context, StateHolder {
      */
     private Map<String, Object> vars;
 
+    /**
+     *
+     */
     protected SCXMLSystemContext systemContext;
 
     /**
@@ -213,6 +216,11 @@ public class AbstractContext implements Context, StateHolder {
         return vars;
     }
 
+    /**
+     *
+     * @param context
+     * @return
+     */
     @Override
     public Object saveState(Context context) {
         Object values[] = new Object[1];
@@ -221,6 +229,11 @@ public class AbstractContext implements Context, StateHolder {
         return values;
     }
 
+    /**
+     *
+     * @param context
+     * @param state
+     */
     @Override
     public void restoreState(Context context, Object state) {
         if (state == null) {
@@ -231,6 +244,11 @@ public class AbstractContext implements Context, StateHolder {
         restoreVarsState(context, values[0]);
     }
 
+    /**
+     *
+     * @param context
+     * @return
+     */
     protected Object saveVarsState(Context context) {
         Object state = null;
         if (null != vars && vars.size() > 0) {
@@ -245,6 +263,11 @@ public class AbstractContext implements Context, StateHolder {
         return state;
     }
 
+    /**
+     *
+     * @param context
+     * @param state
+     */
     protected void restoreVarsState(Context context, Object state) {
         if (null != state) {
             Object[] values = (Object[]) state;

@@ -30,15 +30,42 @@ import org.apache.common.faces.impl.state.utils.Util;
  */
 public enum FlowLogger {
 
+    /**
+     *
+     */
     APPLICATION("apps"),
+
+    /**
+     *
+     */
     TAGLIB("taglib"),
+
+    /**
+     *
+     */
     FACES("faclets"),
+
+    /**
+     *
+     */
     CDI("cdi"),
+
+    /**
+     *
+     */
     SCXML("scxml"),
+
+    /**
+     *
+     */
     EL("el");
 
     private static final String LOGGER_RESOURCES
             = "org.apache.common.faces.impl.state.LogStrings";
+
+    /**
+     *
+     */
     public static final String FACES_LOGGER_NAME_ROOT
             = "org.apache.faces.";
     private final String loggerName;
@@ -47,18 +74,37 @@ public enum FlowLogger {
         this.loggerName = FACES_LOGGER_NAME_ROOT + loggerName;
     }
     
+    /**
+     *
+     * @return
+     */
     public String getLoggerName() {
         return loggerName;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getResourcesName() {
         return LOGGER_RESOURCES;
     }
 
+    /**
+     *
+     * @return
+     */
     public Logger getLogger() {
         return Logger.getLogger(loggerName, LOGGER_RESOURCES);
     }
 
+    /**
+     *
+     * @param context
+     * @param messageId
+     * @param params
+     * @return
+     */
     public String interpolateMessage(FacesContext context,
             String messageId,
             Object[] params) {

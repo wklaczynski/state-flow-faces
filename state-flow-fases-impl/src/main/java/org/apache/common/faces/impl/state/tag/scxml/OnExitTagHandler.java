@@ -33,6 +33,10 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class OnExitTagHandler extends AbstractFlowTagHandler<OnExit> {
 
+    /**
+     *
+     * @param config
+     */
     public OnExitTagHandler(TagConfig config) {
         super(config, OnExit.class);
 
@@ -41,6 +45,14 @@ public class OnExitTagHandler extends AbstractFlowTagHandler<OnExit> {
         in("final", Final.class);
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         EnterableState target = (EnterableState) parentElement;

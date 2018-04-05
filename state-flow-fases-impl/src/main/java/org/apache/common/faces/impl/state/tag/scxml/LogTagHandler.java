@@ -35,9 +35,20 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class LogTagHandler extends AbstractFlowTagHandler<Log> {
 
+    /**
+     *
+     */
     protected final TagAttribute label;
+
+    /**
+     *
+     */
     protected final TagAttribute expr;
     
+    /**
+     *
+     * @param config
+     */
     public LogTagHandler(TagConfig config) {
         super(config, Log.class);
         
@@ -57,6 +68,14 @@ public class LogTagHandler extends AbstractFlowTagHandler<Log> {
         this.expr = this.getAttribute("expr");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Log action = new Log();

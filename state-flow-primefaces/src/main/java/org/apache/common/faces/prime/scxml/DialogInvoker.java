@@ -69,6 +69,9 @@ public class DialogInvoker implements Invoker, Serializable {
 
     private final static Logger logger = Logger.getLogger(DialogInvoker.class.getName());
 
+    /**
+     *
+     */
     public static final String VIEW_PARAM = "@@@SubDialogInvoker@@@";
 
     private static final long serialVersionUID = 1L;

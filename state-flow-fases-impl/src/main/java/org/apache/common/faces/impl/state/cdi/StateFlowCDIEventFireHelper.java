@@ -24,20 +24,52 @@ import org.apache.common.scxml.model.TransitionTarget;
  */
 public interface StateFlowCDIEventFireHelper {
 
+    /**
+     *
+     * @param executor
+     */
     void fireExecutorInitializedEvent(SCXMLExecutor executor);
 
+    /**
+     *
+     * @param executor
+     */
     void fireExecutorDestroyedEvent(SCXMLExecutor executor);
 
+    /**
+     *
+     * @param executor
+     */
     void fireRootExecutorInitializedEvent(SCXMLExecutor executor);
 
+    /**
+     *
+     * @param executor
+     */
     void fireRootExecutorDestroyedEvent(SCXMLExecutor executor);
     
+    /**
+     *
+     * @param target
+     */
     void fireTargetInitializedEvent(TransitionTarget target);
 
+    /**
+     *
+     * @param target
+     */
     void fireTargetDestroyedEvent(TransitionTarget target);
 
+    /**
+     *
+     * @param executor
+     */
     void fireTargetExecutorInitializedEvent(SCXMLExecutor executor);
 
+    /**
+     *
+     * @param executor
+     */
     void fireTargetExecutorDestroyedEvent(SCXMLExecutor executor);
     
 }

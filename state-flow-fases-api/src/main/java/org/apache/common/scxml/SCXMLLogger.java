@@ -23,8 +23,14 @@ import java.util.logging.Logger;
  */
 public enum SCXMLLogger {
 
+    /**
+     *
+     */
     SCXML("scxml");
 
+    /**
+     *
+     */
     public static final String FACES_LOGGER_NAME_ROOT
             = "org.apache.faces.";
     private final String loggerName;
@@ -33,10 +39,18 @@ public enum SCXMLLogger {
         this.loggerName = FACES_LOGGER_NAME_ROOT + loggerName;
     }
     
+    /**
+     *
+     * @return
+     */
     public String getLoggerName() {
         return loggerName;
     }
 
+    /**
+     *
+     * @return
+     */
     public Logger getLogger() {
         return Logger.getLogger(loggerName);
     }

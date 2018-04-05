@@ -32,12 +32,24 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class FinalizeTagHandler extends AbstractFlowTagHandler<Finalize> {
 
+    /**
+     *
+     * @param config
+     */
     public FinalizeTagHandler(TagConfig config) {
         super(config, Finalize.class);
 
         in("invoke", Invoke.class);
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Invoke invoke = (Invoke) parentElement;

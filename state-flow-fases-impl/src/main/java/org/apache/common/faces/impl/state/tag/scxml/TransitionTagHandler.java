@@ -37,13 +37,35 @@ import org.apache.common.scxml.model.TransitionType;
  */
 public class TransitionTagHandler extends AbstractFlowTagHandler<Transition> {
 
+    /**
+     *
+     */
     public static final String CURRENT_TRANSITION = "facelets.CURRENT_TRANSITION";
 
+    /**
+     *
+     */
     protected final TagAttribute event;
+
+    /**
+     *
+     */
     protected final TagAttribute cond;
+
+    /**
+     *
+     */
     protected final TagAttribute target;
+
+    /**
+     *
+     */
     protected final TagAttribute type;
 
+    /**
+     *
+     * @param config
+     */
     public TransitionTagHandler(TagConfig config) {
         super(config, Transition.class);
 
@@ -59,6 +81,14 @@ public class TransitionTagHandler extends AbstractFlowTagHandler<Transition> {
         this.type = this.getAttribute("type");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
 

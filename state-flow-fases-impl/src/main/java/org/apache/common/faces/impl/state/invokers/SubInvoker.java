@@ -136,6 +136,13 @@ public class SubInvoker implements Invoker, StateHolder {
 
     }
 
+    /**
+     *
+     * @param handler
+     * @param scxml
+     * @param params
+     * @throws InvokerException
+     */
     protected void execute(StateFlowHandler handler, SCXML scxml, final Map<String, Object> params) throws InvokerException {
         try {
             FacesContext fc = FacesContext.getCurrentInstance();

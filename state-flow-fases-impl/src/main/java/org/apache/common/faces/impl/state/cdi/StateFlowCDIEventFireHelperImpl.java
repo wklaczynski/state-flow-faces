@@ -25,6 +25,10 @@ import org.apache.common.faces.state.annotation.StateDialogScoped;
 import org.apache.common.faces.state.annotation.StateTargetScoped;
 import org.apache.common.scxml.model.TransitionTarget;
 
+/**
+ *
+ * @author Waldemar Kłaczyński
+ */
 public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHelper {
 
     @Inject
@@ -55,41 +59,73 @@ public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHel
     @Destroyed(StateTargetScoped.class)
     Event<SCXMLExecutor> stateTargetScopeExecutorDestroyedEvent;
     
+    /**
+     *
+     * @param executor
+     */
     @Override
     public void fireExecutorInitializedEvent(SCXMLExecutor executor) {
         stateChartScopeInitializedEvent.fire(executor);
     }
 
+    /**
+     *
+     * @param executor
+     */
     @Override
     public void fireExecutorDestroyedEvent(SCXMLExecutor executor) {
         stateChartScopeDestroyedEvent.fire(executor);
     }
     
+    /**
+     *
+     * @param executor
+     */
     @Override
     public void fireRootExecutorInitializedEvent(SCXMLExecutor executor) {
         stateDialogScopeInitializedEvent.fire(executor);
     }
 
+    /**
+     *
+     * @param executor
+     */
     @Override
     public void fireRootExecutorDestroyedEvent(SCXMLExecutor executor) {
         stateDialogScopeDestroyedEvent.fire(executor);
     }
 
+    /**
+     *
+     * @param target
+     */
     @Override
     public void fireTargetInitializedEvent(TransitionTarget target) {
         stateTargetScopeInitializedEvent.fire(target);
     }
 
+    /**
+     *
+     * @param target
+     */
     @Override
     public void fireTargetDestroyedEvent(TransitionTarget target) {
         stateTargetScopeDestroyedEvent.fire(target);
     }
 
+    /**
+     *
+     * @param executor
+     */
     @Override
     public void fireTargetExecutorInitializedEvent(SCXMLExecutor executor) {
         stateTargetScopeExecutorInitializedEvent.fire(executor);
     }
 
+    /**
+     *
+     * @param executor
+     */
     @Override
     public void fireTargetExecutorDestroyedEvent(SCXMLExecutor executor) {
         stateTargetScopeExecutorDestroyedEvent.fire(executor);

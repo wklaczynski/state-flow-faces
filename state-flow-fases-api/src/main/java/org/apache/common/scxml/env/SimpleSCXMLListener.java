@@ -37,6 +37,9 @@ public class SimpleSCXMLListener implements SCXMLListener, Serializable {
     /** Implementation independent log category. */
     protected static final Logger log = SCXMLLogger.SCXML.getLogger();
 
+    /**
+     *
+     */
     public SimpleSCXMLListener() {
     }
     

@@ -99,6 +99,9 @@ public interface Context {
      */
     SCXMLSystemContext getSystemContext();
 
+    /**
+     *
+     */
     static ConcurrentHashMap threadInitContext = new ConcurrentHashMap(2);
 
     /**

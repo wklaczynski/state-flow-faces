@@ -35,14 +35,45 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class SendTagHandler extends AbstractFlowTagHandler<Send> {
 
+    /**
+     *
+     */
     protected final TagAttribute event;
+
+    /**
+     *
+     */
     protected final TagAttribute target;
+
+    /**
+     *
+     */
     protected final TagAttribute type;
+
+    /**
+     *
+     */
     protected final TagAttribute id;
+
+    /**
+     *
+     */
     protected final TagAttribute idlocation;
+
+    /**
+     *
+     */
     protected final TagAttribute delay;
+
+    /**
+     *
+     */
     protected final TagAttribute namelist;
 
+    /**
+     *
+     * @param config
+     */
     public SendTagHandler(TagConfig config) {
         super(config, Send.class);
 
@@ -67,6 +98,14 @@ public class SendTagHandler extends AbstractFlowTagHandler<Send> {
         this.namelist = this.getAttribute("namelist");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Send action = new Send();

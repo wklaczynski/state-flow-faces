@@ -372,6 +372,12 @@ public class ViewInvoker implements Invoker, Serializable {
 
     }
 
+    /**
+     *
+     * @param context
+     * @param outcome
+     * @return
+     */
     protected NavigationCase findNavigationCase(FacesContext context, String outcome) {
         ConfigurableNavigationHandler navigationHandler = (ConfigurableNavigationHandler) context.getApplication().getNavigationHandler();
         return navigationHandler.getNavigationCase(context, null, outcome);

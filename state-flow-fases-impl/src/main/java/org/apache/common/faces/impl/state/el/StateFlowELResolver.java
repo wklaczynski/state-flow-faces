@@ -26,6 +26,9 @@ import org.apache.common.faces.impl.state.el.xpath.XPathELResolver;
  */
 public final class StateFlowELResolver extends CompositeELResolver {
 
+    /**
+     *
+     */
     public StateFlowELResolver() {
         super();
             StateWebConfiguration swc = StateWebConfiguration.getInstance();

@@ -33,6 +33,9 @@ public class PathResolverProducer extends CdiProducer<PathResolver> {
      */
     private static final long serialVersionUID = 1L;
 
+    /**
+     *
+     */
     public PathResolverProducer() {
 
         super.name("scxmlParhResolver")

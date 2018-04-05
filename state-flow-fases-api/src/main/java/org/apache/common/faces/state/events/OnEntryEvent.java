@@ -28,15 +28,28 @@ public class OnEntryEvent {
     
     private final EnterableState target;
 
+    /**
+     *
+     * @param executor
+     * @param target
+     */
     public OnEntryEvent(SCXMLExecutor executor, EnterableState target) {
         this.executor = executor;
         this.target = target;
     }
 
+    /**
+     *
+     * @return
+     */
     public EnterableState getTarget() {
         return target;
     }
 
+    /**
+     *
+     * @return
+     */
     public SCXMLExecutor getExecutor() {
         return executor;
     }

@@ -33,6 +33,9 @@ public class StateFlowJsonContentParser extends ContentParser {
      */
     private final ObjectMapper jsonObjectMapper;
 
+    /**
+     *
+     */
     public StateFlowJsonContentParser() {
         super();
         this.jsonObjectMapper = new ObjectMapper();

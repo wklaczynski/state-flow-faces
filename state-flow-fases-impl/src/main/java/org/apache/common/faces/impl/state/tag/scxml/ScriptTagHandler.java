@@ -38,11 +38,18 @@ import org.apache.common.scxml.model.Script;
  */
 public class ScriptTagHandler extends AbstractFlowTagHandler<Script> {
 
+    /**
+     *
+     */
     protected final TagAttribute src;
 
     private String staticValue;
     private boolean resolved;
 
+    /**
+     *
+     * @param config
+     */
     public ScriptTagHandler(TagConfig config) {
         super(config, Script.class);
 
@@ -63,6 +70,14 @@ public class ScriptTagHandler extends AbstractFlowTagHandler<Script> {
         this.src = this.getAttribute("src");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         if (parentElement instanceof SCXML) {

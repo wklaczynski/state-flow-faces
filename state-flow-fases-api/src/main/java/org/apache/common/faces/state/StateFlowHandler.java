@@ -31,46 +31,136 @@ import org.apache.common.scxml.model.SCXML;
  */
 public abstract class StateFlowHandler {
 
+    /**
+     *
+     */
     public static final String KEY = "javax.faces.state.StateFlowHandler";
 
+    /**
+     *
+     * @return
+     */
     public final static StateFlowHandler getInstance() {
         FacesContext fc = FacesContext.getCurrentInstance();
         StateFlowHandler handler = (StateFlowHandler) fc.getExternalContext().getApplicationMap().get(KEY);
         return handler;
     }
 
+    /**
+     *
+     * @return
+     */
     public abstract List<CustomAction> getCustomActions();
 
+    /**
+     *
+     * @return
+     */
     public abstract Map<String, Class<? extends Invoker>> getCustomInvokers();
 
+    /**
+     *
+     * @param context
+     * @return
+     */
     public abstract SCXMLExecutor getRootExecutor(FacesContext context);
 
+    /**
+     *
+     * @param context
+     * @return
+     */
     public abstract boolean isActive(FacesContext context);
 
+    /**
+     *
+     * @param context
+     * @return
+     */
     public abstract boolean isFinal(FacesContext context);
     
+    /**
+     *
+     * @param context
+     * @return
+     */
     public abstract boolean isInWindow(FacesContext context);
 
+    /**
+     *
+     * @param context
+     * @param scxml
+     * @return
+     * @throws ModelException
+     */
     public abstract SCXMLExecutor createRootExecutor(FacesContext context, SCXML scxml) throws ModelException;
     
+    /**
+     *
+     * @param context
+     * @param parent
+     * @param invokeId
+     * @param scxml
+     * @return
+     * @throws ModelException
+     */
     public abstract SCXMLExecutor createChildExecutor(FacesContext context, SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException;
     
+    /**
+     *
+     * @param context
+     * @param executor
+     * @param params
+     */
     public abstract void execute(FacesContext context, SCXMLExecutor executor, Map<String, Object> params);
 
+    /**
+     *
+     * @param context
+     * @return
+     */
     public abstract SCXMLExecutor getCurrentExecutor(FacesContext context);
 
+    /**
+     *
+     * @param context
+     */
     public void close(FacesContext context) {
         close(context, null);
     }
 
+    /**
+     *
+     * @param context
+     * @param to
+     */
     public abstract void close(FacesContext context, SCXMLExecutor to);
 
+    /**
+     *
+     * @param context
+     * @param path
+     * @return
+     * @throws ModelException
+     */
     public SCXML createStateMachine(FacesContext context, String path) throws ModelException {
         return createStateMachine(context, path, DEFAULT_STATECHART_NAME);
     }
 
+    /**
+     *
+     * @param context
+     * @param path
+     * @param id
+     * @return
+     * @throws ModelException
+     */
     public abstract SCXML createStateMachine(FacesContext context, String path, String id) throws ModelException;
 
+    /**
+     *
+     * @param context
+     */
     public abstract void writeState(FacesContext context);
 
 }

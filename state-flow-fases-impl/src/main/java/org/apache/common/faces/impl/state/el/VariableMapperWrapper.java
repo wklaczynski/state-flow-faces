@@ -31,6 +31,10 @@ public class VariableMapperWrapper extends VariableMapper {
 
     private Map vars;
 
+    /**
+     *
+     * @param orig
+     */
     public VariableMapperWrapper(VariableMapper orig) {
         super();
         this.target = orig;

@@ -32,6 +32,10 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class DataModelTagHandler extends AbstractFlowTagHandler<Datamodel> {
 
+    /**
+     *
+     * @param config
+     */
     public DataModelTagHandler(TagConfig config) {
         super(config, Datamodel.class);
         
@@ -40,6 +44,14 @@ public class DataModelTagHandler extends AbstractFlowTagHandler<Datamodel> {
         in("state", State.class);
     }
     
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         if(isDatamodel(ctx, parent)) {
@@ -54,7 +66,13 @@ public class DataModelTagHandler extends AbstractFlowTagHandler<Datamodel> {
         applyNext(ctx, parent, datamodel);
     }
 
-
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param datamodel
+     * @throws IOException
+     */
     protected void setDatamodel(FaceletContext ctx, UIComponent parent, Datamodel datamodel) throws IOException {
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
         if (currentFlow instanceof SCXML) {
@@ -71,6 +89,13 @@ public class DataModelTagHandler extends AbstractFlowTagHandler<Datamodel> {
         }
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @return
+     * @throws IOException
+     */
     protected boolean isDatamodel(FaceletContext ctx, UIComponent parent) throws IOException {
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
         boolean result = false;

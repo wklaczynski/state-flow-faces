@@ -34,6 +34,9 @@ import javax.faces.view.facelets.TagHandlerDelegate;
  */
 public class ActionHandler  extends MetaTagHandler {
 
+    /**
+     *
+     */
     protected TagHandlerDelegateFactory delegateFactory;
     
     private final TagAttribute binding;
@@ -42,6 +45,10 @@ public class ActionHandler  extends MetaTagHandler {
     
     private TagHandlerDelegate helper;
     
+    /**
+     *
+     * @param config
+     */
     public ActionHandler(TagConfig config) {
         super(config);
         this.binding = this.getAttribute("binding");
@@ -52,10 +59,19 @@ public class ActionHandler  extends MetaTagHandler {
                 .getApplicationMap().get(TagHandlerDelegateFactory.KEY);
     }
     
+    /**
+     *
+     * @param ctx
+     * @return
+     */
     public boolean isDisabled(FaceletContext ctx) {
         return disabled != null && Boolean.TRUE.equals(disabled.getBoolean(ctx));
     }
     
+    /**
+     *
+     * @return
+     */
     public TagAttribute getBinding() {
         return this.binding;
     }
@@ -66,6 +82,10 @@ public class ActionHandler  extends MetaTagHandler {
         return getTagHandlerDelegate().createMetaRuleset(type);
     }
 
+    /**
+     *
+     * @return
+     */
     protected TagHandlerDelegate getTagHandlerDelegate() {
         if (null == helper) {
             helper = delegateFactory.createStateFlowActionDelegate(this);
@@ -79,19 +99,39 @@ public class ActionHandler  extends MetaTagHandler {
         getTagHandlerDelegate().apply(ctx, parent);
     }
     
+    /**
+     *
+     * @return
+     */
     public Tag getTag() {
         return this.tag;
     }
     
+    /**
+     *
+     * @return
+     */
     public String getTagId() {
         return this.tagId;
     }
     
+    /**
+     *
+     * @param localName
+     * @return
+     */
     public TagAttribute getTagAttribute(String localName) {
         return super.getAttribute(localName);
     }
     
-    
+    /**
+     *
+     * @param ctx
+     * @param c
+     * @throws IOException
+     * @throws FacesException
+     * @throws ELException
+     */
     public void applyNextHandler(FaceletContext ctx, UIComponent c) 
             throws IOException, FacesException, ELException {
         this.nextHandler.apply(ctx, c);

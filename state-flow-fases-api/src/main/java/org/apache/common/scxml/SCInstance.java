@@ -188,6 +188,10 @@ public class SCInstance implements Serializable, StateHolder {
         initialized = true;
     }
 
+    /**
+     *
+     * @param data
+     */
     protected void initializeDatamodel(final Map<String, Object> data) {
         if (globalContext == null) {
             // Clone root datamodel
@@ -304,6 +308,11 @@ public class SCInstance implements Serializable, StateHolder {
         initialize();
     }
 
+    /**
+     *
+     * @param singleContext
+     * @throws ModelException
+     */
     public void setSingleContext(boolean singleContext) throws ModelException {
         if (initialized) {
             throw new ModelException("SCInstance: already initialized");
@@ -311,6 +320,10 @@ public class SCInstance implements Serializable, StateHolder {
         this.singleContext = singleContext;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isSingleContext() {
         return singleContext;
     }
@@ -576,6 +589,11 @@ public class SCInstance implements Serializable, StateHolder {
         histories.remove(history);
     }
 
+    /**
+     *
+     * @param context
+     * @return
+     */
     @Override
     public Object saveState(Context context) {
 
@@ -596,6 +614,11 @@ public class SCInstance implements Serializable, StateHolder {
         return values;
     }
 
+    /**
+     *
+     * @param context
+     * @param state
+     */
     @Override
     public void restoreState(Context context, Object state) {
 

@@ -31,8 +31,15 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class ElseIfTagHandler extends AbstractFlowTagHandler<ElseIf> {
 
+    /**
+     *
+     */
     protected final TagAttribute cond;
 
+    /**
+     *
+     * @param config
+     */
     public ElseIfTagHandler(TagConfig config) {
         super(config, ElseIf.class);
 
@@ -41,6 +48,14 @@ public class ElseIfTagHandler extends AbstractFlowTagHandler<ElseIf> {
         this.cond = this.getRequiredAttribute("cond");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         ElseIf action = new ElseIf();

@@ -50,9 +50,25 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
      * <a href="http://www.w3.org/TR/scxml/#SystemVariables">http://www.w3.org/TR/scxml/#SystemVariables</a>
      */
     public static final String EVENT_KEY = "_event";
+
+    /**
+     *
+     */
     public static final String SESSIONID_KEY = "_sessionid";
+
+    /**
+     *
+     */
     public static final String SCXML_NAME_KEY = "_name";
+
+    /**
+     *
+     */
     public static final String IOPROCESSORS_KEY = "_ioprocessors";
+
+    /**
+     *
+     */
     public static final String X_KEY = "_x";
 
     /**
@@ -119,10 +135,18 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
      */
     private Map<String, Object> protectedVars;
 
+    /**
+     *
+     * @param systemContext
+     */
     public SCXMLSystemContext(Context systemContext) {
         setSystemContext(systemContext);
     }
 
+    /**
+     *
+     * @return
+     */
     public String generateSessionId() {
         return getContext().get(SESSIONID_KEY) + "-" + nextSessionSequenceId++;
     }
@@ -192,6 +216,11 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
         return systemContext;
     }
 
+    /**
+     *
+     * @param context
+     * @return
+     */
     @Override
     public Object saveState(Context context) {
         Object values[] = new Object[2];
@@ -208,6 +237,11 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
         return values;
     }
 
+    /**
+     *
+     * @param context
+     * @param state
+     */
     @Override
     public void restoreState(Context context, Object state) {
         if (state == null) {
@@ -224,6 +258,11 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
         nextSessionSequenceId = (long) values[1];
     }
 
+    /**
+     *
+     * @param context
+     * @return
+     */
     protected Object saveVarsState(Context context) {
         Object state = null;
         Context rctx = getContext();
@@ -247,6 +286,11 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
         return state;
     }
 
+    /**
+     *
+     * @param context
+     * @param state
+     */
     protected void restoreVarsState(Context context, Object state) {
         Context rctx = getContext();
         if (null != state) {
@@ -263,12 +307,26 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
         }
     }
 
+    /**
+     *
+     * @param context
+     * @param name
+     * @param value
+     * @return
+     */
     protected Object saveValueState(Context context, String name, Object value) {
         value = saveAttachedState(context, value);
 
         return value;
     }
 
+    /**
+     *
+     * @param context
+     * @param name
+     * @param state
+     * @return
+     */
     protected Object restoreValueState(Context context, String name, Object state) {
         Object value = restoreAttachedState(context, state);
         return value;

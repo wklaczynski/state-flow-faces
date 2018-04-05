@@ -31,6 +31,10 @@ public class StateFlowActionListener implements ActionListener {
 
     private final ActionListener base;
 
+    /**
+     *
+     * @param base
+     */
     public StateFlowActionListener(ActionListener base) {
         this.base = base;
     }    

@@ -27,11 +27,18 @@ public final class CompositeFunctionMapper extends FunctionMapper {
     private FunctionMapper[] mappers;
     private int size;
 
+    /**
+     *
+     */
     public CompositeFunctionMapper() {
         this.size = 0;
         this.mappers = new FunctionMapper[16];
     }
 
+    /**
+     *
+     * @param mappers
+     */
     public CompositeFunctionMapper(FunctionMapper... mappers) {
         this.size = 0;
         this.mappers = new FunctionMapper[16];
@@ -40,6 +47,10 @@ public final class CompositeFunctionMapper extends FunctionMapper {
         }
     }
 
+    /**
+     *
+     * @param mapper
+     */
     public void add(FunctionMapper mapper) {
 
         if (mapper == null) {

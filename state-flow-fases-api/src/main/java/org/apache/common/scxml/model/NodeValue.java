@@ -28,6 +28,10 @@ public class NodeValue implements ParsedValue {
      */
     private final Node node;
 
+    /**
+     *
+     * @param node
+     */
     public NodeValue(final Node node) {
         this.node = node;
     }

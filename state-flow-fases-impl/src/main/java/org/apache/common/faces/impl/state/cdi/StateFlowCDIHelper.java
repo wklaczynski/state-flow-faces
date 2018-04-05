@@ -24,6 +24,10 @@ import org.apache.common.scxml.model.EnterableState;
  */
 public class StateFlowCDIHelper {
 
+    /**
+     *
+     * @param executor
+     */
     public static void executorEntered(SCXMLExecutor executor) {
         if (executor.getParentSCXMLIOProcessor() == null) {
             StateDialogCDIContext.executorEntered(executor);
@@ -32,6 +36,10 @@ public class StateFlowCDIHelper {
         StateTargetCDIContext.executorEntered(executor);
     }
 
+    /**
+     *
+     * @param executor
+     */
     public static void executorExited(SCXMLExecutor executor) {
         if (executor.getParentSCXMLIOProcessor() == null) {
             StateDialogCDIContext.executorExited(executor);
@@ -40,10 +48,20 @@ public class StateFlowCDIHelper {
         StateTargetCDIContext.executorExited(executor);
     }
 
+    /**
+     *
+     * @param executor
+     * @param state
+     */
     public static void stateEntered(SCXMLExecutor executor, EnterableState state) {
         //StateTargetCDIContext.stateEntered(executor, state);
     }
 
+    /**
+     *
+     * @param executor
+     * @param state
+     */
     public static void stateExited(SCXMLExecutor executor, EnterableState state) {
         //StateTargetCDIContext.stateExited(executor, state);
     }

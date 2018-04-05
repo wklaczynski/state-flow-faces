@@ -35,10 +35,25 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class ForeathTagHandler extends AbstractFlowTagHandler<Foreach> {
 
+    /**
+     *
+     */
     protected final TagAttribute array;
+
+    /**
+     *
+     */
     protected final TagAttribute item;
+
+    /**
+     *
+     */
     protected final TagAttribute index;
     
+    /**
+     *
+     * @param config
+     */
     public ForeathTagHandler(TagConfig config) {
         super(config, Foreach.class);
         
@@ -59,6 +74,14 @@ public class ForeathTagHandler extends AbstractFlowTagHandler<Foreach> {
         this.index = this.getAttribute("index");
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         Foreach action = new Foreach();

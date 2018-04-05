@@ -39,6 +39,10 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
     private final static Logger logger = Logger.getLogger(StateFlowNavigationHandler.class.getName());
     private final NavigationHandler wrappedNavigationHandler;
 
+    /**
+     *
+     * @param navigationHandler
+     */
     public StateFlowNavigationHandler(NavigationHandler navigationHandler) {
         this.wrappedNavigationHandler = navigationHandler;
     }

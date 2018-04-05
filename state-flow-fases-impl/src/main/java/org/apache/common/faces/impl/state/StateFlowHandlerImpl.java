@@ -95,6 +95,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     private final List<CustomAction> customActions = Collections.synchronizedList(new ArrayList<>());
     private final Map<String, Class<? extends Invoker>> customInvokers = Collections.synchronizedMap(new HashMap<>());
 
+    /**
+     *
+     */
     public static final String LOGICAL_FLOW_MAP = StateFlowHandlerImpl.class.getName() + ".LogicalFlowMap";
 
     private Boolean logstep;
@@ -102,6 +105,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     private TimerEventProducer eventProducer;
 
+    /**
+     *
+     * @param ctx
+     */
     public StateFlowHandlerImpl(ServletContext ctx) {
         super();
         customInvokers.put("view", ViewInvoker.class);

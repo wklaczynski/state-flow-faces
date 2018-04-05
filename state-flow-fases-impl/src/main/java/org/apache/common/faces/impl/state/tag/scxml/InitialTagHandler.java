@@ -31,12 +31,24 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class InitialTagHandler extends AbstractFlowTagHandler<Initial> {
 
+    /**
+     *
+     * @param config
+     */
     public InitialTagHandler(TagConfig config) {
         super(config, Initial.class);
         
         in("state", State.class);
     }
 
+    /**
+     *
+     * @param ctx
+     * @param parent
+     * @param chart
+     * @param parentElement
+     * @throws IOException
+     */
     @Override
     public void apply(FaceletContext ctx, UIComponent parent, SCXML chart, Object parentElement) throws IOException {
         State state = (State) parentElement;

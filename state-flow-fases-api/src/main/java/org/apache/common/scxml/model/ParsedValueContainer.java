@@ -24,7 +24,16 @@ import java.io.Serializable;
  */
 public interface ParsedValueContainer extends Serializable {
 
+    /**
+     *
+     * @return
+     */
     ParsedValue getParsedValue();
+
+    /**
+     *
+     * @param parsedValue
+     */
     void setParsedValue(final ParsedValue parsedValue);
 }
 
