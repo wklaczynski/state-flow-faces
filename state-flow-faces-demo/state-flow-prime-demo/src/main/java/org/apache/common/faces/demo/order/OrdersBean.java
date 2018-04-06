@@ -21,13 +21,13 @@ import java.util.List;
 import javax.inject.Named;
 import org.apache.common.faces.demo.order.data.Order;
 import org.apache.common.faces.demo.order.data.Product;
-import org.apache.common.faces.state.annotation.StateDialogScoped;
+import org.apache.common.faces.state.annotation.DialogScoped;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-@StateDialogScoped
+@DialogScoped
 @Named("orders")
 public class OrdersBean implements Serializable {
     

@@ -19,11 +19,11 @@ import javax.enterprise.context.Destroyed;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import org.apache.common.faces.state.annotation.StateChartScoped;
 import org.apache.common.scxml.SCXMLExecutor;
-import org.apache.common.faces.state.annotation.StateDialogScoped;
-import org.apache.common.faces.state.annotation.StateTargetScoped;
 import org.apache.common.scxml.model.TransitionTarget;
+import org.apache.common.faces.state.annotation.DialogScoped;
+import org.apache.common.faces.state.annotation.ChartScoped;
+import org.apache.common.faces.state.annotation.StateScoped;
 
 /**
  *
@@ -32,31 +32,31 @@ import org.apache.common.scxml.model.TransitionTarget;
 public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHelper {
 
     @Inject
-    @Initialized(StateChartScoped.class)
+    @Initialized(ChartScoped.class)
     Event<SCXMLExecutor> stateChartScopeInitializedEvent;
     @Inject
-    @Destroyed(StateChartScoped.class)
+    @Destroyed(ChartScoped.class)
     Event<SCXMLExecutor> stateChartScopeDestroyedEvent;
 
     @Inject
-    @Initialized(StateDialogScoped.class)
+    @Initialized(DialogScoped.class)
     Event<SCXMLExecutor> stateDialogScopeInitializedEvent;
     @Inject
-    @Destroyed(StateDialogScoped.class)
+    @Destroyed(DialogScoped.class)
     Event<SCXMLExecutor> stateDialogScopeDestroyedEvent;
 
     @Inject
-    @Initialized(StateTargetScoped.class)
+    @Initialized(StateScoped.class)
     Event<TransitionTarget> stateTargetScopeInitializedEvent;
     @Inject
-    @Destroyed(StateTargetScoped.class)
+    @Destroyed(StateScoped.class)
     Event<TransitionTarget> stateTargetScopeDestroyedEvent;
 
     @Inject
-    @Initialized(StateTargetScoped.class)
+    @Initialized(StateScoped.class)
     Event<SCXMLExecutor> stateTargetScopeExecutorInitializedEvent;
     @Inject
-    @Destroyed(StateTargetScoped.class)
+    @Destroyed(StateScoped.class)
     Event<SCXMLExecutor> stateTargetScopeExecutorDestroyedEvent;
     
     /**

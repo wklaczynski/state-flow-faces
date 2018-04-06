@@ -37,18 +37,18 @@ import javax.servlet.http.HttpSessionEvent;
 import org.apache.common.faces.impl.state.StateFlowImplConstants;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.annotation.StateTargetScoped;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.model.EnterableState;
 import org.apache.common.scxml.model.Parallel;
 import org.apache.common.scxml.model.SCXML;
 import org.apache.common.scxml.model.TransitionTarget;
+import org.apache.common.faces.state.annotation.StateScoped;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class StateTargetCDIContext implements Context, Serializable {
+public class StateCDIContext implements Context, Serializable {
 
     private static final String TARGET_SCOPE_KEY = "targetscope";
     private static final Logger LOGGER = FlowLogger.CDI.getLogger();
@@ -86,13 +86,13 @@ public class StateTargetCDIContext implements Context, Serializable {
 
     }
 
-    StateTargetCDIContext(Map<Contextual<?>, TargetBeanInfo> flowIds) {
+    StateCDIContext(Map<Contextual<?>, TargetBeanInfo> flowIds) {
         this.targetIds = new ConcurrentHashMap<>(flowIds);
     }
 
     @Override
     public Class<? extends Annotation> getScope() {
-        return StateTargetScoped.class;
+        return StateScoped.class;
     }
 
     @Override

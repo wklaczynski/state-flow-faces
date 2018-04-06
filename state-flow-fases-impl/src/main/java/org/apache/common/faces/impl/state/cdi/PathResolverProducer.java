@@ -17,10 +17,10 @@ package org.apache.common.faces.impl.state.cdi;
 
 import javax.faces.context.FacesContext;
 import org.apache.common.scxml.PathResolver;
-import org.apache.common.faces.state.annotation.StateChartScoped;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.model.SCXML;
+import org.apache.common.faces.state.annotation.ChartScoped;
 
 /**
  *
@@ -39,7 +39,7 @@ public class PathResolverProducer extends CdiProducer<PathResolver> {
     public PathResolverProducer() {
 
         super.name("scxmlParhResolver")
-                .scope(StateChartScoped.class)
+                .scope(ChartScoped.class)
                 .beanClassAndType(PathResolver.class)
                 .create((e) -> {
                     StateFlowHandler fh = StateFlowHandler.getInstance();

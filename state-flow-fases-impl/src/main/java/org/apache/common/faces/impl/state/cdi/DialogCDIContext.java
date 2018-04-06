@@ -36,14 +36,14 @@ import javax.servlet.http.HttpSessionEvent;
 import org.apache.common.faces.impl.state.StateFlowImplConstants;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.annotation.StateDialogScoped;
 import org.apache.common.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.annotation.DialogScoped;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class StateDialogCDIContext implements Context, Serializable {
+public class DialogCDIContext implements Context, Serializable {
 
     private static final String DIALOG_SCOPE_KEY = "dialogscope";
     private static final String DIALOG_SCOPE_MAP_KEY = StateFlowImplConstants.STATE_FLOW_PREFIX + "STATE_DIALOG_SCOPE_MAP";
@@ -51,7 +51,7 @@ public class StateDialogCDIContext implements Context, Serializable {
 
     @Override
     public Class<? extends Annotation> getScope() {
-        return StateDialogScoped.class;
+        return DialogScoped.class;
     }
 
     @Override

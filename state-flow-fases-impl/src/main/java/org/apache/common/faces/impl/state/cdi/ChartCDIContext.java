@@ -36,14 +36,14 @@ import javax.servlet.http.HttpSessionEvent;
 import org.apache.common.faces.impl.state.StateFlowImplConstants;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.annotation.StateChartScoped;
 import org.apache.common.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.annotation.ChartScoped;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class StateChartCDIContext implements Context, Serializable {
+public class ChartCDIContext implements Context, Serializable {
 
     private static final String CHART_SCOPE_KEY = "chartscope";
     private static final String CHART_SCOPE_MAP_KEY = StateFlowImplConstants.STATE_FLOW_PREFIX + "STATE_CHART_SCOPE_MAP";
@@ -51,7 +51,7 @@ public class StateChartCDIContext implements Context, Serializable {
 
     @Override
     public Class<? extends Annotation> getScope() {
-        return StateChartScoped.class;
+        return ChartScoped.class;
     }
 
     @Override

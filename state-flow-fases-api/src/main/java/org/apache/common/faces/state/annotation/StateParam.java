@@ -16,21 +16,21 @@
 package org.apache.common.faces.state.annotation;
 
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
+import static java.lang.annotation.ElementType.*;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Target;
-import javax.enterprise.context.NormalScope;
+import javax.enterprise.util.Nonbinding;
+import javax.inject.Qualifier;
 
-/**
- *
- * @author Waldemar Kłaczyński
- */
-@NormalScope
-@Inherited
+@Qualifier
+@Target({TYPE, METHOD, PARAMETER, FIELD})
 @Documented
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
-@Retention(value = RetentionPolicy.RUNTIME)
-public @interface StateDialogScoped {
+@Retention(RUNTIME)
+@Inherited
+public @interface StateParam {
+
+    @Nonbinding
+    String value() default "";
 }

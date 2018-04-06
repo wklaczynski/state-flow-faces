@@ -13,37 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.common.faces.demo.prime;
+package org.apache.common.faces.impl.state.cdi;
 
-import java.io.Serializable;
-import javax.inject.Named;
-import org.apache.common.faces.state.annotation.StateScoped;
+import javax.enterprise.util.AnnotationLiteral;
+import org.apache.common.faces.state.annotation.DialogParam;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-@StateScoped
-@Named("currentState")
-public class StateBean implements Serializable {
-    
-    private String assignedTest1 = "";
-    
-    public boolean prepare() {
-        return true;
-    }
-    
-    public String getBeanTitle() {
-        return "Current State Bean";
+@SuppressWarnings("AnnotationAsSuperInterface")
+public class DialogParamLiteral extends AnnotationLiteral<DialogParam> implements DialogParam {
+
+    private final String value;
+
+    public DialogParamLiteral() {
+        this("");
     }
 
-    public String getAssignedTest1() {
-        return assignedTest1;
+    public DialogParamLiteral(String value) {
+        this.value = value;
     }
 
-    public void setAssignedTest1(String assignedTest1) {
-        this.assignedTest1 = assignedTest1;
+    @Override
+    public String value() {
+        return value;
     }
     
+     public static final DialogParamLiteral INSTANCE = new DialogParamLiteral();
     
 }

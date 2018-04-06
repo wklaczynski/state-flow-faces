@@ -30,10 +30,10 @@ public class StateFlowCDIHelper {
      */
     public static void executorEntered(SCXMLExecutor executor) {
         if (executor.getParentSCXMLIOProcessor() == null) {
-            StateDialogCDIContext.executorEntered(executor);
+            DialogCDIContext.executorEntered(executor);
         }
-        StateChartCDIContext.executorEntered(executor);
-        StateTargetCDIContext.executorEntered(executor);
+        ChartCDIContext.executorEntered(executor);
+        StateCDIContext.executorEntered(executor);
     }
 
     /**
@@ -42,10 +42,10 @@ public class StateFlowCDIHelper {
      */
     public static void executorExited(SCXMLExecutor executor) {
         if (executor.getParentSCXMLIOProcessor() == null) {
-            StateDialogCDIContext.executorExited(executor);
+            DialogCDIContext.executorExited(executor);
         }
-        StateChartCDIContext.executorExited(executor);
-        StateTargetCDIContext.executorExited(executor);
+        ChartCDIContext.executorExited(executor);
+        StateCDIContext.executorExited(executor);
     }
 
     /**

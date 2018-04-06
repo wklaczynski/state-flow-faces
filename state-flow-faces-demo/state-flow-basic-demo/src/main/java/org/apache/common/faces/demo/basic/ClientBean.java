@@ -17,13 +17,13 @@ package org.apache.common.faces.demo.basic;
 
 import java.io.Serializable;
 import javax.inject.Named;
-import org.apache.common.faces.state.annotation.StateChartScoped;
+import org.apache.common.faces.state.annotation.ChartScoped;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-@StateChartScoped
+@ChartScoped
 @Named("client")
 public class ClientBean implements Serializable {
 

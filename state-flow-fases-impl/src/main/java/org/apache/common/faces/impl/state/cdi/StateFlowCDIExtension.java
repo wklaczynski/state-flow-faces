@@ -27,10 +27,10 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.BeforeBeanDiscovery;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessBean;
-import org.apache.common.faces.state.annotation.StateChartScoped;
 import org.apache.common.faces.impl.state.log.FlowLogger;
-import org.apache.common.faces.state.annotation.StateDialogScoped;
-import org.apache.common.faces.state.annotation.StateTargetScoped;
+import org.apache.common.faces.state.annotation.DialogScoped;
+import org.apache.common.faces.state.annotation.ChartScoped;
+import org.apache.common.faces.state.annotation.StateScoped;
 
 /**
  *
@@ -40,7 +40,7 @@ public class StateFlowCDIExtension implements Extension {
 
     private boolean cdiOneOneOrGreater = false;
 
-    private final Map<Contextual<?>, StateTargetCDIContext.TargetBeanInfo> targetScopedBeanFlowIds;
+    private final Map<Contextual<?>, StateCDIContext.TargetBeanInfo> targetScopedBeanFlowIds;
 
     /**
      *
@@ -61,9 +61,9 @@ public class StateFlowCDIExtension implements Extension {
      * @param beanManager
      */
     public void beforeBean(@Observes final BeforeBeanDiscovery event, BeanManager beanManager) {
-        event.addScope(StateChartScoped.class, true, true);
-        event.addScope(StateDialogScoped.class, true, true);
-        event.addScope(StateTargetScoped.class, true, true);
+        event.addScope(ChartScoped.class, true, true);
+        event.addScope(DialogScoped.class, true, true);
+        event.addScope(StateScoped.class, true, true);
     }
 
     /**
@@ -71,19 +71,19 @@ public class StateFlowCDIExtension implements Extension {
      * @param event
      */
     public void processBean(@Observes ProcessBean<?> event) {
-        StateDialogScoped dialogScoped = event.getAnnotated().getAnnotation(StateDialogScoped.class);
+        DialogScoped dialogScoped = event.getAnnotated().getAnnotation(DialogScoped.class);
         if (dialogScoped != null && log.isLoggable(Level.FINE)) {
             log.log(Level.FINE, "Processing occurrence of @StateDialogScoped");
         }
 
-        StateChartScoped chartScoped = event.getAnnotated().getAnnotation(StateChartScoped.class);
+        ChartScoped chartScoped = event.getAnnotated().getAnnotation(ChartScoped.class);
         if (chartScoped != null && log.isLoggable(Level.FINE)) {
             log.log(Level.FINE, "Processing occurrence of @StateChartScoped");
         }
 
-       StateTargetScoped targetScoped = event.getAnnotated().getAnnotation(StateTargetScoped.class);
+       StateScoped targetScoped = event.getAnnotated().getAnnotation(StateScoped.class);
        if (null != targetScoped) {
-           StateTargetCDIContext.TargetBeanInfo fbi = new StateTargetCDIContext.TargetBeanInfo();
+           StateCDIContext.TargetBeanInfo fbi = new StateCDIContext.TargetBeanInfo();
            fbi.id = targetScoped.value();
            targetScopedBeanFlowIds.put(event.getBean(), fbi);
        }
@@ -96,9 +96,9 @@ public class StateFlowCDIExtension implements Extension {
      */
     public void afterBean(@Observes final AfterBeanDiscovery event, BeanManager beanManager) {
 
-        event.addContext(new StateChartCDIContext());
-        event.addContext(new StateDialogCDIContext());
-        event.addContext(new StateTargetCDIContext(targetScopedBeanFlowIds));
+        event.addContext(new ChartCDIContext());
+        event.addContext(new DialogCDIContext());
+        event.addContext(new StateCDIContext(targetScopedBeanFlowIds));
         targetScopedBeanFlowIds.clear();
 
         event.addBean(new PathResolverProducer());

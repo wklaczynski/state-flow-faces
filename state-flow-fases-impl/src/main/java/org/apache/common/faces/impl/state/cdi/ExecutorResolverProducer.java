@@ -16,9 +16,9 @@
 package org.apache.common.faces.impl.state.cdi;
 
 import javax.faces.context.FacesContext;
-import org.apache.common.faces.state.annotation.StateChartScoped;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.annotation.ChartScoped;
 
 /**
  *
@@ -37,7 +37,7 @@ public class ExecutorResolverProducer extends CdiProducer<SCXMLExecutor> {
     public ExecutorResolverProducer() {
 
         super.name("scxmlExecutor")
-                .scope(StateChartScoped.class)
+                .scope(ChartScoped.class)
                 .beanClassAndType(SCXMLExecutor.class)
                 .create((e) -> {
                     StateFlowHandler fh = StateFlowHandler.getInstance();

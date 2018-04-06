@@ -32,5 +32,5 @@ import javax.enterprise.context.NormalScope;
 @Documented
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
 @Retention(value = RetentionPolicy.RUNTIME)
-public @interface StateChartScoped {
+public @interface DialogScoped {
 }

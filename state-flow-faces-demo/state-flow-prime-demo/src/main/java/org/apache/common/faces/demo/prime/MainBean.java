@@ -20,13 +20,13 @@ import javax.faces.application.FacesMessage;
 import static javax.faces.application.FacesMessage.SEVERITY_INFO;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
-import org.apache.common.faces.state.annotation.StateDialogScoped;
+import org.apache.common.faces.state.annotation.DialogScoped;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-@StateDialogScoped
+@DialogScoped
 @Named("main")
 public class MainBean implements Serializable {
     

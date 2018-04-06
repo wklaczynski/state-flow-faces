@@ -17,13 +17,13 @@ package org.apache.common.faces.demo.basic;
 
 import java.io.Serializable;
 import javax.inject.Named;
-import org.apache.common.faces.state.annotation.StateTargetScoped;
+import org.apache.common.faces.state.annotation.StateScoped;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-@StateTargetScoped
+@StateScoped
 @Named("currentState")
 public class StateBean implements Serializable {
     

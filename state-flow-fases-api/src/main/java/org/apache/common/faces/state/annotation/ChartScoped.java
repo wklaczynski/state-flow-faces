@@ -13,37 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.common.faces.demo.prime;
+package org.apache.common.faces.state.annotation;
 
-import java.io.Serializable;
-import javax.inject.Named;
-import org.apache.common.faces.state.annotation.StateScoped;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.enterprise.context.NormalScope;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-@StateScoped
-@Named("currentState")
-public class StateBean implements Serializable {
-    
-    private String assignedTest1 = "";
-    
-    public boolean prepare() {
-        return true;
-    }
-    
-    public String getBeanTitle() {
-        return "Current State Bean";
-    }
-
-    public String getAssignedTest1() {
-        return assignedTest1;
-    }
-
-    public void setAssignedTest1(String assignedTest1) {
-        this.assignedTest1 = assignedTest1;
-    }
-    
-    
+@NormalScope
+@Inherited
+@Documented
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
+@Retention(value = RetentionPolicy.RUNTIME)
+public @interface ChartScoped {
 }

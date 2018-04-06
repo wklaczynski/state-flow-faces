@@ -23,13 +23,13 @@ import javax.inject.Named;
 import org.apache.common.faces.demo.order.data.Order;
 import org.apache.common.faces.demo.order.data.OrderProduct;
 import org.apache.common.faces.demo.order.data.Product;
-import org.apache.common.faces.state.annotation.StateChartScoped;
+import org.apache.common.faces.state.annotation.ChartScoped;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-@StateChartScoped
+@ChartScoped
 @Named("order")
 public class OrderBean implements Serializable {
 

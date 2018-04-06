@@ -32,7 +32,7 @@ import javax.enterprise.context.NormalScope;
 @Documented
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
 @Retention(value = RetentionPolicy.RUNTIME)
-public @interface StateTargetScoped {
+public @interface StateScoped {
     
     /**
      * State#getId of a defined scxml for this application.
