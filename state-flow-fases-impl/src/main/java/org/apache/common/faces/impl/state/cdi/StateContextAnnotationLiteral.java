@@ -13,24 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.common.faces.state.annotation;
+package org.apache.common.faces.impl.state.cdi;
 
-import java.lang.annotation.Documented;
-import static java.lang.annotation.ElementType.*;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import java.lang.annotation.Target;
-import javax.enterprise.util.Nonbinding;
-import javax.inject.Qualifier;
+import javax.enterprise.util.AnnotationLiteral;
+import org.apache.common.faces.state.annotation.StateContext;
 
-@Qualifier
-@Target({TYPE, METHOD, PARAMETER, FIELD})
-@Documented
-@Retention(RUNTIME)
-@Inherited
-public @interface GlobalParam {
+/**
+ *
+ * @author Waldemar Kłaczyński
+ */
+@SuppressWarnings("AnnotationAsSuperInterface")
+public class StateContextAnnotationLiteral extends AnnotationLiteral<StateContext> implements StateContext {
 
-    @Nonbinding
-    String value() default "";
 }

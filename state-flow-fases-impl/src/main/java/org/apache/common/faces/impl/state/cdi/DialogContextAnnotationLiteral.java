@@ -16,30 +16,13 @@
 package org.apache.common.faces.impl.state.cdi;
 
 import javax.enterprise.util.AnnotationLiteral;
-import org.apache.common.faces.state.annotation.DialogParam;
+import org.apache.common.faces.state.annotation.DialogContext;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
 @SuppressWarnings("AnnotationAsSuperInterface")
-public class DialogParamLiteral extends AnnotationLiteral<DialogParam> implements DialogParam {
+public class DialogContextAnnotationLiteral extends AnnotationLiteral<DialogContext> implements DialogContext {
 
-    private final String value;
-
-    public DialogParamLiteral() {
-        this("");
-    }
-
-    public DialogParamLiteral(String value) {
-        this.value = value;
-    }
-
-    @Override
-    public String value() {
-        return value;
-    }
-    
-     public static final DialogParamLiteral INSTANCE = new DialogParamLiteral();
-    
 }

@@ -21,7 +21,6 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Target;
-import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
 
 @Qualifier
@@ -29,8 +28,6 @@ import javax.inject.Qualifier;
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface DialogParam {
+public @interface StateContext {
 
-    @Nonbinding
-    String value() default "";
 }
