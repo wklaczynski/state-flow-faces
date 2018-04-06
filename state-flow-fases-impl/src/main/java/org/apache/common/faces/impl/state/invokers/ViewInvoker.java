@@ -37,6 +37,7 @@ import javax.faces.component.visit.VisitContext;
 import javax.faces.component.visit.VisitResult;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.context.Flash;
 import javax.faces.context.PartialViewContext;
 import javax.faces.render.RenderKit;
 import javax.faces.render.ResponseStateManager;
@@ -55,8 +56,6 @@ import org.apache.common.scxml.model.SCXML;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static org.apache.common.faces.state.StateFlow.BEFORE_APPLY_REQUEST_VALUES;
-import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
-import static org.apache.common.faces.state.StateFlow.BEFORE_RENDER_VIEW;
 import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
@@ -139,23 +138,23 @@ public class ViewInvoker implements Invoker, Serializable {
      */
     @Override
     public void invoke(final InvokeContext ictx, final String source, final Map<String, Object> params) throws InvokerException {
-        FacesContext fc = FacesContext.getCurrentInstance();
-        boolean oldProcessingEvents = fc.isProcessingEvents();
+        FacesContext context = FacesContext.getCurrentInstance();
+        boolean oldProcessingEvents = context.isProcessingEvents();
         try {
-            fc.setProcessingEvents(false);
-            ExternalContext ec = fc.getExternalContext();
-            ViewHandler vh = fc.getApplication().getViewHandler();
+            context.setProcessingEvents(false);
+            ExternalContext ec = context.getExternalContext();
+            ViewHandler vh = context.getApplication().getViewHandler();
 
-            NavigationCase navCase = findNavigationCase(fc, source);
+            NavigationCase navCase = findNavigationCase(context, source);
             viewId = source;
             try {
-                viewId = navCase.getToViewId(fc);
+                viewId = navCase.getToViewId(context);
             } catch (NullPointerException th) {
                 throw new IOException(String.format("Invoke source \"%s\" not found", source));
             } catch (Throwable th) {
                 throw new IOException(String.format("Invoke source \"%s\" not found", source), th);
             }
-            viewId = vh.deriveLogicalViewId(fc, viewId);
+            viewId = vh.deriveLogicalViewId(context, viewId);
 
             String oldInvokeViewId = (String) executor.getRootContext().get(CURRENT_INVOKED_VIEW_ID);
             if (oldInvokeViewId != null) {
@@ -234,45 +233,49 @@ public class ViewInvoker implements Invoker, Serializable {
                 viewState = null;
             }
 
-            if (fc.getViewRoot() != null) {
-                String currentViewId = fc.getViewRoot().getViewId();
+            if (context.getViewRoot() != null) {
+                String currentViewId = context.getViewRoot().getViewId();
                 if (currentViewId.equals(viewId)) {
                     return;
                 }
             }
 
-            PartialViewContext pvc = fc.getPartialViewContext();
+            PartialViewContext pvc = context.getPartialViewContext();
             if (redirect || (pvc != null && pvc.isAjaxRequest())) {
-                Application application = fc.getApplication();
-                ViewHandler viewHandler = application.getViewHandler();
-                String url = viewHandler.getRedirectURL(fc, viewId, reqparams, false);
-                clearViewMapIfNecessary(fc.getViewRoot(), viewId);
-                updateRenderTargets(fc, viewId);
-                ec.redirect(url);
-
+                Flash flash = ec.getFlash();
+                flash.setKeepMessages(true);
                 if (viewState != null) {
                     Context rootContext = executor.getRootContext();
                     rootContext.setLocal(FACES_VIEW_STATE, viewState);
                 }
-                fc.responseComplete();
+                
+                Application application = context.getApplication();
+                ViewHandler viewHandler = application.getViewHandler();
+                String url = viewHandler.getRedirectURL(context, viewId, reqparams, false);
+                clearViewMapIfNecessary(context.getViewRoot(), viewId);
+                flash.setRedirect(true);
+                updateRenderTargets(context, viewId);
+                ec.redirect(url);
+
+                context.responseComplete();
             } else {
                 UIViewRoot viewRoot;
                 if (viewState != null) {
-                    fc.getAttributes().put(FACES_VIEW_STATE, viewState);
-                    viewRoot = vh.restoreView(fc, viewId);
-                    fc.setViewRoot(viewRoot);
-                    fc.setProcessingEvents(true);
-                    vh.initView(fc);
+                    context.getAttributes().put(FACES_VIEW_STATE, viewState);
+                    viewRoot = vh.restoreView(context, viewId);
+                    context.setViewRoot(viewRoot);
+                    context.setProcessingEvents(true);
+                    vh.initView(context);
                 } else {
                     SCXML stateChart = null;
                     viewRoot = null;
-                    ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(fc, viewId);
+                    ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(context, viewId);
                     ViewMetadata metadata = null;
                     if (vdl != null) {
-                        metadata = vdl.getViewMetadata(fc, viewId);
+                        metadata = vdl.getViewMetadata(context, viewId);
 
                         if (metadata != null) {
-                            viewRoot = metadata.createMetadataView(fc);
+                            viewRoot = metadata.createMetadataView(context);
                             UIComponent facet = viewRoot.getFacet(STATECHART_FACET_NAME);
                             if (facet != null) {
                                 UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent("main");
@@ -285,22 +288,22 @@ public class ViewInvoker implements Invoker, Serializable {
 
                     if (viewRoot != null) {
                         if (!ViewMetadata.hasMetadata(viewRoot)) {
-                            fc.renderResponse();
+                            context.renderResponse();
                         }
                     }
 
                     if (vdl == null || metadata == null) {
-                        fc.renderResponse();
+                        context.renderResponse();
                     }
 
                     if (viewRoot == null) {
-                        viewRoot = vh.createView(fc, viewId);
+                        viewRoot = vh.createView(context, viewId);
                     }
 
                     viewRoot.setViewId(viewId);
                 }
-                fc.setViewRoot(viewRoot);
-                fc.renderResponse();
+                context.setViewRoot(viewRoot);
+                context.renderResponse();
             }
             executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
 
@@ -308,7 +311,16 @@ public class ViewInvoker implements Invoker, Serializable {
             logger.log(Level.SEVERE, "Invoke failed", ex);
             throw new InvokerException(ex);
         } finally {
-            fc.setProcessingEvents(oldProcessingEvents);
+            context.setProcessingEvents(oldProcessingEvents);
+        }
+    }
+
+    private void updateRenderTargets(FacesContext ctx, String newId) {
+        if (ctx.getViewRoot() == null || !ctx.getViewRoot().getViewId().equals(newId)) {
+            PartialViewContext pctx = ctx.getPartialViewContext();
+            if (!pctx.isRenderAll()) {
+                pctx.setRenderAll(true);
+            }
         }
     }
 
@@ -356,17 +368,6 @@ public class ViewInvoker implements Invoker, Serializable {
             Map<String, Object> viewMap = root.getViewMap(false);
             if (viewMap != null) {
                 viewMap.clear();
-            }
-        }
-
-    }
-
-    private void updateRenderTargets(FacesContext ctx, String newId) {
-
-        if (ctx.getViewRoot() == null || !ctx.getViewRoot().getViewId().equals(newId)) {
-            PartialViewContext pctx = ctx.getPartialViewContext();
-            if (!pctx.isRenderAll()) {
-                pctx.setRenderAll(true);
             }
         }
 
@@ -447,7 +448,7 @@ public class ViewInvoker implements Invoker, Serializable {
                             throw new InvokerException(ex);
                         }
                     }
-                    
+
                     if (!resolved && !context.getResponseComplete()) {
                         applyParams(context, viewRoot, vieparams);
                         resolved = true;

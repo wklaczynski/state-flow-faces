@@ -93,5 +93,10 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
         }
         super.renderView(context, viewRoot);
     }
+
+    @Override
+    public void writeState(FacesContext context) throws IOException {
+        super.writeState(context);
+    }
     
 }
