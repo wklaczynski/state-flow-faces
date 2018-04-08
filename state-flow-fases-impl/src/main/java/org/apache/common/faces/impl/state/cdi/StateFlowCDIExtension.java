@@ -101,9 +101,9 @@ public class StateFlowCDIExtension implements Extension {
         event.addContext(new StateCDIContext(targetScopedBeanFlowIds));
         targetScopedBeanFlowIds.clear();
 
-        event.addBean(new DialogContextProducer());
-        event.addBean(new ChartContextProducer());
-        event.addBean(new StateContextProducer());
+//        event.addBean(new DialogContextProducer());
+//        event.addBean(new ChartContextProducer());
+//        event.addBean(new StateContextProducer());
         
         event.addBean(new PathResolverProducer());
         event.addBean(new ExecutorResolverProducer());
