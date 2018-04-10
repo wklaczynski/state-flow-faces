@@ -412,9 +412,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 stack.push(executor);
             }
 
-            Context rootCtx = executor.getEvaluator().newContext(null);
-            executor.setRootContext(rootCtx);
-
             StateFlowCDIHelper.executorEntered(executor);
 
             try {
