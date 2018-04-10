@@ -605,7 +605,7 @@ public class SCInstance implements Serializable, StateHolder {
 
         values[3] = stateConfiguration.saveState(context);
 
-        //values[4] = saveContext(context, rootContext);
+        values[4] = saveContext(context, rootContext);
         values[5] = saveContext(context, globalContext);
         values[6] = saveContext(context, systemContext);
         
@@ -634,7 +634,7 @@ public class SCInstance implements Serializable, StateHolder {
 
         stateConfiguration.restoreState(context, values[3]);
 
-        //restoreContext(context, rootContext, values[4]);
+        restoreContext(context, rootContext, values[4]);
         restoreContext(context, globalContext, values[5]);
         restoreContext(context, systemContext, values[6]);
 

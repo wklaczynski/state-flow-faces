@@ -355,7 +355,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             executor.registerInvokerClass(entry.getKey(), entry.getValue());
         }
 
-        Context rootCtx = executor.getGlobalContext();
+        Context rootCtx = executor.getRootContext();
         rootCtx.setLocal("scxml_has_parent", false);
 
         return executor;
@@ -370,7 +370,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         errorReporter.getTags().putAll(new HashMap<>(tags));
 
         SCXMLExecutor executor = new SCXMLExecutor(parent, invokeId, scxml);
-        executor.setRootContext(parent.getRootContext());
+        
+        executor.setRootContext(executor.getEvaluator().newContext(parent.getRootContext()));
 
         executor.addListener(scxml, new StateFlowCDIListener(executor));
 
@@ -388,7 +389,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
 
         if (parent != null) {
-            Context rootCtx = executor.getGlobalContext();
+            Context rootCtx = executor.getRootContext();
             rootCtx.setLocal("scxml_has_parent", true);
         }
 
@@ -586,7 +587,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
                 values[0] = stateMachine.getMetadata().get("faces-viewid");
                 values[1] = stateMachine.getMetadata().get("faces-chartid");
-                values[2] = saveContext(context, executor.getRootContext());
+                //values[2] = saveContext(context, executor.getRootContext());
                 values[3] = executor.saveState(context);
 
                 attached[i++] = values;
@@ -633,7 +634,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     Context context = new SimpleContext();
                     Context.setCurrentInstance(context);
 
-                    restoreContext(context, executor.getRootContext(), values[2]);
+                    //restoreContext(context, executor.getRootContext(), values[2]);
 
                     executor.restoreState(context, values[3]);
 
@@ -694,7 +695,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
                     values[0] = stateMachine.getMetadata().get("faces-viewid");
                     values[1] = stateMachine.getMetadata().get("faces-chartid");
-                    values[2] = saveContext(context, executor.getRootContext());
+                    //values[2] = saveContext(context, executor.getRootContext());
                     values[3] = executor.saveState(context);
                     attached[i++] = values;
                 }
@@ -743,7 +744,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     Context context = new SimpleContext();
                     Context.setCurrentInstance(context);
 
-                    restoreContext(context, executor.getRootContext(), values[2]);
+                    //restoreContext(context, executor.getRootContext(), values[2]);
 
                     executor.restoreState(context, values[3]);
 
