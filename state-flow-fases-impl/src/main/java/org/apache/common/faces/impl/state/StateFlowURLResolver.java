@@ -53,7 +53,9 @@ public class StateFlowURLResolver implements PathResolver, Serializable {
     @Override
     public String resolvePath(String path) {
         FacesContext context = FacesContext.getCurrentInstance();
-        if (path.startsWith("/")) {
+        if (path.startsWith("@")) {
+            return path;
+        } else if (path.startsWith("/")) {
             path = context.getExternalContext().getRealPath(path);
         } else {
             if (path.contains(":")) {

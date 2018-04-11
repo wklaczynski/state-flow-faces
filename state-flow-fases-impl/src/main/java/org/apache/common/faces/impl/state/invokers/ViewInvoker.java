@@ -137,13 +137,21 @@ public class ViewInvoker implements Invoker, Serializable {
      * {@inheritDoc}.
      */
     @Override
-    public void invoke(final InvokeContext ictx, final String source, final Map<String, Object> params) throws InvokerException {
+    public void invoke(final InvokeContext ictx, String source, final Map<String, Object> params) throws InvokerException {
         FacesContext context = FacesContext.getCurrentInstance();
         boolean oldProcessingEvents = context.isProcessingEvents();
         try {
             context.setProcessingEvents(false);
             ExternalContext ec = context.getExternalContext();
             ViewHandler vh = context.getApplication().getViewHandler();
+            
+            if(source.equals("@this")) {
+                String machineViewId = (String) executor
+                        .getStateMachine().getMetadata().get("faces-viewid");
+                
+                source = machineViewId;
+            }
+            
 
             NavigationCase navCase = findNavigationCase(context, source);
             viewId = source;
