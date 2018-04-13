@@ -109,12 +109,19 @@ public class DialogInvoker implements Invoker, Serializable {
     }
 
     @Override
-    public void invoke(final InvokeContext ictx, final String source, final Map params) throws InvokerException {
+    public void invoke(final InvokeContext ictx, String source, final Map params) throws InvokerException {
         try {
             FacesContext context = FacesContext.getCurrentInstance();
             Map<String, String> requestParams = context.getExternalContext().getRequestParameterMap();
             Map<Object, Object> attrs = context.getAttributes();
 
+            if(source.equals("@this")) {
+                String machineViewId = (String) executor
+                        .getStateMachine().getMetadata().get("faces-viewid");
+                
+                source = machineViewId;
+            }
+            
             viewId = source;
             String oldInvokeViewId = (String) executor.getRootContext().get(CURRENT_INVOKED_VIEW_ID);
             if (oldInvokeViewId != null) {
