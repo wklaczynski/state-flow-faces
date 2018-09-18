@@ -51,12 +51,13 @@ public class StateFlowURLResolver implements PathResolver, Serializable {
     }
 
     @Override
+    @SuppressWarnings("MalformedRegexp")
     public String resolvePath(String path) {
         FacesContext context = FacesContext.getCurrentInstance();
         if (path.startsWith("@")) {
             return path;
         } else if (path.startsWith("/")) {
-            path = context.getExternalContext().getRealPath(path);
+            path = context.getExternalContext().getRealPath(path).replace("\\","/");
         } else {
             if (path.contains(":")) {
                 String resourceId = (String) path;
@@ -81,13 +82,13 @@ public class StateFlowURLResolver implements PathResolver, Serializable {
                 if (res == null) {
                     throw new FacesException(String.format("(resource not found %s)", path));
                 }
-                path = res.getURL().getFile();
+                path = res.getURL().getFile().replace("\\","/");
             } else {
                 if (contextPath == null) {
                     contextPath = context.getExternalContext().getRealPath(root);
                 }
                 Path pth = Paths.get(contextPath);
-                path = pth.resolve(path).normalize().toString();
+                path = pth.resolve(path).normalize().toString().replace("\\","/");
             }
         }
         return localPath(context, path);
@@ -109,13 +110,14 @@ public class StateFlowURLResolver implements PathResolver, Serializable {
             }
             path = parent;
         }
-        path = localPath(context, path);
+        path = localPath(context, path.replace("\\","/"));
         return new StateFlowURLResolver(path);
     }
 
+    @SuppressWarnings("MalformedRegexp")
     private String localPath(FacesContext context, String path) {
         if (base == null) {
-            base = context.getExternalContext().getRealPath("/");
+            base = context.getExternalContext().getRealPath("/").replace("\\","/");
         }
         String result = path.replaceFirst(base, "");
         return result;
