@@ -631,6 +631,8 @@ public class SCInstance implements Serializable, StateHolder {
         singleContext = (boolean) values[0];
         initialized = (boolean) values[1];
         running = (boolean) values[2];
+        
+        getGlobalContext();
 
         stateConfiguration.restoreState(context, values[3]);
 
