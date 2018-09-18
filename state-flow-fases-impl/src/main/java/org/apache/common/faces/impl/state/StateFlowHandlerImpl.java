@@ -76,8 +76,6 @@ import org.apache.common.faces.state.annotation.StateChartInvokers;
 import org.apache.common.scxml.env.AbstractSCXMLListener;
 import org.apache.common.scxml.env.SimpleContext;
 import org.apache.common.scxml.env.SimpleSCXMLListener;
-import static org.apache.common.scxml.io.StateHolderSaver.restoreContext;
-import static org.apache.common.scxml.io.StateHolderSaver.saveContext;
 import org.apache.common.scxml.model.EnterableState;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.FXSCXML_DATA_MODEL;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
