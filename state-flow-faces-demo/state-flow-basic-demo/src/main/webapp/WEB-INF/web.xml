@@ -49,7 +49,7 @@
     <!--Test save and restore executor and context state for distributable session-->
     <context-param>
         <param-name>org.apache.faces.STATE_CHART_ALWEYS_SERIALIZED</param-name>
-        <param-value>true</param-value>
+        <param-value>false</param-value>
     </context-param>
     
     <context-param>
