@@ -38,6 +38,7 @@ import org.apache.common.scxml.model.ModelException;
 import org.apache.common.scxml.model.SCXML;
 import static org.apache.common.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
 import static org.apache.common.faces.state.StateFlow.DECODE_DISPATCHER_EVENTS;
+import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -112,13 +113,26 @@ public class SubInvoker implements Invoker, StateHolder {
         StateFlowHandler handler = StateFlowHandler.getInstance();
         SCXML scxml;
         try {
+            String id;
             String viewId = url;
+            int sep = viewId.lastIndexOf("#");
+            if(sep > -1) {
+                id = viewId.substring(sep + 1);
+                viewId = viewId.substring(0, sep);
+            } else {
+                id = DEFAULT_STATECHART_NAME;
+            }
+
+            if("@this".equals(viewId)) {
+                viewId = FacesContext.getCurrentInstance().getViewRoot().getViewId();
+            }
+            
             int pos = viewId.indexOf("META-INF/resources/");
             if (pos >= 0) {
                 viewId = viewId.substring(pos + 18);
             }
 
-            scxml = handler.createStateMachine(fc, viewId);
+            scxml = handler.createStateMachine(fc, viewId, id);
         } catch (FacesException ex) {
             throw ex;
         } catch (Throwable ex) {
