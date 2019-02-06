@@ -184,6 +184,12 @@ public class StateFlowPhaseListener implements PhaseListener {
         if (viewRoot == null) {
             return;
         }
+        
+        StateFlowHandler flowHandler = StateFlowHandler.getInstance();
+        if(flowHandler.isActive(context)){
+            return;
+        }
+        
 
         UIComponent facet = viewRoot.getFacet(STATECHART_FACET_NAME);
         if (facet != null) {

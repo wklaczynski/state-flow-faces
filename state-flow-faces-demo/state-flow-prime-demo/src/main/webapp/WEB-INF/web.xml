@@ -34,7 +34,7 @@
     when is not defined in invoke params "@view.redirect". Default is "false"-->
     <context-param>
         <param-name>org.apache.faces.DEFAULT_VIEW_REDIRECT</param-name>
-        <param-value>true</param-value>
+        <param-value>false</param-value>
     </context-param>
     
     <!--Request parametr for start other scxml definition, default is "flow",
