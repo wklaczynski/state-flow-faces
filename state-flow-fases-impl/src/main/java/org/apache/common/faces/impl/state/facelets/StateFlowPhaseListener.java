@@ -105,7 +105,7 @@ public class StateFlowPhaseListener implements PhaseListener {
             UIViewRoot viewRoot = context.getViewRoot();
             StateFlowHandler handler = StateFlowHandler.getInstance();
             if (viewRoot != null && handler.isActive(context)) {
-                
+
                 StateFlow.applyViewContext(context);
 
                 String name = BEFORE_PHASE_EVENT_PREFIX
@@ -169,7 +169,6 @@ public class StateFlowPhaseListener implements PhaseListener {
         return PhaseId.ANY_PHASE;
     }
 
-
     private void restoreStateFlow(FacesContext context) {
         if (context.isPostback()) {
             return;
@@ -184,12 +183,11 @@ public class StateFlowPhaseListener implements PhaseListener {
         if (viewRoot == null) {
             return;
         }
-        
+
         StateFlowHandler flowHandler = StateFlowHandler.getInstance();
-        if(flowHandler.isActive(context)){
+        if (flowHandler.isActive(context)) {
             return;
         }
-        
 
         UIComponent facet = viewRoot.getFacet(STATECHART_FACET_NAME);
         if (facet != null) {
