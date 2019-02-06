@@ -140,7 +140,7 @@ public class SubInvoker implements Invoker, StateHolder {
         }
         execute(handler, scxml, params);
     }
-
+    
     /**
      * {@inheritDoc}.
      */

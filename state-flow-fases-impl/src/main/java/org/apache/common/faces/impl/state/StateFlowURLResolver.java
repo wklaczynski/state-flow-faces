@@ -56,6 +56,8 @@ public class StateFlowURLResolver implements PathResolver, Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
         if (path.startsWith("@")) {
             return path;
+        } else if (path.startsWith("#")) {
+            return path;
         } else if (path.startsWith("/")) {
             path = context.getExternalContext().getRealPath(path).replace("\\","/");
         } else {
@@ -120,6 +122,10 @@ public class StateFlowURLResolver implements PathResolver, Serializable {
             base = context.getExternalContext().getRealPath("/").replace("\\","/");
         }
         String result = path.replaceFirst(base, "");
+        int sep = result.lastIndexOf("/META-INF/resources");
+        if(sep > -1) {
+            result = result.substring(sep+19);
+        }
         return result;
     }
 
