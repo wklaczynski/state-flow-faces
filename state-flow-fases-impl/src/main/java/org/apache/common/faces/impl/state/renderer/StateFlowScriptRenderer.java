@@ -46,10 +46,8 @@ public class StateFlowScriptRenderer extends Renderer {
             long delay = curTask.getTime() - System.currentTimeMillis();
             writer.startElement("script", component);
             writer.writeAttribute("type", "text/javascript", "type");
-            writer.write("if(window.scxmltask){");
-            writer.write("clearTimeout(window.scxmltask)");
-            writer.write("};");
             writer.write("window.scxmltask = setTimeout(function(){");
+            writer.write("clearTimeout(window.scxmltask);");
             writer.write("jsf.ajax.request(this,'scxmltask',{");
             writer.write("execute:'@none',render:'@all'");
             writer.write("})},");

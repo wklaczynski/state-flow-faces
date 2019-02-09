@@ -16,6 +16,7 @@
 package org.apache.common.faces.state.task;
 
 import java.io.Serializable;
+import java.util.Date;
 import org.apache.common.scxml.SCXMLIOProcessor;
 import org.apache.common.scxml.TriggerEvent;
 
@@ -43,6 +44,12 @@ public class DelayedEventTask implements Serializable {
     private final long time;
 
     /**
+     * The register time
+     */
+    private final long registerTime;
+    
+    
+    /**
      * The target io processor
      */
     private final SCXMLIOProcessor target;
@@ -61,6 +68,7 @@ public class DelayedEventTask implements Serializable {
         this.event = event;
         this.time = time;
         this.target = target;
+        this.registerTime = new Date().getTime();
     }
 
     /**
@@ -87,6 +95,10 @@ public class DelayedEventTask implements Serializable {
         return time;
     }
 
+    public long getRegisterTime() {
+        return registerTime;
+    }
+    
     /**
      *
      * @return

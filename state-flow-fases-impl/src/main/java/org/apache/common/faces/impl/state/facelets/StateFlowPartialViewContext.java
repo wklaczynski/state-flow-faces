@@ -175,10 +175,8 @@ public final class StateFlowPartialViewContext extends PartialViewContextWrapper
                 if (curTask != null) {
                     long delay = curTask.getTime() - System.currentTimeMillis();
                     startEval();
-                    write("if(window.scxmltask){");
-                    write("clearTimeout(window.scxmltask)");
-                    write("};");
                     write("window.scxmltask = setTimeout(function(){");
+                    write("clearTimeout(window.scxmltask);");
                     write("jsf.ajax.request(this,'scxmltask',{");
                     write("execute:'@none',render:'@all'");
                     write("})},");
