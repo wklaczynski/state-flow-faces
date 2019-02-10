@@ -133,6 +133,10 @@ public class SubInvoker implements Invoker, StateHolder {
             }
 
             scxml = handler.createStateMachine(fc, viewId, id);
+            
+            if(scxml == null) {
+                throw new InvokerException(String.format("Invoked scxml id='%s' not found in %s", id, viewId));
+            }
         } catch (FacesException ex) {
             throw ex;
         } catch (Throwable ex) {
