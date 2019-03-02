@@ -124,7 +124,7 @@ public class SubInvoker implements Invoker, StateHolder {
             }
 
             if("@this".equals(viewId)) {
-                viewId = FacesContext.getCurrentInstance().getViewRoot().getViewId();
+                viewId = parentSCXMLExecutor.getStateMachine().getViewId();
             }
             
             int pos = viewId.indexOf("META-INF/resources/");

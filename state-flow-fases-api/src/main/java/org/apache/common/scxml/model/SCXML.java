@@ -68,6 +68,11 @@ public class SCXML implements Serializable, Observable {
     private String name;
 
     /**
+     * The viewId for this state machine.
+     */
+    private String viewId;
+
+    /**
      * The profile in use.
      */
     private String profile;
@@ -402,6 +407,24 @@ public class SCXML implements Serializable, Observable {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Get the viewId for this state machine.
+     *
+     * @return The viewId for this state machine.
+     */
+    public String getViewId() {
+        return viewId;
+    }
+
+    /**
+     * Set the viewId for this state machine.
+     *
+     * @param viewId The name for this state machine.
+     */
+    public void setViewId(String viewId) {
+        this.viewId = viewId;
     }
 
     /**

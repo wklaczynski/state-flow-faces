@@ -148,6 +148,9 @@ public class StateChartTagHandler extends TagHandler {
             chart.setInitial(initial.getValue(ctx));
         }
         chart.setDatamodelName(tag.getNamespace());
+        
+        String viewId = root.getViewId();
+        chart.setViewId(viewId);
 
         String qname = tag.getQName();
         String typens = "";
