@@ -15,12 +15,19 @@
  */
 package org.apache.common.faces.impl.state.facelets;
 
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
+import javax.faces.component.visit.VisitContext;
+import javax.faces.component.visit.VisitHint;
+import javax.faces.component.visit.VisitResult;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import org.apache.common.faces.state.component.UIStateChartController;
 import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 
 /**
@@ -43,9 +50,24 @@ public class StateFlowActionListener implements ActionListener {
     public void processAction(ActionEvent event) throws AbortProcessingException {
         UIComponent source = event.getComponent();
 
-        Map<Object, Object> attrs = FacesContext.getCurrentInstance().getAttributes();
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        Map<Object, Object> attrs = facesContext.getAttributes();
         attrs.put(CURRENT_COMPONENT_HINT, source.getClientId());
 
+//        UIViewRoot root = facesContext.getViewRoot();
+//        if (root != null) {
+//            Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
+//            VisitContext visitContext = VisitContext.createVisitContext(facesContext, null, hints);
+//            root.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
+//                if(target instanceof UIStateChartController) {
+//                    UIStateChartController controller = (UIStateChartController) target;
+//                    controller.queueEvent(event);
+//                }
+//                return VisitResult.ACCEPT;
+//            });
+//        }
+        
+        
         base.processAction(event);
     }
     

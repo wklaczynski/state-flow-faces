@@ -60,23 +60,24 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
     }
 
     @Override
-    public void handleNavigation(FacesContext context, String fromAction, String outcome) {
+    public void handleNavigation(FacesContext facesContext, String fromAction, String outcome) {
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        if (handler.isActive(context)) {
+
+        if (handler.isActive(facesContext)) {
             if (outcome == null) {
                 return;
             }
             if (outcome.endsWith(".xhtml")) {
-                handler.close(context);
-                wrappedNavigationHandler.handleNavigation(context, fromAction, outcome);
+                handler.close(facesContext);
+                wrappedNavigationHandler.handleNavigation(facesContext, fromAction, outcome);
             } else {
                 EventBuilder eb = new EventBuilder(
                         OUTCOME_EVENT_PREFIX + outcome,
                         TriggerEvent.CALL_EVENT);
 
-                eb.sendId(context.getViewRoot().getViewId());
+                eb.sendId(facesContext.getViewRoot().getViewId());
 
-                SCXMLExecutor executor = handler.getRootExecutor(context);
+                SCXMLExecutor executor = handler.getRootExecutor(facesContext);
                 try {
                     TriggerEvent ev = eb.build();
                     executor.triggerEvent(ev);
@@ -85,16 +86,16 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
                 }
 
                 if (!executor.isRunning()) {
-                    handler.close(context, executor);
+                    handler.close(facesContext, executor);
                 }
 
-                if (context.getResponseComplete()) {
-                    handler.writeState(context);
+                if (facesContext.getResponseComplete()) {
+                    handler.writeState(facesContext);
                 }
 
             }
         } else {
-            wrappedNavigationHandler.handleNavigation(context, fromAction, outcome);
+            wrappedNavigationHandler.handleNavigation(facesContext, fromAction, outcome);
         }
     }
 }

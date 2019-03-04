@@ -163,4 +163,8 @@ public abstract class StateFlowHandler {
      */
     public abstract void writeState(FacesContext context);
 
+    public abstract void executorEntered(SCXMLExecutor executor);
+    
+    public abstract void executorExited(SCXMLExecutor executor);
+    
 }

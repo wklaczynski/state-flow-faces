@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:cc="http://java.sun.com/jsf/composite"
+      xmlns:x="http://xmlns.apache.org/faces/scxml"
+    xmlns:fx="http://xmlns.apache.org/faces/fxscxml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <cc:interface>
+        <cc:attribute name="path" required="false"/>
+        <cc:attribute name="caption" required="false"/>
+    </cc:interface>
+    
+    
+    <cc:implementation>
+
+        <x:scxml id="default" initial="start">
+            <x:datamodel>
+                <x:data id="path" expr="#{cc.attrs.path}"/>
+                <x:data id="caption" expr="#{cc.attrs.caption}"/>
+            </x:datamodel>
+            
+            <x:state id="start">
+
+            </x:state>
+        </x:scxml>    
+        
+        <f:facet name="test">
+            
+        </f:facet>
+        
+        <fx:renderState name="default">
+            <f:param name="path" value="#{cc.attrs.path}"/>
+            <f:param name="caption" value="#{cc.attrs.caption}"/>
+        </fx:renderState>
+        
+        <h:panelGroup>
+            <h:outputLabel value="#{chart.caption}"/>
+            <h:panelGroup>
+                <hr/>
+                <p/>
+                <b>Used component:</b>
+                <p/>\#{chart.path} = <i>"#{chart.path}"</i>
+                <hr/>
+            </h:panelGroup>
+            <h:panelGroup id="asign-portlrt-body">
+
+                <h:outputLabel value="Działamy dalej teraz scxml"></h:outputLabel>
+
+
+
+            </h:panelGroup>
+        </h:panelGroup>
+    </cc:implementation>
+</html>

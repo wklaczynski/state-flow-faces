@@ -58,6 +58,8 @@ public class StateFlowURLResolver implements PathResolver, Serializable {
             return path;
         } else if (path.startsWith("#")) {
             return path;
+        } else if (path.startsWith("//")) {
+            path = path.replace("\\","/").substring(1);
         } else if (path.startsWith("/")) {
             path = context.getExternalContext().getRealPath(path).replace("\\","/");
         } else {

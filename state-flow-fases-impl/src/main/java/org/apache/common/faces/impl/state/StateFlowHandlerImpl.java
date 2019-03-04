@@ -48,7 +48,7 @@ import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.model.CustomAction;
 import javax.servlet.ServletContext;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.ANNOTATED_CLASSES;
-import org.apache.common.faces.state.component.UIStateChartRoot;
+import org.apache.common.faces.state.component.UIStateChartDefinition;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.scxml.model.Action;
 import org.apache.common.scxml.model.ModelException;
@@ -79,6 +79,7 @@ import org.apache.common.scxml.env.SimpleSCXMLListener;
 import org.apache.common.scxml.model.EnterableState;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.FXSCXML_DATA_MODEL;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
+import org.apache.common.faces.impl.state.invokers.FacetInvoker;
 import org.apache.common.faces.impl.state.tag.faces.MethodCall;
 import org.apache.common.faces.impl.state.tag.faces.Redirect;
 import org.apache.common.faces.state.task.TimerEventProducer;
@@ -111,6 +112,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         super();
         customInvokers.put("view", ViewInvoker.class);
         customInvokers.put("scxml", SubInvoker.class);
+        customInvokers.put("facet", FacetInvoker.class);
 
         customActions.add(new CustomAction(SCXML_DATA_MODEL, "var", SetVariable.class));
 
@@ -238,7 +240,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
             UIComponent facet = view.getFacet(STATECHART_FACET_NAME);
             if (facet != null) {
-                UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent(id);
+                UIStateChartDefinition uichart = (UIStateChartDefinition) facet.findComponent(id);
                 if (uichart != null) {
                     stateChart = uichart.getStateChart();
                 }
@@ -368,7 +370,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         errorReporter.getTags().putAll(new HashMap<>(tags));
 
         SCXMLExecutor executor = new SCXMLExecutor(parent, invokeId, scxml);
-        
+
         executor.setRootContext(executor.getEvaluator().newContext(parent.getRootContext()));
 
         executor.addListener(scxml, new StateFlowCDIListener(executor));
@@ -411,7 +413,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 stack.push(executor);
             }
 
-            StateFlowCDIHelper.executorEntered(executor);
+            executorEntered(executor);
 
             try {
                 executor.go(params);
@@ -445,14 +447,14 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             if (stack.contains(executor)) {
                 while (!stack.empty()) {
                     SCXMLExecutor last = stack.pop();
-                    StateFlowCDIHelper.executorExited(last);
+                    executorExited(last);
                     if (last == executor) {
                         break;
                     }
                 }
             } else {
                 if (executor != null) {
-                    StateFlowCDIHelper.executorExited(executor);
+                    executorExited(executor);
                 }
             }
         }
@@ -465,6 +467,16 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
         }
 
+    }
+
+    @Override
+    public void executorEntered(SCXMLExecutor executor) {
+        StateFlowCDIHelper.executorEntered(executor);
+    }
+
+    @Override
+    public void executorExited(SCXMLExecutor executor) {
+        StateFlowCDIHelper.executorExited(executor);
     }
 
     private FlowDeque getFlowDeque(FacesContext context, boolean create) {
@@ -633,7 +645,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     Context.setCurrentInstance(context);
 
                     //restoreContext(context, executor.getRootContext(), values[2]);
-
                     executor.restoreState(context, values[3]);
 
                     result.getRoots().add(executor);
@@ -743,7 +754,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     Context.setCurrentInstance(context);
 
                     //restoreContext(context, executor.getRootContext(), values[2]);
-
                     executor.restoreState(context, values[3]);
 
                     executors.add(executor);

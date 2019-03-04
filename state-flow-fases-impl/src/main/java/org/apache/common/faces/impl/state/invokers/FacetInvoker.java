@@ -69,9 +69,9 @@ import static org.apache.common.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
  * contain external namespace elements, further invokes etc.
  */
-public class ViewInvoker implements Invoker, Serializable {
+public class FacetInvoker implements Invoker, Serializable {
 
-    private final static Logger logger = Logger.getLogger(ViewInvoker.class.getName());
+    private final static Logger logger = Logger.getLogger(FacetInvoker.class.getName());
 
     /**
      * Serial version UID.

@@ -16,6 +16,7 @@
 package org.apache.common.faces.impl.state.tag.scxml;
 
 import java.io.IOException;
+import javax.el.VariableMapper;
 import javax.faces.component.UIComponent;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
@@ -79,11 +80,12 @@ public class DataTagHandler extends AbstractFlowTagHandler<Data> {
         decorate(ctx, parent, data);
 
         data.setId(id.getValue());
-
+        
         if (isProductionMode(ctx) && staticValue != null) {
             data.setParsedValue(staticValue);
         } else if (expr != null) {
-            data.setExpr(expr.getValue());
+            String value = expr.getValue(ctx);
+            data.setExpr(value);
         } else if (src != null && !src.isLiteral()) {
             data.setSrc(src.getValue());
         } else if (src != null && src.isLiteral()) {

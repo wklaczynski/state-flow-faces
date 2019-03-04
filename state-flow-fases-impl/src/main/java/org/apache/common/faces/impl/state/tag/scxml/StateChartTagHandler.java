@@ -17,6 +17,8 @@ package org.apache.common.faces.impl.state.tag.scxml;
 
 import com.sun.faces.el.ELContextImpl;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,8 +33,9 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.faces.view.facelets.Facelet;
 import org.apache.common.scxml.PathResolver;
-import org.apache.common.faces.state.component.UIStateChartRoot;
+import org.apache.common.faces.state.component.UIStateChartDefinition;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagAttribute;
@@ -41,6 +44,7 @@ import javax.faces.view.facelets.TagException;
 import javax.faces.view.facelets.TagHandler;
 import org.apache.common.scxml.model.SCXML;
 import org.apache.common.faces.impl.state.StateFlowURLResolver;
+import org.apache.common.faces.state.component.UIStateChartController;
 import org.apache.common.faces.impl.state.el.VariableMapperWrapper;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.CURRENT_FLOW_OBJECT;
@@ -100,10 +104,12 @@ public class StateChartTagHandler extends TagHandler {
 
     @Override
     public void apply(FaceletContext ctx, UIComponent parent) throws IOException {
+        boolean inline = false;
         UIViewRoot root;
         if (parent instanceof UIViewRoot) {
             root = (UIViewRoot) parent;
         } else {
+            inline = true;
             root = ctx.getFacesContext().getViewRoot();
         }
         if (root == null) {
@@ -120,10 +126,10 @@ public class StateChartTagHandler extends TagHandler {
 
         UIComponent facetComponent = null;
         if (root.getFacetCount() > 0) {
-            facetComponent = root.getFacets().get(STATECHART_FACET_NAME);
+            facetComponent = parent.getFacets().get(STATECHART_FACET_NAME);
         }
 
-        UIStateChartRoot uichart = null;
+        UIStateChartDefinition uichart = null;
 
         String chartId = DEFAULT_STATECHART_NAME;
         if (id != null) {
@@ -136,8 +142,10 @@ public class StateChartTagHandler extends TagHandler {
         }
 
         if (facetComponent != null) {
-            uichart = (UIStateChartRoot) facetComponent.findComponent(chartId);
+            uichart = (UIStateChartDefinition) facetComponent.findComponent(chartId);
         }
+
+        Application app = ctx.getFacesContext().getApplication();
 
         if (uichart != null && uichart.getStateChart() != null) {
             return;
@@ -148,13 +156,13 @@ public class StateChartTagHandler extends TagHandler {
             chart.setInitial(initial.getValue(ctx));
         }
         chart.setDatamodelName(tag.getNamespace());
-        
+
         String viewId = root.getViewId();
         chart.setViewId(viewId);
 
         String qname = tag.getQName();
         String typens = "";
-        
+
         int sep = qname.indexOf(":");
         if (sep > 0) {
             typens = qname.substring(0, sep);
@@ -166,13 +174,12 @@ public class StateChartTagHandler extends TagHandler {
         chart.getMetadata().put("faces-viewid", root.getViewId());
         chart.getMetadata().put("faces-chartid", chartId);
 
-        Application app = ctx.getFacesContext().getApplication();
         if (facetComponent == null && !(facetComponent instanceof UIPanel)) {
             UIComponent panelGroup = app.createComponent(UIPanel.COMPONENT_TYPE);
             if (facetComponent != null) {
                 panelGroup.getChildren().add(facetComponent);
             }
-            root.getFacets().put(STATECHART_FACET_NAME, panelGroup);
+            parent.getFacets().put(STATECHART_FACET_NAME, panelGroup);
             facetComponent = panelGroup;
         }
         if (null != facetComponent) {
@@ -180,7 +187,7 @@ public class StateChartTagHandler extends TagHandler {
         }
 
         if (uichart == null) {
-            uichart = (UIStateChartRoot) app.createComponent(UIStateChartRoot.COMPONENT_TYPE);
+            uichart = (UIStateChartDefinition) app.createComponent(UIStateChartDefinition.COMPONENT_TYPE);
             uichart.setId(chartId);
             facetComponent.getChildren().add(uichart);
         }
@@ -194,7 +201,9 @@ public class StateChartTagHandler extends TagHandler {
 
         uichart.setStateChart(chart);
 
-        PathResolver resolver = baseResolver.getResolver(root.getViewId());
+        String path = getPath(ctx, root);
+
+        PathResolver resolver = baseResolver.getResolver(path);
         chart.setPathResolver(resolver);
 
         FunctionMapper forig = ctx.getFunctionMapper();
@@ -225,7 +234,7 @@ public class StateChartTagHandler extends TagHandler {
             ctx.setVariableMapper(corig);
             ctx.setFunctionMapper(forig);
         }
-        
+
         chart.getMetadata().put("faces-tag-info", new HashMap<>(tags));
 
         ModelUpdater updater = new ModelUpdater(tags);
@@ -233,6 +242,36 @@ public class StateChartTagHandler extends TagHandler {
 
         restored = chart;
 
+    }
+
+    public String getPath(FaceletContext ctx, UIViewRoot root) {
+
+        String path = root.getViewId();
+
+        try {
+            Field ffield = ctx.getClass().getDeclaredField("facelet");
+            boolean faccessible = ffield.isAccessible();
+            try {
+                ffield.setAccessible(true);
+                Facelet facelet = (Facelet) ffield.get(ctx);
+                Field sfield = facelet.getClass().getDeclaredField("src");
+                boolean saccessible = sfield.isAccessible();
+                try {
+                    sfield.setAccessible(true);
+                    URL url = (URL) sfield.get(facelet);
+                    path = "/" + url.getPath();
+                } finally {
+                    sfield.setAccessible(saccessible);
+                }
+
+            } finally {
+                ffield.setAccessible(faccessible);
+            }
+
+        } catch (Throwable ex) {
+        }
+
+        return path;
     }
 
     private void pushMapper(FacesContext ctx, FunctionMapper mapper) {

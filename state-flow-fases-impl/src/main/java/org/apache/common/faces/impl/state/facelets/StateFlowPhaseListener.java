@@ -32,7 +32,7 @@ import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
 import org.apache.common.scxml.SCXMLExecutor;
-import org.apache.common.faces.state.component.UIStateChartRoot;
+import org.apache.common.faces.state.component.UIStateChartDefinition;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.scxml.model.SCXML;
 import org.apache.common.faces.impl.state.StateFlowParams;
@@ -204,7 +204,7 @@ public class StateFlowPhaseListener implements PhaseListener {
                 scxmlId = DEFAULT_STATECHART_NAME;
             }
 
-            UIStateChartRoot uichart = (UIStateChartRoot) facet.findComponent(scxmlId);
+            UIStateChartDefinition uichart = (UIStateChartDefinition) facet.findComponent(scxmlId);
             if (uichart != null) {
                 stateChart = uichart.getStateChart();
             }

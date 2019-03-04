@@ -44,6 +44,26 @@ limitations under the License.
             <type>java.lang.String</type>
         </attribute>
     </tag>
+
+    <tag>
+        <tag-name>renderState</tag-name>
+        <description><![CDATA[The <renderState> element is redirect to faces action or url.]]></description>
+        <component>
+            <component-type>org.apache.common.faces.UIStateChartController</component-type>
+            <handler-class>org.apache.common.faces.impl.state.tag.faces.RenderStateHandler</handler-class>
+        </component>
+        <attribute>
+            <description><![CDATA[Name of the defined scxml proces in parent component.]]></description>
+            <name>name</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description><![CDATA[If required should be disabled. Default = false.]]></description>
+            <name>required</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
+        </attribute>
+    </tag>
                         
-                                        
 </facelet-taglib>

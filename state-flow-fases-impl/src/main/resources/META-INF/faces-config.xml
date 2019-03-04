@@ -32,8 +32,13 @@
     </factory>
 
     <component>
-        <component-type>org.apache.common.faces.UIStateChartRoot</component-type>
-        <component-class>org.apache.common.faces.state.component.UIStateChartRoot</component-class>
+        <component-type>org.apache.common.faces.UIStateChartDefinition</component-type>
+        <component-class>org.apache.common.faces.state.component.UIStateChartDefinition</component-class>
+    </component>
+
+    <component>
+        <component-type>org.apache.common.faces.UIStateChartController</component-type>
+        <component-class>org.apache.common.faces.state.component.UIStateChartController</component-class>
     </component>
     
     <render-kit>
