@@ -15,7 +15,7 @@
     </ordering>    
     
     <lifecycle>
-        <phase-listener>org.apache.common.faces.impl.state.facelets.StateFlowPhaseListener</phase-listener>
+        <phase-listener>org.apache.common.faces.impl.state.listener.StateFlowPhaseListener</phase-listener>
     </lifecycle>
     
             
@@ -23,22 +23,22 @@
         <el-resolver>org.apache.common.faces.impl.state.el.StateFlowELResolver</el-resolver>
         <navigation-handler>org.apache.common.faces.impl.state.facelets.StateFlowNavigationHandler</navigation-handler>
         <view-handler>org.apache.common.faces.impl.state.facelets.StateFlowViewHandler</view-handler>
-        <action-listener>org.apache.common.faces.impl.state.facelets.StateFlowActionListener</action-listener>
+        <action-listener>org.apache.common.faces.impl.state.listener.StateFlowActionListener</action-listener>
         
         <system-event-listener>
-            <system-event-listener-class>org.apache.common.faces.impl.state.facelets.StateFlowControllerListener</system-event-listener-class>
+            <system-event-listener-class>org.apache.common.faces.impl.state.listener.StateFlowControllerListener</system-event-listener-class>
             <system-event-class>javax.faces.event.PostAddToViewEvent</system-event-class>
             <source-class>org.apache.common.faces.state.component.UIStateChartController</source-class>
         </system-event-listener>
 
         <system-event-listener>
-            <system-event-listener-class>org.apache.common.faces.impl.state.facelets.StateFlowControllerListener</system-event-listener-class>
+            <system-event-listener-class>org.apache.common.faces.impl.state.listener.StateFlowControllerListener</system-event-listener-class>
             <system-event-class>javax.faces.event.PostRestoreStateEvent</system-event-class>
             <source-class>org.apache.common.faces.state.component.UIStateChartController</source-class>
         </system-event-listener>
 
         <system-event-listener>
-            <system-event-listener-class>org.apache.common.faces.impl.state.facelets.StateFlowControllerListener</system-event-listener-class>
+            <system-event-listener-class>org.apache.common.faces.impl.state.listener.StateFlowControllerListener</system-event-listener-class>
             <system-event-class>javax.faces.event.PreRenderViewEvent</system-event-class>
             <source-class>org.apache.common.faces.state.component.UIStateChartController</source-class>
         </system-event-listener>

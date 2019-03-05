@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.common.faces.impl.state.facelets;
+package org.apache.common.faces.impl.state.listener;
 
 import static com.sun.faces.util.RequestStateManager.FACES_VIEW_STATE;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ import org.apache.common.faces.state.component.UIStateChartDefinition;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.scxml.model.SCXML;
 import org.apache.common.faces.impl.state.StateFlowParams;
-import static org.apache.common.faces.impl.state.facelets.StateFlowControllerListener.getControllerClientIds;
+import static org.apache.common.faces.impl.state.listener.StateFlowControllerListener.getControllerClientIds;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;

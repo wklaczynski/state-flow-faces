@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.common.faces.impl.state.facelets;
+package org.apache.common.faces.impl.state.listener;
 
 import java.util.ArrayList;
 import java.util.EnumSet;

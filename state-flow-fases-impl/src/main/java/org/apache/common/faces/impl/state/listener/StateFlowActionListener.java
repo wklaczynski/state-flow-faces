@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.common.faces.impl.state.facelets;
+package org.apache.common.faces.impl.state.listener;
 
+import org.apache.common.faces.impl.state.listener.StateFlowControllerListener;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Map;

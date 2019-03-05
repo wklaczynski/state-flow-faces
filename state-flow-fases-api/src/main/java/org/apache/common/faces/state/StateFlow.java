@@ -94,6 +94,12 @@ public class StateFlow {
      *
      */
     public static final String CONTROLLER_SET_HINT = "javax.faces.flow.CONTROLLER_SET_HINT";
+
+    
+    /**
+     *
+     */
+    public static final String DEFINITION_SET_HINT = "javax.faces.flow.DEFINITION_SET_HINT";
     
     /**
      *
