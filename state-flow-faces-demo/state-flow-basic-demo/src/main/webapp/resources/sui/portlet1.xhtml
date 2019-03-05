@@ -34,10 +34,24 @@
                     <hr/>
                     <p/>
                     <b>Used facet:</b>
-                    <p/>facet name =  = <i>facet1</i>
+                    <p/>facet name = <i>facet1</i>
                     <p/>\#{chart.path} = <i>"#{chart.path}"</i>
                     <hr/>
                 </h:panelGroup>
+                <b>Test action and invoke elements.</b>
+                <h:panelGrid cellspacing="4" columns="6" style="bottom: 0px">
+                    <h:commandButton
+                        action="portlet-action"
+                        value="Custom Portlet Action"
+                        immediate="false">
+                    </h:commandButton>
+                    <h:commandButton
+                        action="portlet-ajax-action"
+                        value="Ajax Portlet Action"
+                        immediate="false">
+                        <f:ajax render="@form"/>
+                    </h:commandButton>
+                </h:panelGrid>
             </h:panelGrid>
         </f:facet>
 
@@ -46,22 +60,5 @@
             <f:param name="caption" value="#{cc.attrs.caption}"/>
         </fx:renderState>
 
-        <h:panelGroup>
-            <h:outputLabel value="#{chart.caption}"/>
-            <h:panelGroup>
-                <hr/>
-                <p/>
-                <b>Used component:</b>
-                <p/>\#{chart.path} = <i>"#{chart.path}"</i>
-                <hr/>
-            </h:panelGroup>
-            <h:panelGroup id="asign-portlrt-body">
-
-                <h:outputLabel value="Działamy dalej teraz scxml"></h:outputLabel>
-
-
-
-            </h:panelGroup>
-        </h:panelGroup>
     </cc:implementation>
 </html>

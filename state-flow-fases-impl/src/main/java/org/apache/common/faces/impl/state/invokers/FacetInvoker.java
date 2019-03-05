@@ -144,7 +144,7 @@ public class FacetInvoker implements Invoker, Serializable {
             UIComponent current = UIComponent.getCurrentComponent(context);
             UIStateChartController controller = (UIStateChartController) current;
 
-            if (source.startsWith("@this.")) {
+            if (source.startsWith("@this:")) {
                 String name = source.substring(6);
                 UIComponent facet = controller.getParent().getFacet(name);
                 if (facet == null) {

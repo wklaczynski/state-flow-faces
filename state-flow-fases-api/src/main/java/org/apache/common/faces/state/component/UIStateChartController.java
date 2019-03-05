@@ -23,15 +23,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Stack;
 import javax.faces.FacesException;
+import javax.faces.component.ActionSource;
+import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
 import javax.faces.component.UIParameter;
 import javax.faces.context.FacesContext;
+import javax.faces.el.EvaluationException;
+import javax.faces.el.MethodBinding;
+import javax.faces.el.MethodNotFoundException;
+import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
-import javax.faces.event.ComponentSystemEvent;
-import javax.faces.event.ComponentSystemEventListener;
-import javax.faces.event.FacesEvent;
-import javax.faces.event.PostRestoreStateEvent;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.StateFlowHandler;
@@ -60,6 +62,7 @@ public class UIStateChartController extends UIPanel {
      */
     @SuppressWarnings("FieldNameHidesFieldInSuperclass")
     public static final String COMPONENT_TYPE = "org.apache.common.faces.UIStateChartController";
+    private UIComponent curentRenderComponent;
 
     enum PropertyKeys {
         name,
@@ -77,15 +80,6 @@ public class UIStateChartController extends UIPanel {
         setRendererType(null);
         setTransient(false);
         setRendered(true);
-
-        addFacesListener((ComponentSystemEventListener) (ComponentSystemEvent event) -> {
-            if (event instanceof PostRestoreStateEvent) {
-                postRestoreState();
-            }
-        });
-    }
-
-    private void postRestoreState() {
     }
 
     @Override
@@ -112,54 +106,73 @@ public class UIStateChartController extends UIPanel {
     public String getFacetId() {
         return (String) getStateHelper().get(PropertyKeys.facetId);
     }
-    
+
     public void setFacetId(java.lang.String _facetId) {
+        curentRenderComponent = null;
         getStateHelper().put(PropertyKeys.facetId, _facetId);
     }
-    
-    @Override
-    public void queueEvent(FacesEvent event) {
-        if (event instanceof ActionEvent) {
-            ActionEvent ae = (ActionEvent) event;
-            FacesContext context = FacesContext.getCurrentInstance();
 
-            SCXMLExecutor executor = getRootExecutor(context);
-            if (executor == null) {
-                super.queueEvent(event);
-            }
+    public boolean processAction(ActionEvent event) throws AbortProcessingException {
+        boolean consumed = false;
 
-            String outcome = "test";
+        ActionEvent ae = (ActionEvent) event;
+        FacesContext context = FacesContext.getCurrentInstance();
 
-            EventBuilder eb = new EventBuilder(
-                    OUTCOME_EVENT_PREFIX + outcome,
-                    TriggerEvent.CALL_EVENT);
-
-            eb.sendId(ae.getComponent().getClientId(context));
-
-            try {
-                TriggerEvent ev = eb.build();
-                executor.triggerEvent(ev);
-            } catch (ModelException ex) {
-                throw new FacesException(ex);
-            }
-
-            if (!executor.isRunning()) {
-                close(context, executor);
-            }
-        } else {
-            super.queueEvent(event);
+        SCXMLExecutor executor = getRootExecutor(context);
+        if (executor == null) {
+            return false;
         }
-    }
 
-    @Override
-    public void encodeBegin(FacesContext context) throws IOException {
-        super.encodeBegin(context);
+        UIComponent source = event.getComponent();
+        ActionSource actionSource = (ActionSource) source;
+
+        Object invokeResult;
+        String outcome = null;
+        MethodBinding binding;
+
+        binding = actionSource.getAction();
+        if (binding != null) {
+            try {
+                if (null != (invokeResult = binding.invoke(context, null))) {
+                    outcome = invokeResult.toString();
+                }
+                // else, default to null, as assigned above.
+            } catch (MethodNotFoundException e) {
+                throw new FacesException(binding.getExpressionString() + ": " + e.getMessage(),
+                        e);
+            } catch (EvaluationException e) {
+                throw new FacesException(binding.getExpressionString() + ": " + e.getMessage(),
+                        e);
+            }
+        }
+
+        EventBuilder eb = new EventBuilder(
+                OUTCOME_EVENT_PREFIX + outcome,
+                TriggerEvent.CALL_EVENT);
+
+        eb.sendId(ae.getComponent().getClientId(context));
+
+        try {
+            TriggerEvent ev = eb.build();
+            executor.triggerEvent(ev);
+            consumed = true;
+        } catch (ModelException ex) {
+            throw new FacesException(ex);
+        }
+
+        if (!executor.isRunning()) {
+            close(context, executor);
+        }
+
+        findComponent(outcome);
+
+        return consumed;
 
     }
 
     @Override
     public void encodeEnd(FacesContext context) throws IOException {
-        
+
         SCXMLExecutor executor = getRootExecutor(context);
         if (executor == null) {
             SCXML stateMachine = findStateMachine(context, getName());
@@ -175,9 +188,36 @@ public class UIStateChartController extends UIPanel {
             }
         }
 
+        UIComponent renderComponent = getCurentRenderComponent(context);
+        if (renderComponent != null) {
+            renderComponent.encodeAll(context);
+        }
+
         super.encodeEnd(context);
     }
 
+    public UIComponent getCurentRenderComponent(FacesContext context) {
+        if (curentRenderComponent == null) {
+            String facetId = getFacetId();
+            if (facetId != null) {
+                curentRenderComponent = context.getViewRoot().findComponent(facetId);
+            }
+        }
+        return curentRenderComponent;
+    }
+
+    public UIComponent getRenderNamingContainer(FacesContext context) {
+	UIComponent namingContainer = getCurentRenderComponent(context);
+        while (namingContainer != null) {
+            if (namingContainer instanceof NamingContainer) {
+                return namingContainer;
+            }
+            namingContainer = namingContainer.getParent();
+        }
+        return null;
+    }
+    
+    
     public SCXML findStateMachine(FacesContext context, String nameValue) throws IOException {
         UIComponent root = context.getViewRoot();
         UIComponent stateContiner = null;

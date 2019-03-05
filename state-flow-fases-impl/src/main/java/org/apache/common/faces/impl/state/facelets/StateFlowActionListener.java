@@ -15,6 +15,7 @@
  */
 package org.apache.common.faces.impl.state.facelets;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -44,31 +45,47 @@ public class StateFlowActionListener implements ActionListener {
      */
     public StateFlowActionListener(ActionListener base) {
         this.base = base;
-    }    
-    
-    @Override
-    public void processAction(ActionEvent event) throws AbortProcessingException {
-        UIComponent source = event.getComponent();
-
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        Map<Object, Object> attrs = facesContext.getAttributes();
-        attrs.put(CURRENT_COMPONENT_HINT, source.getClientId());
-
-//        UIViewRoot root = facesContext.getViewRoot();
-//        if (root != null) {
-//            Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
-//            VisitContext visitContext = VisitContext.createVisitContext(facesContext, null, hints);
-//            root.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
-//                if(target instanceof UIStateChartController) {
-//                    UIStateChartController controller = (UIStateChartController) target;
-//                    controller.queueEvent(event);
-//                }
-//                return VisitResult.ACCEPT;
-//            });
-//        }
-        
-        
-        base.processAction(event);
     }
-    
+
+    @Override
+    @SuppressWarnings("UnusedAssignment")
+    public void processAction(ActionEvent event) throws AbortProcessingException {
+        boolean consumed = false;
+
+        UIComponent source = event.getComponent();
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+
+        String sorceId = source.getClientId(facesContext);
+
+        Map<Object, Object> attrs = facesContext.getAttributes();
+        attrs.put(CURRENT_COMPONENT_HINT, sorceId);
+
+        Collection<String> controllers = StateControllerListener.getControllerClientIds(facesContext);
+        UIViewRoot root = facesContext.getViewRoot();
+        if (root != null && controllers != null && !controllers.isEmpty()) {
+
+            Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
+            VisitContext visitContext = VisitContext.createVisitContext(facesContext, controllers, hints);
+            consumed = root.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
+                if (target instanceof UIStateChartController) {
+                    UIStateChartController controller = (UIStateChartController) target;
+                    UIComponent renderNamingContainer = controller.getRenderNamingContainer(facesContext);
+                    if (renderNamingContainer != null) {
+                        String renderId = renderNamingContainer.getClientId(facesContext);
+                        if (sorceId.startsWith(renderId)) {
+                            if (controller.processAction(event)) {
+                                return VisitResult.COMPLETE;
+                            }
+                        }
+                    }
+                }
+                return VisitResult.ACCEPT;
+            });
+        }
+
+        if (!consumed) {
+            base.processAction(event);
+        }
+    }
+
 }

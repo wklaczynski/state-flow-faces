@@ -89,6 +89,12 @@ public class StateFlow {
      */
     public static final String CURRENT_COMPONENT_HINT = "javax.faces.flow.CURRENT_COMPONENT_HINT";
 
+    
+    /**
+     *
+     */
+    public static final String CONTROLLER_SET_HINT = "javax.faces.flow.CONTROLLER_SET_HINT";
+    
     /**
      *
      */

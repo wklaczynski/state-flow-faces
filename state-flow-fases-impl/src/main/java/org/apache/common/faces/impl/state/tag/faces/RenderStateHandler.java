@@ -16,13 +16,17 @@
  */
 package org.apache.common.faces.impl.state.tag.faces;
 
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagException;
+import static org.apache.common.faces.state.StateFlow.CONTROLLER_SET_HINT;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.component.UIStateChartDefinition;
 import org.apache.common.scxml.SCXMLConstants;
@@ -72,7 +76,8 @@ public class RenderStateHandler extends ComponentHandler {
 
     @Override
     public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
-        UIComponent root = ctx.getFacesContext().getViewRoot();
+        FacesContext fc = ctx.getFacesContext();
+        UIComponent root = fc.getViewRoot();
         UIComponent stateContiner = null;
 
         boolean requiredValue = ((this.required != null) && this.required.getBoolean(ctx));
