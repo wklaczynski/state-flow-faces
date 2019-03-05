@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.component.visit.VisitContext;
@@ -38,6 +40,12 @@ import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 public class StateFlowActionListener implements ActionListener {
 
     private final ActionListener base;
+    private final ThreadLocal<Boolean> consumed = new ThreadLocal<Boolean>() {
+        @Override
+        protected Boolean initialValue() {
+            return false;
+        }
+    };
 
     /**
      *
@@ -50,7 +58,8 @@ public class StateFlowActionListener implements ActionListener {
     @Override
     @SuppressWarnings("UnusedAssignment")
     public void processAction(ActionEvent event) throws AbortProcessingException {
-        boolean consumed = false;
+
+        consumed.set(false);
 
         UIComponent source = event.getComponent();
         FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -66,7 +75,7 @@ public class StateFlowActionListener implements ActionListener {
 
             Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
             VisitContext visitContext = VisitContext.createVisitContext(facesContext, controllers, hints);
-            consumed = root.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
+            root.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
                 if (target instanceof UIStateChartController) {
                     UIStateChartController controller = (UIStateChartController) target;
                     UIComponent renderNamingContainer = controller.getRenderNamingContainer(facesContext);
@@ -74,6 +83,7 @@ public class StateFlowActionListener implements ActionListener {
                         String renderId = renderNamingContainer.getClientId(facesContext);
                         if (sorceId.startsWith(renderId)) {
                             if (controller.processAction(event)) {
+                                consumed.set(true);
                                 return VisitResult.COMPLETE;
                             }
                         }
@@ -83,7 +93,7 @@ public class StateFlowActionListener implements ActionListener {
             });
         }
 
-        if (!consumed) {
+        if (!consumed.get()) {
             base.processAction(event);
         }
     }
