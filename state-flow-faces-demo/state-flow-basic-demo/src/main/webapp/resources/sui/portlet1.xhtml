@@ -15,16 +15,26 @@
 
     <cc:implementation>
 
-        <x:scxml id="default" initial="start">
+        <x:scxml id="default" initial="step1">
             <x:datamodel>
                 <x:data id="path"/>
                 <x:data id="caption"/>
             </x:datamodel>
 
-            <x:state id="start">
+            <x:state id="step1">
                 <x:invoke type="facet" src="@this:facet1">
                 </x:invoke>
+                <x:transition event="error.execution" target="error"/>
+                <x:transition event="view.action.next" target="step2"/>
             </x:state>
+
+            <x:state id="step2">
+                <x:invoke type="facet" src="@this:facet2">
+                </x:invoke>
+                <x:transition event="error.execution" target="error"/>
+                <x:transition event="view.action.prev" target="step1"/>
+            </x:state>
+
         </x:scxml>    
 
         <f:facet name="facet1">
@@ -50,6 +60,11 @@
                         value="Ajax Portlet Action"
                         immediate="false">
                         <f:ajax render="@form"/>
+                    </h:commandButton>
+                    <h:commandButton
+                        action="next"
+                        value="Go Next"
+                        immediate="false">
                     </h:commandButton>
                 </h:panelGrid>
             </h:panelGrid>
@@ -78,6 +93,11 @@
                         value="Ajax Portlet Action"
                         immediate="false">
                         <f:ajax render="@form"/>
+                    </h:commandButton>
+                    <h:commandButton
+                        action="prev"
+                        value="Go Prev"
+                        immediate="false">
                     </h:commandButton>
                 </h:panelGrid>
             </h:panelGrid>

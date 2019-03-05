@@ -29,17 +29,24 @@
                         <x:raise event="start.prepare.failed"/>
                     </x:if>
                 </x:onentry>
-                <x:transition event="start.prepare.success" target="show"/>
+                <x:transition event="start.prepare.success" target="step1"/>
                 <x:transition event="start.prepare.failed" target="cancel"/>
             </x:state>
 
-            <x:state id="show">
+            <x:state id="step1">
                 <x:invoke type="view" src="@this">
                 </x:invoke>
                 <x:transition event="error.execution" target="error"/>
                 <x:transition event="view.action.cancel" target="cancel"/>
             </x:state>
 
+            <x:state id="step2">
+                <x:invoke type="view" src="@this">
+                </x:invoke>
+                <x:transition event="error.execution" target="error"/>
+                <x:transition event="view.action.cancel" target="cancel"/>
+            </x:state>
+            
 
             <x:state id="error"> 
                 <x:invoke type="scxml" src="/common/error.scxml"/>
