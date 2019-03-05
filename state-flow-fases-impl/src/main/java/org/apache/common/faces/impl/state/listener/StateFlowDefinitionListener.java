@@ -17,13 +17,11 @@ package org.apache.common.faces.impl.state.listener;
 
 import java.util.ArrayList;
 import javax.faces.component.UIComponent;
-import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.PostAddToViewEvent;
 import javax.faces.event.SystemEvent;
 import javax.faces.event.SystemEventListener;
-import static org.apache.common.faces.state.StateFlow.CONTROLLER_SET_HINT;
 import static org.apache.common.faces.state.StateFlow.DEFINITION_SET_HINT;
 import org.apache.common.faces.state.component.UIStateChartController;
 import org.apache.common.faces.state.component.UIStateChartDefinition;
