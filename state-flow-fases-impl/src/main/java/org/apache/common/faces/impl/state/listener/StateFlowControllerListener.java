@@ -35,6 +35,7 @@ import javax.faces.event.SystemEventListener;
 import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.CONTROLLER_SET_HINT;
 import static org.apache.common.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
+import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.component.UIStateChartController;
 import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.SCXMLExecutor;
@@ -76,6 +77,7 @@ public class StateFlowControllerListener implements SystemEventListener {
         if (root != null && clientIds != null && !clientIds.isEmpty()) {
 
             if (cse instanceof PostRestoreStateEvent) {
+                StateFlowHandler handler = StateFlowHandler.getInstance();
 
                 String eventName = BEFORE_PHASE_EVENT_PREFIX
                         + PhaseId.RESTORE_VIEW.getName().toLowerCase();
@@ -90,18 +92,24 @@ public class StateFlowControllerListener implements SystemEventListener {
                         EventBuilder eb = new EventBuilder(eventName, TriggerEvent.CALL_EVENT)
                                 .sendId(controllerId);
 
-                        SCXMLExecutor rootExecutor = controller.getRootExecutor(facesContext);
-                        if (rootExecutor != null) {
+                        SCXMLExecutor executor = controller.getRootExecutor(facesContext);
+                        if (executor != null) {
                             try {
-                                rootExecutor.triggerEvent(eb.build());
+                                executor.triggerEvent(eb.build());
                             } catch (ModelException ex) {
                                 throw new FacesException(ex);
                             }
                         }
+
+                        if (!executor.isRunning()) {
+                            handler.close(facesContext, executor);
+                        }
+
                     }
                     return VisitResult.ACCEPT;
                 });
             } else if (cse instanceof PreRenderViewEvent) {
+                StateFlowHandler handler = StateFlowHandler.getInstance();
 
                 String eventName = ENCODE_DISPATCHER_EVENTS;
 
@@ -115,14 +123,19 @@ public class StateFlowControllerListener implements SystemEventListener {
                         EventBuilder eb = new EventBuilder(eventName, TriggerEvent.CALL_EVENT)
                                 .sendId(controllerId);
 
-                        SCXMLExecutor rootExecutor = controller.getRootExecutor(facesContext);
-                        if (rootExecutor != null) {
+                        SCXMLExecutor executor = controller.getRootExecutor(facesContext);
+                        if (executor != null) {
                             try {
-                                rootExecutor.triggerEvent(eb.build());
+                                executor.triggerEvent(eb.build());
                             } catch (ModelException ex) {
                                 throw new FacesException(ex);
                             }
                         }
+
+                        if (!executor.isRunning()) {
+                            handler.close(facesContext, executor);
+                        }
+
                     }
                     return VisitResult.ACCEPT;
                 });
@@ -137,7 +150,7 @@ public class StateFlowControllerListener implements SystemEventListener {
     }
 
     public static ArrayList<String> getControllerClientIds(FacesContext context) {
-        if(context.getViewRoot() == null) {
+        if (context.getViewRoot() == null) {
             return null;
         }
         return (ArrayList<String>) context.getViewRoot().getAttributes().get(CONTROLLER_SET_HINT);

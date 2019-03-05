@@ -63,7 +63,17 @@ public abstract class StateFlowHandler {
      * @param context
      * @return
      */
-    public abstract SCXMLExecutor getRootExecutor(FacesContext context);
+    public SCXMLExecutor getRootExecutor(FacesContext context) {
+        return getRootExecutor(context, null);
+    }
+
+    /**
+     *
+     * @param context
+     * @param executorId
+     * @return
+     */
+    public abstract SCXMLExecutor getRootExecutor(FacesContext context, String executorId);
 
     /**
      *

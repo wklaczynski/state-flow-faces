@@ -97,9 +97,6 @@ public class StateFlowPhaseListener implements PhaseListener {
                 Context.setCurrentInstance(
                         (Context) facesContext.getELContext().getContext(Context.class));
 
-                if (event.getPhaseId() == PhaseId.RENDER_RESPONSE || facesContext.getResponseComplete()) {
-                    handler.writeState(facesContext);
-                }
             }
 
             ArrayList<String> clientIds = getControllerClientIds(facesContext);
@@ -114,17 +111,28 @@ public class StateFlowPhaseListener implements PhaseListener {
                         EventBuilder veb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
                                 .sendId(controllerId);
 
-                        SCXMLExecutor rootExecutor = controller.getRootExecutor(facesContext);
-                        if (rootExecutor != null) {
+                        SCXMLExecutor executor = controller.getRootExecutor(facesContext);
+                        if (executor != null) {
                             try {
-                                rootExecutor.triggerEvent(veb.build());
+                                executor.triggerEvent(veb.build());
                             } catch (ModelException ex) {
                                 throw new FacesException(ex);
                             }
+
+                            if (!executor.isRunning()) {
+                                handler.close(facesContext, executor);
+                            }
                         }
+
                     }
                     return VisitResult.ACCEPT;
                 });
+            }
+
+            if (handler.isInWindow(facesContext)) {
+                if (event.getPhaseId() == PhaseId.RENDER_RESPONSE || facesContext.getResponseComplete()) {
+                    handler.writeState(facesContext);
+                }
             }
 
         }
@@ -190,12 +198,16 @@ public class StateFlowPhaseListener implements PhaseListener {
                             EventBuilder veb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
                                     .sendId(controllerId);
 
-                            SCXMLExecutor rootExecutor = controller.getRootExecutor(facesContext);
-                            if (rootExecutor != null) {
+                            SCXMLExecutor executor = controller.getRootExecutor(facesContext);
+                            if (executor != null) {
                                 try {
-                                    rootExecutor.triggerEvent(veb.build());
+                                    executor.triggerEvent(veb.build());
                                 } catch (ModelException ex) {
                                     throw new FacesException(ex);
+                                }
+
+                                if (!executor.isRunning()) {
+                                    handler.close(facesContext, executor);
                                 }
                             }
                         }
@@ -210,7 +222,6 @@ public class StateFlowPhaseListener implements PhaseListener {
                     handler.close(facesContext);
                 }
             }
-
         } else {
             StateFlowHandler handler = StateFlowHandler.getInstance();
             if (handler.isActive(facesContext)) {
@@ -302,7 +313,7 @@ public class StateFlowPhaseListener implements PhaseListener {
             }
 
             String viewId = currentViewRoot.getViewId();
-            
+
             SCXMLExecutor executor = flowHandler.createRootExecutor(viewId, context, stateFlow);
 
             flowHandler.execute(context, executor, params);

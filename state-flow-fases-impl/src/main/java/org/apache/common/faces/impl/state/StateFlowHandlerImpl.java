@@ -276,18 +276,22 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public SCXMLExecutor getRootExecutor(FacesContext context) {
+    public SCXMLExecutor getRootExecutor(FacesContext context, String executorId) {
         FlowDeque fs = getFlowDeque(context, false);
         if (fs == null) {
             return null;
         }
 
-        Stack<String> stack = fs.getRoots();
-        if (stack.isEmpty()) {
-            return null;
-        }
+        if (executorId == null) {
+            Stack<String> stack = fs.getRoots();
+            if (stack.isEmpty()) {
+                return null;
+            }
 
-        return fs.getExecutors().get(stack.peek());
+            return fs.getExecutors().get(stack.peek());
+        } else {
+            return fs.getExecutors().get(executorId);
+        }
     }
 
     @Override
@@ -312,7 +316,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     @Override
     public boolean isInWindow(FacesContext context) {
         FlowDeque fs = getFlowDeque(context, false);
-        return fs != null;
+        return fs != null && !fs.isClosed();
     }
 
     @Override
@@ -445,36 +449,35 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         Stack<String> stack = fs.getRoots();
         Map<String, SCXMLExecutor> executors = fs.getExecutors();
 
-        if (!stack.isEmpty()) {
+        String executorId;
+        if (executor == null) {
+            executorId = stack.get(0);
+            executor = executors.get(executorId);
+        } else {
+            executorId = executor.getId();
+        }
 
-            String executorId;
-            if (executor == null) {
-                executorId = stack.get(0);
-                executor = executors.get(executorId);
-            } else {
-                executorId = executor.getId();
+        if (stack.contains(executorId)) {
+            while (!stack.empty()) {
+                String lastId = stack.pop();
+                SCXMLExecutor last = executors.get(lastId);
+                executorExited(last);
+                executors.remove(lastId);
+                if (Objects.equals(lastId, executorId)) {
+                    break;
+                }
             }
-
-            if (stack.contains(executorId)) {
-                while (!stack.empty()) {
-                    String lastId = stack.pop();
-                    SCXMLExecutor last = executors.get(lastId);
-                    executorExited(last);
-                    executors.remove(lastId);
-                    if (Objects.equals(lastId, executorId)) {
-                        break;
-                    }
-                }
-            } else {
-                if (executor != null) {
-                    executorExited(executor);
-                    executors.remove(executorId);
-                }
+        } else {
+            if (executor != null) {
+                executorExited(executor);
+                executors.remove(executorId);
             }
         }
 
         if (stack.isEmpty()) {
-            closeFlowDeque(context);
+            if (executors.isEmpty()) {
+                closeFlowDeque(context);
+            }
             if (CdiUtil.isCdiAvailable(context)) {
                 BeanManager bm = CdiUtil.getCdiBeanManager(context);
                 bm.fireEvent(new OnFinishEvent(executor));
