@@ -137,6 +137,9 @@ public class StateFlowControllerListener implements SystemEventListener {
     }
 
     public static ArrayList<String> getControllerClientIds(FacesContext context) {
+        if(context.getViewRoot() == null) {
+            return null;
+        }
         return (ArrayList<String>) context.getViewRoot().getAttributes().get(CONTROLLER_SET_HINT);
     }
 }
