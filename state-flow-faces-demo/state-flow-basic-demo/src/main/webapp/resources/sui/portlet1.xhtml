@@ -24,14 +24,12 @@
             <x:state id="step1">
                 <x:invoke type="facet" src="@this:facet1">
                 </x:invoke>
-                <x:transition event="error.execution" target="error"/>
                 <x:transition event="view.action.next" target="step2"/>
             </x:state>
 
             <x:state id="step2">
                 <x:invoke type="facet" src="@this:facet2">
                 </x:invoke>
-                <x:transition event="error.execution" target="error"/>
                 <x:transition event="view.action.prev" target="step1"/>
             </x:state>
 
