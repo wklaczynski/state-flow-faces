@@ -96,9 +96,7 @@ public class FacetInvoker implements Invoker, Serializable {
     private boolean cancelled;
 
     private String facetId;
-    private String stateKey;
     private Map<String, Object> facetparams;
-    private String lastFacetId;
 
     /**
      * {@inheritDoc}.
@@ -178,32 +176,6 @@ public class FacetInvoker implements Invoker, Serializable {
                 }
             }
 
-            boolean transientState = false;
-            if (options.containsKey("transient")) {
-                Object val = options.get("transient");
-                if (val instanceof String) {
-                    transientState = Boolean.valueOf((String) val);
-                } else if (val instanceof Boolean) {
-                    transientState = (Boolean) val;
-                }
-            }
-
-            if (!transientState) {
-                stateKey = "__@@Invoke:" + invokeId + ":";
-            }
-
-            if (stateKey != null) {
-                stateKey = "__@@Invoke:" + invokeId + ":";
-
-                Context stateContext = executor.getGlobalContext();
-                lastFacetId = (String) stateContext.get(stateKey + "LastFacetId");
-                if (lastFacetId != null) {
-                    facetId = lastFacetId;
-                }
-            } else {
-                lastFacetId = null;
-            }
-
             if (controller.getFacetId() != null) {
                 String currentFacetId = controller.getFacetId();
                 if (currentFacetId.equals(facetId)) {
@@ -219,24 +191,6 @@ public class FacetInvoker implements Invoker, Serializable {
         }
     }
 
-    private void updateRenderTargets(FacesContext ctx, String newId) {
-        if (ctx.getViewRoot() == null || !ctx.getViewRoot().getViewId().equals(newId)) {
-            PartialViewContext pctx = ctx.getPartialViewContext();
-            if (!pctx.isRenderAll()) {
-                pctx.setRenderAll(true);
-            }
-        }
-    }
-
-    private boolean containsOnlyAlphaNumeric(String s) {
-        for (int i = 0, n = s.length(); i < n; i++) {
-            if (!Character.isLetterOrDigit(s.codePointAt(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private boolean containsOnlyDigits(String s) {
         for (int i = 0, n = s.length(); i < n; i++) {
             if (!Character.isDigit(s.codePointAt(i))) {
@@ -244,48 +198,6 @@ public class FacetInvoker implements Invoker, Serializable {
             }
         }
         return true;
-    }
-
-    private void applyParams(FacesContext context, UIViewRoot viewRoot, Map<String, Object> params) {
-        if (viewRoot != null) {
-            if (ViewMetadata.hasMetadata(viewRoot)) {
-                VisitContext vc = VisitContext.createVisitContext(context);
-                viewRoot.visitTree(vc, (VisitContext ivc, UIComponent target) -> {
-
-                    if (target instanceof UIViewParameter) {
-                        UIViewParameter parametr = (UIViewParameter) target;
-                        String name = parametr.getName();
-                        if (params.containsKey(name)) {
-                            parametr.setValue(params.get(name));
-                        }
-                    }
-                    return VisitResult.ACCEPT;
-                });
-            }
-        }
-
-    }
-
-    private void clearViewMapIfNecessary(UIViewRoot root, String newId) {
-
-        if (root != null && !root.getViewId().equals(newId)) {
-            Map<String, Object> viewMap = root.getViewMap(false);
-            if (viewMap != null) {
-                viewMap.clear();
-            }
-        }
-
-    }
-
-    /**
-     *
-     * @param context
-     * @param outcome
-     * @return
-     */
-    protected NavigationCase findNavigationCase(FacesContext context, String outcome) {
-        ConfigurableNavigationHandler navigationHandler = (ConfigurableNavigationHandler) context.getApplication().getNavigationHandler();
-        return navigationHandler.getNavigationCase(context, null, outcome);
     }
 
     /**

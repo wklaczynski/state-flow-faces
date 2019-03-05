@@ -4,15 +4,15 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:cc="http://java.sun.com/jsf/composite"
       xmlns:x="http://xmlns.apache.org/faces/scxml"
-    xmlns:fx="http://xmlns.apache.org/faces/fxscxml"
+      xmlns:fx="http://xmlns.apache.org/faces/fxscxml"
       xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <cc:interface>
         <cc:attribute name="path" required="false"/>
         <cc:attribute name="caption" required="false"/>
     </cc:interface>
-    
-    
+
+
     <cc:implementation>
 
         <x:scxml id="default" initial="start">
@@ -20,26 +20,32 @@
                 <x:data id="path"/>
                 <x:data id="caption"/>
             </x:datamodel>
-            
-            <x:state id="start">
 
+            <x:state id="start">
+                <x:invoke type="facet" src="@this:facet1">
+                </x:invoke>
             </x:state>
         </x:scxml>    
-        
-        <f:facet name="test">
+
+        <f:facet name="facet1">
             <h:panelGrid columns="1">
-                
-                
-                
-                
+                <h:outputLabel value="#{chart.caption}"/>
+                <h:panelGroup>
+                    <hr/>
+                    <p/>
+                    <b>Used facet:</b>
+                    <p/>facet name =  = <i>facet1</i>
+                    <p/>\#{chart.path} = <i>"#{chart.path}"</i>
+                    <hr/>
+                </h:panelGroup>
             </h:panelGrid>
         </f:facet>
-        
+
         <fx:renderState name="default">
             <f:param name="path" value="#{cc.attrs.path}"/>
             <f:param name="caption" value="#{cc.attrs.caption}"/>
         </fx:renderState>
-        
+
         <h:panelGroup>
             <h:outputLabel value="#{chart.caption}"/>
             <h:panelGroup>

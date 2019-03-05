@@ -64,7 +64,8 @@ public class UIStateChartController extends UIPanel {
     enum PropertyKeys {
         name,
         required,
-        flowQueue
+        flowQueue,
+        facetId
     }
 
     /**
@@ -108,6 +109,14 @@ public class UIStateChartController extends UIPanel {
         getStateHelper().put(PropertyKeys.required, _required);
     }
 
+    public String getFacetId() {
+        return (String) getStateHelper().get(PropertyKeys.facetId);
+    }
+    
+    public void setFacetId(java.lang.String _facetId) {
+        getStateHelper().put(PropertyKeys.facetId, _facetId);
+    }
+    
     @Override
     public void queueEvent(FacesEvent event) {
         if (event instanceof ActionEvent) {
@@ -150,7 +159,7 @@ public class UIStateChartController extends UIPanel {
 
     @Override
     public void encodeEnd(FacesContext context) throws IOException {
-
+        
         SCXMLExecutor executor = getRootExecutor(context);
         if (executor == null) {
             SCXML stateMachine = findStateMachine(context, getName());
