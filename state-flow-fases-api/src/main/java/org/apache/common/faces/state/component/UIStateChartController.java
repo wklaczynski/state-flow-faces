@@ -28,12 +28,15 @@ import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
 import javax.faces.component.UIParameter;
+import javax.faces.component.visit.VisitCallback;
+import javax.faces.component.visit.VisitContext;
 import javax.faces.context.FacesContext;
 import javax.faces.el.EvaluationException;
 import javax.faces.el.MethodBinding;
 import javax.faces.el.MethodNotFoundException;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
+import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.StateFlowHandler;
@@ -123,48 +126,59 @@ public class UIStateChartController extends UIPanel {
             return false;
         }
 
-        UIComponent source = event.getComponent();
-        ActionSource actionSource = (ActionSource) source;
+        SCXMLExecutor oldexecutor = (SCXMLExecutor) context.getAttributes()
+                .get(CURRENT_EXECUTOR_HINT);
+        try {
+            context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
 
-        Object invokeResult;
-        String outcome = null;
-        MethodBinding binding;
+            UIComponent source = event.getComponent();
+            ActionSource actionSource = (ActionSource) source;
 
-        binding = actionSource.getAction();
-        if (binding != null) {
-            try {
-                if (null != (invokeResult = binding.invoke(context, null))) {
-                    outcome = invokeResult.toString();
+            Object invokeResult;
+            String outcome = null;
+            MethodBinding binding;
+
+            binding = actionSource.getAction();
+            if (binding != null) {
+                try {
+                    if (null != (invokeResult = binding.invoke(context, null))) {
+                        outcome = invokeResult.toString();
+                    }
+                    // else, default to null, as assigned above.
+                } catch (MethodNotFoundException e) {
+                    throw new FacesException(binding.getExpressionString() + ": " + e.getMessage(),
+                            e);
+                } catch (EvaluationException e) {
+                    throw new FacesException(binding.getExpressionString() + ": " + e.getMessage(),
+                            e);
                 }
-                // else, default to null, as assigned above.
-            } catch (MethodNotFoundException e) {
-                throw new FacesException(binding.getExpressionString() + ": " + e.getMessage(),
-                        e);
-            } catch (EvaluationException e) {
-                throw new FacesException(binding.getExpressionString() + ": " + e.getMessage(),
-                        e);
+            }
+
+            EventBuilder eb = new EventBuilder(
+                    OUTCOME_EVENT_PREFIX + outcome,
+                    TriggerEvent.CALL_EVENT);
+
+            eb.sendId(ae.getComponent().getClientId(context));
+
+            try {
+                TriggerEvent ev = eb.build();
+                executor.triggerEvent(ev);
+                consumed = true;
+            } catch (ModelException ex) {
+                throw new FacesException(ex);
+            }
+
+            if (!executor.isRunning()) {
+                close(context, executor);
+            }
+
+        } finally {
+            if (oldexecutor != null) {
+                context.getAttributes().put(CURRENT_EXECUTOR_HINT, oldexecutor);
+            } else {
+                context.getAttributes().remove(CURRENT_EXECUTOR_HINT);
             }
         }
-
-        EventBuilder eb = new EventBuilder(
-                OUTCOME_EVENT_PREFIX + outcome,
-                TriggerEvent.CALL_EVENT);
-
-        eb.sendId(ae.getComponent().getClientId(context));
-
-        try {
-            TriggerEvent ev = eb.build();
-            executor.triggerEvent(ev);
-            consumed = true;
-        } catch (ModelException ex) {
-            throw new FacesException(ex);
-        }
-
-        if (!executor.isRunning()) {
-            close(context, executor);
-        }
-
-        findComponent(outcome);
 
         return consumed;
 
@@ -172,28 +186,64 @@ public class UIStateChartController extends UIPanel {
 
     @Override
     public void encodeEnd(FacesContext context) throws IOException {
+        SCXMLExecutor oldexecutor = (SCXMLExecutor) context.getAttributes()
+                .get(CURRENT_EXECUTOR_HINT);
+        try {
 
-        SCXMLExecutor executor = getRootExecutor(context);
-        if (executor == null) {
-            SCXML stateMachine = findStateMachine(context, getName());
-            if (stateMachine != null) {
-                StateFlowHandler handler = StateFlowHandler.getInstance();
-                try {
-                    executor = handler.createRootExecutor(context, stateMachine);
-                } catch (ModelException ex) {
-                    throw new IOException(ex);
+            SCXMLExecutor executor = getRootExecutor(context);
+            if (executor == null) {
+                SCXML stateMachine = findStateMachine(context, getName());
+                if (stateMachine != null) {
+                    StateFlowHandler handler = StateFlowHandler.getInstance();
+                    try {
+                        executor = handler.createRootExecutor(context, stateMachine);
+                    } catch (ModelException ex) {
+                        throw new IOException(ex);
+                    }
+                    context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
+
+                    Map<String, Object> params = getParamsMap();
+                    execute(context, executor, params);
+
                 }
-                Map<String, Object> params = getParamsMap();
-                execute(context, executor, params);
+            }
+            UIComponent renderComponent = getCurentRenderComponent(context);
+            if (renderComponent != null) {
+                context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
+                renderComponent.encodeAll(context);
+            }
+        } finally {
+            if (oldexecutor != null) {
+                context.getAttributes().put(CURRENT_EXECUTOR_HINT, oldexecutor);
+            } else {
+                context.getAttributes().remove(CURRENT_EXECUTOR_HINT);
             }
         }
 
-        UIComponent renderComponent = getCurentRenderComponent(context);
-        if (renderComponent != null) {
-            renderComponent.encodeAll(context);
-        }
-
         super.encodeEnd(context);
+    }
+
+    @Override
+    public boolean visitTree(VisitContext context, VisitCallback callback) {
+        FacesContext fc = context.getFacesContext();
+        SCXMLExecutor oldexecutor = (SCXMLExecutor) fc.getAttributes()
+                .get(CURRENT_EXECUTOR_HINT);
+        try {
+            SCXMLExecutor executor = getRootExecutor(fc);
+            if (executor != null) {
+                fc.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
+            } else {
+                fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
+            }
+
+            return super.visitTree(context, callback);
+        } finally {
+            if (oldexecutor != null) {
+                fc.getAttributes().put(CURRENT_EXECUTOR_HINT, oldexecutor);
+            } else {
+                fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
+            }
+        }
     }
 
     public UIComponent getCurentRenderComponent(FacesContext context) {
@@ -207,7 +257,7 @@ public class UIStateChartController extends UIPanel {
     }
 
     public UIComponent getRenderNamingContainer(FacesContext context) {
-	UIComponent namingContainer = getCurentRenderComponent(context);
+        UIComponent namingContainer = getCurentRenderComponent(context);
         while (namingContainer != null) {
             if (namingContainer instanceof NamingContainer) {
                 return namingContainer;
@@ -216,8 +266,7 @@ public class UIStateChartController extends UIPanel {
         }
         return null;
     }
-    
-    
+
     public SCXML findStateMachine(FacesContext context, String nameValue) throws IOException {
         UIComponent root = context.getViewRoot();
         UIComponent stateContiner = null;
