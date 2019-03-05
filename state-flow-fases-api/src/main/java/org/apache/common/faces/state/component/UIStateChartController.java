@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Stack;
+import javax.el.ELContext;
 import javax.faces.FacesException;
 import javax.faces.component.ActionSource;
 import javax.faces.component.NamingContainer;
@@ -121,6 +122,8 @@ public class UIStateChartController extends UIPanel {
         ActionEvent ae = (ActionEvent) event;
         FacesContext context = FacesContext.getCurrentInstance();
 
+        ELContext elContext = context.getELContext();
+        
         SCXMLExecutor executor = getRootExecutor(context);
         if (executor == null) {
             return false;
@@ -128,8 +131,10 @@ public class UIStateChartController extends UIPanel {
 
         SCXMLExecutor oldexecutor = (SCXMLExecutor) context.getAttributes()
                 .get(CURRENT_EXECUTOR_HINT);
+        Object oldelexecutor = elContext.getContext(SCXMLExecutor.class);
         try {
             context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
+            elContext.putContext(SCXMLExecutor.class, executor);
 
             UIComponent source = event.getComponent();
             ActionSource actionSource = (ActionSource) source;
@@ -173,6 +178,9 @@ public class UIStateChartController extends UIPanel {
             }
 
         } finally {
+            if (oldelexecutor != null) {
+                elContext.putContext(SCXMLExecutor.class, oldelexecutor);
+            }
             if (oldexecutor != null) {
                 context.getAttributes().put(CURRENT_EXECUTOR_HINT, oldexecutor);
             } else {
@@ -186,8 +194,12 @@ public class UIStateChartController extends UIPanel {
 
     @Override
     public void encodeEnd(FacesContext context) throws IOException {
+        ELContext elContext = context.getELContext();
+
         SCXMLExecutor oldexecutor = (SCXMLExecutor) context.getAttributes()
                 .get(CURRENT_EXECUTOR_HINT);
+
+        Object oldelexecutor = elContext.getContext(SCXMLExecutor.class);
         try {
 
             SCXMLExecutor executor = getRootExecutor(context);
@@ -200,6 +212,7 @@ public class UIStateChartController extends UIPanel {
                     } catch (ModelException ex) {
                         throw new IOException(ex);
                     }
+                    elContext.putContext(SCXMLExecutor.class, executor);
                     context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
 
                     Map<String, Object> params = getParamsMap();
@@ -210,9 +223,14 @@ public class UIStateChartController extends UIPanel {
             UIComponent renderComponent = getCurentRenderComponent(context);
             if (renderComponent != null) {
                 context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
+                elContext.putContext(SCXMLExecutor.class, executor);
                 renderComponent.encodeAll(context);
             }
         } finally {
+            if (oldelexecutor != null) {
+                elContext.putContext(SCXMLExecutor.class, oldelexecutor);
+            }
+
             if (oldexecutor != null) {
                 context.getAttributes().put(CURRENT_EXECUTOR_HINT, oldexecutor);
             } else {
@@ -226,11 +244,16 @@ public class UIStateChartController extends UIPanel {
     @Override
     public boolean visitTree(VisitContext context, VisitCallback callback) {
         FacesContext fc = context.getFacesContext();
-        SCXMLExecutor oldexecutor = (SCXMLExecutor) fc.getAttributes()
+        ELContext elContext = fc.getELContext();
+
+        SCXMLExecutor oldfcexecutor = (SCXMLExecutor) fc.getAttributes()
                 .get(CURRENT_EXECUTOR_HINT);
+
+        Object oldelexecutor = elContext.getContext(SCXMLExecutor.class);
         try {
             SCXMLExecutor executor = getRootExecutor(fc);
             if (executor != null) {
+                elContext.putContext(SCXMLExecutor.class, executor);
                 fc.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
             } else {
                 fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
@@ -238,8 +261,12 @@ public class UIStateChartController extends UIPanel {
 
             return super.visitTree(context, callback);
         } finally {
-            if (oldexecutor != null) {
-                fc.getAttributes().put(CURRENT_EXECUTOR_HINT, oldexecutor);
+            if (oldelexecutor != null) {
+                elContext.putContext(SCXMLExecutor.class, oldelexecutor);
+            }
+
+            if (oldfcexecutor != null) {
+                fc.getAttributes().put(CURRENT_EXECUTOR_HINT, oldfcexecutor);
             } else {
                 fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
             }

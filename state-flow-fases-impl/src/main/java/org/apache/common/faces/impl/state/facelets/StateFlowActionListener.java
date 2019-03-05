@@ -60,7 +60,7 @@ public class StateFlowActionListener implements ActionListener {
         Map<Object, Object> attrs = facesContext.getAttributes();
         attrs.put(CURRENT_COMPONENT_HINT, sorceId);
 
-        Collection<String> controllers = StateControllerListener.getControllerClientIds(facesContext);
+        Collection<String> controllers = StateFlowControllerListener.getControllerClientIds(facesContext);
         UIViewRoot root = facesContext.getViewRoot();
         if (root != null && controllers != null && !controllers.isEmpty()) {
 

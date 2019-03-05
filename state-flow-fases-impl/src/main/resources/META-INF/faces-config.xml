@@ -26,11 +26,22 @@
         <action-listener>org.apache.common.faces.impl.state.facelets.StateFlowActionListener</action-listener>
         
         <system-event-listener>
-            <system-event-listener-class>org.apache.common.faces.impl.state.facelets.StateControllerListener</system-event-listener-class>
+            <system-event-listener-class>org.apache.common.faces.impl.state.facelets.StateFlowControllerListener</system-event-listener-class>
             <system-event-class>javax.faces.event.PostAddToViewEvent</system-event-class>
             <source-class>org.apache.common.faces.state.component.UIStateChartController</source-class>
         </system-event-listener>
-        
+
+        <system-event-listener>
+            <system-event-listener-class>org.apache.common.faces.impl.state.facelets.StateFlowControllerListener</system-event-listener-class>
+            <system-event-class>javax.faces.event.PostRestoreStateEvent</system-event-class>
+            <source-class>org.apache.common.faces.state.component.UIStateChartController</source-class>
+        </system-event-listener>
+
+        <system-event-listener>
+            <system-event-listener-class>org.apache.common.faces.impl.state.facelets.StateFlowControllerListener</system-event-listener-class>
+            <system-event-class>javax.faces.event.PreRenderViewEvent</system-event-class>
+            <source-class>org.apache.common.faces.state.component.UIStateChartController</source-class>
+        </system-event-listener>
         
     </application>
     
