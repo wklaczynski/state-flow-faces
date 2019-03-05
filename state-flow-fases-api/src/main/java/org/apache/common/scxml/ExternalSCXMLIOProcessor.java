@@ -35,6 +35,16 @@ public class ExternalSCXMLIOProcessor implements SCXMLIOProcessor {
         this.processor = processor;
     }
 
+    /**
+     * Get the id.
+     *
+     * @return String An identifier.
+     */
+    @Override
+    public final String getId() {
+        return processor.getId();
+    }
+    
     @Override
     public void addEvent(final TriggerEvent event) {
         processor.addEvent(event);
@@ -47,4 +57,7 @@ public class ExternalSCXMLIOProcessor implements SCXMLIOProcessor {
     public String getLocation() {
         return SCXML_EVENT_PROCESSOR;
     }
+    
+    
+    
 }

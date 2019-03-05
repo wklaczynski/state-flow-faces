@@ -167,8 +167,9 @@ public class SubInvoker implements Invoker, StateHolder {
     protected void execute(StateFlowHandler handler, SCXML scxml, final Map<String, Object> params) throws InvokerException {
         try {
             FacesContext fc = FacesContext.getCurrentInstance();
+            String id = parentSCXMLExecutor.getId() +":" + getInvokeId();
 
-            executor = handler.createChildExecutor(fc, parentSCXMLExecutor, invokeId, scxml);
+            executor = handler.createChildExecutor(id, fc, parentSCXMLExecutor, invokeId, scxml);
             handler.execute(fc, executor, params);
         } catch (Throwable me) {
             throw new InvokerException(me);
@@ -233,15 +234,16 @@ public class SubInvoker implements Invoker, StateHolder {
 
     @Override
     public Object saveState(Context context) {
-        Object values[] = new Object[4];
-
-        values[0] = StateHolderSaver.saveObjectState(context, this);
+        Object values[] = new Object[5];
 
         SCXML stateMachine = executor.getStateMachine();
 
-        values[1] = stateMachine.getMetadata().get("faces-viewid");
-        values[2] = stateMachine.getMetadata().get("faces-chartid");
-        values[3] = executor.saveState(context);
+        values[0] = StateHolderSaver.saveObjectState(context, this);
+        
+        values[1] = executor.getId();
+        values[2] = stateMachine.getMetadata().get("faces-viewid");
+        values[3] = stateMachine.getMetadata().get("faces-chartid");
+        values[4] = executor.saveState(context);
 
         return values;
     }
@@ -258,8 +260,9 @@ public class SubInvoker implements Invoker, StateHolder {
         StateFlowHandler handler = StateFlowHandler.getInstance();
         FacesContext fc = FacesContext.getCurrentInstance();
 
-        String viewId = (String) values[1];
-        String id = (String) values[2];
+        String executorId = (String) values[1];
+        String viewId = (String) values[2];
+        String id = (String) values[3];
 
         SCXML stateMachine = null;
         try {
@@ -273,12 +276,12 @@ public class SubInvoker implements Invoker, StateHolder {
         }
 
         try {
-            executor = handler.createChildExecutor(fc, parentSCXMLExecutor, invokeId, stateMachine);
+            executor = handler.createChildExecutor(executorId, fc, parentSCXMLExecutor, invokeId, stateMachine);
         } catch (ModelException ex) {
             throw new FacesException(ex);
         }
 
-        executor.restoreState(context, values[3]);
+        executor.restoreState(context, values[4]);
     }
 
 }

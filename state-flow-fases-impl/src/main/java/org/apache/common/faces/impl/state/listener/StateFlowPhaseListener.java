@@ -301,7 +301,9 @@ public class StateFlowPhaseListener implements PhaseListener {
                 params.put(key, pmap.get(key));
             }
 
-            SCXMLExecutor executor = flowHandler.createRootExecutor(context, stateFlow);
+            String viewId = currentViewRoot.getViewId();
+            
+            SCXMLExecutor executor = flowHandler.createRootExecutor(viewId, context, stateFlow);
 
             flowHandler.execute(context, executor, params);
             UIViewRoot result = context.getViewRoot();

@@ -23,6 +23,13 @@ package org.apache.common.scxml;
 public interface SCXMLIOProcessor {
 
     /**
+     * Get the id.
+     *
+     * @return String An identifier.
+     */
+    String getId();
+    
+    /**
      * The name of the default SCXML I/O Event Processor
      */
     String DEFAULT_EVENT_PROCESSOR = "http://www.w3.org/TR/scxml/#SCXMLEventProcessor";

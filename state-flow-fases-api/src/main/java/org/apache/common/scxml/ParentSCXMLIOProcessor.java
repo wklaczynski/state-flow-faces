@@ -43,6 +43,16 @@ public class ParentSCXMLIOProcessor implements SCXMLIOProcessor {
     }
 
     /**
+     * Get the id.
+     *
+     * @return String An identifier.
+     */
+    @Override
+    public final String getId() {
+        return processor.getId();
+    }
+
+    /**
      *
      * @return
      */

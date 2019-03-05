@@ -208,7 +208,8 @@ public class UIStateChartController extends UIPanel {
                 if (stateMachine != null) {
                     StateFlowHandler handler = StateFlowHandler.getInstance();
                     try {
-                        executor = handler.createRootExecutor(context, stateMachine);
+                        String executorId = context.getViewRoot().getViewId() + ":" + getClientId(context);
+                        executor = handler.createRootExecutor(executorId, context, stateMachine);
                     } catch (ModelException ex) {
                         throw new IOException(ex);
                     }
@@ -506,16 +507,17 @@ public class UIStateChartController extends UIPanel {
                 Object[] attached = new Object[executors.size()];
                 int i = 0;
                 for (SCXMLExecutor executor : executors) {
-                    Object values[] = new Object[4];
+                    Object values[] = new Object[5];
                     SCXML stateMachine = executor.getStateMachine();
 
                     Context context = new SimpleContext();
                     Context.setCurrentInstance(context);
 
-                    values[0] = stateMachine.getMetadata().get("faces-viewid");
-                    values[1] = stateMachine.getMetadata().get("faces-chartid");
-                    //values[2] = saveContext(context, executor.getRootContext());
-                    values[3] = executor.saveState(context);
+                    values[0] = executor.getId();
+                    values[1] = stateMachine.getMetadata().get("faces-viewid");
+                    values[2] = stateMachine.getMetadata().get("faces-chartid");
+                    //values[3] = saveContext(context, executor.getRootContext());
+                    values[4] = executor.saveState(context);
                     attached[i++] = values;
                 }
                 states[0] = attached;
@@ -539,8 +541,9 @@ public class UIStateChartController extends UIPanel {
                 for (Object entry : entries) {
                     Object[] values = (Object[]) entry;
 
-                    String viewId = (String) values[0];
-                    String id = (String) values[1];
+                    String executorId = (String) values[0];
+                    String viewId = (String) values[1];
+                    String id = (String) values[2];
 
                     SCXML stateMachine = null;
                     try {
@@ -555,7 +558,7 @@ public class UIStateChartController extends UIPanel {
 
                     SCXMLExecutor executor;
                     try {
-                        executor = handler.createRootExecutor(fc, stateMachine);
+                        executor = handler.createRootExecutor(executorId, fc, stateMachine);
                     } catch (ModelException ex) {
                         throw new FacesException(ex);
                     }
@@ -563,8 +566,8 @@ public class UIStateChartController extends UIPanel {
                     Context context = new SimpleContext();
                     Context.setCurrentInstance(context);
 
-                    //restoreContext(context, executor.getRootContext(), values[2]);
-                    executor.restoreState(context, values[3]);
+                    //restoreContext(context, executor.getRootContext(), values[3]);
+                    executor.restoreState(context, values[4]);
 
                     executors.add(executor);
                 }

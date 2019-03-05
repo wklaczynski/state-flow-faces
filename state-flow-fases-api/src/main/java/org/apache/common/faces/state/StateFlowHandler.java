@@ -78,7 +78,7 @@ public abstract class StateFlowHandler {
      * @return
      */
     public abstract boolean isFinal(FacesContext context);
-    
+
     /**
      *
      * @param context
@@ -88,15 +88,17 @@ public abstract class StateFlowHandler {
 
     /**
      *
+     * @param id
      * @param context
      * @param scxml
      * @return
      * @throws ModelException
      */
-    public abstract SCXMLExecutor createRootExecutor(FacesContext context, SCXML scxml) throws ModelException;
-    
+    public abstract SCXMLExecutor createRootExecutor(String id, FacesContext context, SCXML scxml) throws ModelException;
+
     /**
      *
+     * @param id
      * @param context
      * @param parent
      * @param invokeId
@@ -104,15 +106,26 @@ public abstract class StateFlowHandler {
      * @return
      * @throws ModelException
      */
-    public abstract SCXMLExecutor createChildExecutor(FacesContext context, SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException;
-    
+    public abstract SCXMLExecutor createChildExecutor(String id, FacesContext context, SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException;
+
     /**
      *
      * @param context
      * @param executor
      * @param params
      */
-    public abstract void execute(FacesContext context, SCXMLExecutor executor, Map<String, Object> params);
+    public void execute(FacesContext context, SCXMLExecutor executor, Map<String, Object> params) {
+        execute(context, executor, params, false);
+    }
+
+    /**
+     *
+     * @param context
+     * @param executor
+     * @param params
+     * @param inline
+     */
+    public abstract void execute(FacesContext context, SCXMLExecutor executor, Map<String, Object> params, boolean inline);
 
     /**
      *
@@ -164,7 +177,7 @@ public abstract class StateFlowHandler {
     public abstract void writeState(FacesContext context);
 
     public abstract void executorEntered(SCXMLExecutor executor);
-    
+
     public abstract void executorExited(SCXMLExecutor executor);
-    
+
 }

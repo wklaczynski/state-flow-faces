@@ -58,6 +58,12 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
     protected static final Logger log = SCXMLLogger.SCXML.getLogger();
 
     /**
+     * The identifier of this executor instance.
+     * For backwards compatibility this is also the name.
+     */
+    private String id;
+    
+    /**
      * Parent SCXMLIOProcessor
      */
     private ParentSCXMLIOProcessor parentSCXMLIOProcessor;
@@ -79,35 +85,39 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
 
     /**
      * Convenience constructor.
+     * @param id
      */
-    public SCXMLExecutor() {
-        this(null, null, null, null);
+    public SCXMLExecutor(String id) {
+        this(id, null, null, null, null);
     }
 
     /**
      * Constructor.
      *
+     * @param id
      * @param expEvaluator The expression evaluator
      * @param evtDisp The event dispatcher
      * @param errRep The error reporter
      */
-    public SCXMLExecutor(final Evaluator expEvaluator,
+    public SCXMLExecutor(String id, final Evaluator expEvaluator,
             final EventDispatcher evtDisp, final ErrorReporter errRep) {
-        this(expEvaluator, evtDisp, errRep, null);
+        this(id, expEvaluator, evtDisp, errRep, null);
     }
 
     /**
      * Constructor.
      *
+     * @param id
      * @param expEvaluator The expression evaluator
      * @param evtDisp The event dispatcher
      * @param errRep The error reporter
      * @param semantics The SCXML semantics
      */
-    public SCXMLExecutor(final Evaluator expEvaluator,
+    public SCXMLExecutor(String id, final Evaluator expEvaluator,
             final EventDispatcher evtDisp, final ErrorReporter errRep,
             final SCXMLSemantics semantics) {
 
+        this.id = id;
         this.semantics = semantics != null ? semantics : new SCXMLSemanticsImpl();
         this.exctx = new SCXMLExecutionContext(this, expEvaluator, evtDisp, errRep);
     }
@@ -115,12 +125,14 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
     /**
      * Constructor using a parent SCXMLExecutor
      *
+     * @param id
      * @param parentSCXMLExecutor the parent SCXMLExecutor
      * @param invokeId
      * @param scxml
      * @throws org.apache.common.scxml.model.ModelException
      */
-    public SCXMLExecutor(final SCXMLExecutor parentSCXMLExecutor, final String invokeId, final SCXML scxml) throws ModelException {
+    public SCXMLExecutor(String id, final SCXMLExecutor parentSCXMLExecutor, final String invokeId, final SCXML scxml) throws ModelException {
+        this.id = id;
         this.parentSCXMLIOProcessor = new ParentSCXMLIOProcessor(parentSCXMLExecutor, invokeId);
         this.semantics = parentSCXMLExecutor.semantics;
         this.exctx = new SCXMLExecutionContext(this, parentSCXMLExecutor.getEvaluator(),
@@ -130,6 +142,16 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
         getSCInstance().setStateMachine(scxml);
     }
 
+    /**
+     * Get the id.
+     *
+     * @return String An identifier.
+     */
+    @Override
+    public final String getId() {
+        return id;
+    }
+    
     /**
      * @return the parent SCXMLIOProcessor (if any)
      */
@@ -646,11 +668,12 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
      */
     @Override
     public Object saveState(Context context) {
-        Object values[] = new Object[1];
+        Object values[] = new Object[2];
 
         context.setLocal(STATE_MACHINE_HINT, getSCInstance().getStateMachine());
 
-        values[0] = exctx.saveState(context);
+        values[0] = id;
+        values[1] = exctx.saveState(context);
         return values;
     }
 
@@ -669,8 +692,9 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
 
         Object[] values = (Object[]) state;
 
-        if (values[0] != null) {
-            exctx.restoreState(context, values[0]);
+        id = (String) values[0];
+        if (values[1] != null) {
+            exctx.restoreState(context, values[1]);
         }
     }
 }
