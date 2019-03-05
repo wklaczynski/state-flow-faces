@@ -16,57 +16,23 @@
  */
 package org.apache.common.faces.impl.state.invokers;
 
-import static com.sun.faces.util.RequestStateManager.FACES_VIEW_STATE;
-import java.io.IOException;
 import java.io.Serializable;
 import java.text.NumberFormat;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.faces.FacesException;
-import javax.faces.application.Application;
-import javax.faces.application.ConfigurableNavigationHandler;
-import javax.faces.application.NavigationCase;
-import javax.faces.application.ViewHandler;
 import javax.faces.component.UIComponent;
-import javax.faces.component.UIViewParameter;
-import javax.faces.component.UIViewRoot;
-import javax.faces.component.visit.VisitContext;
-import javax.faces.component.visit.VisitResult;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.context.Flash;
-import javax.faces.context.PartialViewContext;
-import javax.faces.render.RenderKit;
-import javax.faces.render.ResponseStateManager;
-import org.apache.common.faces.state.component.UIStateChartDefinition;
-import javax.faces.view.ViewDeclarationLanguage;
-import javax.faces.view.ViewMetadata;
-import javax.faces.view.facelets.FaceletContext;
-import javax.faces.view.facelets.TagException;
-import org.apache.common.faces.impl.state.StateFlowParams;
-import org.apache.common.faces.state.StateFlow;
-import org.apache.common.scxml.Context;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.SCXMLIOProcessor;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
-import org.apache.common.scxml.model.SCXML;
-import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
-import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
-import static org.apache.common.faces.state.StateFlow.BEFORE_APPLY_REQUEST_VALUES;
-import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
-import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
-import org.apache.common.faces.state.StateFlowViewContext;
 import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.InvokeContext;
-import org.apache.common.scxml.model.ModelException;
-import static org.apache.common.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 import org.apache.common.faces.state.component.UIStateChartController;
 
 /**
@@ -96,6 +62,8 @@ public class FacetInvoker implements Invoker, Serializable {
     private boolean cancelled;
 
     private String facetId;
+    private String controllerId;
+    private String machinePage;
     private Map<String, Object> facetparams;
 
     /**
@@ -139,10 +107,12 @@ public class FacetInvoker implements Invoker, Serializable {
     public void invoke(final InvokeContext ictx, String source, final Map<String, Object> params) throws InvokerException {
         FacesContext context = FacesContext.getCurrentInstance();
         try {
-            String machineViewId = (String) executor.getStateMachine().getMetadata().get("faces-viewid");
+            machinePage = (String) executor.getStateMachine().getMetadata().get("faces-viewid");
 
             UIComponent current = UIComponent.getCurrentComponent(context);
             UIStateChartController controller = (UIStateChartController) current;
+            
+            controllerId = controller.getClientId(context);
 
             if (source.startsWith("@this:")) {
                 String name = source.substring(6);
@@ -222,7 +192,7 @@ public class FacetInvoker implements Invoker, Serializable {
         //filter all multicast call event from started viewId by this invoker
         if (event.getType() == TriggerEvent.CALL_EVENT) {
 
-            if (facetId.equals(event.getSendId())) {
+            if (controllerId.equals(event.getSendId())) {
 
                 if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
                     ExternalContext ec = context.getExternalContext();

@@ -163,7 +163,7 @@ public class UIStateChartController extends UIPanel {
                     OUTCOME_EVENT_PREFIX + outcome,
                     TriggerEvent.CALL_EVENT);
 
-            eb.sendId(ae.getComponent().getClientId(context));
+            eb.sendId(getClientId(context));
 
             try {
                 TriggerEvent ev = eb.build();
