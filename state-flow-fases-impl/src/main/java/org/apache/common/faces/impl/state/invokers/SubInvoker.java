@@ -116,38 +116,40 @@ public class SubInvoker implements Invoker, StateHolder {
             String id;
             String viewId = url;
             int sep = viewId.lastIndexOf("#");
-            if(sep > -1) {
+            if (sep > -1) {
                 id = viewId.substring(sep + 1);
                 viewId = viewId.substring(0, sep);
             } else {
                 id = DEFAULT_STATECHART_NAME;
             }
 
-            if("@this".equals(viewId)) {
+            if ("@this".equals(viewId)) {
                 String machineViewId = (String) executor
                         .getStateMachine().getMetadata().get("faces-viewid");
-                
+
                 viewId = machineViewId;
             }
-            
+
             int pos = viewId.indexOf("META-INF/resources/");
             if (pos >= 0) {
                 viewId = viewId.substring(pos + 18);
             }
 
             scxml = handler.createStateMachine(fc, viewId, id);
-            
-            if(scxml == null) {
+
+            if (scxml == null) {
                 throw new InvokerException(String.format("Invoked scxml id='%s' not found in %s", id, viewId));
             }
+
+            execute(handler, viewId, scxml, params);
+
         } catch (FacesException ex) {
             throw ex;
         } catch (Throwable ex) {
             throw new InvokerException(ex);
         }
-        execute(handler, scxml, params);
     }
-    
+
     /**
      * {@inheritDoc}.
      */
@@ -160,14 +162,15 @@ public class SubInvoker implements Invoker, StateHolder {
     /**
      *
      * @param handler
+     * @param viewId
      * @param scxml
      * @param params
      * @throws InvokerException
      */
-    protected void execute(StateFlowHandler handler, SCXML scxml, final Map<String, Object> params) throws InvokerException {
+    protected void execute(StateFlowHandler handler, String viewId, SCXML scxml, final Map<String, Object> params) throws InvokerException {
         try {
             FacesContext fc = FacesContext.getCurrentInstance();
-            String id = parentSCXMLExecutor.getId() +":" + getInvokeId();
+            String id = parentSCXMLExecutor.getId() + "$" + viewId + ":" + getInvokeId();
 
             executor = handler.createChildExecutor(id, fc, parentSCXMLExecutor, invokeId, scxml);
             handler.execute(fc, executor, params);
@@ -239,7 +242,7 @@ public class SubInvoker implements Invoker, StateHolder {
         SCXML stateMachine = executor.getStateMachine();
 
         values[0] = StateHolderSaver.saveObjectState(context, this);
-        
+
         values[1] = executor.getId();
         values[2] = stateMachine.getMetadata().get("faces-viewid");
         values[3] = stateMachine.getMetadata().get("faces-chartid");

@@ -84,6 +84,7 @@ import org.apache.common.faces.impl.state.invokers.FacetInvoker;
 import org.apache.common.faces.impl.state.tag.faces.MethodCall;
 import org.apache.common.faces.impl.state.tag.faces.Redirect;
 import org.apache.common.faces.state.task.TimerEventProducer;
+import org.apache.common.scxml.ParentSCXMLIOProcessor;
 
 /**
  *
@@ -421,6 +422,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 if (!inline) {
                     stack.push(executorId);
                 }
+            } else {
+                ParentSCXMLIOProcessor ioProcessor = executor.getParentSCXMLIOProcessor();
+                ioProcessor.getId();
+                
             }
 
             executorEntered(executor);
