@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.FacesException;
 import javax.faces.application.Application;
 import javax.faces.application.ConfigurableNavigationHandler;
 import javax.faces.application.NavigationCase;
@@ -44,6 +45,8 @@ import javax.faces.render.ResponseStateManager;
 import org.apache.common.faces.state.component.UIStateChartDefinition;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
+import javax.faces.view.facelets.FaceletContext;
+import javax.faces.view.facelets.TagException;
 import org.apache.common.faces.impl.state.StateFlowParams;
 import org.apache.common.faces.state.StateFlow;
 import org.apache.common.scxml.Context;
@@ -64,6 +67,7 @@ import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.InvokeContext;
 import org.apache.common.scxml.model.ModelException;
 import static org.apache.common.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
+import org.apache.common.faces.state.component.UIStateChartController;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -91,13 +95,10 @@ public class FacetInvoker implements Invoker, Serializable {
      */
     private boolean cancelled;
 
-    private String viewId;
+    private String facetId;
     private String stateKey;
-    private boolean resolved;
-    private Map<String, Object> vieparams;
-    private Map<String, List<String>> reqparams;
-    private String lastViewId;
-    private Object viewState;
+    private Map<String, Object> facetparams;
+    private String lastFacetId;
 
     /**
      * {@inheritDoc}.
@@ -139,47 +140,24 @@ public class FacetInvoker implements Invoker, Serializable {
     @Override
     public void invoke(final InvokeContext ictx, String source, final Map<String, Object> params) throws InvokerException {
         FacesContext context = FacesContext.getCurrentInstance();
-        boolean oldProcessingEvents = context.isProcessingEvents();
         try {
-            context.setProcessingEvents(false);
-            ExternalContext ec = context.getExternalContext();
-            ViewHandler vh = context.getApplication().getViewHandler();
-            
-            if(source.equals("@this")) {
-                String machineViewId = (String) executor
-                        .getStateMachine().getMetadata().get("faces-viewid");
-                
-                source = machineViewId;
-            }
-            
+            String machineViewId = (String) executor.getStateMachine().getMetadata().get("faces-viewid");
 
-            NavigationCase navCase = findNavigationCase(context, source);
-            viewId = source;
-            try {
-                viewId = navCase.getToViewId(context);
-            } catch (NullPointerException th) {
-                throw new IOException(String.format("Invoke source \"%s\" not found", source));
-            } catch (Throwable th) {
-                throw new IOException(String.format("Invoke source \"%s\" not found", source), th);
-            }
-            viewId = vh.deriveLogicalViewId(context, viewId);
+            UIComponent current = UIComponent.getCurrentComponent(context);
+            UIStateChartController controller = (UIStateChartController) current;
 
-            String oldInvokeViewId = (String) executor.getRootContext().get(CURRENT_INVOKED_VIEW_ID);
-            if (oldInvokeViewId != null) {
-                throw new InvokerException(String.format(
-                        "Can not start invoke new view: \"%s\", in other view: \"%s\".",
-                        viewId, oldInvokeViewId));
+            if (source.startsWith("@this.")) {
+                String name = source.substring(6);
+                UIComponent facet = controller.getParent().getFacet(name);
+                if (facet == null) {
+                    throwRequiredInRootException(context, name, facet);
+                }
+                facetId = facet.getClientId(context);
             }
 
             Map<String, Object> options = new HashMap();
 
-            reqparams = new HashMap<>();
-            Map<String, List<String>> navparams = navCase.getParameters();
-            if (navparams != null) {
-                reqparams.putAll(navparams);
-            }
-
-            vieparams = new HashMap();
+            facetparams = new HashMap();
             for (String key : params.keySet()) {
                 String skey = (String) key;
                 Object value = params.get(key);
@@ -192,14 +170,11 @@ public class FacetInvoker implements Invoker, Serializable {
                         value = false;
                     }
                 }
-                if (skey.startsWith("@redirect.param.")) {
-                    skey = skey.substring(16);
-                    reqparams.put(skey, Collections.singletonList(value.toString()));
-                } else if (skey.startsWith("@view.param.")) {
+                if (skey.startsWith("@facet.param.")) {
                     skey = skey.substring(12);
                     options.put(skey, value.toString());
                 } else if (value != null) {
-                    vieparams.put(skey, value.toString());
+                    facetparams.put(skey, value.toString());
                 }
             }
 
@@ -213,16 +188,6 @@ public class FacetInvoker implements Invoker, Serializable {
                 }
             }
 
-            boolean redirect = StateFlowParams.isDefaultViewRedirect();
-            if (options.containsKey("redirect")) {
-                Object val = options.get("redirect");
-                if (val instanceof String) {
-                    redirect = Boolean.valueOf((String) val);
-                } else if (val instanceof Boolean) {
-                    redirect = (Boolean) val;
-                }
-            }
-
             if (!transientState) {
                 stateKey = "__@@Invoke:" + invokeId + ":";
             }
@@ -231,95 +196,26 @@ public class FacetInvoker implements Invoker, Serializable {
                 stateKey = "__@@Invoke:" + invokeId + ":";
 
                 Context stateContext = executor.getGlobalContext();
-                viewState = stateContext.get(stateKey + "ViewState");
-                lastViewId = (String) stateContext.get(stateKey + "LastViewId");
-                if (lastViewId != null) {
-                    viewId = lastViewId;
+                lastFacetId = (String) stateContext.get(stateKey + "LastFacetId");
+                if (lastFacetId != null) {
+                    facetId = lastFacetId;
                 }
             } else {
-                lastViewId = null;
-                viewState = null;
+                lastFacetId = null;
             }
 
-            if (context.getViewRoot() != null) {
-                String currentViewId = context.getViewRoot().getViewId();
-                if (currentViewId.equals(viewId)) {
+            if (controller.getFacetId() != null) {
+                String currentFacetId = controller.getFacetId();
+                if (currentFacetId.equals(facetId)) {
                     return;
                 }
             }
 
-            PartialViewContext pvc = context.getPartialViewContext();
-            if (redirect || (pvc != null && pvc.isAjaxRequest())) {
-                Flash flash = ec.getFlash();
-                flash.setKeepMessages(true);
-                if (viewState != null) {
-                    Context rootContext = executor.getRootContext();
-                    rootContext.setLocal(FACES_VIEW_STATE, viewState);
-                }
-                
-                Application application = context.getApplication();
-                ViewHandler viewHandler = application.getViewHandler();
-                String url = viewHandler.getRedirectURL(context, viewId, reqparams, false);
-                clearViewMapIfNecessary(context.getViewRoot(), viewId);
-                flash.setRedirect(true);
-                updateRenderTargets(context, viewId);
-                ec.redirect(url);
-
-                context.responseComplete();
-            } else {
-                UIViewRoot viewRoot;
-                if (viewState != null) {
-                    context.getAttributes().put(FACES_VIEW_STATE, viewState);
-                    viewRoot = vh.restoreView(context, viewId);
-                    context.setViewRoot(viewRoot);
-                    context.setProcessingEvents(true);
-                    vh.initView(context);
-                } else {
-                    SCXML stateChart = null;
-                    viewRoot = null;
-                    ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(context, viewId);
-                    ViewMetadata metadata = null;
-                    if (vdl != null) {
-                        metadata = vdl.getViewMetadata(context, viewId);
-
-                        if (metadata != null) {
-                            viewRoot = metadata.createMetadataView(context);
-                            UIComponent facet = viewRoot.getFacet(STATECHART_FACET_NAME);
-                            if (facet != null) {
-                                UIStateChartDefinition uichart = (UIStateChartDefinition) facet.findComponent("main");
-                                if (uichart != null) {
-                                    stateChart = uichart.getStateChart();
-                                }
-                            }
-                        }
-                    }
-
-                    if (viewRoot != null) {
-                        if (!ViewMetadata.hasMetadata(viewRoot)) {
-                            context.renderResponse();
-                        }
-                    }
-
-                    if (vdl == null || metadata == null) {
-                        context.renderResponse();
-                    }
-
-                    if (viewRoot == null) {
-                        viewRoot = vh.createView(context, viewId);
-                    }
-
-                    viewRoot.setViewId(viewId);
-                }
-                context.setViewRoot(viewRoot);
-                context.renderResponse();
-            }
-            executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
+            controller.setFacetId(facetId);
 
         } catch (Throwable ex) {
             logger.log(Level.SEVERE, "Invoke failed", ex);
             throw new InvokerException(ex);
-        } finally {
-            context.setProcessingEvents(oldProcessingEvents);
         }
     }
 
@@ -413,64 +309,8 @@ public class FacetInvoker implements Invoker, Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
         //filter all multicast call event from started viewId by this invoker
         if (event.getType() == TriggerEvent.CALL_EVENT) {
-            //fix view, if current view not equal request view, request redirect to current view
-            if (event.getName().startsWith(BEFORE_APPLY_REQUEST_VALUES)) {
-                if (context.getViewRoot() != null) {
-                    String currentViewId = context.getViewRoot().getViewId();
-                    if (!currentViewId.equals(viewId)) {
-                        try {
-                            ExternalContext ec = context.getExternalContext();
-                            Application application = context.getApplication();
-                            ViewHandler viewHandler = application.getViewHandler();
-                            String url = viewHandler.getRedirectURL(
-                                    context, viewId, reqparams, true);
-                            clearViewMapIfNecessary(context.getViewRoot(), viewId);
-                            updateRenderTargets(context, viewId);
-                            ec.redirect(url);
-                            if (viewState != null) {
-                                Context rootContext = executor.getRootContext();
-                                rootContext.setLocal(FACES_VIEW_STATE, viewState);
-                            }
-                            context.responseComplete();
-                        } catch (IOException ex) {
-                            throw new InvokerException(ex);
-                        }
-                    }
-                }
-            }
 
-            if (viewId.equals(event.getSendId())) {
-                UIViewRoot viewRoot = context.getViewRoot();
-
-                if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
-                    if (viewRoot != null) {
-                        try {
-                            StateFlowViewContext viewContext = new StateFlowViewContext(
-                                    invokeId, executor, ictx.getContext());
-                            context.getAttributes().put(
-                                    VIEW_INVOKE_CONTEXT.get(viewId), viewContext);
-
-                            StateFlow.applyViewContext(context);
-
-                        } catch (ModelException ex) {
-                            throw new InvokerException(ex);
-                        }
-                    }
-
-                    if (!resolved && !context.getResponseComplete()) {
-                        applyParams(context, viewRoot, vieparams);
-                        resolved = true;
-                    }
-                }
-
-                if (event.getName().startsWith(AFTER_RENDER_VIEW)) {
-                    if (viewRoot != null) {
-                        lastViewId = viewRoot.getViewId();
-                        RenderKit renderKit = context.getRenderKit();
-                        ResponseStateManager rsm = renderKit.getResponseStateManager();
-                        viewState = rsm.getState(context, lastViewId);
-                    }
-                }
+            if (facetId.equals(event.getSendId())) {
 
                 if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
                     ExternalContext ec = context.getExternalContext();
@@ -496,21 +336,49 @@ public class FacetInvoker implements Invoker, Serializable {
     public void cancel() throws InvokerException {
         cancelled = true;
         FacesContext context = FacesContext.getCurrentInstance();
-        UIViewRoot viewRoot = context.getViewRoot();
+        UIComponent current = UIComponent.getCurrentComponent(context);
+        UIStateChartController controller = (UIStateChartController) current;
+        controller.setFacetId(facetId);
 
-        if (viewRoot != null) {
-            if (stateKey != null) {
-                lastViewId = viewRoot.getViewId();
-                RenderKit renderKit = context.getRenderKit();
-                ResponseStateManager rsm = renderKit.getResponseStateManager();
-                viewState = rsm.getState(context, lastViewId);
-                Context storeContext = executor.getGlobalContext();
-
-                storeContext.setLocal(stateKey + "ViewState", viewState);
-                storeContext.setLocal(stateKey + "LastViewId", lastViewId);
-            }
-        }
-        executor.getRootContext().getVars().remove(CURRENT_INVOKED_VIEW_ID, viewId);
-        context.renderResponse();
     }
+
+    private void throwRequiredCompositeException(FacesContext ctx,
+            String name,
+            UIComponent compositeParent) throws InvokerException {
+
+        throw new InvokerException(
+                "Unable to find facet named '"
+                + name
+                + "' in parent composite component with id '"
+                + compositeParent.getClientId(ctx)
+                + '\'');
+
+    }
+
+    private void throwRequiredThisException(FacesContext ctx,
+            String name,
+            UIComponent parent) throws InvokerException {
+
+        throw new InvokerException(
+                "Unable to find facet named '"
+                + name
+                + "' in component with id '"
+                + parent.getClientId(ctx)
+                + '\'');
+
+    }
+
+    private void throwRequiredInRootException(FacesContext ctx,
+            String name,
+            UIComponent root) throws InvokerException {
+
+        throw new InvokerException(
+                "Unable to find facet named '"
+                + name
+                + "' in view component with id '"
+                + root.getClientId(ctx)
+                + '\'');
+
+    }
+
 }
