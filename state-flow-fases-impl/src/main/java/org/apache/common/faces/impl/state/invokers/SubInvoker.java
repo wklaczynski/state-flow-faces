@@ -170,7 +170,7 @@ public class SubInvoker implements Invoker, StateHolder {
     protected void execute(StateFlowHandler handler, String viewId, SCXML scxml, final Map<String, Object> params) throws InvokerException {
         try {
             FacesContext fc = FacesContext.getCurrentInstance();
-            String id = parentSCXMLExecutor.getId() + "$" + viewId + ":" + getInvokeId();
+            String id = parentSCXMLExecutor.getId() + ":" + viewId + "!" + getInvokeId();
 
             executor = handler.createChildExecutor(id, fc, parentSCXMLExecutor, invokeId, scxml);
             handler.execute(fc, executor, params);

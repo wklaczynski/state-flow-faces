@@ -37,6 +37,7 @@ import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.StateFlowHandler;
+import org.apache.common.scxml.Context;
 import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.TriggerEvent;
@@ -49,6 +50,9 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class UIStateChartController extends UIPanel {
 
+    public static final String COMPONENT_ID = UIStateChartController.class.getName() + ":clientId";
+    public static final String VIEW_ID = UIStateChartController.class.getName() + ":viewId";
+    
     /**
      *
      */
@@ -116,7 +120,7 @@ public class UIStateChartController extends UIPanel {
             throw new NullPointerException();
         }
 
-        String executorId = context.getViewRoot().getViewId() + ":" + getClientId(context);
+        String executorId = context.getViewRoot().getViewId() + "!" + getClientId(context);
 
         return executorId;
     }
@@ -221,6 +225,11 @@ public class UIStateChartController extends UIPanel {
                 if (stateMachine != null) {
                     try {
                         executor = handler.createRootExecutor(executorId, context, stateMachine);
+                        executor.getSCInstance().getSystemContext();
+                        Context sctx = executor.getRootContext();
+                        sctx.set(COMPONENT_ID, getClientId(context));
+                        sctx.set(VIEW_ID, context.getViewRoot().getViewId());
+
                     } catch (ModelException ex) {
                         throw new IOException(ex);
                     }

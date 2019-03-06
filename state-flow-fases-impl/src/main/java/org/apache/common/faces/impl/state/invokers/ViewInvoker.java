@@ -92,10 +92,10 @@ public class ViewInvoker implements Invoker, Serializable {
     private boolean cancelled;
 
     private String viewId;
-    private String stateKey;
     private boolean resolved;
     private Map<String, Object> vieparams;
     private Map<String, List<String>> reqparams;
+    private String stateKey;
     private String lastViewId;
     private Object viewState;
 
@@ -144,14 +144,13 @@ public class ViewInvoker implements Invoker, Serializable {
             context.setProcessingEvents(false);
             ExternalContext ec = context.getExternalContext();
             ViewHandler vh = context.getApplication().getViewHandler();
-            
-            if(source.equals("@this")) {
+
+            if (source.equals("@this")) {
                 String machineViewId = (String) executor
                         .getStateMachine().getMetadata().get("faces-viewid");
-                
+
                 source = machineViewId;
             }
-            
 
             NavigationCase navCase = findNavigationCase(context, source);
             viewId = source;
@@ -241,9 +240,11 @@ public class ViewInvoker implements Invoker, Serializable {
                 viewState = null;
             }
 
-            if (context.getViewRoot() != null) {
-                String currentViewId = context.getViewRoot().getViewId();
+            UIViewRoot currentViewRoot = context.getViewRoot();
+            if (currentViewRoot != null) {
+                String currentViewId = currentViewRoot.getViewId();
                 if (currentViewId.equals(viewId)) {
+                    executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
                     return;
                 }
             }
@@ -256,7 +257,7 @@ public class ViewInvoker implements Invoker, Serializable {
                     Context rootContext = executor.getRootContext();
                     rootContext.setLocal(FACES_VIEW_STATE, viewState);
                 }
-                
+
                 Application application = context.getApplication();
                 ViewHandler viewHandler = application.getViewHandler();
                 String url = viewHandler.getRedirectURL(context, viewId, reqparams, false);
