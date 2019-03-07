@@ -291,17 +291,16 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return null;
         }
         Map<String, SCXMLExecutor> executors = fs.getExecutors();
+        Map<String, String> map = fs.getMap();
 
         if (executorId == null) {
             SCXMLExecutor executor = getCurrentExecutor(context);
-            while (executor != null && executor.getParentSCXMLIOProcessor() != null) {
-                executorId = executor.getParentSCXMLIOProcessor().getId();
-                executor = executors.get(executorId);
+            executorId = executor.getId();
+            while (map.containsKey(executorId)) {
+                executorId = map.get(executorId);
             }
-            return executor;
-        } else {
-            return executors.get(executorId);
         }
+        return executors.get(executorId);
     }
 
     @Override
