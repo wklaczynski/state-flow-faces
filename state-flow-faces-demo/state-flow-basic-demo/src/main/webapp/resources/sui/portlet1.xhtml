@@ -15,7 +15,7 @@
 
     <cc:implementation>
 
-        <x:scxml id="default" initial="step1">
+        <x:scxml id="default" initial="start">
             <x:datamodel>
                 <x:data id="path"/>
                 <x:data id="caption"/>
@@ -24,6 +24,7 @@
             <x:state id="start">
                 <x:onentry>
                     <x:assign location="#{currentState.assignedTest1}" expr="I'm Seting in start"/>
+                    <x:assign location="#{main.assignedTest1}" expr="I'm Seting in start"/>
                     <x:foreach array="#{main.logs}" item="var">
                         <x:log expr="#{var}"/>
                     </x:foreach>
@@ -40,6 +41,9 @@
 
 
             <x:state id="step1">
+                <x:onentry>
+                    <x:assign location="#{currentState.assignedTest1}" expr="I'm Seting in step1"/>
+                </x:onentry>
                 <x:invoke type="facet" src="@controller:facet1">
                 </x:invoke>
                 <x:transition event="view.action.next" target="step2"/>
