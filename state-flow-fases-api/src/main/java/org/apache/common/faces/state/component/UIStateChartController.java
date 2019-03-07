@@ -16,6 +16,7 @@
 package org.apache.common.faces.state.component;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.el.ELContext;
@@ -33,6 +34,8 @@ import javax.faces.el.MethodBinding;
 import javax.faces.el.MethodNotFoundException;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
+import javax.faces.event.ComponentSystemEvent;
+import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
@@ -52,7 +55,7 @@ public class UIStateChartController extends UIPanel {
 
     public static final String COMPONENT_ID = UIStateChartController.class.getName() + ":clientId";
     public static final String VIEW_ID = UIStateChartController.class.getName() + ":viewId";
-    
+
     /**
      *
      */
@@ -114,6 +117,11 @@ public class UIStateChartController extends UIPanel {
         getStateHelper().put(PropertyKeys.facetId, _facetId);
     }
 
+    public String getPath(FacesContext context) {
+        String path = context.getViewRoot().getViewId() + "!" + getClientId(context);
+        return path;
+    }
+
     public String getExecutorId(FacesContext context) {
 
         if (context == null) {
@@ -131,20 +139,14 @@ public class UIStateChartController extends UIPanel {
         FacesContext context = FacesContext.getCurrentInstance();
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
-        ELContext elContext = context.getELContext();
-
         String executorId = getExecutorId(context);
         SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
         if (executor == null) {
             return false;
         }
 
-        SCXMLExecutor oldexecutor = (SCXMLExecutor) context.getAttributes()
-                .get(CURRENT_EXECUTOR_HINT);
-        Object oldelexecutor = elContext.getContext(SCXMLExecutor.class);
         try {
-            context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
-            elContext.putContext(SCXMLExecutor.class, executor);
+            StateFlow.pushExecutorToEL(context, executor, getPath(context));
 
             UIComponent source = event.getComponent();
             ActionSource actionSource = (ActionSource) source;
@@ -192,69 +194,85 @@ public class UIStateChartController extends UIPanel {
             }
 
         } finally {
-            if (oldelexecutor != null) {
-                elContext.putContext(SCXMLExecutor.class, oldelexecutor);
-            }
-            if (oldexecutor != null) {
-                context.getAttributes().put(CURRENT_EXECUTOR_HINT, oldexecutor);
-            } else {
-                context.getAttributes().remove(CURRENT_EXECUTOR_HINT);
-            }
+            StateFlow.popExecutorFromEL(context);
         }
 
         return consumed;
 
     }
 
+    private void pushExecutor(FacesContext context) {
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        String executorId = getExecutorId(context);
+        SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
+        if (executor != null) {
+            StateFlow.pushExecutorToEL(context, executor, getPath(context));
+        }
+    }
+
+    private void popExecutor(FacesContext context) {
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        String executorId = getExecutorId(context);
+        SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
+        if (executor != null) {
+            StateFlow.popExecutorFromEL(context);
+        }
+    }
+
+    @Override
+    public void encodeBegin(FacesContext context) throws IOException {
+        pushExecutor(context);
+        try {
+            super.encodeBegin(context);
+        } finally {
+            popExecutor(context);
+        }
+    }
+
+    @Override
+    public void encodeChildren(FacesContext context) throws IOException {
+        pushExecutor(context);
+        try {
+            super.encodeChildren(context);
+        } finally {
+            popExecutor(context);
+        }
+    }
+
     @Override
     public void encodeEnd(FacesContext context) throws IOException {
-        ELContext elContext = context.getELContext();
 
-        SCXMLExecutor oldexecutor = (SCXMLExecutor) context.getAttributes()
-                .get(CURRENT_EXECUTOR_HINT);
+        StateFlowHandler handler = StateFlowHandler.getInstance();
 
-        Object oldelexecutor = elContext.getContext(SCXMLExecutor.class);
-        try {
-            StateFlowHandler handler = StateFlowHandler.getInstance();
+        String executorId = getExecutorId(context);
+        SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
 
-            String executorId = getExecutorId(context);
-            SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
+        if (executor == null) {
+            SCXML stateMachine = findStateMachine(context, getName());
+            if (stateMachine != null) {
+                try {
+                    executor = handler.createRootExecutor(executorId, context, stateMachine);
+                    executor.getSCInstance().getSystemContext();
+                    Context sctx = executor.getRootContext();
+                    sctx.set(COMPONENT_ID, getClientId(context));
+                    sctx.set(VIEW_ID, context.getViewRoot().getViewId());
 
-            if (executor == null) {
-                SCXML stateMachine = findStateMachine(context, getName());
-                if (stateMachine != null) {
-                    try {
-                        executor = handler.createRootExecutor(executorId, context, stateMachine);
-                        executor.getSCInstance().getSystemContext();
-                        Context sctx = executor.getRootContext();
-                        sctx.set(COMPONENT_ID, getClientId(context));
-                        sctx.set(VIEW_ID, context.getViewRoot().getViewId());
-
-                    } catch (ModelException ex) {
-                        throw new IOException(ex);
-                    }
-                    elContext.putContext(SCXMLExecutor.class, executor);
-                    context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
-
-                    Map<String, Object> params = getParamsMap();
-                    handler.execute(context, executor, params, true);
+                } catch (ModelException ex) {
+                    throw new IOException(ex);
                 }
-            }
-            UIComponent renderComponent = getCurentRenderComponent(context);
-            if (renderComponent != null) {
                 context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
-                elContext.putContext(SCXMLExecutor.class, executor);
-                renderComponent.encodeAll(context);
-            }
-        } finally {
-            if (oldelexecutor != null) {
-                elContext.putContext(SCXMLExecutor.class, oldelexecutor);
-            }
 
-            if (oldexecutor != null) {
-                context.getAttributes().put(CURRENT_EXECUTOR_HINT, oldexecutor);
-            } else {
-                context.getAttributes().remove(CURRENT_EXECUTOR_HINT);
+                Map<String, Object> params = getParamsMap();
+                handler.execute(context, executor, params, true);
+            }
+        }
+        UIComponent renderComponent = getCurentRenderComponent(context);
+        if (renderComponent != null) {
+            StateFlow.pushExecutorToEL(context, executor, getPath(context));
+            try {
+                renderComponent.encodeAll(context);
+            } finally {
+                StateFlow.popExecutorFromEL(context);
             }
         }
 
@@ -264,35 +282,61 @@ public class UIStateChartController extends UIPanel {
     @Override
     public boolean visitTree(VisitContext context, VisitCallback callback) {
         FacesContext fc = context.getFacesContext();
-        ELContext elContext = fc.getELContext();
-
-        SCXMLExecutor oldfcexecutor = (SCXMLExecutor) fc.getAttributes()
-                .get(CURRENT_EXECUTOR_HINT);
-
-        Object oldelexecutor = elContext.getContext(SCXMLExecutor.class);
+        pushExecutor(fc);
         try {
-            StateFlowHandler handler = StateFlowHandler.getInstance();
-
-            String executorId = getExecutorId(fc);
-            SCXMLExecutor executor = handler.getRootExecutor(fc, executorId);
-            if (executor != null) {
-                elContext.putContext(SCXMLExecutor.class, executor);
-                fc.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
-            } else {
-                fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
-            }
-
             return super.visitTree(context, callback);
         } finally {
-            if (oldelexecutor != null) {
-                elContext.putContext(SCXMLExecutor.class, oldelexecutor);
-            }
+            popExecutor(fc);
+        }
+    }
 
-            if (oldfcexecutor != null) {
-                fc.getAttributes().put(CURRENT_EXECUTOR_HINT, oldfcexecutor);
-            } else {
-                fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
-            }
+    @Override
+    public void processDecodes(FacesContext context) {
+        pushExecutor(context);
+        try {
+            super.processDecodes(context);
+        } finally {
+            popExecutor(context);
+        }
+    }
+
+    @Override
+    public void processRestoreState(FacesContext context, Object state) {
+        pushExecutor(context);
+        try {
+            super.processRestoreState(context, state);
+        } finally {
+            popExecutor(context);
+        }
+    }
+
+    @Override
+    public Object processSaveState(FacesContext context) {
+        pushExecutor(context);
+        try {
+            return super.processSaveState(context);
+        } finally {
+            popExecutor(context);
+        }
+    }
+
+    @Override
+    public void processUpdates(FacesContext context) {
+        pushExecutor(context);
+        try {
+            super.processUpdates(context);
+        } finally {
+            popExecutor(context);
+        }
+    }
+
+    @Override
+    public void processValidators(FacesContext context) {
+        pushExecutor(context);
+        try {
+            super.processValidators(context);
+        } finally {
+            popExecutor(context);
         }
     }
 

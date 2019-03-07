@@ -24,6 +24,7 @@
                 <h:panelGroup>
                     <h:messages/> 
                 </h:panelGroup>
+                <hr/>
                 <h:panelGroup>
                     <sui:portlet1
                         caption="Test Portlet Caption"
@@ -40,16 +41,16 @@
                     <hr/>
                 </h:panelGroup>
                 <h:panelGroup id="element-test">
-                    <h3>Test action and invoke elements.</h3>
+                    <h4>Test action outside portlet, can not generate action event in portlet.</h4>
                     <h:panelGrid cellspacing="4" columns="6" style="bottom: 0px">
                         <h:commandButton
                             action="custom-action"
-                            value="Test Custom Action"
+                            value="Custom Action No Portlet"
                             immediate="false">
                         </h:commandButton>
                         <h:commandButton
                             action="custom-ajax-action"
-                            value="Test Ajax Action"
+                            value="Ajax Action No Portlet"
                             immediate="false">
                             <f:ajax render="@form"/>
                         </h:commandButton>

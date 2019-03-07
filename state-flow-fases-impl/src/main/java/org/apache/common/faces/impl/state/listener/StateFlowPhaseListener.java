@@ -152,7 +152,7 @@ public class StateFlowPhaseListener implements PhaseListener {
                         + event.getPhaseId().getName().toLowerCase();
 
                 if (handler.isActive(facesContext)) {
-                    StateFlow.applyViewContext(facesContext);
+                    StateFlow.initViewContext(facesContext);
 
                     EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
                             .sendId(viewRoot.getViewId());

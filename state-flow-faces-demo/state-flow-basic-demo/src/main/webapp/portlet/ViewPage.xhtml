@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Multiple State Flow Faces</title>
+        <h:outputStylesheet library="css" name="demo-style.css"  />
+    </h:head>
+    <h:body>
+        <h1>#{chart.title}</h1>
+        <hr/>
+        <h:form>
+            <h:panelGroup>
+                <h3>Hello, I'm in test outside view in portlet &lt;scxml id="show"&gt;: "#{chart.chart_view}"</h3>
+                This page is next page in state flow chart. It's assigned any data from owned &lt;scxml&gt;
+                <p/>
+                Exited to one proces in new view. 
+                <p/>
+                <h:panelGroup>
+                    <h:messages/> 
+                </h:panelGroup>
+                <h:panelGroup>
+                    <hr/>
+                    <p/>
+                    <b>Used bean main:</b>
+                    <p/>\#{main.beanTitle} = <i>"#{main.beanTitle}"</i>
+                    <p/>\#{main.assignedTest1} = <i>"#{main.assignedTest1}"</i>
+                    <pre>This beans are in dialog scope. This beans can see data from parent and child execution.</pre>
+                    <p/><b>Used bean client:</b>
+                    <p/>"\#{currentState.beanTitle}" = <i>"#{currentState.beanTitle}"</i> 
+                    <p/>"\#{currentState.assignedTest1}" = <i>"#{currentState.assignedTest1}"</i> 
+                    <pre>This bean is in state scope in "@composite". This bean can not see data from parent targets not in the common composite state or parallel.</pre>
+                    <hr/>
+                </h:panelGroup>
+                <h:panelGroup id="asign-test">
+                    <h3>Test data manipulation in executed states.</h3>
+                    <p/>
+                    Data assigned in:
+                    <p/>
+                    <b>Value:</b> #{currentState.assignedTest1}
+                    <p/>
+                    <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
+                        <h:commandButton action="calculate-1" value="Calculate 1">
+                            <f:ajax render="@form"/>
+                        </h:commandButton>
+                        <h:commandButton action="calculate-2" value="Calculate 2">
+                            <f:ajax render="@form"/>
+                        </h:commandButton>
+                        <h:commandButton action="return" value="Return History Process">
+                            <f:ajax render="@form"/>
+                        </h:commandButton>
+                        <h:commandButton action="return" value="Return History Process">
+                            <f:ajax render="@form"/>
+                        </h:commandButton>
+                        <h:commandButton action="start-again" value="Start Again Process">
+                            <f:ajax render="@form"/>
+                        </h:commandButton>
+                    </h:panelGrid>
+                </h:panelGroup>
+                <h:panelGroup>
+                    <hr/>
+                </h:panelGroup>
+                <h:panelGroup id="navigation">
+                    <h:panelGroup layout="block" style=" text-align: left;">
+                        <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
+                            <h:commandButton
+                                action="cancel"
+                                value="Cancel"
+                                immediate="false">
+                            </h:commandButton>
+
+                        </h:panelGrid>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </h:panelGroup>
+        </h:form>
+    </h:body>
+
+</html>
+

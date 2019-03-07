@@ -18,7 +18,6 @@ package org.apache.common.faces.impl.state.cdi;
 import com.sun.faces.util.Util;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;

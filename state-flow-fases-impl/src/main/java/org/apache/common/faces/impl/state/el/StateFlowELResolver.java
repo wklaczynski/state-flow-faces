@@ -31,12 +31,12 @@ public final class StateFlowELResolver extends CompositeELResolver {
      */
     public StateFlowELResolver() {
         super();
-            StateWebConfiguration swc = StateWebConfiguration.getInstance();
-        
+        StateWebConfiguration swc = StateWebConfiguration.getInstance();
+
         add(new StateFlowScopesELResolver());
-        
+
         String olxr = swc.getOptionValue(LOCAL_XPATH_RESOLVER, "true");
-        if(Boolean.parseBoolean(olxr)) {
+        if (Boolean.parseBoolean(olxr)) {
             add(new XPathELResolver());
         }
     }

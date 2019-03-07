@@ -15,6 +15,8 @@
  */
 package org.apache.common.faces.state;
 
+import java.util.ArrayDeque;
+import java.util.Map;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
@@ -89,18 +91,16 @@ public class StateFlow {
      */
     public static final String CURRENT_COMPONENT_HINT = "javax.faces.flow.CURRENT_COMPONENT_HINT";
 
-    
     /**
      *
      */
     public static final String CONTROLLER_SET_HINT = "javax.faces.flow.CONTROLLER_SET_HINT";
 
-    
     /**
      *
      */
     public static final String DEFINITION_SET_HINT = "javax.faces.flow.DEFINITION_SET_HINT";
-    
+
     /**
      *
      */
@@ -124,6 +124,11 @@ public class StateFlow {
     /**
      *
      */
+    private static final String CURRENT_EXECUTOR_STACK_KEY = "javax.faces.flow.CURRENT_EXECUTOR_STACK_KEY";
+
+    /**
+     *
+     */
     public static final Name VIEW_INVOKE_CONTEXT = new NameResolver(
             "state.flow.faces:", ":ViewState");
 
@@ -131,13 +136,13 @@ public class StateFlow {
      *
      */
     public static final String CURRENT_INVOKED_VIEW_ID
-            = "state.flow.faces:CurrentViewId";
+                               = "state.flow.faces:CurrentViewId";
 
     /**
      *
      */
     public static final String FACES_VIEW_STATE
-            = "com.sun.faces.FACES_VIEW_STATE";
+                               = "com.sun.faces.FACES_VIEW_STATE";
 
     /**
      *
@@ -233,20 +238,100 @@ public class StateFlow {
      *
      * @param context
      */
-    public static void applyViewContext(FacesContext context) {
+    public static final void initViewContext(FacesContext context) {
         UIViewRoot viewRoot = context.getViewRoot();
         StateFlowHandler handler = StateFlowHandler.getInstance();
         if (viewRoot != null && handler.isActive(context)) {
             StateFlowViewContext viewContext = (StateFlowViewContext) context.getAttributes()
                     .get(VIEW_INVOKE_CONTEXT.get(viewRoot.getViewId()));
 
+            Map<Object, Object> contextAttributes = context.getAttributes();
+            ArrayDeque<StateFlowViewContext> executorELStack = getExecutorStack(CURRENT_EXECUTOR_STACK_KEY,
+                    contextAttributes);
+
+            executorELStack.clear();
+
             if (viewContext != null) {
-                context.getAttributes().put(CURRENT_EXECUTOR_HINT, viewContext.getExecutor());
-                context.getELContext().putContext(SCXMLExecutor.class, viewContext.getExecutor());
-                Context stateContext = getEffectiveContext(viewContext.getContext());
-                context.getELContext().putContext(Context.class, stateContext);
+                executorELStack.push(viewContext);
+                initCurrentViewContext(context, viewContext);
+            } else {
+                clearCurrentViewContext(context);
             }
         }
+    }
+
+    private static void initCurrentViewContext(FacesContext context, StateFlowViewContext viewContext) {
+        context.getAttributes().put(CURRENT_EXECUTOR_HINT, viewContext.getExecutor());
+        context.getELContext().putContext(SCXMLExecutor.class, viewContext.getExecutor());
+        Context stateContext = getEffectiveContext(viewContext.getContext());
+        context.getELContext().putContext(Context.class, stateContext);
+    }
+
+    private static void clearCurrentViewContext(FacesContext context) {
+        context.getAttributes().remove(CURRENT_EXECUTOR_HINT);
+    }
+
+    public static final void pushExecutorToEL(FacesContext context, String path) {
+        pushExecutorToEL(context, null, path);
+    }
+
+    public static final void pushExecutorToEL(FacesContext context, SCXMLExecutor root, String path) {
+        if (context == null) {
+            throw new NullPointerException("FacesContext mus be set!");
+        }
+        if (path == null) {
+            throw new NullPointerException("Parametr \"path\" mus be set!");
+        }
+
+        StateFlowViewContext viewContext = (StateFlowViewContext) context.getAttributes()
+                .get(VIEW_INVOKE_CONTEXT.get(path));
+
+        if (null == viewContext) {
+            if (root == null) {
+                throw new NullPointerException("StateFlowViewContext for \"" + path + "\" mus be active!");
+            }
+            Context ctx = root.getRootContext();
+            viewContext = new StateFlowViewContext(path, root, ctx);
+        }
+
+        Map<Object, Object> contextAttributes = context.getAttributes();
+        ArrayDeque<StateFlowViewContext> executorELStack = getExecutorStack(CURRENT_EXECUTOR_STACK_KEY,
+                contextAttributes);
+
+        executorELStack.push(viewContext);
+        initCurrentViewContext(context, viewContext);
+
+    }
+
+    public static final void popExecutorFromEL(FacesContext context) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        Map<Object, Object> contextAttributes = context.getAttributes();
+        ArrayDeque<StateFlowViewContext> executorELStack = getExecutorStack(CURRENT_EXECUTOR_STACK_KEY,
+                contextAttributes);
+
+        executorELStack.pop();
+
+        if (!executorELStack.isEmpty()) {
+
+            StateFlowViewContext viewContext = executorELStack.peek();
+            initCurrentViewContext(context, viewContext);
+        } else {
+            clearCurrentViewContext(context);
+        }
+    }
+
+    private static ArrayDeque<StateFlowViewContext> getExecutorStack(String keyName, Map<Object, Object> contextAttributes) {
+        ArrayDeque<StateFlowViewContext> elStack = (ArrayDeque<StateFlowViewContext>) contextAttributes.get(keyName);
+
+        if (elStack == null) {
+            elStack = new ArrayDeque<>();
+            contextAttributes.put(keyName, elStack);
+        }
+
+        return elStack;
     }
 
     private static Context getEffectiveContext(final Context nodeCtx) {

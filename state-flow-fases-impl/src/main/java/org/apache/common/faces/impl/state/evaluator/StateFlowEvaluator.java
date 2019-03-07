@@ -101,28 +101,21 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             eccashe.set(ec);
         }
 
-        SCXMLExecutor oldexecutor = (SCXMLExecutor) fc.getAttributes().get(CURRENT_EXECUTOR_HINT);
-        try {
-            Map<String, SCXMLIOProcessor> ioProcessors = (Map<String, SCXMLIOProcessor>) ctx.get(SCXMLSystemContext.IOPROCESSORS_KEY);
-            String sessionId = (String) ctx.get(SCXMLSystemContext.SESSIONID_KEY);
-            if (ioProcessors.containsKey(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX + sessionId)) {
-                SCXMLExecutor executor = (SCXMLExecutor) ioProcessors.get(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX + sessionId);
-                fc.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
-                ec.putContext(SCXMLExecutor.class, executor);
+        Map<String, SCXMLIOProcessor> ioProcessors = (Map<String, SCXMLIOProcessor>) ctx.get(SCXMLSystemContext.IOPROCESSORS_KEY);
+        String sessionId = (String) ctx.get(SCXMLSystemContext.SESSIONID_KEY);
+        if (ioProcessors.containsKey(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX + sessionId)) {
+            SCXMLExecutor executor = (SCXMLExecutor) ioProcessors.get(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX + sessionId);
+            fc.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
+            ec.putContext(SCXMLExecutor.class, executor);
 
-                SCXML scxml = executor.getStateMachine();
-                ec.addFunctionMaper(new EvaluatorBuiltinFunctionMapper(ec, scxml));
+            SCXML scxml = executor.getStateMachine();
+            ec.addFunctionMaper(new EvaluatorBuiltinFunctionMapper(ec, scxml));
 
-                Map<String, String> namespaces = scxml.getNamespaces();
-                String modelName = scxml.getDatamodelName();
+            Map<String, String> namespaces = scxml.getNamespaces();
+            String modelName = scxml.getDatamodelName();
 
-            }
-        } finally {
-            if (oldexecutor != null) {
-                fc.getAttributes().put(CURRENT_EXECUTOR_HINT, oldexecutor);
-            } else {
-                fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
-            }
+        } else {
+            fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
         }
 
         ctx = getEffectiveContext(ctx);

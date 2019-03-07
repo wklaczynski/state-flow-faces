@@ -30,6 +30,7 @@ import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.PassivationCapable;
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
@@ -257,7 +258,7 @@ public class DialogCDIContext implements Context, Serializable {
     }
 
     private static SCXMLExecutor getExecutor(FacesContext context) {
-
+        
         StateFlowHandler flowHandler = StateFlowHandler.getInstance();
         if (null == flowHandler) {
             return null;

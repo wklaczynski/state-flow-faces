@@ -271,7 +271,15 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     public SCXMLExecutor getCurrentExecutor(FacesContext context) {
         SCXMLExecutor executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);
         if (executor == null) {
-            executor = getRootExecutor(context);
+            FlowDeque fs = getFlowDeque(context, false);
+            if (fs == null) {
+                return null;
+            }
+            Stack<String> stack = fs.getRoots();
+            if (stack.isEmpty()) {
+                return null;
+            }
+            return fs.getExecutors().get(stack.peek());
         }
         return executor;
     }
@@ -282,16 +290,17 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         if (fs == null) {
             return null;
         }
+        Map<String, SCXMLExecutor> executors = fs.getExecutors();
 
         if (executorId == null) {
-            Stack<String> stack = fs.getRoots();
-            if (stack.isEmpty()) {
-                return null;
+            SCXMLExecutor executor = getCurrentExecutor(context);
+            while (executor != null && executor.getParentSCXMLIOProcessor() != null) {
+                executorId = executor.getParentSCXMLIOProcessor().getId();
+                executor = executors.get(executorId);
             }
-
-            return fs.getExecutors().get(stack.peek());
+            return executor;
         } else {
-            return fs.getExecutors().get(executorId);
+            return executors.get(executorId);
         }
     }
 
@@ -424,8 +433,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 }
             } else {
                 ParentSCXMLIOProcessor ioProcessor = executor.getParentSCXMLIOProcessor();
-                ioProcessor.getId();
-                
+                String parentId = ioProcessor.getId();
+                fs.getMap().put(executorId, parentId);
             }
 
             executorEntered(executor);
@@ -453,6 +462,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         FlowDeque fs = getFlowDeque(context, true);
         Stack<String> stack = fs.getRoots();
         Map<String, SCXMLExecutor> executors = fs.getExecutors();
+        Map<String, String> map = fs.getMap();
 
         String executorId;
         if (executor == null) {
@@ -468,6 +478,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 SCXMLExecutor last = executors.get(lastId);
                 executorExited(last);
                 executors.remove(lastId);
+                map.remove(executorId);
                 if (Objects.equals(lastId, executorId)) {
                     break;
                 }
@@ -476,6 +487,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             if (executor != null) {
                 executorExited(executor);
                 executors.remove(executorId);
+                map.remove(executorId);
             }
         }
 
@@ -616,12 +628,14 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         private final Stack<String> roots;
         private final Map<String, SCXMLExecutor> executors;
+        private final Map<String, String> map;
         private final String key;
         private boolean closed;
 
         public FlowDeque(final String sessionKey) {
-            executors = new HashMap<>();
             roots = new Stack<>();
+            executors = new HashMap<>();
+            map = new HashMap<>();
             this.key = sessionKey;
         }
 
@@ -635,6 +649,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         public Stack<String> getRoots() {
             return roots;
+        }
+
+        public Map<String, String> getMap() {
+            return map;
         }
 
         public boolean isClosed() {
@@ -662,11 +680,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
 
         public Object saveState(FacesContext fc) {
-            if (fc == null) {
-                throw new NullPointerException();
-            }
 
-            Object states[] = new Object[3];
+            Object states[] = new Object[4];
 
             states[0] = closed;
 
@@ -701,6 +716,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 states[2] = attached;
             }
 
+            states[3] = saveMapState(map);
+
             return states;
         }
 
@@ -708,6 +725,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             StateFlowHandler handler = StateFlowHandler.getInstance();
             executors.clear();
             roots.clear();
+            map.clear();
             if (null != state) {
                 Object[] blocks = (Object[]) state;
 
@@ -755,6 +773,39 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
                         executors.put(executorId, executor);
                     }
+                }
+
+                if (blocks[3] != null) {
+                    restoreMapState(map, blocks[3]);
+                }
+
+            }
+        }
+
+        private Object saveMapState(Map<String, String> map) {
+            Object state = null;
+            if (null != map && map.size() > 0) {
+                Object[] attached = new Object[map.size()];
+                int i = 0;
+                for (Map.Entry<String, String> entry : map.entrySet()) {
+                    Object values[] = new Object[2];
+                    values[0] = entry.getKey();
+                    values[1] = entry.getValue();
+                    attached[i++] = values;
+                }
+                state = attached;
+            }
+            return state;
+        }
+
+        private void restoreMapState(Map<String, String> map, Object state) {
+            map.clear();
+
+            if (null != state) {
+                Object[] values = (Object[]) state;
+                for (Object value : values) {
+                    Object[] entry = (Object[]) value;
+                    map.put(String.valueOf(entry[0]), String.valueOf(entry[1]));
                 }
             }
         }

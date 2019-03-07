@@ -352,8 +352,6 @@ public class DialogInvoker implements Invoker, Serializable {
                         context.getAttributes().put(
                                 VIEW_INVOKE_CONTEXT.get(viewId), viewContext);
 
-                        StateFlow.applyViewContext(context);
-
                     } catch (ModelException ex) {
                         throw new InvokerException(ex);
                     }
