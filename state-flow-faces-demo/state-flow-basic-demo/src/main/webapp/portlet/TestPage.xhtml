@@ -2,16 +2,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:sui="http://xmlns.jcp.org/jsf/composite/sui"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:sui="http://xmlns.jcp.org/jsf/composite/sui">
     <h:head>
         <title>Portlet State Flow Faces</title>
         <h:outputStylesheet library="css" name="demo-style.css"  />
     </h:head>
     <h:body>
-        <h1>Portlet simple test</h1>
+        <h1>#{chart.title}</h1>
         <hr/>
         <h:form>
+            <h:panelGroup rendered="#{empty chart.title}">
+                <h2>Hello, I'm not starting from flow faces :(</h2>
+                <hr/>
+            </h:panelGroup>
             <h:panelGroup>
                 <h3>Hello, I'm in test ui:component portlet process state chat</h3>
                 <p/>
@@ -20,7 +24,19 @@
                 <h:panelGroup>
                     <h:messages/> 
                 </h:panelGroup>
-                <hr/>
+                <h:panelGroup>
+                    <hr/>
+                    <p/>
+                    <b>Used bean main:</b>
+                    <p/>\#{main.beanTitle} = <i>"#{main.beanTitle}"</i>
+                    <p/>\#{main.assignedTest1} = <i>"#{main.assignedTest1}"</i>
+                    <pre>This beans are in dialog scope. This beans can see data from parent and child execution.</pre>
+                    <p/><b>Used bean state scope:</b>
+                    <p/>"\#{currentState.beanTitle}" = <i>"#{currentState.beanTitle}"</i> 
+                    <p/>"\#{currentState.assignedTest1}" = <i>"#{currentState.assignedTest1}"</i> 
+                    <pre>This beans are in state scope in "@composite". This bean can not see data from parent targets not in the common composite state or parallel.</pre>
+                    <hr/>
+                </h:panelGroup>
                 <h:panelGroup>
                     <sui:portlet1
                         caption="Test Portlet Caption"
@@ -59,7 +75,7 @@
                     <h:panelGroup layout="block" style=" text-align: left;">
                         <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
                             <h:commandButton
-                                action="/index.xhtml"
+                                action="cancel"
                                 value="Cancel"
                                 immediate="false">
                             </h:commandButton>
@@ -70,6 +86,5 @@
             </h:panelGroup>
         </h:form>
     </h:body>
-
 </html>
 

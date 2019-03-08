@@ -18,7 +18,9 @@ package org.apache.common.faces.impl.state.cdi;
 import com.sun.faces.util.Util;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -58,9 +60,21 @@ public class StateCDIContext implements Context, Serializable {
     static class TargetBeanInfo {
 
         String id;
+        Type baseType;
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 83 * hash + Objects.hashCode(this.id);
+            hash = 83 * hash + Objects.hashCode(this.baseType);
+            return hash;
+        }
 
         @Override
         public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
             if (obj == null) {
                 return false;
             }
@@ -68,15 +82,12 @@ public class StateCDIContext implements Context, Serializable {
                 return false;
             }
             final TargetBeanInfo other = (TargetBeanInfo) obj;
-            return !((this.id == null) ? (other.id != null) : !this.id.equals(other.id));
+            if (!Objects.equals(this.id, other.id)) {
+                return false;
+            }
+            return Objects.equals(this.baseType, other.baseType);
         }
 
-        @Override
-        public int hashCode() {
-            int hash = 7;
-            hash = 79 * hash + (this.id != null ? this.id.hashCode() : 0);
-            return hash;
-        }
 
         @Override
         public String toString() {
@@ -167,7 +178,12 @@ public class StateCDIContext implements Context, Serializable {
         TransitionTarget state = findState(facesContext, executor, tbi.id);
 
         if (state == null) {
-            throw new ContextNotActiveException("StateTargetScoped '" + tbi + "', must be defined state, but that state is not active.");
+            throw new ContextNotActiveException("@StateScoped(\""
+                    + tbi.id 
+                    + "\") annotated \""
+                    + tbi.baseType.getTypeName()
+                    + "\", can be open only in state\"" + tbi.id 
+                    +"\", but that state is not active.");
         }
 
         StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY);
@@ -246,7 +262,7 @@ public class StateCDIContext implements Context, Serializable {
             int sep = passivationCapableId.indexOf(":");
             if (sep > -1) {
                 passivationCapableId = passivationCapableId.substring(
-                        sep +1, passivationCapableId.length());
+                        sep + 1, passivationCapableId.length());
             }
 
             Contextual owner = beanManager.getPassivationCapableBean(passivationCapableId);
@@ -276,9 +292,9 @@ public class StateCDIContext implements Context, Serializable {
                 if (null != availableBeans && !availableBeans.isEmpty()) {
                     Bean<?> bean = beanManager.resolve(availableBeans);
                     CreationalContext<?> creationalContext
-                            = beanManager.createCreationalContext(null);
+                                         = beanManager.createCreationalContext(null);
                     StateFlowCDIEventFireHelper eventHelper
-                            = (StateFlowCDIEventFireHelper) beanManager.getReference(bean, bean.getBeanClass(),
+                                                = (StateFlowCDIEventFireHelper) beanManager.getReference(bean, bean.getBeanClass(),
                                     creationalContext);
                     eventHelper.fireTargetExecutorDestroyedEvent(executor);
                 }
@@ -310,9 +326,9 @@ public class StateCDIContext implements Context, Serializable {
                 if (null != availableBeans && !availableBeans.isEmpty()) {
                     Bean<?> bean = beanManager.resolve(availableBeans);
                     CreationalContext<?> creationalContext
-                            = beanManager.createCreationalContext(null);
+                                         = beanManager.createCreationalContext(null);
                     StateFlowCDIEventFireHelper eventHelper
-                            = (StateFlowCDIEventFireHelper) beanManager.getReference(bean, bean.getBeanClass(),
+                                                = (StateFlowCDIEventFireHelper) beanManager.getReference(bean, bean.getBeanClass(),
                                     creationalContext);
                     eventHelper.fireTargetExecutorInitializedEvent(executor);
                 }
@@ -416,7 +432,6 @@ public class StateCDIContext implements Context, Serializable {
 //            }
 //        }
 //    }
-
     @SuppressWarnings({"FinalPrivateMethod"})
     private final void assertNotReleased() {
         if (!isActive()) {

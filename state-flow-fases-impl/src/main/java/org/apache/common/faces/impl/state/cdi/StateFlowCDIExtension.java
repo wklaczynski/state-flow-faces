@@ -15,6 +15,7 @@
  */
 package org.apache.common.faces.impl.state.cdi;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -85,6 +86,8 @@ public class StateFlowCDIExtension implements Extension {
        if (null != targetScoped) {
            StateCDIContext.TargetBeanInfo fbi = new StateCDIContext.TargetBeanInfo();
            fbi.id = targetScoped.value();
+           fbi.baseType = event.getAnnotated().getBaseType();
+           
            targetScopedBeanFlowIds.put(event.getBean(), fbi);
        }
     }

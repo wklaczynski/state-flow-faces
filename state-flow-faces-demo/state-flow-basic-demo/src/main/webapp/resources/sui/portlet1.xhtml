@@ -23,8 +23,8 @@
 
             <x:state id="start">
                 <x:onentry>
-                    <x:assign location="#{currentState.assignedTest1}" expr="I'm Seting in start"/>
-                    <x:assign location="#{main.assignedTest1}" expr="I'm Seting in start"/>
+                    <x:assign location="#{currentState.assignedTest1}" expr="I'm Seting in portlet start"/>
+                    <x:assign location="#{main.assignedTest1}" expr="I'm Seting in portlet start"/>
                     <x:foreach array="#{main.logs}" item="var">
                         <x:log expr="#{var}"/>
                     </x:foreach>

@@ -2,9 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html
     xmlns:f="http://xmlns.jcp.org/jsf/core"
-    xmlns:x="http://xmlns.apache.org/faces/scxml"
-    xmlns:h="http://xmlns.jcp.org/jsf/html"
-    xmlns:sui="http://xmlns.jcp.org/jsf/composite/sui">
+    xmlns:x="http://xmlns.apache.org/faces/scxml">
 
     <f:metadata>
         <x:scxml id="main" initial="start">
@@ -18,7 +16,8 @@
 
             <x:state id="start">
                 <x:onentry>
-                    <x:assign location="#{currentState.assignedTest1}" expr="I'm Seting in start"/>
+                    <x:assign location="#{currentState.assignedTest1}" expr="I'm Seting in page start"/>
+                    <x:assign location="#{main.assignedTest1}" expr="I'm Seting in page start"/>
                     <x:foreach array="#{main.logs}" item="var">
                         <x:log expr="#{var}"/>
                     </x:foreach>
@@ -29,18 +28,21 @@
                         <x:raise event="start.prepare.failed"/>
                     </x:if>
                 </x:onentry>
-                <x:transition event="start.prepare.success" target="step1"/>
+                <x:transition event="start.prepare.success" target="show"/>
                 <x:transition event="start.prepare.failed" target="cancel"/>
             </x:state>
 
-            <x:state id="step1">
-                <x:invoke type="view" src="@this">
+            <x:state id="show">
+                <x:onentry>
+                    <x:assign location="#{currentState.assignedTest1}" expr="I'm Seting in page show"/>
+                </x:onentry>
+                <x:invoke type="view" src="TestPage.xhtml">
                 </x:invoke>
                 <x:transition event="error.execution" target="error"/>
                 <x:transition event="view.action.cancel" target="cancel"/>
             </x:state>
 
-            <x:state id="step2">
+            <x:state id="step1">
                 <x:invoke type="view" src="@this">
                 </x:invoke>
                 <x:transition event="error.execution" target="error"/>
@@ -63,52 +65,5 @@
         </x:scxml>    
 
     </f:metadata>
-
-    <h:head>
-        <title>Portlet State Flow Faces</title>
-        <h:outputStylesheet library="css" name="demo-style.css"  />
-    </h:head>
-    <h:body>
-        <h1>#{chart.title}</h1>
-        <hr/>
-        <h:form>
-            <h:panelGroup rendered="#{empty chart.title}">
-                <h2>Hello, I'm not starting from flow faces :(</h2>
-                <hr/>
-            </h:panelGroup>
-            <h:panelGroup>
-                <h3>Hello, I'm in test ui:component portlet process state chat</h3>
-                <p/>
-                Started state chart in ui:component process state and basic state in f:metadata.
-                <p/>
-                <h:panelGroup>
-                    <h:messages/> 
-                </h:panelGroup>
-                <h:panelGroup>
-                    <sui:portlet1
-                        caption="Test Portlet Caption"
-                        path="/test/portlet"
-                        >
-
-                    </sui:portlet1>
-                </h:panelGroup>
-                <h:panelGroup>
-                    <hr/>
-                </h:panelGroup>
-                <h:panelGroup id="navigation">
-                    <h:panelGroup layout="block" style=" text-align: left;">
-                        <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
-                            <h:commandButton
-                                action="cancel"
-                                value="Cancel"
-                                immediate="false">
-                            </h:commandButton>
-
-                        </h:panelGrid>
-                    </h:panelGroup>
-                </h:panelGroup>
-            </h:panelGroup>
-        </h:form>
-    </h:body>
 
 </html>
