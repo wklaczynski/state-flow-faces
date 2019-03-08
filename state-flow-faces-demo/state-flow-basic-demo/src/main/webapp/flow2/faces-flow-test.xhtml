@@ -22,7 +22,7 @@
                 <x:foreach array="#{main.logs}" item="var">
                     <x:log expr="#{var}"/>
                 </x:foreach>
-                    
+
                 <x:if cond="#{main.prepare()}">
                     <x:raise event="start.prepare.success"/>
                     <x:else/>
@@ -121,23 +121,23 @@
                     <x:transition event="view.action.back" target="test-process-2"/>
                 </x:state>             
             </x:state> 
-            
+
             <x:state id="invoke-process">
                 <x:initial>
                     <x:transition target="invoke-process-1"/>
                 </x:initial>
-                
+
                 <x:state id="invoke-process-1">
                     <x:transition event="view.action.start-invoke" target="invoke-process-2"/>
                 </x:state>
-                
+
                 <x:state id="invoke-process-2">
                     <x:invoke type="demo" src="show_my.png"/>
-                    
+
                     <x:transition event="view.action.stop-invoke" target="invoke-process-1"/>
                 </x:state>
             </x:state>
-            
+
         </x:parallel>
 
 
@@ -150,7 +150,7 @@
             <x:transition event="error.execution" target="error"/>
 
             <x:transition event="view.action.cancel" target="cancel"/>
-            
+
             <x:transition event="view.action.return" target="test-process-return"/>
             <x:transition event="view.action.start-again" target="show"/>
 
@@ -183,7 +183,7 @@
             <x:transition event="view.action.cancel" target="cancel"/>
 
             <x:transition event="delay-view-process.view.timeout" target="show"/>
-            
+
             <x:transition event="view.action.return" target="test-process-return"/>
             <x:transition event="view.action.start-again" target="show"/>
 
@@ -199,7 +199,7 @@
                           expr="Changed by 'calculate-2' in 'view-process' state"/>
             </x:transition>
         </x:state>
-        
+
 
         <x:state id="error"> 
             <x:invoke type="scxml" src="/common/error.scxml"/>

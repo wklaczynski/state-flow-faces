@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<f:metadata
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:x="http://xmlns.apache.org/faces/scxml"
+    xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+    >
+    <x:scxml id="flow1" initial="start">
+
+        <x:datamodel>
+            <x:data id="title" expr="This chart is generated outside ui:component scxml=flow1"/>
+            <x:data id="path"/>
+            <x:data id="caption"/>
+        </x:datamodel>
+
+        <x:state id="start">
+            <x:onentry>
+                <x:assign location="#{currentState.assignedTest1}" expr="I'm Seting in flow1 start"/>
+                <x:assign location="#{main.assignedTest1}" expr="I'm Seting in flow1 start"/>
+            </x:onentry>
+
+            <x:invoke type="view" src="ViewPage.xhtml"/>
+
+            <x:transition event="view.action.cancel" target="cancel"/>
+            <x:transition event="view.action.return" target="return"/>
+            <x:transition event="view.action.start-again" target="start-again"/>
+        </x:state>
+
+        <x:final id="cancel">
+            <x:donedata>
+                <x:param name="back" expr="cancel"/>
+            </x:donedata>
+        </x:final>
+
+        <x:final id="return">
+            <x:donedata>
+                <x:param name="back" expr="return"/>
+            </x:donedata>
+        </x:final>
+
+        <x:final id="start-again">
+            <x:donedata>
+                <x:param name="back" expr="start"/>
+            </x:donedata>
+        </x:final>
+    </x:scxml>    
+
+</f:metadata>
