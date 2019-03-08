@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +86,8 @@ import org.apache.common.faces.impl.state.tag.faces.MethodCall;
 import org.apache.common.faces.impl.state.tag.faces.Redirect;
 import org.apache.common.faces.state.task.TimerEventProducer;
 import org.apache.common.scxml.ParentSCXMLIOProcessor;
+import static org.apache.common.scxml.io.StateHolderSaver.findElement;
+import org.apache.common.scxml.model.History;
 
 /**
  *
@@ -319,7 +322,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
         }
         String executorId = executor.getId();
-        
+
         Stack<String> roots = fs.getRoots();
         roots.push(executorId);
     }
@@ -461,7 +464,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
 
             Stack<String> stack = fs.getRoots();
-            Map<String, String> map = fs.getMap();
+            Map<String, List<String>> map = fs.getMap();
             Map<String, SCXMLExecutor> executors = fs.getExecutors();
 
             String executorId = executor.getId();
@@ -473,13 +476,15 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 } else {
                     if (!stack.isEmpty()) {
                         String parentId = stack.peek();
-                        map.put(executorId, parentId);
+                        map.getOrDefault(parentId, new ArrayList<>())
+                                .add(executorId);
                     }
                 }
             } else {
                 ParentSCXMLIOProcessor ioProcessor = executor.getParentSCXMLIOProcessor();
                 String parentId = ioProcessor.getId();
-                map.put(executorId, parentId);
+                map.getOrDefault(parentId, new ArrayList<>())
+                        .add(executorId);
             }
 
             executorEntered(executor);
@@ -504,37 +509,22 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     @Override
     public void close(FacesContext context, SCXMLExecutor executor) {
-        FlowDeque fs = getFlowDeque(context, true);
-        Stack<String> stack = fs.getRoots();
-        Map<String, SCXMLExecutor> executors = fs.getExecutors();
-        Map<String, String> map = fs.getMap();
-
-        String executorId;
-        if (executor == null) {
-            executorId = stack.get(0);
-            executor = executors.get(executorId);
-        } else {
-            executorId = executor.getId();
+        FlowDeque fs = getFlowDeque(context, false);
+        if(fs == null) {
+            return;
         }
 
-        executor.getSCInstance();
+        Stack<String> stack = fs.getRoots();
+        Map<String, SCXMLExecutor> executors = fs.getExecutors();
 
-        while (stack.contains(executorId)) {
-            String lastId = stack.pop();
-            if (!stack.contains(lastId)) {
-                SCXMLExecutor last = executors.get(lastId);
-                executorExited(last);
-                executors.remove(lastId);
-                map.remove(executorId);
-            }
+        if (executor == null && !stack.isEmpty()) {
+            executor = executors.get(stack.peek());
         }
 
         if (executor != null) {
-            executorExited(executor);
-            executors.remove(executorId);
-            map.remove(executorId);
+            close(context, fs, executor);
         }
-
+        
         if (stack.isEmpty()) {
             if (executors.isEmpty()) {
                 closeFlowDeque(context);
@@ -542,6 +532,43 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             if (CdiUtil.isCdiAvailable(context)) {
                 BeanManager bm = CdiUtil.getCdiBeanManager(context);
                 bm.fireEvent(new OnFinishEvent(executor));
+            }
+        }
+    }
+
+    private void close(FacesContext context, FlowDeque fs, SCXMLExecutor executor) {
+        Stack<String> stack = fs.getRoots();
+        Map<String, SCXMLExecutor> executors = fs.getExecutors();
+
+        String executorId;
+        if (executor == null && !stack.isEmpty()) {
+            executorId = stack.peek();
+            executor = executors.get(executorId);
+        } else {
+            executorId = executor.getId();
+        }
+
+        if (executor != null) {
+            while (stack.contains(executorId)) {
+                String lastId = stack.pop();
+                if (!stack.contains(lastId)) {
+                    SCXMLExecutor last = executors.get(lastId);
+                    close(context, fs, last);
+                }
+            }
+
+            if (executor != null) {
+                executorExited(executor);
+                executors.remove(executorId);
+
+                Map<String, List<String>> map = fs.getMap();
+                List<String> children = map.get(executorId);
+                for (String childId : children) {
+                    if(executors.containsKey(childId)) {
+                        SCXMLExecutor child = executors.get(childId);
+                        close(context, fs, child);
+                    }
+                }
             }
         }
 
@@ -672,7 +699,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         private final Stack<String> roots;
         private final Map<String, SCXMLExecutor> executors;
-        private final Map<String, String> map;
+        private final Map<String, List<String>> map;
         private final String key;
         private boolean closed;
 
@@ -695,7 +722,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return roots;
         }
 
-        public Map<String, String> getMap() {
+        public Map<String, List<String>> getMap() {
             return map;
         }
 
@@ -826,15 +853,16 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
         }
 
-        private Object saveMapState(Map<String, String> map) {
+        private Object saveMapState(Map<String, List<String>> map) {
             Object state = null;
             if (null != map && map.size() > 0) {
                 Object[] attached = new Object[map.size()];
                 int i = 0;
-                for (Map.Entry<String, String> entry : map.entrySet()) {
+                for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+                    List<String> list = entry.getValue();
                     Object values[] = new Object[2];
                     values[0] = entry.getKey();
-                    values[1] = entry.getValue();
+                    values[1] = saveIdsState(list);
                     attached[i++] = values;
                 }
                 state = attached;
@@ -842,14 +870,42 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return state;
         }
 
-        private void restoreMapState(Map<String, String> map, Object state) {
+        private void restoreMapState(Map<String, List<String>> map, Object state) {
             map.clear();
 
             if (null != state) {
                 Object[] values = (Object[]) state;
                 for (Object value : values) {
                     Object[] entry = (Object[]) value;
-                    map.put(String.valueOf(entry[0]), String.valueOf(entry[1]));
+
+                    List<String> ids = new ArrayList<>();
+                    restoreIdsState(ids, entry[1]);
+
+                    map.put(String.valueOf(entry[0]), ids);
+                }
+            }
+        }
+
+        private Object saveIdsState(List<String> list) {
+            Object state = null;
+            if (null != list && list.size() > 0) {
+                Object[] attached = new Object[list.size()];
+                int i = 0;
+                for (Object value : list) {
+                    attached[i++] = value;
+                }
+                state = attached;
+            }
+            return state;
+        }
+
+        private void restoreIdsState(List<String> list, Object state) {
+            list.clear();
+
+            if (null != state) {
+                Object[] values = (Object[]) state;
+                for (Object value : values) {
+                    list.add(String.valueOf(value));
                 }
             }
         }
