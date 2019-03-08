@@ -9,11 +9,11 @@
         <h:outputStylesheet library="css" name="demo-style.css"  />
     </h:head>
     <h:body>
-        <h1>#{chart.title}</h1>
+        <h1>Portlet in flow test</h1>
         <hr/>
         <h:form>
             <h:panelGroup rendered="#{empty chart.title}">
-                <h2>Hello, I'm not starting from flow faces :(</h2>
+                <h3>Hello, I'm not starting from flow faces :(</h3>
                 <hr/>
             </h:panelGroup>
             <h:panelGroup>
@@ -26,6 +26,9 @@
                 </h:panelGroup>
                 <h:panelGroup>
                     <hr/>
+                    <h3>#{chart.title}</h3>
+                    Render before portlet.
+                    <hr/>
                     <p/>
                     <b>Used bean main:</b>
                     <p/>\#{main.beanTitle} = <i>"#{main.beanTitle}"</i>
@@ -37,7 +40,7 @@
                     <pre>This beans are in state scope in "@composite". This bean can not see data from parent targets not in the common composite state or parallel.</pre>
                     <hr/>
                 </h:panelGroup>
-                <h:panelGroup>
+                <h:panelGroup layout="block" style="border: 2px solid #939390; padding: 0px 25px;">
                     <sui:portlet1
                         caption="Test Portlet Caption"
                         path="/test/portlet"
@@ -50,6 +53,19 @@
                     </sui:portlet1>
                 </h:panelGroup>
                 <h:panelGroup>
+                    <hr/>
+                    <h3>#{chart.title}</h3>
+                    Render after portlet.
+                    <hr/>
+                    <p/>
+                    <b>Used bean main:</b>
+                    <p/>\#{main.beanTitle} = <i>"#{main.beanTitle}"</i>
+                    <p/>\#{main.assignedTest1} = <i>"#{main.assignedTest1}"</i>
+                    <pre>This beans are in dialog scope. This beans can see data from parent and child execution.</pre>
+                    <p/><b>Used bean state scope:</b>
+                    <p/>"\#{currentState.beanTitle}" = <i>"#{currentState.beanTitle}"</i> 
+                    <p/>"\#{currentState.assignedTest1}" = <i>"#{currentState.assignedTest1}"</i> 
+                    <pre>This beans are in state scope in "@composite". This bean can not see data from parent targets not in the common composite state or parallel.</pre>
                     <hr/>
                 </h:panelGroup>
                 <h:panelGroup id="element-test">

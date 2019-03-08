@@ -17,6 +17,7 @@
 
         <x:scxml id="default" initial="start">
             <x:datamodel>
+                <x:data id="title" expr="This chart is generated in ui:component"/>
                 <x:data id="path"/>
                 <x:data id="caption"/>
             </x:datamodel>
@@ -57,18 +58,20 @@
 
             <x:final id="cancel">
             </x:final>
-            
+
         </x:scxml>    
 
         <fx:renderState name="default">
             <f:param name="path" value="#{cc.attrs.path}"/>
             <f:param name="caption" value="#{cc.attrs.caption}"/>
-            
+
             <f:facet name="facet1">
                 <h:panelGrid columns="1">
-                    <h:outputLabel value="#{chart.caption}"/>
                     <h:panelGroup>
+                        <h3>#{chart.title}</h3>
+                        Render in portlet.
                         <hr/>
+                        <h:outputLabel value="#{chart.caption}"/>
                         <p/>
                         <b>Used facet:</b>
                         <p/>facet name = <i>facet1</i>
@@ -81,7 +84,8 @@
                         <p/><b>Used bean client:</b>
                         <p/>"\#{currentState.beanTitle}" = <i>"#{currentState.beanTitle}"</i> 
                         <p/>"\#{currentState.assignedTest1}" = <i>"#{currentState.assignedTest1}"</i> 
-                        <pre>This bean is in state scope in "@composite". This bean can not see data from parent targets not in the common composite state or parallel.</pre>
+                        <pre>This bean is in state scope in "@composite".</pre>
+                        <pre>This bean can not see data from parent targets not in the common composite state or parallel.</pre>
                         <hr/>
                     </h:panelGroup>
                     <b>Test action and invoke elements.</b>
