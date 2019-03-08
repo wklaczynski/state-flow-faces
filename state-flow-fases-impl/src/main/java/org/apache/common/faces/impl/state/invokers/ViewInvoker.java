@@ -257,8 +257,8 @@ public class ViewInvoker implements Invoker, Serializable {
                 //Flash flash = ec.getFlash();
                 //flash.setKeepMessages(true);
                 if (viewState != null) {
-                    Context rootContext = executor.getRootContext();
-                    rootContext.setLocal(FACES_VIEW_STATE, viewState);
+                    Context flowContext = handler.getFlowContext(context);
+                    flowContext.setLocal(FACES_VIEW_STATE, viewState);
                 }
 
                 Application application = context.getApplication();
@@ -432,8 +432,9 @@ public class ViewInvoker implements Invoker, Serializable {
                             updateRenderTargets(context, viewId);
                             ec.redirect(url);
                             if (viewState != null) {
-                                Context rootContext = executor.getRootContext();
-                                rootContext.setLocal(FACES_VIEW_STATE, viewState);
+                                StateFlowHandler handler = StateFlowHandler.getInstance();
+                                Context flowContext = handler.getFlowContext(context);
+                                flowContext.setLocal(FACES_VIEW_STATE, viewState);
                             }
                             context.responseComplete();
                         } catch (IOException ex) {

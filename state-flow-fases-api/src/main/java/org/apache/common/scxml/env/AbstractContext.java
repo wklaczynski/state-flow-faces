@@ -107,6 +107,26 @@ public class AbstractContext implements Context, StateHolder {
             setLocal(name, value);
         }
     }
+    
+
+    /**
+     * Removes a new value to an existing variable. The
+     * method searches the chain of parent Contexts for variable existence.
+     *
+     * @param name The variable name
+     * @see org.apache.commons.scxml2.Context#set(String, Object)
+     */
+    @Override
+    public void remove(final String name) {
+        if (getVars().containsKey(name)) { //first try to override local
+            removeLocal(name);
+        } else if (parent != null && parent.has(name)) { //then check for global
+            parent.remove(name);
+        } else { //otherwise create a new local variable
+            removeLocal(name);
+        }
+    }
+    
 
     /**
      * Get the value of this variable; delegating to parent.
@@ -195,6 +215,19 @@ public class AbstractContext implements Context, StateHolder {
     @Override
     public void setLocal(final String name, final Object value) {
         getVars().put(name, value);
+    }
+
+    /**
+     * Assigns a new value to an existing variable or creates a new one. The
+     * method allows to shaddow a variable of the same name up the Context
+     * chain.
+     *
+     * @param name The variable name
+     * @see org.apache.commons.scxml2.Context#setLocal(String, Object)
+     */
+    @Override
+    public void removeLocal(final String name) {
+        getVars().remove(name);
     }
 
     /**

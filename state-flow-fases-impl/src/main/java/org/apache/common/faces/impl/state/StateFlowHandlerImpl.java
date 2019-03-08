@@ -23,11 +23,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.Stack;
@@ -86,8 +84,8 @@ import org.apache.common.faces.impl.state.tag.faces.MethodCall;
 import org.apache.common.faces.impl.state.tag.faces.Redirect;
 import org.apache.common.faces.state.task.TimerEventProducer;
 import org.apache.common.scxml.ParentSCXMLIOProcessor;
-import static org.apache.common.scxml.io.StateHolderSaver.findElement;
-import org.apache.common.scxml.model.History;
+import static org.apache.common.scxml.io.StateHolderSaver.restoreContext;
+import static org.apache.common.scxml.io.StateHolderSaver.saveContext;
 
 /**
  *
@@ -271,6 +269,15 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
+    public Context getFlowContext(FacesContext context) {
+        FlowDeque fs = getFlowDeque(context, false);
+        if (fs == null) {
+            return null;
+        }
+        return fs.getFlowContext();
+    }
+
+    @Override
     public SCXMLExecutor getCurrentExecutor(FacesContext context) {
         SCXMLExecutor executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);
         if (executor == null) {
@@ -373,6 +380,12 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     @Override
     public SCXMLExecutor createRootExecutor(String id, FacesContext context, SCXML scxml) throws ModelException {
 
+        FlowDeque fs = getFlowDeque(context, true);
+
+        if (fs.isClosed()) {
+            throw new FacesException("Can not execute new executor in finished flow istance.");
+        }
+
         StateFlowEvaluator evaluator = new StateFlowEvaluator();
 
         TimerEventProducer timerEventProducer = getEventProducer();
@@ -386,7 +399,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         executor.setStateMachine(scxml);
         executor.addListener(scxml, new StateFlowCDIListener(executor));
 
-        executor.setRootContext(executor.getEvaluator().newContext(null));
+        Context flowContext = fs.getFlowContext();
+
+        executor.setRootContext(executor.getEvaluator().newContext(flowContext));
 
         if (context.getApplication().getProjectStage() == ProjectStage.Production) {
             executor.setCheckLegalConfiguration(false);
@@ -525,7 +540,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             close(context, fs, executor);
         }
 
-        if (stack.isEmpty()) {
+        if (stack.isEmpty() && executors.isEmpty()) {
             if (executors.isEmpty()) {
                 closeFlowDeque(context);
             }
@@ -703,12 +718,14 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         private final Map<String, SCXMLExecutor> executors;
         private final Map<String, List<String>> map;
         private final String key;
+        private final SimpleContext flowContext;
         private boolean closed;
 
         public FlowDeque(final String sessionKey) {
             roots = new Stack<>();
             executors = new HashMap<>();
             map = new HashMap<>();
+            flowContext = new SimpleContext();
             this.key = sessionKey;
         }
 
@@ -734,6 +751,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         public void close() {
             closed = true;
+        }
+
+        public Context getFlowContext() {
+            return flowContext;
         }
 
         // ----------------------------------------------- Serialization Methods
@@ -781,7 +802,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     values[0] = executor.getId();
                     values[1] = stateMachine.getMetadata().get("faces-viewid");
                     values[2] = stateMachine.getMetadata().get("faces-chartid");
-                    //values[3] = saveContext(context, executor.getRootContext());
+                    values[3] = saveContext(context, flowContext);
                     values[4] = executor.saveState(context);
 
                     attached[i++] = values;
@@ -799,6 +820,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             executors.clear();
             roots.clear();
             map.clear();
+            flowContext.getVars().clear();
+
             if (null != state) {
                 Object[] blocks = (Object[]) state;
 
@@ -841,7 +864,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                         Context context = new SimpleContext();
                         Context.setCurrentInstance(context);
 
-                        //restoreContext(context, executor.getRootContext(), values[3]);
+                        restoreContext(context, flowContext, values[3]);
                         executor.restoreState(context, values[4]);
 
                         executors.put(executorId, executor);

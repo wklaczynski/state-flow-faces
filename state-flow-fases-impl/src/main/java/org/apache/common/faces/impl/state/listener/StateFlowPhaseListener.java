@@ -211,7 +211,7 @@ public class StateFlowPhaseListener implements PhaseListener {
 
                                 if (event.getPhaseId() == PhaseId.APPLY_REQUEST_VALUES
                                         && !facesContext.getResponseComplete()) {
-                                    
+
                                     EventDispatcher ed = executor.getEventdispatcher();
                                     if (ed instanceof FacesProcessHolder) {
                                         try {
@@ -249,10 +249,9 @@ public class StateFlowPhaseListener implements PhaseListener {
         } else {
             StateFlowHandler handler = StateFlowHandler.getInstance();
             if (handler.isActive(facesContext)) {
-                SCXMLExecutor executor = handler.getRootExecutor(facesContext);
-                Context ctx = executor.getRootContext();
+                Context ctx = handler.getFlowContext(facesContext);
                 Object lastViewState = ctx.get(FACES_VIEW_STATE);
-                ctx.getVars().remove(FACES_VIEW_STATE);
+                ctx.removeLocal(FACES_VIEW_STATE);
                 if (lastViewState != null) {
                     facesContext.getAttributes().put(FACES_VIEW_STATE, lastViewState);
                 }

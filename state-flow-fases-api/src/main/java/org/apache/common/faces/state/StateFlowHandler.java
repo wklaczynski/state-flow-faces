@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import javax.faces.context.FacesContext;
 import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
+import org.apache.common.scxml.Context;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.model.CustomAction;
@@ -58,6 +59,14 @@ public abstract class StateFlowHandler {
      */
     public abstract Map<String, Class<? extends Invoker>> getCustomInvokers();
 
+    
+    /**
+     *
+     * @param context
+     * @return
+     */
+    public abstract Context getFlowContext(FacesContext context);
+            
     /**
      *
      * @param context

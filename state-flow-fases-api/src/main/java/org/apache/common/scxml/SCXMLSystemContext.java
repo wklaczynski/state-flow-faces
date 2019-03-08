@@ -161,7 +161,21 @@ public final class SCXMLSystemContext implements Context, StateHolder, Serializa
     }
 
     @Override
+    public void remove(final String name) {
+        if (PROTECTED_NAMES.contains(name)) {
+            throw new UnsupportedOperationException();
+        }
+        // non-protected variables are set on the parent of the system context (e.g. root context)
+        systemContext.getParent().remove(name);
+    }
+
+    @Override
     public void setLocal(final String name, final Object value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeLocal(final String name) {
         throw new UnsupportedOperationException();
     }
 

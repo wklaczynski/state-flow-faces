@@ -49,6 +49,7 @@ import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
+import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.StateFlowViewContext;
 import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.InvokeContext;
@@ -136,6 +137,7 @@ public class FacetInvoker implements Invoker, Serializable {
     @Override
     public void invoke(final InvokeContext ictx, String source, final Map<String, Object> params) throws InvokerException {
         FacesContext context = FacesContext.getCurrentInstance();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
         ExternalContext ec = context.getExternalContext();
         try {
             Context sctx = executor.getRootContext();
@@ -231,10 +233,11 @@ public class FacetInvoker implements Invoker, Serializable {
             if (redirect || (pvc != null && pvc.isAjaxRequest())) {
                 //Flash flash = ec.getFlash();
                 //flash.setKeepMessages(true);
-                Context rootContext = executor.getRootContext();
                 if (viewState != null) {
-                    rootContext.setLocal(FACES_VIEW_STATE, viewState);
+                    Context flowContext = handler.getFlowContext(context);
+                    flowContext.setLocal(FACES_VIEW_STATE, viewState);
                 }
+                Context rootContext = executor.getRootContext();
                 rootContext.setLocal(RENDER_FACET_SRC, source);
 
                 Application application = context.getApplication();

@@ -69,6 +69,18 @@ public class CompositeContext implements Context {
         }
     }
 
+    @Override
+    public void remove(String name) {
+        Context parent;
+        if ((parent = contextAs(name)) != null) {
+            parent.remove(name);
+        } else {
+            root.remove(name);
+        }
+    }
+
+    
+    
     private Context contextAs(String name) {
         for (Context context : contexts) {
             if(context.has(name)) {
@@ -95,6 +107,17 @@ public class CompositeContext implements Context {
             parent.set(name, value);
         } else {
             root.setLocal(name, value);
+        }
+    }
+    
+    
+    @Override
+    public void removeLocal(String name) {
+        Context parent;
+        if ((parent = contextAsLocal(name)) != null) {
+            parent.remove(name);
+        } else {
+            root.removeLocal(name);
         }
     }
 

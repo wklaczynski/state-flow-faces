@@ -46,6 +46,16 @@ public interface Context {
      */
     void setLocal(String name, Object value);
 
+    
+    /**
+     * Assigns a new value to an existing variable or creates a new one. The
+     * method allows to shaddow a variable of the same name up the Context
+     * chain.
+     *
+     * @param name The variable name
+     */
+    void removeLocal(String name);
+    
     /**
      * Get the value of this variable; delegating to parent.
      *
@@ -53,6 +63,13 @@ public interface Context {
      * @return The value (or null)
      */
     Object get(String name);
+
+    /**
+     * Get the value of this variable; delegating to parent.
+     *
+     * @param name The name of the variable
+     */
+    void remove(String name);
 
     /**
      * Check if this variable exists, delegating to parent.
