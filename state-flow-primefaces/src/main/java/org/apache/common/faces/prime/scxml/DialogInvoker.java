@@ -109,6 +109,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
     @Override
     public void invoke(final InvokeContext ictx, String source, final Map params) throws InvokerException {
+        StateFlowHandler handler = StateFlowHandler.getInstance();
         try {
             FacesContext context = FacesContext.getCurrentInstance();
             Map<String, String> requestParams = context.getExternalContext().getRequestParameterMap();
@@ -315,6 +316,9 @@ public class DialogInvoker implements Invoker, Serializable {
                 Context rootContext = executor.getRootContext();
                 rootContext.setLocal(FACES_VIEW_STATE, viewState);
             }
+            
+            handler.pushRootExecutor(context, executor, viewId);
+
             resolved = false;
             executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
         } catch (InvokerException ex) {
@@ -446,6 +450,10 @@ public class DialogInvoker implements Invoker, Serializable {
         PrimeFaces.current().executeScript(sb.toString());
         sb.setLength(0);
         executor.getRootContext().getVars().remove(CURRENT_INVOKED_VIEW_ID, viewId);
+        
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        handler.popRootExecutor(context, executor, viewId);
+        
     }
 
 }
