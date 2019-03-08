@@ -510,7 +510,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     @Override
     public void close(FacesContext context, SCXMLExecutor executor) {
         FlowDeque fs = getFlowDeque(context, false);
-        if(fs == null) {
+        if (fs == null) {
             return;
         }
 
@@ -524,7 +524,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         if (executor != null) {
             close(context, fs, executor);
         }
-        
+
         if (stack.isEmpty()) {
             if (executors.isEmpty()) {
                 closeFlowDeque(context);
@@ -540,20 +540,20 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         Stack<String> stack = fs.getRoots();
         Map<String, SCXMLExecutor> executors = fs.getExecutors();
 
-        String executorId;
-        if (executor == null && !stack.isEmpty()) {
-            executorId = stack.peek();
-            executor = executors.get(executorId);
-        } else {
-            executorId = executor.getId();
-        }
+        String executorId = executor.getId();
 
         if (executor != null) {
             while (stack.contains(executorId)) {
                 String lastId = stack.pop();
                 if (!stack.contains(lastId)) {
-                    SCXMLExecutor last = executors.get(lastId);
-                    close(context, fs, last);
+                    if (executors.containsKey(lastId)) {
+                        SCXMLExecutor last = executors.get(lastId);
+                        close(context, fs, last);
+                    }
+
+                    if (executorId.equals(lastId)) {
+                        executor = null;
+                    }
                 }
             }
 
@@ -562,11 +562,13 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 executors.remove(executorId);
 
                 Map<String, List<String>> map = fs.getMap();
-                List<String> children = map.get(executorId);
-                for (String childId : children) {
-                    if(executors.containsKey(childId)) {
-                        SCXMLExecutor child = executors.get(childId);
-                        close(context, fs, child);
+                if (map.containsKey(executorId)) {
+                    List<String> children = map.get(executorId);
+                    for (String childId : children) {
+                        if (executors.containsKey(childId)) {
+                            SCXMLExecutor child = executors.get(childId);
+                            close(context, fs, child);
+                        }
                     }
                 }
             }
