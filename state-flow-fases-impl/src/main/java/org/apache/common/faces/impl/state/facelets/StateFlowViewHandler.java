@@ -9,13 +9,21 @@ package org.apache.common.faces.impl.state.facelets;
  * template in the editor.
  */
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.Set;
 import javax.faces.FacesException;
 import javax.faces.application.ViewHandler;
 import javax.faces.application.ViewHandlerWrapper;
+import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
+import javax.faces.component.visit.VisitContext;
+import javax.faces.component.visit.VisitHint;
+import javax.faces.component.visit.VisitResult;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
 import org.apache.common.faces.impl.state.config.StateWebConfiguration;
+import static org.apache.common.faces.impl.state.listener.StateFlowControllerListener.getControllerClientIds;
 import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.task.FacesProcessHolder;
@@ -25,6 +33,7 @@ import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.model.ModelException;
 import static org.apache.common.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
+import org.apache.common.faces.state.component.UIStateChartController;
 
 /**
  *
@@ -50,18 +59,19 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
     }
 
     @Override
-    public UIViewRoot restoreView(FacesContext context, String viewId) {
+    public UIViewRoot restoreView(FacesContext facesContext, String viewId) {
         //send multicast call event before view be restored for executors
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        if (handler.isActive(context)) {
 
-            String name = BEFORE_PHASE_EVENT_PREFIX
-                    + PhaseId.RESTORE_VIEW.getName().toLowerCase();
+        String name = BEFORE_PHASE_EVENT_PREFIX
+                + PhaseId.RESTORE_VIEW.getName().toLowerCase();
+
+        if (handler.isActive(facesContext)) {
 
             EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
                     .sendId(viewId);
 
-            SCXMLExecutor executor = handler.getRootExecutor(context);
+            SCXMLExecutor executor = handler.getRootExecutor(facesContext);
             try {
                 executor.triggerEvent(eb.build());
             } catch (ModelException ex) {
@@ -69,18 +79,57 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
             }
 
             if (!executor.isRunning()) {
-                handler.close(context, executor);
+                handler.close(facesContext, executor);
             }
 
         }
-        return super.restoreView(context, viewId);
+        UIViewRoot viewRoot = super.restoreView(facesContext, viewId);
+
+        ArrayList<String> clientIds = getControllerClientIds(facesContext);
+        if (clientIds != null && !clientIds.isEmpty()) {
+            Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
+            VisitContext visitContext = VisitContext.createVisitContext(facesContext, clientIds, hints);
+            viewRoot.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
+                if (target instanceof UIStateChartController) {
+                    UIStateChartController controller = (UIStateChartController) target;
+                    String controllerId = controller.getClientId(facesContext);
+
+                    EventBuilder veb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
+                            .sendId(viewRoot.getViewId());
+
+                    SCXMLExecutor executor = controller.getRootExecutor(facesContext);
+                    if (executor != null) {
+                        try {
+                            executor.triggerEvent(veb.build());
+                        } catch (ModelException ex) {
+                            throw new FacesException(ex);
+                        }
+
+                        if (!executor.isRunning()) {
+                            handler.close(facesContext, executor);
+                        }
+                    }
+
+                }
+                return VisitResult.ACCEPT;
+            });
+        }
+
+        SCXMLExecutor executor = handler.getRootExecutor(facesContext);
+
+        if (executor != null && !executor.isRunning()) {
+            handler.close(facesContext, executor);
+        }
+
+        return viewRoot;
+
     }
 
     @Override
-    public void renderView(FacesContext context, UIViewRoot viewRoot) throws IOException, FacesException {
+    public void renderView(FacesContext facesContext, UIViewRoot viewRoot) throws IOException, FacesException {
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        if (!context.getResponseComplete() && viewRoot != null && handler.isActive(context)) {
-            SCXMLExecutor executor = handler.getRootExecutor(context);
+        if (!facesContext.getResponseComplete() && viewRoot != null && handler.isActive(facesContext)) {
+            SCXMLExecutor executor = handler.getRootExecutor(facesContext);
             try {
                 EventDispatcher ed = executor.getEventdispatcher();
                 if (ed instanceof FacesProcessHolder) {
@@ -89,19 +138,55 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
                             .sendId(viewRoot.getViewId());
 
                     executor.triggerEvent(deb.build());
-                    ((FacesProcessHolder) ed).encodeBegin(context);
-                    ((FacesProcessHolder) ed).encodeEnd(context);
+                    ((FacesProcessHolder) ed).encodeBegin(facesContext);
+                    ((FacesProcessHolder) ed).encodeEnd(facesContext);
                 }
             } catch (ModelException ex) {
                 throw new FacesException(ex);
             }
 
             if (!executor.isRunning()) {
-                handler.close(context, executor);
+                handler.close(facesContext, executor);
             }
-            
+
         }
-        super.renderView(context, viewRoot);
+
+        ArrayList<String> clientIds = getControllerClientIds(facesContext);
+        if (clientIds != null && !clientIds.isEmpty()) {
+            Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
+            VisitContext visitContext = VisitContext.createVisitContext(facesContext, clientIds, hints);
+            viewRoot.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
+                if (target instanceof UIStateChartController) {
+                    UIStateChartController controller = (UIStateChartController) target;
+                    String controllerId = controller.getClientId(facesContext);
+
+                    EventBuilder veb = new EventBuilder(ENCODE_DISPATCHER_EVENTS, TriggerEvent.CALL_EVENT)
+                            .sendId(viewRoot.getViewId());
+
+                    SCXMLExecutor executor = controller.getRootExecutor(facesContext);
+                    if (executor != null) {
+                        try {
+                            EventDispatcher ed = executor.getEventdispatcher();
+                            if (ed instanceof FacesProcessHolder) {
+                                executor.triggerEvent(veb.build());
+                                ((FacesProcessHolder) ed).encodeBegin(facesContext);
+                                ((FacesProcessHolder) ed).encodeEnd(facesContext);
+                            }
+                        } catch (ModelException | IOException ex) {
+                            throw new FacesException(ex);
+                        }
+
+                        if (!executor.isRunning()) {
+                            handler.close(facesContext, executor);
+                        }
+                    }
+
+                }
+                return VisitResult.ACCEPT;
+            });
+        }
+
+        super.renderView(facesContext, viewRoot);
     }
 
     @Override

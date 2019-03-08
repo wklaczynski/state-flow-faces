@@ -58,11 +58,11 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
     protected static final Logger log = SCXMLLogger.SCXML.getLogger();
 
     /**
-     * The identifier of this executor instance.
-     * For backwards compatibility this is also the name.
+     * The identifier of this executor instance. For backwards compatibility
+     * this is also the name.
      */
     private String id;
-    
+
     /**
      * Parent SCXMLIOProcessor
      */
@@ -85,6 +85,7 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
 
     /**
      * Convenience constructor.
+     *
      * @param id
      */
     public SCXMLExecutor(String id) {
@@ -151,7 +152,17 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
     public final String getId() {
         return id;
     }
-    
+
+    /**
+     * Get the id.
+     *
+     * @return String An identifier.
+     */
+    @Override
+    public final String getClientId() {
+        return parentSCXMLIOProcessor == null ? id : parentSCXMLIOProcessor.getClientId() + ":" + id;
+    }
+
     /**
      * @return the parent SCXMLIOProcessor (if any)
      */
@@ -169,8 +180,8 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
     }
 
     /**
-     * @return the (optionally) &lt;donedata/&rt; produced data after
-     * the current statemachine completed its execution.
+     * @return the (optionally) &lt;donedata/&rt; produced data after the
+     * current statemachine completed its execution.
      */
     public Object getFinalDoneData() {
         return getGlobalContext().getSystemContext().getPlatformVariables().get(SCXMLSystemContext.FINAL_DONE_DATA_KEY);
@@ -520,8 +531,7 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
 
     /**
      *
-     * @return
-     * @throws ModelException
+     * @return @throws ModelException
      */
     public Thread run() throws ModelException {
         return run(Collections.emptyMap());

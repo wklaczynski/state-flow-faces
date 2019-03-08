@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.FacesException;
@@ -109,7 +110,7 @@ public class StateFlowPhaseListener implements PhaseListener {
                         String controllerId = controller.getClientId(facesContext);
 
                         EventBuilder veb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
-                                .sendId(controllerId);
+                                .sendId(viewRoot.getViewId());
 
                         SCXMLExecutor executor = controller.getRootExecutor(facesContext);
                         if (executor != null) {
@@ -151,8 +152,9 @@ public class StateFlowPhaseListener implements PhaseListener {
                 String name = BEFORE_PHASE_EVENT_PREFIX
                         + event.getPhaseId().getName().toLowerCase();
 
+                StateFlow.initViewContext(facesContext);
+
                 if (handler.isActive(facesContext)) {
-                    StateFlow.initViewContext(facesContext);
 
                     EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
                             .sendId(viewRoot.getViewId());
@@ -184,6 +186,7 @@ public class StateFlowPhaseListener implements PhaseListener {
                     if (!executor.isRunning()) {
                         handler.close(facesContext, executor);
                     }
+
                 }
 
                 ArrayList<String> clientIds = getControllerClientIds(facesContext);
@@ -195,15 +198,34 @@ public class StateFlowPhaseListener implements PhaseListener {
                             UIStateChartController controller = (UIStateChartController) target;
                             String controllerId = controller.getClientId(facesContext);
 
-                            EventBuilder veb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
-                                    .sendId(controllerId);
+                            EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
+                                    .sendId(viewRoot.getViewId());
 
                             SCXMLExecutor executor = controller.getRootExecutor(facesContext);
                             if (executor != null) {
                                 try {
-                                    executor.triggerEvent(veb.build());
+                                    executor.triggerEvent(eb.build());
                                 } catch (ModelException ex) {
                                     throw new FacesException(ex);
+                                }
+
+                                if (event.getPhaseId() == PhaseId.APPLY_REQUEST_VALUES
+                                        && !facesContext.getResponseComplete()) {
+                                    
+                                    EventDispatcher ed = executor.getEventdispatcher();
+                                    if (ed instanceof FacesProcessHolder) {
+                                        try {
+                                            EventBuilder eeb = new EventBuilder(
+                                                    DECODE_DISPATCHER_EVENTS,
+                                                    TriggerEvent.CALL_EVENT)
+                                                    .sendId(viewRoot.getViewId());
+
+                                            executor.triggerEvent(eeb.build());
+                                            ((FacesProcessHolder) ed).processDecodes(facesContext);
+                                        } catch (ModelException ex) {
+                                            throw new FacesException(ex);
+                                        }
+                                    }
                                 }
 
                                 if (!executor.isRunning()) {
@@ -214,6 +236,8 @@ public class StateFlowPhaseListener implements PhaseListener {
                         return VisitResult.ACCEPT;
                     });
                 }
+
+                StateFlow.resolveViewContext(facesContext);
 
             } else if (event.getPhaseId() == PhaseId.APPLY_REQUEST_VALUES
                     && !facesContext.getResponseComplete()) {
@@ -314,7 +338,8 @@ public class StateFlowPhaseListener implements PhaseListener {
 
             String viewId = currentViewRoot.getViewId();
 
-            SCXMLExecutor executor = flowHandler.createRootExecutor(viewId, context, stateFlow);
+            String executorId = UUID.randomUUID().toString();
+            SCXMLExecutor executor = flowHandler.createRootExecutor(executorId, context, stateFlow);
 
             flowHandler.execute(context, executor, params);
             UIViewRoot result = context.getViewRoot();

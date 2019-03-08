@@ -239,23 +239,25 @@ public class StateFlow {
      * @param context
      */
     public static final void initViewContext(FacesContext context) {
+        ArrayDeque<StateFlowViewContext> executorELStack = getExecutorStack(context);
+        executorELStack.clear();
+        resolveViewContext(context);
+    }
+
+    public static final void setViewContext(FacesContext context, String viewId, StateFlowViewContext viewContext) {
+        context.getAttributes().put(VIEW_INVOKE_CONTEXT.get(viewId), viewContext);
+        resolveViewContext(context);
+    }
+
+    public static final void resolveViewContext(FacesContext context) {
         UIViewRoot viewRoot = context.getViewRoot();
         StateFlowHandler handler = StateFlowHandler.getInstance();
         if (viewRoot != null && handler.isActive(context)) {
             StateFlowViewContext viewContext = (StateFlowViewContext) context.getAttributes()
                     .get(VIEW_INVOKE_CONTEXT.get(viewRoot.getViewId()));
 
-            Map<Object, Object> contextAttributes = context.getAttributes();
-            ArrayDeque<StateFlowViewContext> executorELStack = getExecutorStack(CURRENT_EXECUTOR_STACK_KEY,
-                    contextAttributes);
-
-            executorELStack.clear();
-
             if (viewContext != null) {
-                executorELStack.push(viewContext);
                 initCurrentViewContext(context, viewContext);
-            } else {
-                clearCurrentViewContext(context);
             }
         }
     }
@@ -294,9 +296,7 @@ public class StateFlow {
             viewContext = new StateFlowViewContext(path, root, ctx);
         }
 
-        Map<Object, Object> contextAttributes = context.getAttributes();
-        ArrayDeque<StateFlowViewContext> executorELStack = getExecutorStack(CURRENT_EXECUTOR_STACK_KEY,
-                contextAttributes);
+        ArrayDeque<StateFlowViewContext> executorELStack = getExecutorStack(context);
 
         executorELStack.push(viewContext);
         initCurrentViewContext(context, viewContext);
@@ -307,28 +307,27 @@ public class StateFlow {
         if (context == null) {
             throw new NullPointerException();
         }
-
-        Map<Object, Object> contextAttributes = context.getAttributes();
-        ArrayDeque<StateFlowViewContext> executorELStack = getExecutorStack(CURRENT_EXECUTOR_STACK_KEY,
-                contextAttributes);
+        
+        ArrayDeque<StateFlowViewContext> executorELStack = getExecutorStack(context);
 
         executorELStack.pop();
-
+        
         if (!executorELStack.isEmpty()) {
 
             StateFlowViewContext viewContext = executorELStack.peek();
             initCurrentViewContext(context, viewContext);
         } else {
-            clearCurrentViewContext(context);
+            resolveViewContext(context);
         }
     }
 
-    private static ArrayDeque<StateFlowViewContext> getExecutorStack(String keyName, Map<Object, Object> contextAttributes) {
-        ArrayDeque<StateFlowViewContext> elStack = (ArrayDeque<StateFlowViewContext>) contextAttributes.get(keyName);
+    private static ArrayDeque<StateFlowViewContext> getExecutorStack(FacesContext context) {
+        Map<Object, Object> contextAttributes = context.getAttributes();
+        ArrayDeque<StateFlowViewContext> elStack = (ArrayDeque<StateFlowViewContext>) contextAttributes.get(CURRENT_EXECUTOR_STACK_KEY);
 
         if (elStack == null) {
             elStack = new ArrayDeque<>();
-            contextAttributes.put(keyName, elStack);
+            contextAttributes.put(CURRENT_EXECUTOR_STACK_KEY, elStack);
         }
 
         return elStack;

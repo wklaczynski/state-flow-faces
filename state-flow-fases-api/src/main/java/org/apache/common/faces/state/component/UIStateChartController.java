@@ -16,10 +16,9 @@
 package org.apache.common.faces.state.component;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.el.ELContext;
+import java.util.UUID;
 import javax.faces.FacesException;
 import javax.faces.component.ActionSource;
 import javax.faces.component.NamingContainer;
@@ -34,7 +33,6 @@ import javax.faces.el.MethodBinding;
 import javax.faces.el.MethodNotFoundException;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
-import javax.faces.event.ComponentSystemEvent;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
@@ -73,7 +71,8 @@ public class UIStateChartController extends UIPanel {
         name,
         required,
         flowQueue,
-        facetId
+        facetId,
+        executorId
     }
 
     /**
@@ -92,7 +91,7 @@ public class UIStateChartController extends UIPanel {
         return COMPONENT_FAMILY;
     }
 
-    public java.lang.String getName() {
+    public String getName() {
         return (java.lang.String) getStateHelper().eval(PropertyKeys.name, null);
     }
 
@@ -117,20 +116,17 @@ public class UIStateChartController extends UIPanel {
         getStateHelper().put(PropertyKeys.facetId, _facetId);
     }
 
+    public String getExecutorId() {
+        return (java.lang.String) getStateHelper().eval(PropertyKeys.executorId, null);
+    }
+
+    public void setExecutorId(java.lang.String _executorId) {
+        getStateHelper().put(PropertyKeys.executorId, _executorId);
+    }
+
     public String getPath(FacesContext context) {
         String path = context.getViewRoot().getViewId() + "!" + getClientId(context);
         return path;
-    }
-
-    public String getExecutorId(FacesContext context) {
-
-        if (context == null) {
-            throw new NullPointerException();
-        }
-
-        String executorId = context.getViewRoot().getViewId() + "!" + getClientId(context);
-
-        return executorId;
     }
 
     public boolean processAction(ActionEvent event) throws AbortProcessingException {
@@ -139,7 +135,7 @@ public class UIStateChartController extends UIPanel {
         FacesContext context = FacesContext.getCurrentInstance();
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
-        String executorId = getExecutorId(context);
+        String executorId = getExecutorId();
         SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
         if (executor == null) {
             return false;
@@ -203,7 +199,7 @@ public class UIStateChartController extends UIPanel {
 
     private void pushExecutor(FacesContext context) {
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        String executorId = getExecutorId(context);
+        String executorId = getExecutorId();
         SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
         if (executor != null) {
             StateFlow.pushExecutorToEL(context, executor, getPath(context));
@@ -212,7 +208,7 @@ public class UIStateChartController extends UIPanel {
 
     private void popExecutor(FacesContext context) {
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        String executorId = getExecutorId(context);
+        String executorId = getExecutorId();
         SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
         if (executor != null) {
             StateFlow.popExecutorFromEL(context);
@@ -244,10 +240,11 @@ public class UIStateChartController extends UIPanel {
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
-        String executorId = getExecutorId(context);
-        SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
+        SCXMLExecutor executor = null;
+        String executorId = getExecutorId();
 
-        if (executor == null) {
+        if (executorId == null) {
+            executorId = UUID.randomUUID().toString();
             SCXML stateMachine = findStateMachine(context, getName());
             if (stateMachine != null) {
                 try {
@@ -262,26 +259,36 @@ public class UIStateChartController extends UIPanel {
                 }
                 context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
 
+                setExecutorId(executorId);
                 Map<String, Object> params = getParamsMap();
                 handler.execute(context, executor, params, true);
             }
-        }
-        UIComponent renderComponent = getCurentRenderComponent(context);
-        if (renderComponent != null) {
-            StateFlow.pushExecutorToEL(context, executor, getPath(context));
-            try {
-                renderComponent.encodeAll(context);
-            } finally {
-                StateFlow.popExecutorFromEL(context);
-            }
+        } else {
+            executor = handler.getRootExecutor(context, executorId);
         }
 
+        if (executor != null) {
+            UIComponent renderComponent = getCurentRenderComponent(context);
+            if (renderComponent != null) {
+                StateFlow.pushExecutorToEL(context, executor, getPath(context));
+                try {
+                    renderComponent.encodeAll(context);
+                } finally {
+                    StateFlow.popExecutorFromEL(context);
+                }
+            }
+        }
         super.encodeEnd(context);
     }
 
     @Override
     public boolean visitTree(VisitContext context, VisitCallback callback) {
         FacesContext fc = context.getFacesContext();
+        String executorId = getExecutorId();
+        if(executorId == null) {
+            return super.visitTree(context, callback);
+        }
+        
         pushExecutor(fc);
         try {
             return super.visitTree(context, callback);
@@ -340,6 +347,31 @@ public class UIStateChartController extends UIPanel {
         }
     }
 
+    @Override
+    public void restoreState(FacesContext context, Object state) {
+        super.restoreState(context, state);
+
+//        StateFlowHandler handler = StateFlowHandler.getInstance();
+//
+//        String name = BEFORE_PHASE_EVENT_PREFIX
+//                + PhaseId.RESTORE_VIEW.getName().toLowerCase();
+//
+//        SCXMLExecutor executor = getRootExecutor(context);
+//        if (executor != null) {
+//            EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
+//                    .sendId(context.getViewRoot().getViewId());
+//            try {
+//                executor.triggerEvent(eb.build());
+//            } catch (ModelException ex) {
+//                throw new FacesException(ex);
+//            }
+//
+//            if (!executor.isRunning()) {
+//                handler.close(context, executor);
+//            }
+//        }
+    }
+
     public UIComponent getCurentRenderComponent(FacesContext context) {
         if (curentRenderComponent == null) {
             String facetId = getFacetId();
@@ -392,7 +424,7 @@ public class UIStateChartController extends UIPanel {
     public SCXMLExecutor getRootExecutor(FacesContext context) {
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
-        String executorId = getExecutorId(context);
+        String executorId = getExecutorId();
         SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
         return executor;
     }

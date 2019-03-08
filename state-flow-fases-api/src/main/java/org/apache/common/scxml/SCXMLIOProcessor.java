@@ -28,6 +28,13 @@ public interface SCXMLIOProcessor {
      * @return String An identifier.
      */
     String getId();
+
+    /**
+     * Get the id.
+     *
+     * @return String An identifier.
+     */
+    String getClientId();
     
     /**
      * The name of the default SCXML I/O Event Processor

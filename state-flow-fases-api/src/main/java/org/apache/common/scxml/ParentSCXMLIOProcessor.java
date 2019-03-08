@@ -22,23 +22,23 @@ package org.apache.common.scxml;
  */
 public class ParentSCXMLIOProcessor implements SCXMLIOProcessor {
 
-    private SCXMLIOProcessor processor;
+    private SCXMLExecutor executor;
     private final String invokeId;
 
     /**
      *
-     * @param processor
+     * @param executor
      * @param invokeId
      */
-    public ParentSCXMLIOProcessor(final SCXMLIOProcessor processor, final String invokeId) {
-        this.processor = processor;
+    public ParentSCXMLIOProcessor(final SCXMLExecutor executor, final String invokeId) {
+        this.executor = executor;
         this.invokeId = invokeId;
     }
 
     @Override
     public synchronized void addEvent(final TriggerEvent event) {
-        if (processor != null) {
-            processor.addEvent(event);
+        if (executor != null) {
+            executor.addEvent(event);
         }
     }
 
@@ -49,7 +49,17 @@ public class ParentSCXMLIOProcessor implements SCXMLIOProcessor {
      */
     @Override
     public final String getId() {
-        return processor.getId();
+        return executor.getId();
+    }
+
+    /**
+     * Get the id.
+     *
+     * @return String An identifier.
+     */
+    @Override
+    public final String getClientId() {
+        return executor.getClientId();
     }
 
     /**
@@ -62,9 +72,17 @@ public class ParentSCXMLIOProcessor implements SCXMLIOProcessor {
 
     /**
      *
+     * @return
+     */
+    public SCXMLExecutor getExecutor() {
+        return executor;
+    }
+
+    /**
+     *
      */
     public synchronized void close() {
-        processor = null;
+        executor = null;
     }
 
     /**
@@ -72,6 +90,7 @@ public class ParentSCXMLIOProcessor implements SCXMLIOProcessor {
      * @return
      */
     public synchronized boolean isClosed() {
-        return processor == null;
+        return executor == null;
     }
+    
 }

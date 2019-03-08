@@ -78,6 +78,41 @@ public abstract class StateFlowHandler {
     /**
      *
      * @param context
+     * @param executor
+     */
+    public void pushRootExecutor(FacesContext context, SCXMLExecutor executor) {
+        pushRootExecutor(context, executor, null);
+    }
+
+    /**
+     *
+     * @param context
+     * @param executor
+     * @param viewId
+     */
+    public abstract void pushRootExecutor(FacesContext context, SCXMLExecutor executor, String viewId);
+
+    /**
+     *
+     * @param context
+     * @param executor
+     */
+    public void popRootExecutor(FacesContext context, SCXMLExecutor executor) {
+        pushRootExecutor(context, executor, null);
+    }
+
+    /**
+     *
+     * @param context
+     * @param executor
+     * @param viewId
+     */
+    public abstract void popRootExecutor(FacesContext context, SCXMLExecutor executor, String viewId);
+
+    
+    /**
+     *
+     * @param context
      * @return
      */
     public abstract boolean isActive(FacesContext context);

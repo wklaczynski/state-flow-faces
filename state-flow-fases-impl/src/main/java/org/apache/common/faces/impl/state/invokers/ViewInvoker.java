@@ -59,11 +59,11 @@ import static org.apache.common.faces.state.StateFlow.BEFORE_APPLY_REQUEST_VALUE
 import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
+import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.StateFlowViewContext;
 import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.InvokeContext;
 import org.apache.common.scxml.model.ModelException;
-import static org.apache.common.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -139,6 +139,7 @@ public class ViewInvoker implements Invoker, Serializable {
     @Override
     public void invoke(final InvokeContext ictx, String source, final Map<String, Object> params) throws InvokerException {
         FacesContext context = FacesContext.getCurrentInstance();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
         boolean oldProcessingEvents = context.isProcessingEvents();
         try {
             context.setProcessingEvents(false);
@@ -240,6 +241,8 @@ public class ViewInvoker implements Invoker, Serializable {
                 viewState = null;
             }
 
+            handler.pushRootExecutor(context, executor, viewId);
+            
             UIViewRoot currentViewRoot = context.getViewRoot();
             if (currentViewRoot != null) {
                 String currentViewId = currentViewRoot.getViewId();
@@ -448,9 +451,8 @@ public class ViewInvoker implements Invoker, Serializable {
                         try {
                             StateFlowViewContext viewContext = new StateFlowViewContext(
                                     invokeId, executor, ictx.getContext());
-                            context.getAttributes().put(
-                                    VIEW_INVOKE_CONTEXT.get(viewId), viewContext);
-
+                            
+                            StateFlow.setViewContext(context, viewId, viewContext);
                         } catch (ModelException ex) {
                             throw new InvokerException(ex);
                         }

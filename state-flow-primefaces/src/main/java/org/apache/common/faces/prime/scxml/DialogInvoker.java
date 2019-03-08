@@ -32,7 +32,6 @@ import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.FACES_VIEW_STATE;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
-import static org.apache.common.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.StateFlowViewContext;
 import org.apache.common.faces.state.annotation.StateChartInvoker;
@@ -349,9 +348,8 @@ public class DialogInvoker implements Invoker, Serializable {
                     try {
                         StateFlowViewContext viewContext = new StateFlowViewContext(
                                 invokeId, executor, ictx.getContext());
-                        context.getAttributes().put(
-                                VIEW_INVOKE_CONTEXT.get(viewId), viewContext);
 
+                        StateFlow.setViewContext(context, viewId, viewContext);
                     } catch (ModelException ex) {
                         throw new InvokerException(ex);
                     }
@@ -379,8 +377,7 @@ public class DialogInvoker implements Invoker, Serializable {
                     try {
                         StateFlowViewContext viewContext = new StateFlowViewContext(
                                 invokeId, executor, ictx.getContext());
-                        context.getAttributes().put(
-                                VIEW_INVOKE_CONTEXT.get(viewId), viewContext);
+                        StateFlow.setViewContext(context, viewId, viewContext);
                     } catch (ModelException ex) {
                         throw new InvokerException(ex);
                     }

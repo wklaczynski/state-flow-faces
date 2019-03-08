@@ -37,7 +37,6 @@ import javax.faces.render.RenderKit;
 import javax.faces.render.ResponseStateManager;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
-import org.apache.common.faces.impl.state.StateFlowParams;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
@@ -50,7 +49,6 @@ import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
-import static org.apache.common.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 import org.apache.common.faces.state.StateFlowViewContext;
 import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.InvokeContext;
@@ -144,7 +142,6 @@ public class FacetInvoker implements Invoker, Serializable {
             controllerId = (String) sctx.get(UIStateChartController.COMPONENT_ID);
             viewId = (String) sctx.get(UIStateChartController.VIEW_ID);
             path = viewId + "!" + controllerId;
-            
 
             reqparams = new HashMap<>();
             Map<String, Object> options = new HashMap();
@@ -223,8 +220,7 @@ public class FacetInvoker implements Invoker, Serializable {
                     StateFlowViewContext viewContext = new StateFlowViewContext(
                             invokeId, executor, ictx.getContext());
 
-                    context.getAttributes().put(
-                            VIEW_INVOKE_CONTEXT.get(path), viewContext);
+                    StateFlow.setViewContext(context, path, viewContext);
 
                     return;
                 }
@@ -239,7 +235,7 @@ public class FacetInvoker implements Invoker, Serializable {
                 if (viewState != null) {
                     rootContext.setLocal(FACES_VIEW_STATE, viewState);
                 }
-                rootContext.setLocal(RENDER_FACET_SRC, viewState);
+                rootContext.setLocal(RENDER_FACET_SRC, source);
 
                 Application application = context.getApplication();
                 ViewHandler viewHandler = application.getViewHandler();
@@ -302,8 +298,7 @@ public class FacetInvoker implements Invoker, Serializable {
             StateFlowViewContext viewContext = new StateFlowViewContext(
                     invokeId, executor, ictx.getContext());
 
-            context.getAttributes().put(
-                    VIEW_INVOKE_CONTEXT.get(path), viewContext);
+            StateFlow.setViewContext(context, path, viewContext);
 
             executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
         } catch (Throwable ex) {
@@ -408,22 +403,22 @@ public class FacetInvoker implements Invoker, Serializable {
                         try {
                             StateFlowViewContext viewContext = new StateFlowViewContext(
                                     invokeId, executor, ictx.getContext());
-                            context.getAttributes().put(
-                                    VIEW_INVOKE_CONTEXT.get(path), viewContext);
 
+                            StateFlow.setViewContext(context, path, viewContext);
                         } catch (ModelException ex) {
                             throw new InvokerException(ex);
                         }
                     }
-
                 }
 
                 if (event.getName().startsWith(AFTER_RESTORE_VIEW)) {
                     if (viewRoot != null) {
                         Context rctx = executor.getRootContext();
                         String source = (String) rctx.get(RENDER_FACET_SRC);
-                        setRenderFacet(context, viewRoot, source);
-                        rctx.getVars().remove(RENDER_FACET_SRC);
+                        if (source != null) {
+                            setRenderFacet(context, viewRoot, source);
+                            rctx.getVars().remove(RENDER_FACET_SRC);
+                        }
                     }
 
                 }
