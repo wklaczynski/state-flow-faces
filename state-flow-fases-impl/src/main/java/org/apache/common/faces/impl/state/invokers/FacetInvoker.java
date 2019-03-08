@@ -229,8 +229,8 @@ public class FacetInvoker implements Invoker, Serializable {
             ViewHandler vh = context.getApplication().getViewHandler();
             PartialViewContext pvc = context.getPartialViewContext();
             if (redirect || (pvc != null && pvc.isAjaxRequest())) {
-                Flash flash = ec.getFlash();
-                flash.setKeepMessages(true);
+                //Flash flash = ec.getFlash();
+                //flash.setKeepMessages(true);
                 Context rootContext = executor.getRootContext();
                 if (viewState != null) {
                     rootContext.setLocal(FACES_VIEW_STATE, viewState);
@@ -241,7 +241,7 @@ public class FacetInvoker implements Invoker, Serializable {
                 ViewHandler viewHandler = application.getViewHandler();
                 String url = viewHandler.getRedirectURL(context, viewId, reqparams, false);
                 clearViewMapIfNecessary(context.getViewRoot(), viewId);
-                flash.setRedirect(true);
+                //flash.setRedirect(true);
                 updateRenderTargets(context, viewId);
                 ec.redirect(url);
 

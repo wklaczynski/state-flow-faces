@@ -254,8 +254,8 @@ public class ViewInvoker implements Invoker, Serializable {
 
             PartialViewContext pvc = context.getPartialViewContext();
             if (redirect || (pvc != null && pvc.isAjaxRequest())) {
-                Flash flash = ec.getFlash();
-                flash.setKeepMessages(true);
+                //Flash flash = ec.getFlash();
+                //flash.setKeepMessages(true);
                 if (viewState != null) {
                     Context rootContext = executor.getRootContext();
                     rootContext.setLocal(FACES_VIEW_STATE, viewState);
@@ -265,7 +265,7 @@ public class ViewInvoker implements Invoker, Serializable {
                 ViewHandler viewHandler = application.getViewHandler();
                 String url = viewHandler.getRedirectURL(context, viewId, reqparams, false);
                 clearViewMapIfNecessary(context.getViewRoot(), viewId);
-                flash.setRedirect(true);
+                //flash.setRedirect(true);
                 updateRenderTargets(context, viewId);
                 ec.redirect(url);
 
