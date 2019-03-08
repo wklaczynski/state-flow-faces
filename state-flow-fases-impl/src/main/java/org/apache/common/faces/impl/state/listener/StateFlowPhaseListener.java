@@ -248,11 +248,11 @@ public class StateFlowPhaseListener implements PhaseListener {
             }
         } else {
             StateFlowHandler handler = StateFlowHandler.getInstance();
-            if (handler.isActive(facesContext)) {
+            if (handler.isInWindow(facesContext)) {
                 Context ctx = handler.getFlowContext(facesContext);
                 Object lastViewState = ctx.get(FACES_VIEW_STATE);
-                ctx.removeLocal(FACES_VIEW_STATE);
                 if (lastViewState != null) {
+                    ctx.removeLocal(FACES_VIEW_STATE);
                     facesContext.getAttributes().put(FACES_VIEW_STATE, lastViewState);
                 }
             }
