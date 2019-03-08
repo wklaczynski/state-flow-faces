@@ -256,8 +256,22 @@ public class StateFlow {
             StateFlowViewContext viewContext = (StateFlowViewContext) context.getAttributes()
                     .get(VIEW_INVOKE_CONTEXT.get(viewRoot.getViewId()));
 
+            if (null == viewContext) {
+                clearCurrentViewContext(context);
+                SCXMLExecutor root = handler.getRootExecutor(context);
+
+                if (root == null) {
+                    throw new NullPointerException("StateFlowViewContext for \""
+                            + viewRoot.getViewId() + "\" mus be active!");
+                }
+                Context ctx = root.getRootContext();
+                viewContext = new StateFlowViewContext("", root, ctx);
+            }
+
             if (viewContext != null) {
                 initCurrentViewContext(context, viewContext);
+            } else {
+                clearCurrentViewContext(context);
             }
         }
     }
@@ -307,11 +321,11 @@ public class StateFlow {
         if (context == null) {
             throw new NullPointerException();
         }
-        
+
         ArrayDeque<StateFlowViewContext> executorELStack = getExecutorStack(context);
 
         executorELStack.pop();
-        
+
         if (!executorELStack.isEmpty()) {
 
             StateFlowViewContext viewContext = executorELStack.peek();
