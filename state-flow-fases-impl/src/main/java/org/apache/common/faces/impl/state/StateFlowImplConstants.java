@@ -59,6 +59,11 @@ public class StateFlowImplConstants {
     /**
      *
      */
+    public final static String STATE_CHART_AJAX_REDIRECT_PARAM_NAME = STATE_FLOW_PREFIX + "DEFAULT_AJAX_REDIRECT";
+
+    /**
+     *
+     */
     public final static String LOCAL_XPATH_RESOLVER = STATE_FLOW_PREFIX + "LOCAL_XPATH_RESOLVER";
 
     /**

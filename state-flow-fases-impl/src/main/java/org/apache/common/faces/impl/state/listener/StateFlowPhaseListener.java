@@ -15,7 +15,13 @@
  */
 package org.apache.common.faces.impl.state.listener;
 
+import com.sun.faces.context.StateContext;
+import com.sun.faces.facelets.tag.ui.UIDebug;
+import com.sun.faces.renderkit.RenderKitUtils;
 import static com.sun.faces.util.RequestStateManager.FACES_VIEW_STATE;
+import static com.sun.faces.util.Util.getStateManager;
+import static com.sun.faces.util.Util.notNull;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -27,8 +33,11 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.FacesException;
+import javax.faces.application.StateManager;
+import javax.faces.application.ViewHandler;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
+import static javax.faces.component.UIViewRoot.COMPONENT_TYPE;
 import javax.faces.component.visit.VisitContext;
 import javax.faces.component.visit.VisitHint;
 import javax.faces.component.visit.VisitResult;
@@ -37,6 +46,9 @@ import javax.faces.context.Flash;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
+import javax.faces.render.ResponseStateManager;
+import javax.faces.view.StateManagementStrategy;
+import javax.faces.view.ViewDeclarationLanguage;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.component.UIStateChartDefinition;
 import org.apache.common.faces.state.StateFlowHandler;
@@ -57,6 +69,7 @@ import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.model.ModelException;
 import static org.apache.common.faces.state.StateFlow.DECODE_DISPATCHER_EVENTS;
 import org.apache.common.faces.state.component.UIStateChartController;
+import org.apache.common.scxml.invoke.InvokerException;
 
 /**
  *
@@ -252,11 +265,80 @@ public class StateFlowPhaseListener implements PhaseListener {
                 Context ctx = handler.getFlowContext(facesContext);
                 Object lastViewState = ctx.get(FACES_VIEW_STATE);
                 if (lastViewState != null) {
-                    ctx.removeLocal(FACES_VIEW_STATE);
-                    facesContext.getAttributes().put(FACES_VIEW_STATE, lastViewState);
+                    try {
+                        ctx.removeLocal(FACES_VIEW_STATE);
+                        if (!facesContext.isPostback()) {
+                            facesContext.getAttributes().put(FACES_VIEW_STATE, lastViewState);
+                            String viewId = facesContext.getExternalContext().getRequestPathInfo();
+                            UIViewRoot viewRoot = restoreView(facesContext, viewId);
+                            facesContext.setViewRoot(viewRoot);
+                        }
+                    } catch (Throwable ex) {
+                        throw new FacesException(ex);
+                    }
+
                 }
             }
         }
+    }
+
+    public UIViewRoot restoreView(FacesContext context, String viewId) {
+        UIViewRoot viewRoot;
+
+        ViewHandler vh = context.getApplication().getViewHandler();
+
+        /*
+         * Check if we are stateless.
+         */
+        ViewHandler outerViewHandler = context.getApplication().getViewHandler();
+        String renderKitId = outerViewHandler.calculateRenderKitId(context);
+        ResponseStateManager rsm;
+
+        if (StateContext.getStateContext(context).isPartialStateSaving(context, viewId)) {
+            try {
+                context.setProcessingEvents(false);
+                ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(context, viewId);
+                viewRoot = vdl.getViewMetadata(context, viewId).createMetadataView(context);
+                context.setViewRoot(viewRoot);
+                outerViewHandler = context.getApplication().getViewHandler();
+                renderKitId = outerViewHandler.calculateRenderKitId(context);
+                rsm = RenderKitUtils.getResponseStateManager(context, renderKitId);
+                Object[] rawState = (Object[]) rsm.getState(context, viewId);
+
+                if (rawState != null) {
+                    Map<String, Object> state = (Map<String, Object>) rawState[1];
+                    if (state != null) {
+                        String cid = viewRoot.getClientId(context);
+                        Object stateObj = state.get(cid);
+                        if (stateObj != null) {
+                            context.getAttributes().put("com.sun.faces.application.view.restoreViewScopeOnly", true);
+                            viewRoot.restoreState(context, stateObj);
+                            context.getAttributes().remove("com.sun.faces.application.view.restoreViewScopeOnly");
+                        }
+                    }
+                }
+
+                context.setProcessingEvents(true);
+                vdl.buildView(context, viewRoot);
+            } catch (IOException ioe) {
+                throw new FacesException(ioe);
+            }
+        }
+
+        
+        StateManager stateManager = context.getApplication().getStateManager();
+            
+        UIViewRoot root = stateManager.restoreView(context, viewId, renderKitId);
+        
+        
+        ViewHandler viewHandler = context.getApplication().getViewHandler();
+        ViewDeclarationLanguage vdl = viewHandler.getViewDeclarationLanguage(context, viewId);
+        context.setResourceLibraryContracts(vdl.calculateResourceLibraryContracts(context, viewId));
+
+        StateContext stateCtx = StateContext.getStateContext(context);
+        stateCtx.startTrackViewModifications(context, root);
+
+        return root;
     }
 
     @Override

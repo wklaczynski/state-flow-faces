@@ -37,6 +37,7 @@ import javax.faces.render.RenderKit;
 import javax.faces.render.ResponseStateManager;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
+import org.apache.common.faces.impl.state.StateFlowParams;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
@@ -161,14 +162,11 @@ public class FacetInvoker implements Invoker, Serializable {
                     }
                 }
                 if (skey.startsWith("@facet.param.")) {
-                    skey = skey.substring(12);
+                    skey = skey.substring(13);
                     options.put(skey, value.toString());
                 } else if (skey.startsWith("@redirect.param.")) {
                     skey = skey.substring(16);
                     reqparams.put(skey, Collections.singletonList(value.toString()));
-                } else if (skey.startsWith("@view.param.")) {
-                    skey = skey.substring(12);
-                    options.put(skey, value.toString());
                 } else if (value != null) {
                     facetparams.put(skey, value.toString());
                 }
@@ -229,8 +227,10 @@ public class FacetInvoker implements Invoker, Serializable {
             }
 
             ViewHandler vh = context.getApplication().getViewHandler();
+
+            boolean ajaxr = StateFlowParams.isDefaultAjaxRedirect();
             PartialViewContext pvc = context.getPartialViewContext();
-            if (redirect || (pvc != null && pvc.isAjaxRequest())) {
+            if ((redirect || (pvc != null && ajaxr && pvc.isAjaxRequest()))) {
                 //Flash flash = ec.getFlash();
                 //flash.setKeepMessages(true);
                 if (viewState != null) {
@@ -303,6 +303,10 @@ public class FacetInvoker implements Invoker, Serializable {
 
             StateFlow.setViewContext(context, path, viewContext);
 
+            if((pvc != null && pvc.isAjaxRequest())) {
+                pvc.setRenderAll(true);
+            }
+            
             executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
         } catch (Throwable ex) {
             logger.log(Level.SEVERE, "Invoke failed", ex);
@@ -460,9 +464,6 @@ public class FacetInvoker implements Invoker, Serializable {
     public void cancel() throws InvokerException {
         cancelled = true;
         FacesContext context = FacesContext.getCurrentInstance();
-        UIComponent current = UIComponent.getCurrentComponent(context);
-        UIStateChartController controller = (UIStateChartController) current;
-        controller.setFacetId(facetId);
 
         UIViewRoot viewRoot = context.getViewRoot();
         if (viewRoot != null) {

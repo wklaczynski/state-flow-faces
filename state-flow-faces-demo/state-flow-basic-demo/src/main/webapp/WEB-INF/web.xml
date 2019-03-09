@@ -39,6 +39,13 @@
         <param-name>org.apache.faces.DEFAULT_VIEW_REDIRECT</param-name>
         <param-value>true</param-value>
     </context-param>
+
+    <!--If this parametr set "true", then view invoker default send redirect 
+    when is ajax request ane viw has be changed. Default is "false"-->
+    <context-param>
+        <param-name>org.apache.faces.DEFAULT_AJAX_REDIRECT</param-name>
+        <param-value>true</param-value>
+    </context-param>
             
     <!--Used for test only, alweys disable in production stage-->
     <!--Log all step and transition-->

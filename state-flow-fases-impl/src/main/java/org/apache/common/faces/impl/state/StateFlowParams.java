@@ -16,6 +16,7 @@
 package org.apache.common.faces.impl.state;
 
 import javax.faces.context.FacesContext;
+import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CHART_AJAX_REDIRECT_PARAM_NAME;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CHART_DEFAULT_PARAM_NAME;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CHART_REQUEST_PARAM_NAME;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CHART_VIEW_REDIRECT_PARAM_NAME;
@@ -45,6 +46,24 @@ public class StateFlowParams {
         return redirect;
     }
 
+    /**
+     *
+     * @return
+     */
+    public static boolean isDefaultAjaxRedirect() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        Boolean redirect = (Boolean) context.getExternalContext()
+                .getApplicationMap().get(STATE_CHART_AJAX_REDIRECT_PARAM_NAME);
+        if (redirect == null) {
+            StateWebConfiguration wcfg = StateWebConfiguration.getInstance();
+            String pname = wcfg.getOptionValue(STATE_CHART_AJAX_REDIRECT_PARAM_NAME, "false");
+            redirect = Boolean.parseBoolean(pname);
+            context.getExternalContext()
+                    .getApplicationMap().put(STATE_CHART_AJAX_REDIRECT_PARAM_NAME, redirect);
+        }
+        return redirect;
+    }
+    
     /**
      *
      * @return

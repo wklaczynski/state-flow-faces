@@ -40,15 +40,16 @@
                 </x:invoke>
                 <x:transition event="error.execution" target="error"/>
                 <x:transition event="view.action.cancel" target="cancel"/>
+                <x:transition event="view.action.view" target="view-process"/>
             </x:state>
 
-            <x:state id="step1">
-                <x:invoke type="view" src="@this">
-                </x:invoke>
-                <x:transition event="error.execution" target="error"/>
+            <x:state id="view-process">
+                <x:invoke type="view" src="ViewPage.xhtml"/>
+
                 <x:transition event="view.action.cancel" target="cancel"/>
+                <x:transition event="view.action.return" target="show"/>
             </x:state>
-            
+
 
             <x:state id="error"> 
                 <x:invoke type="scxml" src="/common/error.scxml"/>

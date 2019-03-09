@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Multiple State Flow Faces</title>
+        <h:outputStylesheet library="css" name="demo-style.css"  />
+    </h:head>
+    <h:body>
+        <h1>Portlet in flow test</h1>
+        <hr/>
+        <h:form>
+            <h:panelGroup>
+                <h3>Hello, I'm in test ui:component portlet process state chat this is basic proccess window</h3>
+                <p/>
+                Started state chart in ui:component process state.
+                <p/>
+                <h:panelGroup>
+                    <h:messages/> 
+                </h:panelGroup>
+                <h:panelGroup>
+                    <hr/>
+                    <h3>#{chart.title}</h3>
+                    Render simple without portlet.
+                    <hr/>
+                    <p/>
+                    <b>Used bean main:</b>
+                    <p/>\#{main.beanTitle} = <i>"#{main.beanTitle}"</i>
+                    <p/>\#{main.assignedTest1} = <i>"#{main.assignedTest1}"</i>
+                    <pre>This beans are in dialog scope. This beans can see data from parent and child execution.</pre>
+                    <p/><b>Used bean client:</b>
+                    <p/>"\#{currentState.beanTitle}" = <i>"#{currentState.beanTitle}"</i> 
+                    <p/>"\#{currentState.assignedTest1}" = <i>"#{currentState.assignedTest1}"</i> 
+                    <pre>This bean is in state scope in "@composite". This bean can not see data from parent targets not in the common composite state or parallel.</pre>
+                    <hr/>
+                </h:panelGroup>
+                <h:panelGroup id="asign-test">
+                    <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
+                        <h:commandButton action="return" value="Return ">
+                        </h:commandButton>
+                        <h:commandButton action="return" value="Return Ajax">
+                            <f:ajax render="@form"/>
+                        </h:commandButton>
+                    </h:panelGrid>
+                </h:panelGroup>
+                <h:panelGroup>
+                    <hr/>
+                </h:panelGroup>
+                <h:panelGroup id="navigation">
+                    <h:panelGroup layout="block" style=" text-align: left;">
+                        <h:panelGrid cellspacing="4" columns="5" style="bottom: 0px">
+                            <h:commandButton
+                                action="cancel"
+                                value="Cancel"
+                                immediate="false">
+                            </h:commandButton>
+
+                        </h:panelGrid>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </h:panelGroup>
+        </h:form>
+    </h:body>
+
+</html>
+

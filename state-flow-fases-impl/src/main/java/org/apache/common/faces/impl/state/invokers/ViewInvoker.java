@@ -251,9 +251,10 @@ public class ViewInvoker implements Invoker, Serializable {
                     return;
                 }
             }
-
+            
+            boolean ajaxr = StateFlowParams.isDefaultAjaxRedirect();
             PartialViewContext pvc = context.getPartialViewContext();
-            if (redirect || (pvc != null && pvc.isAjaxRequest())) {
+            if ((redirect || (pvc != null && ajaxr && pvc.isAjaxRequest()))) {
                 //Flash flash = ec.getFlash();
                 //flash.setKeepMessages(true);
                 if (viewState != null) {
@@ -317,6 +318,11 @@ public class ViewInvoker implements Invoker, Serializable {
                 context.setViewRoot(viewRoot);
                 context.renderResponse();
             }
+            
+            if((pvc != null && pvc.isAjaxRequest())) {
+                pvc.setRenderAll(true);
+            }
+            
             executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
 
         } catch (Throwable ex) {
