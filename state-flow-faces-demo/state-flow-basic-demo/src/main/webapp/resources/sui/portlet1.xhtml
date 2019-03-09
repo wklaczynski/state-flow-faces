@@ -10,6 +10,49 @@
     <cc:interface>
         <cc:attribute name="path" required="false"/>
         <cc:attribute name="caption" required="false"/>
+        
+        <x:scxml id="test" initial="start">
+
+            <x:datamodel>
+                <x:data id="title" expr="This chart is generated in ui:component scxml=other"/>
+                <x:data id="path"/>
+                <x:data id="caption"/>
+            </x:datamodel>
+
+            <x:state id="start">
+                <x:onentry>
+                    <x:assign location="#{currentState.assignedTest1}" expr="I'm Seting in other start"/>
+                    <x:assign location="#{main.assignedTest1}" expr="I'm Seting in other start"/>
+                </x:onentry>
+
+                <x:invoke type="view" src="pages/ViewPage.xhtml"/>
+
+                <x:transition event="view.action.cancel" target="cancel"/>
+                <x:transition event="view.action.return" target="return"/>
+                <x:transition event="view.action.start-again" target="start-again"/>
+            </x:state>
+
+            <x:final id="cancel">
+                <x:donedata>
+                    <x:param name="back" expr="cancel"/>
+                </x:donedata>
+            </x:final>
+
+            <x:final id="return">
+                <x:donedata>
+                    <x:param name="back" expr="return"/>
+                </x:donedata>
+            </x:final>
+
+            <x:final id="start-again">
+                <x:donedata>
+                    <x:param name="back" expr="start"/>
+                </x:donedata>
+            </x:final>
+        </x:scxml>    
+        
+        
+        
     </cc:interface>
 
 
