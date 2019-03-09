@@ -200,7 +200,7 @@ To run the test, deploy "state-flow-basic-demo.war" or "state-flow-prime-demo.wa
 
 ## Roadmap
 
-Version 1.1 will have the ability to define flows in portlets as components of the facelets "ui: component". Displaying "guy" in invoke in the jsf component. Full support jsf 2.3.
+Version 1.1 will have the ability to define flows in portlets as components of the facelets "ui: component". Displaying "facet" in invoke in the jsf component. Full support jsf 2.3.
 
 ## Built With
 
