@@ -198,6 +198,10 @@ Srate Flow Faces are not available at Maven Central,  add the following reposito
 
 To run the test, deploy "state-flow-basic-demo.war" or "state-flow-prime-demo.war" on the server.
 
+## Roadmap
+
+Version 1.1 will have the ability to define flows in portlets as components of the facelets "ui: component". Displaying "guy" in invoke in the jsf component. Full support jsf 2.3.
+
 ## Built With
 
 * [JSF](http://www.oracle.com/technetwork/java/javaee/javaserverfaces-139869.html) - The Java Server Faces used 
