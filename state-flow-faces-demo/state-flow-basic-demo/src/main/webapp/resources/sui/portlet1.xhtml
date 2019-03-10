@@ -7,57 +7,7 @@
       xmlns:fx="http://xmlns.apache.org/faces/fxscxml"
       xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-    <cc:interface>
-        <cc:attribute name="path" required="false"/>
-        <cc:attribute name="caption" required="false"/>
-        
-        <x:scxml id="test" initial="start">
-
-            <x:datamodel>
-                <x:data id="title" expr="This chart is generated in ui:component scxml=other"/>
-                <x:data id="path"/>
-                <x:data id="caption"/>
-            </x:datamodel>
-
-            <x:state id="start">
-                <x:onentry>
-                    <x:assign location="#{currentState.assignedTest1}" expr="I'm Seting in other start"/>
-                    <x:assign location="#{main.assignedTest1}" expr="I'm Seting in other start"/>
-                </x:onentry>
-
-                <x:invoke type="view" src="pages/ViewPage.xhtml"/>
-
-                <x:transition event="view.action.cancel" target="cancel"/>
-                <x:transition event="view.action.return" target="return"/>
-                <x:transition event="view.action.start-again" target="start-again"/>
-            </x:state>
-
-            <x:final id="cancel">
-                <x:donedata>
-                    <x:param name="back" expr="cancel"/>
-                </x:donedata>
-            </x:final>
-
-            <x:final id="return">
-                <x:donedata>
-                    <x:param name="back" expr="return"/>
-                </x:donedata>
-            </x:final>
-
-            <x:final id="start-again">
-                <x:donedata>
-                    <x:param name="back" expr="start"/>
-                </x:donedata>
-            </x:final>
-        </x:scxml>    
-        
-        
-        
-    </cc:interface>
-
-
-    <cc:implementation>
-
+    <f:metadata>
         <x:scxml id="default" initial="start">
             <x:datamodel>
                 <x:data id="title" expr="This chart is generated in ui:component scxml=main"/>
@@ -82,7 +32,6 @@
                 <x:transition event="start.prepare.success" target="steps"/>
                 <x:transition event="start.prepare.failed" target="cancel"/>
             </x:state>
-
 
             <x:state id="steps">
                 <x:initial>
@@ -191,12 +140,15 @@
                 </x:donedata>
             </x:final>
         </x:scxml>    
+    </f:metadata>
 
-        
-        
-        
-        
-        
+    <cc:interface>
+        <cc:attribute name="path" required="false"/>
+        <cc:attribute name="caption" required="false"/>
+    </cc:interface>
+    
+    <cc:implementation>
+
         <fx:renderState name="default">
             <f:param name="path" value="#{cc.attrs.path}"/>
             <f:param name="caption" value="#{cc.attrs.caption}"/>
