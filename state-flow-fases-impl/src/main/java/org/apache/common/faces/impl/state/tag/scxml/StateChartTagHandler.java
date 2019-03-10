@@ -44,7 +44,6 @@ import javax.faces.view.facelets.TagException;
 import javax.faces.view.facelets.TagHandler;
 import org.apache.common.scxml.model.SCXML;
 import org.apache.common.faces.impl.state.StateFlowURLResolver;
-import org.apache.common.faces.state.component.UIStateChartController;
 import org.apache.common.faces.impl.state.el.VariableMapperWrapper;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.CURRENT_FLOW_OBJECT;

@@ -16,9 +16,7 @@
  */
 package org.apache.common.faces.impl.state.tag.faces;
 
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.ComponentConfig;
@@ -26,14 +24,15 @@ import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagException;
-import static org.apache.common.faces.state.StateFlow.CONTROLLER_SET_HINT;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
+import static org.apache.common.faces.state.component.UIStateChartController.SCXML_PATH_KEY;
 import org.apache.common.faces.state.component.UIStateChartDefinition;
 import org.apache.common.scxml.SCXMLConstants;
 import org.apache.common.scxml.model.CommonsSCXML;
 import org.apache.common.scxml.model.CustomAction;
 import org.apache.common.scxml.model.CustomActionWrapper;
 import org.apache.common.scxml.model.Var;
+import static org.apache.common.faces.impl.state.utils.Util.getScxmlPath;
 
 /**
  * The class in this SCXML object model that corresponds to the
@@ -130,8 +129,12 @@ public class RenderStateHandler extends ComponentHandler {
                 }
             }
         }
+        
+        String path = getScxmlPath(ctx, fc.getViewRoot());
+        c.getAttributes().put(SCXML_PATH_KEY, path);
+        
     }
-
+    
     // --------------------------------------------------------- Private Methods
     private void throwRequiredException(FaceletContext ctx,
             String name,

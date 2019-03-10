@@ -33,6 +33,7 @@ import javax.faces.el.MethodBinding;
 import javax.faces.el.MethodNotFoundException;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
+import javax.faces.view.Location;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
@@ -51,8 +52,11 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class UIStateChartController extends UIPanel {
 
+    
+    
     public static final String COMPONENT_ID = UIStateChartController.class.getName() + ":clientId";
     public static final String VIEW_ID = UIStateChartController.class.getName() + ":viewId";
+    public static final String SCXML_PATH_KEY = "javax.faces.component.SCXML_PATH_KEY";
 
     /**
      *
@@ -285,10 +289,10 @@ public class UIStateChartController extends UIPanel {
     public boolean visitTree(VisitContext context, VisitCallback callback) {
         FacesContext fc = context.getFacesContext();
         String executorId = getExecutorId();
-        if(executorId == null) {
+        if (executorId == null) {
             return super.visitTree(context, callback);
         }
-        
+
         pushExecutor(fc);
         try {
             return super.visitTree(context, callback);
@@ -393,32 +397,54 @@ public class UIStateChartController extends UIPanel {
         return null;
     }
 
-    public SCXML findStateMachine(FacesContext context, String nameValue) throws IOException {
-        UIComponent root = context.getViewRoot();
-        UIComponent stateContiner = null;
+    public SCXML findStateMachine(FacesContext context, String scxmlId) throws IOException {
 
         UIComponent compositeParent = UIComponent.getCurrentCompositeComponent(context);
         if (compositeParent != null) {
-            stateContiner = null;
-            Map<String, UIComponent> facetMap = compositeParent.getFacets();
-            UIComponent panel = facetMap.get(UIComponent.COMPOSITE_FACET_NAME);
-            if (panel.getFacetCount() > 0) {
-                stateContiner = panel.getFacets().get(STATECHART_FACET_NAME);
+            Location location = (Location) compositeParent.getAttributes()
+                    .get(UIComponent.VIEW_LOCATION_KEY);
+
+            String scxmlViewId = (String) getAttributes().get(SCXML_PATH_KEY);
+            
+            if (scxmlViewId == null) {
+                throw new IOException(String.format(
+                        location + " " +
+                        "Can not find scxml definition \"%s\" in controler\"%s\", "
+                        + "view location not found in composite component.",
+                        scxmlId,
+                        getClientId(context)));
+            }
+
+            try {
+
+                StateFlowHandler handler = StateFlowHandler.getInstance();
+                SCXML stateMachine = handler.createStateMachine(context, scxmlViewId, scxmlId);
+                return stateMachine;
+
+            } catch (ModelException ex) {
+                throw new IOException(String.format(
+                        location + " " +
+                        "Can not find scxml definition \"%s\" in controler\"%s\", throw model exception.",
+                        scxmlId,
+                        getClientId(context)),
+                        ex);
             }
         } else {
+            UIComponent root = context.getViewRoot();
+            UIComponent stateContiner = null;
             if (root.getFacetCount() > 0) {
                 stateContiner = root.getFacets().get(STATECHART_FACET_NAME);
             }
+            if (stateContiner == null && stateContiner.getChildCount() == 0) {
+                return null;
+            }
+
+            UIStateChartDefinition uichart = (UIStateChartDefinition) stateContiner.findComponent(scxmlId);
+
+            SCXML stateMachine = uichart.getStateChart();
+            return stateMachine;
         }
 
-        if (stateContiner == null && stateContiner.getChildCount() == 0) {
-            return null;
-        }
-
-        UIStateChartDefinition uichart = (UIStateChartDefinition) stateContiner.findComponent(nameValue);
-
-        SCXML stateChart = uichart.getStateChart();
-        return stateChart;
     }
 
     public SCXMLExecutor getRootExecutor(FacesContext context) {

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -35,7 +36,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.FacesException;
 import javax.faces.application.StateManager;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.faces.view.facelets.Facelet;
+import javax.faces.view.facelets.FaceletContext;
 import org.apache.common.faces.impl.state.StateFlowImplConstants;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 
@@ -364,5 +368,49 @@ public class Util {
         return c == ' ' || c == '\n' || c == '\t' || c == '\r';
     }
     
+    
+    private static String localPath(FacesContext context, String path) {
+        String base = context.getExternalContext().getRealPath("/").replace("\\","/");
+        String result = path.replaceFirst(base, "");
+        
+        int sep = result.lastIndexOf("/META-INF/resources");
+        if(sep > -1) {
+            result = result.substring(sep+9);
+            return result;
+        }
+        
+        return result;
+    }
+    
+    
+    public static String getScxmlPath(FaceletContext ctx, UIViewRoot root) {
+
+        String path = root.getViewId();
+
+        try {
+            Field ffield = ctx.getClass().getDeclaredField("facelet");
+            boolean faccessible = ffield.isAccessible();
+            try {
+                ffield.setAccessible(true);
+                Facelet facelet = (Facelet) ffield.get(ctx);
+                Field sfield = facelet.getClass().getDeclaredField("src");
+                boolean saccessible = sfield.isAccessible();
+                try {
+                    sfield.setAccessible(true);
+                    URL url = (URL) sfield.get(facelet);
+                    path = localPath(ctx.getFacesContext(), url.getPath());
+                } finally {
+                    sfield.setAccessible(saccessible);
+                }
+
+            } finally {
+                ffield.setAccessible(faccessible);
+            }
+
+        } catch (Throwable ex) {
+        }
+
+        return path;
+    }
     
 }
