@@ -64,6 +64,11 @@ public class StateFlowImplConstants {
     /**
      *
      */
+    public final static String STATE_USE_FLASH_REDIRECT_PARAM_NAME = STATE_FLOW_PREFIX + "DEFAULT_USE_FLASH_IN_REDIRECT";
+
+    /**
+     *
+     */
     public final static String LOCAL_XPATH_RESOLVER = STATE_FLOW_PREFIX + "LOCAL_XPATH_RESOLVER";
 
     /**

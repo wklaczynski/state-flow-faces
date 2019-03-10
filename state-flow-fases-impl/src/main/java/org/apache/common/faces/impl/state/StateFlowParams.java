@@ -20,6 +20,7 @@ import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CH
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CHART_DEFAULT_PARAM_NAME;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CHART_REQUEST_PARAM_NAME;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CHART_VIEW_REDIRECT_PARAM_NAME;
+import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_USE_FLASH_REDIRECT_PARAM_NAME;
 import org.apache.common.faces.impl.state.config.StateWebConfiguration;
 
 /**
@@ -63,7 +64,26 @@ public class StateFlowParams {
         }
         return redirect;
     }
+
     
+    /**
+     *
+     * @return
+     */
+    public static boolean isDefaultUseFlashInRedirect() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        Boolean redirect = (Boolean) context.getExternalContext()
+                .getApplicationMap().get(STATE_USE_FLASH_REDIRECT_PARAM_NAME);
+        if (redirect == null) {
+            StateWebConfiguration wcfg = StateWebConfiguration.getInstance();
+            String pname = wcfg.getOptionValue(STATE_USE_FLASH_REDIRECT_PARAM_NAME, "false");
+            redirect = Boolean.parseBoolean(pname);
+            context.getExternalContext()
+                    .getApplicationMap().put(STATE_USE_FLASH_REDIRECT_PARAM_NAME, redirect);
+        }
+        return redirect;
+    }
+
     /**
      *
      * @return

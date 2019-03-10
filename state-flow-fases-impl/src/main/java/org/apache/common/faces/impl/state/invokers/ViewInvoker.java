@@ -214,12 +214,24 @@ public class ViewInvoker implements Invoker, Serializable {
             }
 
             boolean redirect = StateFlowParams.isDefaultViewRedirect();
+            boolean ajaxredirect = StateFlowParams.isDefaultAjaxRedirect();
+            boolean useflash = StateFlowParams.isDefaultUseFlashInRedirect();
+
             if (options.containsKey("redirect")) {
                 Object val = options.get("redirect");
                 if (val instanceof String) {
                     redirect = Boolean.valueOf((String) val);
                 } else if (val instanceof Boolean) {
                     redirect = (Boolean) val;
+                }
+            }
+
+            if (options.containsKey("flash")) {
+                Object val = options.get("flash");
+                if (val instanceof String) {
+                    useflash = Boolean.valueOf((String) val);
+                } else if (val instanceof Boolean) {
+                    useflash = (Boolean) val;
                 }
             }
 
@@ -242,7 +254,7 @@ public class ViewInvoker implements Invoker, Serializable {
             }
 
             handler.pushRootExecutor(context, executor, viewId);
-            
+
             UIViewRoot currentViewRoot = context.getViewRoot();
             if (currentViewRoot != null) {
                 String currentViewId = currentViewRoot.getViewId();
@@ -251,12 +263,9 @@ public class ViewInvoker implements Invoker, Serializable {
                     return;
                 }
             }
-            
-            boolean ajaxr = StateFlowParams.isDefaultAjaxRedirect();
+
             PartialViewContext pvc = context.getPartialViewContext();
-            if ((redirect || (pvc != null && ajaxr && pvc.isAjaxRequest()))) {
-                //Flash flash = ec.getFlash();
-                //flash.setKeepMessages(true);
+            if ((redirect || (pvc != null && ajaxredirect && pvc.isAjaxRequest()))) {
                 if (viewState != null) {
                     Context flowContext = handler.getFlowContext(context);
                     flowContext.setLocal(FACES_VIEW_STATE, viewState);
@@ -266,7 +275,13 @@ public class ViewInvoker implements Invoker, Serializable {
                 ViewHandler viewHandler = application.getViewHandler();
                 String url = viewHandler.getRedirectURL(context, viewId, reqparams, false);
                 clearViewMapIfNecessary(context.getViewRoot(), viewId);
-                //flash.setRedirect(true);
+
+                if (useflash) {
+                    Flash flash = ec.getFlash();
+                    flash.setKeepMessages(true);
+                    flash.setRedirect(true);
+                }
+
                 updateRenderTargets(context, viewId);
                 ec.redirect(url);
 
@@ -318,11 +333,11 @@ public class ViewInvoker implements Invoker, Serializable {
                 context.setViewRoot(viewRoot);
                 context.renderResponse();
             }
-            
-            if((pvc != null && pvc.isAjaxRequest())) {
+
+            if ((pvc != null && pvc.isAjaxRequest())) {
                 pvc.setRenderAll(true);
             }
-            
+
             executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
 
         } catch (Throwable ex) {
@@ -458,7 +473,7 @@ public class ViewInvoker implements Invoker, Serializable {
                         try {
                             StateFlowViewContext viewContext = new StateFlowViewContext(
                                     invokeId, executor, ictx.getContext());
-                            
+
                             StateFlow.setViewContext(context, viewId, viewContext);
                         } catch (ModelException ex) {
                             throw new InvokerException(ex);
@@ -518,12 +533,12 @@ public class ViewInvoker implements Invoker, Serializable {
                 storeContext.setLocal(stateKey + "LastViewId", lastViewId);
             }
         }
-        
+
         executor.getRootContext().getVars().remove(CURRENT_INVOKED_VIEW_ID, viewId);
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
         handler.popRootExecutor(context, executor, viewId);
-        
+
         context.renderResponse();
     }
 }

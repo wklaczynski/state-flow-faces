@@ -183,6 +183,10 @@ public class FacetInvoker implements Invoker, Serializable {
             }
 
             boolean redirect = false;
+            boolean ajaxredirect = StateFlowParams.isDefaultAjaxRedirect();
+            boolean useflash = StateFlowParams.isDefaultUseFlashInRedirect();
+            
+            
             if (options.containsKey("redirect")) {
                 Object val = options.get("redirect");
                 if (val instanceof String) {
@@ -190,7 +194,19 @@ public class FacetInvoker implements Invoker, Serializable {
                 } else if (val instanceof Boolean) {
                     redirect = (Boolean) val;
                 }
+                ajaxredirect = redirect;
             }
+            
+
+            if (options.containsKey("flash")) {
+                Object val = options.get("flash");
+                if (val instanceof String) {
+                    useflash = Boolean.valueOf((String) val);
+                } else if (val instanceof Boolean) {
+                    useflash = (Boolean) val;
+                }
+            }
+            
 
             if (!transientState) {
                 stateKey = "__@@Invoke:" + invokeId + ":";
@@ -231,8 +247,6 @@ public class FacetInvoker implements Invoker, Serializable {
             boolean ajaxr = StateFlowParams.isDefaultAjaxRedirect();
             PartialViewContext pvc = context.getPartialViewContext();
             if ((redirect || (pvc != null && ajaxr && pvc.isAjaxRequest()))) {
-                //Flash flash = ec.getFlash();
-                //flash.setKeepMessages(true);
                 if (viewState != null) {
                     Context flowContext = handler.getFlowContext(context);
                     flowContext.setLocal(FACES_VIEW_STATE, viewState);
@@ -244,7 +258,13 @@ public class FacetInvoker implements Invoker, Serializable {
                 ViewHandler viewHandler = application.getViewHandler();
                 String url = viewHandler.getRedirectURL(context, viewId, reqparams, false);
                 clearViewMapIfNecessary(context.getViewRoot(), viewId);
-                //flash.setRedirect(true);
+
+                if (useflash) {
+                    Flash flash = ec.getFlash();
+                    flash.setKeepMessages(true);
+                    flash.setRedirect(true);
+                }
+
                 updateRenderTargets(context, viewId);
                 ec.redirect(url);
 
