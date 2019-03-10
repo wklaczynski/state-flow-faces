@@ -57,7 +57,7 @@ public class StateFlowParams {
                 .getApplicationMap().get(STATE_CHART_AJAX_REDIRECT_PARAM_NAME);
         if (redirect == null) {
             StateWebConfiguration wcfg = StateWebConfiguration.getInstance();
-            String pname = wcfg.getOptionValue(STATE_CHART_AJAX_REDIRECT_PARAM_NAME, "false");
+            String pname = wcfg.getOptionValue(STATE_CHART_AJAX_REDIRECT_PARAM_NAME, "true");
             redirect = Boolean.parseBoolean(pname);
             context.getExternalContext()
                     .getApplicationMap().put(STATE_CHART_AJAX_REDIRECT_PARAM_NAME, redirect);
