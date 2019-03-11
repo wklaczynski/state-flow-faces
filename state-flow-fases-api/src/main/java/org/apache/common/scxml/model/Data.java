@@ -21,7 +21,7 @@ package org.apache.common.scxml.model;
  * &lt;data&gt; child element of the &lt;datamodel&gt; element.
  *
  */
-public class Data implements ParsedValueContainer {
+public class Data extends SCComponent implements ParsedValueContainer {
 
     /**
      * Serial version UID.

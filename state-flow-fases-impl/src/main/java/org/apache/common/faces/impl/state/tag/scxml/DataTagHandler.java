@@ -16,7 +16,6 @@
 package org.apache.common.faces.impl.state.tag.scxml;
 
 import java.io.IOException;
-import javax.el.VariableMapper;
 import javax.faces.component.UIComponent;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;

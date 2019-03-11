@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * The class in this SCXML object model that corresponds to the SCXML &lt;donedata&gt; element.
  */
-public class DoneData implements ContentContainer, ParamsContainer, Serializable {
+public class DoneData extends SCComponent implements ContentContainer, ParamsContainer, Serializable {
 
     /**
      * The &lt;content/&gt; of this send

@@ -21,7 +21,7 @@ package org.apache.common.scxml.model;
  * &lt;content&gt; SCXML element.
  *
  */
-public class Content implements ParsedValueContainer {
+public class Content extends SCComponent implements ParsedValueContainer {
 
     /**
      * Serial version UID.

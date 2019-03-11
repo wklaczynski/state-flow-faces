@@ -159,7 +159,7 @@ public class SubInvoker implements Invoker, StateHolder {
         } catch (FacesException ex) {
             throw ex;
         } catch (Throwable ex) {
-            throw new InvokerException(ex);
+            throw new InvokerException(ex.getMessage(), ex);
         }
     }
 
@@ -187,8 +187,10 @@ public class SubInvoker implements Invoker, StateHolder {
 
             executor = handler.createChildExecutor(id, fc, parentSCXMLExecutor, invokeId, scxml);
             handler.execute(fc, executor, params);
+        } catch (FacesException ex) {
+            throw ex;
         } catch (Throwable me) {
-            throw new InvokerException(me);
+            throw new InvokerException(me.getMessage(), me);
         }
     }
 

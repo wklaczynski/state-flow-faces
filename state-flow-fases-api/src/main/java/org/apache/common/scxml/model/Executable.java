@@ -25,7 +25,7 @@ import java.util.List;
  * as &lt;onentry&gt; and &lt;onexit&gt;.
  *
  */
-public abstract class Executable implements UniqueClientId, Serializable {
+public abstract class Executable extends SCComponent implements UniqueClientId, Serializable {
 
     /**
      * The set of executable elements (those that inheriting from Action) that

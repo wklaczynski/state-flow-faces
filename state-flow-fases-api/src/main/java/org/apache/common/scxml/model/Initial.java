@@ -23,7 +23,7 @@ import java.io.Serializable;
  * &lt;initial&gt; SCXML pseudo state element.
  *
  */
-public class Initial implements UniqueClientId, Serializable {
+public class Initial extends SCComponent implements UniqueClientId, Serializable {
 
     /**
      * Serial version UID.

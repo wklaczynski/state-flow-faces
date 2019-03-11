@@ -25,7 +25,7 @@ import java.util.List;
  * &lt;datamodel&gt; element.
  *
  */
-public class Datamodel implements Serializable {
+public class Datamodel extends SCComponent implements Serializable {
 
    /**
     * Serial version UID.

@@ -29,7 +29,7 @@ import static org.apache.common.scxml.SCXMLConstants.META_ELEMENT_IDMAP;
  * root element, and serves as the &quot;document root&quot;.
  *
  */
-public class SCXML implements Serializable, Observable {
+public class SCXML extends SCComponent implements Serializable, Observable {
 
     /**
      * Serial version UID.

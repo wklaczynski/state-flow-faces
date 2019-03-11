@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.FacesException;
 import javax.faces.application.Application;
 import javax.faces.application.ViewHandler;
 import javax.faces.component.UIComponent;
@@ -294,9 +295,11 @@ public class FacetInvoker implements Invoker, Serializable {
             }
             
             executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
+        } catch (FacesException ex) {
+            throw ex;
         } catch (Throwable ex) {
             logger.log(Level.SEVERE, "Invoke failed", ex);
-            throw new InvokerException(ex);
+            throw new InvokerException(ex.getMessage(), ex);
         }
     }
 

@@ -23,7 +23,7 @@ import java.io.Serializable;
  * &lt;target&gt; for a &lt;transition&gt;, such as State or Parallel.
  *
  */
-public abstract class TransitionTarget implements UniqueClientId, Serializable, Observable {
+public abstract class TransitionTarget extends SCComponent implements UniqueClientId, Serializable, Observable {
 
     private static final EnterableState[] ZERO_ANCESTORS = new EnterableState[0];
 

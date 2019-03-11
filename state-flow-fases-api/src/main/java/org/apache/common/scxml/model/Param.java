@@ -23,7 +23,7 @@ import java.io.Serializable;
  * &lt;param&gt; SCXML element.
  *
  */
-public class Param implements Serializable {
+public class Param extends SCComponent implements Serializable {
 
     /**
      * Serial version UID.

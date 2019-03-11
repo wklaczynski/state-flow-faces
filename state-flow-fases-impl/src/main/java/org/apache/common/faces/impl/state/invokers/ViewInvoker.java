@@ -327,7 +327,7 @@ public class ViewInvoker implements Invoker, Serializable {
 
         } catch (Throwable ex) {
             logger.log(Level.SEVERE, "Invoke failed", ex);
-            throw new InvokerException(ex);
+            throw new InvokerException(ex.getMessage(), ex);
         } finally {
             context.setProcessingEvents(oldProcessingEvents);
         }

@@ -60,6 +60,7 @@ import org.apache.common.scxml.model.SCXML;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
 import javax.faces.view.facelets.Facelet;
+import javax.faces.view.facelets.FaceletException;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CHART_LOGSTEP_PARAM_NAME;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CHART_SERIALIZED_PARAM_NAME;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_FLOW_STACK;
@@ -621,8 +622,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             if (!executor.isRunning()) {
                 close(context, executor);
             }
+        } catch (FaceletException ex) {
+            throw ex;
         } catch (FacesException ex) {
-            throw new FacesException(ex);
+            throw ex;
         } catch (Throwable ex) {
             throw new FacesException(ex);
         }

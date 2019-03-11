@@ -58,6 +58,7 @@ import static org.apache.common.faces.state.StateFlow.CUSTOM_ACTIONS_HINT;
 import org.apache.common.scxml.io.ContentParser;
 import org.apache.common.scxml.model.ActionsContainer;
 import org.apache.common.scxml.model.CustomAction;
+import org.apache.common.scxml.model.SCComponent;
 import org.apache.common.scxml.model.ParsedValue;
 
 /**
@@ -300,7 +301,10 @@ public abstract class AbstractFlowTagHandler<T extends Object> extends TagHandle
      * @throws IOException
      */
     protected void decorate(FaceletContext ctx, UIComponent parent, Object element) throws IOException {
-
+        if (element instanceof SCComponent) {
+            SCComponent component = (SCComponent) element;
+            component.setTag(tag);
+        }
     }
 
     @Override

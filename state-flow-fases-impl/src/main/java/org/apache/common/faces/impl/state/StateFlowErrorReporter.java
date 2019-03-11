@@ -30,6 +30,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.FaceletException;
 import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagAttribute;
+import javax.faces.view.facelets.TagException;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import org.apache.common.scxml.ErrorReporter;
 import org.apache.common.scxml.model.Data;
@@ -43,6 +44,8 @@ import org.apache.common.scxml.model.State;
 import org.apache.common.scxml.model.TransitionTarget;
 import org.apache.common.scxml.semantics.ErrorConstants;
 import org.apache.common.faces.impl.state.log.WebMessage;
+import org.apache.common.scxml.invoke.InvokerException;
+import org.apache.common.scxml.model.SCComponent;
 
 /**
  * Custom error reporter that log execution errors.
@@ -89,6 +92,14 @@ public class StateFlowErrorReporter implements ErrorReporter, Serializable {
 
         TagAttribute tattr = null;
         Tag tag = (Tag) tags.get(errCtx);
+
+        if (tag == null) {
+            if (errCtx instanceof SCComponent) {
+                SCComponent component = (SCComponent) errCtx;
+                tag = component.getTag();
+            }
+        }
+
         if (tag != null && parametrName != null) {
             tattr = tag.getAttributes().get(parametrName);
         }
@@ -108,8 +119,6 @@ public class StateFlowErrorReporter implements ErrorReporter, Serializable {
         StringBuffer msg = new StringBuffer();
         if (tattr != null) {
             msg.append(tattr).append(" ");
-        } else if (tag != null) {
-            msg.append(tag).append(" ");
         }
 
         if (null != errCode) {
@@ -132,7 +141,7 @@ public class StateFlowErrorReporter implements ErrorReporter, Serializable {
                     //isLegalConfig
                     if (errCtx instanceof Map.Entry) { //unchecked cast below
                         Map.Entry<EnterableState, Set<EnterableState>> badConfigMap
-                                = (Map.Entry<EnterableState, Set<EnterableState>>) errCtx;
+                                                                       = (Map.Entry<EnterableState, Set<EnterableState>>) errCtx;
                         EnterableState es = badConfigMap.getKey();
                         Set<EnterableState> vals = badConfigMap.getValue();
                         msg.append(LogUtils.getTTPath(es)).append(" : [");
@@ -173,15 +182,15 @@ public class StateFlowErrorReporter implements ErrorReporter, Serializable {
                     break;
             }
 
-            msg.append(", (");
-            msg.append(errDetail).append(")");
+            msg.append(", ");
+            msg.append(errDetail);
 
         } else {
-            msg.append(errCode).append(": (");
-            msg.append(errDetail).append(")");
+            msg.append(errCode).append(", ");
+            msg.append(errDetail);
         }
 
-        handleErrorMessage(errorCode, errDetail, errCtx, msg, cause);
+        handleErrorMessage(tag, errorCode, errDetail, errCtx, msg, cause);
     }
 
     /**
@@ -191,6 +200,7 @@ public class StateFlowErrorReporter implements ErrorReporter, Serializable {
      * The default implementation write the errorMessage as a warning to the
      * log.</p>
      *
+     * @param tag
      * @param errorCode one of the ErrorReporter's constants
      * @param errDetail human readable description
      * @param errCtx typically an SCXML element which caused an error, may be
@@ -199,8 +209,8 @@ public class StateFlowErrorReporter implements ErrorReporter, Serializable {
      * state, transition and data
      * @param cause
      */
-    protected void handleErrorMessage(final String errorCode, final String errDetail,
-            final Object errCtx, final CharSequence errorMessage, Throwable cause) {
+    protected void handleErrorMessage(Tag tag, String errorCode, String errDetail,
+            Object errCtx, CharSequence errorMessage, Throwable cause) {
 
         FacesContext fc = FacesContext.getCurrentInstance();
         if (fc.getApplication().getProjectStage() == ProjectStage.Production) {
@@ -209,10 +219,23 @@ public class StateFlowErrorReporter implements ErrorReporter, Serializable {
             }
             WebMessage.error(fc, errorMessage.toString());
         } else {
-            if (cause instanceof FacesException) {
-                throw (FacesException) cause;
+            if (tag != null) {
+                if (cause instanceof TagException) {
+                    throw (TagException) cause;
+                } else {
+                    throw new TagException(tag, errorMessage.toString(), cause);
+                }
             } else {
-                throw new FaceletException(errorMessage.toString(), cause);
+                if (cause instanceof FacesException) {
+                    throw (FacesException) cause;
+                } else if (cause instanceof FaceletException) {
+                    throw (FaceletException) cause;
+                } else if (cause instanceof InvokerException) {
+                    InvokerException ie = (InvokerException) cause;
+                    throw new FaceletException(ie.toString(), cause);
+                } else {
+                    throw new FaceletException(errorMessage.toString(), cause);
+                }
             }
         }
     }

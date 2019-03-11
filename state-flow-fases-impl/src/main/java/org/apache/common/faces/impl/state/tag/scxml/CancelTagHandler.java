@@ -19,7 +19,6 @@ import java.io.IOException;
 import javax.faces.component.UIComponent;
 import org.apache.common.scxml.model.Cancel;
 import org.apache.common.scxml.model.Finalize;
-import org.apache.common.scxml.model.If;
 import org.apache.common.scxml.model.OnEntry;
 import org.apache.common.scxml.model.OnExit;
 import org.apache.common.scxml.model.Transition;

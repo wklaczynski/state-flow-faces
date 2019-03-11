@@ -25,7 +25,7 @@ import org.apache.common.scxml.SCXMLExpressionException;
  * &lt;assign&gt;, &lt;log&gt; etc.
  *
  */
-public abstract class Action implements UniqueClientId, Serializable {
+public abstract class Action extends SCComponent implements UniqueClientId, Serializable {
 
     /**
      * Link to its parent or container.
