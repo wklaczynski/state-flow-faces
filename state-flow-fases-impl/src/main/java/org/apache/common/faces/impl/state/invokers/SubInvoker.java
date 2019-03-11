@@ -156,7 +156,7 @@ public class SubInvoker implements Invoker, StateHolder {
 
             execute(handler, viewId, scxml, params);
 
-        } catch (FacesException ex) {
+        } catch (FacesException | InvokerException ex) {
             throw ex;
         } catch (Throwable ex) {
             throw new InvokerException(ex.getMessage(), ex);

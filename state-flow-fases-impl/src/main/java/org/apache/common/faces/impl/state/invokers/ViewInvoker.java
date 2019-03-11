@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.FacesException;
 import javax.faces.application.Application;
 import javax.faces.application.ConfigurableNavigationHandler;
 import javax.faces.application.NavigationCase;
@@ -155,16 +156,16 @@ public class ViewInvoker implements Invoker, Serializable {
             try {
                 viewId = navCase.getToViewId(context);
             } catch (NullPointerException th) {
-                throw new IOException(String.format("Invoke source \"%s\" not found", source));
+                throw new IOException(String.format("invoke source \"%s\" not found", source));
             } catch (Throwable th) {
-                throw new IOException(String.format("Invoke source \"%s\" not found", source), th);
+                throw new IOException(String.format("invoke source \"%s\" not found", source), th);
             }
             viewId = vh.deriveLogicalViewId(context, viewId);
 
             String oldInvokeViewId = (String) executor.getRootContext().get(CURRENT_INVOKED_VIEW_ID);
             if (oldInvokeViewId != null) {
                 throw new InvokerException(String.format(
-                        "Can not start invoke new view: \"%s\", in other view: \"%s\".",
+                        "can not start invoke new view: \"%s\", in other view: \"%s\".",
                         viewId, oldInvokeViewId));
             }
 
@@ -325,6 +326,8 @@ public class ViewInvoker implements Invoker, Serializable {
 
             executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
 
+        } catch (FacesException | InvokerException ex) {
+            throw ex;
         } catch (Throwable ex) {
             logger.log(Level.SEVERE, "Invoke failed", ex);
             throw new InvokerException(ex.getMessage(), ex);

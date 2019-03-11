@@ -295,7 +295,7 @@ public class FacetInvoker implements Invoker, Serializable {
             }
             
             executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
-        } catch (FacesException ex) {
+        } catch (FacesException | InvokerException ex) {
             throw ex;
         } catch (Throwable ex) {
             logger.log(Level.SEVERE, "Invoke failed", ex);
