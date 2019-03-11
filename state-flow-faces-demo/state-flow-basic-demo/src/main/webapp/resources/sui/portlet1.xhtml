@@ -47,7 +47,7 @@
                     <x:onentry>
                         <x:assign location="#{currentState.assignedTest1}" expr="I'm Seting in step1"/>
                     </x:onentry>
-                    <x:invoke type="facet" src="@controller#facet1">
+                    <x:invoke type="facet" src="@controller:facet1">
                     </x:invoke>
                     <x:transition event="view.action.next" target="step2"/>
                     <x:transition event="view.action.view" target="view-process"/>
@@ -59,7 +59,7 @@
                     <x:onentry>
                         <x:assign location="#{currentState.assignedTest1}" expr="I'm Seting in step2"/>
                     </x:onentry>
-                    <x:invoke type="facet" src="@controller#facet2">
+                    <x:invoke type="facet" src="@controller:facet2">
                     </x:invoke>
                     <x:transition event="view.action.prev" target="step1"/>
                     <x:transition event="view.action.view" target="view-process"/>
