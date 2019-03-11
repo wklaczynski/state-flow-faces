@@ -31,6 +31,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import org.apache.common.faces.impl.state.utils.ComponentUtils;
 import org.apache.common.faces.state.component.UIStateChartController;
 import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 
@@ -78,15 +79,11 @@ public class StateFlowActionListener implements ActionListener {
             VisitContext visitContext = VisitContext.createVisitContext(facesContext, controllers, hints);
             root.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
                 if (target instanceof UIStateChartController) {
-                    UIStateChartController controller = (UIStateChartController) target;
-                    UIComponent renderNamingContainer = controller.getRenderNamingContainer(facesContext);
-                    if (renderNamingContainer != null) {
-                        String renderId = renderNamingContainer.getClientId(facesContext);
-                        if (sorceId.startsWith(renderId)) {
-                            if (controller.processAction(event)) {
-                                consumed.set(true);
-                                return VisitResult.COMPLETE;
-                            }
+                    if (ComponentUtils.isInOrEqual(target, source)) {
+                        UIStateChartController controller = (UIStateChartController) target;
+                        if (controller.processAction(event)) {
+                            consumed.set(true);
+                            return VisitResult.COMPLETE;
                         }
                     }
                 }
