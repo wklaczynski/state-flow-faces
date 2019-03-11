@@ -16,11 +16,10 @@
  */
 package org.apache.common.faces.impl.state.invokers;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Logger;
 import javax.faces.FacesException;
-import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.task.FacesProcessHolder;
@@ -41,9 +40,7 @@ import org.apache.common.scxml.model.SCXML;
 import static org.apache.common.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
 import static org.apache.common.faces.state.StateFlow.DECODE_DISPATCHER_EVENTS;
 import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
-import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.component.UIStateChartController;
-import org.apache.common.faces.state.component.UIStateChartDefinition;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -146,9 +143,11 @@ public class SubInvoker implements Invoker, StateHolder {
             }
 
             if (controllerId == null) {
-                scxml = handler.createStateMachine(fc, viewId, id);
+                scxml = handler.getStateMachine(fc, viewId, id);
             } else {
-                scxml = createStateMachine(fc, controllerId, id);
+                UIViewRoot viewRoot = fc.getViewRoot();
+                UIStateChartController controller = (UIStateChartController) viewRoot.findComponent(controllerId);
+                scxml = controller.findStateMachine(fc, id);
             }
 
             if (scxml == null) {
@@ -162,36 +161,6 @@ public class SubInvoker implements Invoker, StateHolder {
         } catch (Throwable ex) {
             throw new InvokerException(ex);
         }
-    }
-
-    public SCXML createStateMachine(FacesContext context, String controllerId, String id) throws IOException {
-        UIComponent root = context.getViewRoot();
-        UIComponent stateContiner = null;
-        
-        UIStateChartController controller = (UIStateChartController) root.findComponent(controllerId);
-
-        UIComponent compositeParent = UIComponent.getCompositeComponentParent(controller);
-        if (compositeParent != null) {
-            stateContiner = null;
-            Map<String, UIComponent> facetMap = compositeParent.getFacets();
-            UIComponent panel = facetMap.get(UIComponent.COMPOSITE_FACET_NAME);
-            if (panel.getFacetCount() > 0) {
-                stateContiner = panel.getFacets().get(STATECHART_FACET_NAME);
-            }
-        } else {
-            if (root.getFacetCount() > 0) {
-                stateContiner = root.getFacets().get(STATECHART_FACET_NAME);
-            }
-        }
-
-        if (stateContiner == null && stateContiner.getChildCount() == 0) {
-            return null;
-        }
-
-        UIStateChartDefinition uichart = (UIStateChartDefinition) stateContiner.findComponent(id);
-
-        SCXML stateChart = uichart.getStateChart();
-        return stateChart;
     }
 
     /**
@@ -313,7 +282,7 @@ public class SubInvoker implements Invoker, StateHolder {
 
         SCXML stateMachine = null;
         try {
-            stateMachine = handler.createStateMachine(fc, viewId, id);
+            stateMachine = handler.getStateMachine(fc, viewId, id);
         } catch (ModelException ex) {
             throw new FacesException(ex);
         }

@@ -35,8 +35,6 @@ import javax.faces.context.Flash;
 import javax.faces.context.PartialViewContext;
 import javax.faces.render.RenderKit;
 import javax.faces.render.ResponseStateManager;
-import javax.faces.view.ViewDeclarationLanguage;
-import javax.faces.view.ViewMetadata;
 import org.apache.common.faces.impl.state.StateFlowParams;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
@@ -49,16 +47,13 @@ import org.apache.common.scxml.SCXMLIOProcessor;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.invoke.Invoker;
 import org.apache.common.scxml.invoke.InvokerException;
-import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.StateFlowViewContext;
 import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.InvokeContext;
 import org.apache.common.faces.state.component.UIStateChartController;
-import org.apache.common.faces.state.component.UIStateChartDefinition;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.model.ModelException;
-import org.apache.common.scxml.model.SCXML;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -278,39 +273,10 @@ public class FacetInvoker implements Invoker, Serializable {
                     context.setProcessingEvents(true);
                     vh.initView(context);
                 } else {
-                    SCXML stateChart = null;
                     viewRoot = null;
-                    ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(context, viewId);
-                    ViewMetadata metadata = null;
-                    if (vdl != null) {
-                        metadata = vdl.getViewMetadata(context, viewId);
-
-                        if (metadata != null) {
-                            viewRoot = metadata.createMetadataView(context);
-                            UIComponent facet = viewRoot.getFacet(STATECHART_FACET_NAME);
-                            if (facet != null) {
-                                UIStateChartDefinition uichart = (UIStateChartDefinition) facet.findComponent("main");
-                                if (uichart != null) {
-                                    stateChart = uichart.getStateChart();
-                                }
-                            }
-                        }
-                    }
-
-                    if (viewRoot != null) {
-                        if (!ViewMetadata.hasMetadata(viewRoot)) {
-                            context.renderResponse();
-                        }
-                    }
-
-                    if (vdl == null || metadata == null) {
-                        context.renderResponse();
-                    }
-
                     if (viewRoot == null) {
                         viewRoot = vh.createView(context, viewId);
                     }
-
                     viewRoot.setViewId(viewId);
                 }
                 context.setViewRoot(viewRoot);

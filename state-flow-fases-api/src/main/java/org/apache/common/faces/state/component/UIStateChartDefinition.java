@@ -48,7 +48,7 @@ public class UIStateChartDefinition extends UIComponentBase {
     public UIStateChartDefinition() {
         super();
         setRendererType(null);
-        setTransient(true);
+        setTransient(false);
         setRendered(false);
 
         addFacesListener((ComponentSystemEventListener) (ComponentSystemEvent event) -> {

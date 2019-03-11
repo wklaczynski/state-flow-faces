@@ -52,6 +52,7 @@ import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.getE
 import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.popElement;
 import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.pushElement;
 import org.apache.common.faces.impl.state.tag.ModelUpdater;
+import static org.apache.common.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.CUSTOM_ACTIONS_HINT;
 import static org.apache.common.faces.state.StateFlow.CUSTOM_INVOKERS_HINT;
@@ -123,9 +124,14 @@ public class StateChartTagHandler extends TagHandler {
             throw new TagException(this.tag, "can not instance new chart in other chart!");
         }
 
+        String stateContinerName = (String) ctx.getFacesContext().getAttributes().get(BUILD_STATE_CONTINER_HINT);
+        if (stateContinerName == null) {
+            stateContinerName = STATECHART_FACET_NAME;
+        }
+        
         UIComponent facetComponent = null;
         if (root.getFacetCount() > 0) {
-            facetComponent = parent.getFacets().get(STATECHART_FACET_NAME);
+            facetComponent = parent.getFacets().get(stateContinerName);
         }
 
         UIStateChartDefinition uichart = null;
@@ -178,11 +184,12 @@ public class StateChartTagHandler extends TagHandler {
             if (facetComponent != null) {
                 panelGroup.getChildren().add(facetComponent);
             }
-            parent.getFacets().put(STATECHART_FACET_NAME, panelGroup);
+            parent.getFacets().put(stateContinerName, panelGroup);
             facetComponent = panelGroup;
-        }
-        if (null != facetComponent) {
-            facetComponent.setId(STATECHART_FACET_NAME);
+            
+            if (null != facetComponent) {
+                facetComponent.setId(stateContinerName);
+            }
         }
 
         if (uichart == null) {

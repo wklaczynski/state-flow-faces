@@ -15,17 +15,23 @@
  */
 package org.apache.common.faces.impl.state;
 
+import com.sun.faces.RIConstants;
+import com.sun.faces.application.ApplicationAssociate;
+import com.sun.faces.context.FacesFileNotFoundException;
+import com.sun.faces.facelets.impl.DefaultFaceletFactory;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import org.apache.common.faces.impl.state.evaluator.StateFlowEvaluator;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.Stack;
@@ -55,6 +61,8 @@ import org.apache.common.scxml.model.ModelException;
 import org.apache.common.scxml.model.SCXML;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
+import javax.faces.view.facelets.Facelet;
+import javax.faces.view.facelets.TagException;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CHART_LOGSTEP_PARAM_NAME;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CHART_SERIALIZED_PARAM_NAME;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_FLOW_STACK;
@@ -82,6 +90,8 @@ import static org.apache.common.faces.impl.state.StateFlowImplConstants.SCXML_DA
 import org.apache.common.faces.impl.state.invokers.FacetInvoker;
 import org.apache.common.faces.impl.state.tag.faces.MethodCall;
 import org.apache.common.faces.impl.state.tag.faces.Redirect;
+import static org.apache.common.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
+import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import org.apache.common.faces.state.task.TimerEventProducer;
 import org.apache.common.scxml.ParentSCXMLIOProcessor;
 import static org.apache.common.scxml.io.StateHolderSaver.restoreContext;
@@ -106,6 +116,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     private Boolean alwaysSerialized;
 
     private TimerEventProducer eventProducer;
+    private DefaultFaceletFactory faceletFactory;
 
     /**
      *
@@ -193,69 +204,185 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public SCXML createStateMachine(FacesContext context, String path, String id) throws ModelException {
-        if (path == null) {
-            throw new NullPointerException("Parametr path can not be null!");
-        }
-        SCXML stateFlow = createStateFlow(context, path, id);
-        return stateFlow;
-    }
+    public SCXML getStateMachine(FacesContext context, String viewId, String continerName, String id) throws ModelException {
+        SCXML scxml = null;
+        String currentViewId = null;
 
-    private SCXML createStateFlow(FacesContext context, String viewId, String id) throws ModelException {
-        if (log.isLoggable(Level.FINE)) {
-            log.log(Level.FINE, "Creating StateFlow for: {0}", viewId);
+        UIViewRoot currentViewRoot = context.getViewRoot();
+        if (currentViewRoot != null) {
+            currentViewId = currentViewRoot.getViewId();
         }
 
-        FacesContext wcontext = new FacesContextWrapper() {
+        if (continerName == null) {
+            continerName = STATECHART_FACET_NAME;
+        }
 
-            UIViewRoot vrot;
-
-            @Override
-            public FacesContext getWrapped() {
-                return context;
+        if ((viewId == null || Objects.equals(currentViewId, viewId))) {
+            UIComponent facet = currentViewRoot.getFacet(continerName);
+            if (facet != null) {
+                UIStateChartDefinition uichart = (UIStateChartDefinition) facet.findComponent(id);
+                if (uichart != null) {
+                    scxml = uichart.getStateChart();
+                }
             }
+            return scxml;
+        }
 
-            @Override
-            public void setViewRoot(UIViewRoot root) {
-                vrot = root;
+        if (currentViewRoot != null && !STATECHART_FACET_NAME.equals(continerName)) {
+            if (currentViewRoot.getFacetCount() > 0) {
+                UIComponent stateContiner = currentViewRoot.getFacets().get(continerName);
+                if (stateContiner != null) {
+                    UIStateChartDefinition uichart = (UIStateChartDefinition) stateContiner.findComponent(id);
+                    if (uichart != null) {
+                        scxml = uichart.getStateChart();
+                    }
+                    return scxml;
+                }
             }
-
-            @Override
-            public UIViewRoot getViewRoot() {
-                return vrot;
-            }
-
-        };
+        }
 
         context.setProcessingEvents(false);
         try {
             context.getAttributes().put(SKIP_START_STATE_MACHINE_HINT, true);
             context.getAttributes().put(BUILD_STATE_MACHINE_HINT, id);
 
-            SCXML stateChart = null;
-
             ViewHandler vh = context.getApplication().getViewHandler();
-            ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(wcontext, viewId);
+            ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(context, viewId);
 
-            ViewMetadata viewMetadata = vdl.getViewMetadata(wcontext, viewId);
+            ViewMetadata viewMetadata = vdl.getViewMetadata(context, viewId);
 
-            UIViewRoot view = viewMetadata.createMetadataView(wcontext);
+            UIViewRoot view = viewMetadata.createMetadataView(context);
 
             UIComponent facet = view.getFacet(STATECHART_FACET_NAME);
             if (facet != null) {
                 UIStateChartDefinition uichart = (UIStateChartDefinition) facet.findComponent(id);
                 if (uichart != null) {
-                    stateChart = uichart.getStateChart();
+                    scxml = uichart.getStateChart();
                 }
             }
 
-            return stateChart;
         } finally {
             context.getAttributes().remove(BUILD_STATE_MACHINE_HINT);
             context.getAttributes().remove(SKIP_START_STATE_MACHINE_HINT);
             context.setProcessingEvents(true);
         }
 
+        return scxml;
+    }
+
+    @Override
+    public SCXML getStateMachine(FacesContext context, URL url, String continerName, String id) throws ModelException {
+        SCXML scxml = null;
+        UIComponent stateContiner = null;
+        UIViewRoot currentViewRoot = context.getViewRoot();
+
+        if (continerName == null) {
+            continerName = STATECHART_FACET_NAME;
+        }
+
+        if (url == null) {
+            UIComponent facet = currentViewRoot.getFacet(continerName);
+            if (facet != null) {
+                UIStateChartDefinition uichart = (UIStateChartDefinition) facet.findComponent(id);
+                if (uichart != null) {
+                    scxml = uichart.getStateChart();
+                }
+            }
+            return scxml;
+        }
+
+        if (currentViewRoot.getFacetCount() > 0) {
+            stateContiner = currentViewRoot.getFacets().get(continerName);
+        }
+
+        if (stateContiner == null) {
+            Map<String, Object> currentViewMapShallowCopy = Collections.emptyMap();
+            try {
+                context.getAttributes().put(BUILD_STATE_CONTINER_HINT, continerName);
+                context.getAttributes().remove(BUILD_STATE_MACHINE_HINT);
+
+                String viewId = toViewId(context, url.getPath());
+
+                ViewHandler vh = context.getApplication().getViewHandler();
+                UIViewRoot scxmlViewRoot = vh.createView(context, viewId);
+                context.getAttributes().put(RIConstants.VIEWID_KEY_NAME, viewId);
+
+                context.setProcessingEvents(false);
+                if (faceletFactory == null) {
+                    ApplicationAssociate associate = ApplicationAssociate
+                            .getInstance(context.getExternalContext());
+                    faceletFactory = associate.getFaceletFactory();
+                    assert (faceletFactory != null);
+                }
+
+                if (null != currentViewRoot) {
+                    Map<String, Object> currentViewMap = currentViewRoot.getViewMap(false);
+
+                    if (null != currentViewMap && !currentViewMap.isEmpty()) {
+                        currentViewMapShallowCopy = new HashMap<>(currentViewMap);
+                        Map<String, Object> resultViewMap = scxmlViewRoot.getViewMap(true);
+                        resultViewMap.putAll(currentViewMapShallowCopy);
+                    }
+                }
+
+                Facelet f = faceletFactory.getMetadataFacelet(context, url);
+
+                f.apply(context, scxmlViewRoot);
+
+                UIComponent facet = scxmlViewRoot.getFacet(continerName);
+                if (facet != null) {
+                    facet.setParent(null);
+                    currentViewRoot.getFacets().put(continerName, facet);
+                }
+
+            } catch (IOException ex) {
+                throw new FacesException(ex);
+            } finally {
+                context.getAttributes().remove(RIConstants.VIEWID_KEY_NAME);
+                context.getAttributes().remove(BUILD_STATE_CONTINER_HINT);
+                context.setProcessingEvents(true);
+                if (null != currentViewRoot) {
+                    context.setViewRoot(currentViewRoot);
+                    if (!currentViewMapShallowCopy.isEmpty()) {
+                        currentViewRoot.getViewMap(true).putAll(currentViewMapShallowCopy);
+                        currentViewMapShallowCopy.clear();
+                    }
+                }
+            }
+
+            if (currentViewRoot.getFacetCount() > 0) {
+                stateContiner = currentViewRoot.getFacets().get(continerName);
+            }
+        }
+
+        if (stateContiner != null) {
+            if (stateContiner.getChildCount() != 0) {
+                UIStateChartDefinition uichart = (UIStateChartDefinition) stateContiner.findComponent(id);
+                if (uichart != null) {
+                    scxml = uichart.getStateChart();
+                }
+            }
+        }
+
+        return scxml;
+    }
+
+    private static String toViewId(FacesContext context, String path) {
+        String base = context.getExternalContext().getRealPath("/").replace("\\", "/");
+        String result = path.replaceFirst(base, "");
+
+        if (result.startsWith("/resources")) {
+            result = result.substring(10);
+            return result;
+        }
+
+        int sep = result.lastIndexOf("/META-INF/resources");
+        if (sep > -1) {
+            result = result.substring(sep + 19);
+            return result;
+        }
+
+        return result;
     }
 
     @Override
@@ -845,7 +972,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
                         SCXML stateMachine = null;
                         try {
-                            stateMachine = handler.createStateMachine(fc, viewId, id);
+                            stateMachine = handler.getStateMachine(fc, viewId, id);
                         } catch (ModelException ex) {
                             throw new FacesException(ex);
                         }
@@ -936,5 +1063,32 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
 
     }
+
+    private static class WrappedFacesContext extends FacesContextWrapper {
+
+        UIViewRoot vrot;
+        private final FacesContext context;
+
+        public WrappedFacesContext(FacesContext context) {
+            this.context = context;
+            vrot = context.getViewRoot();
+        }
+
+        @Override
+        public FacesContext getWrapped() {
+            return context;
+        }
+
+        @Override
+        public void setViewRoot(UIViewRoot root) {
+            vrot = root;
+        }
+
+        @Override
+        public UIViewRoot getViewRoot() {
+            return vrot;
+        }
+
+    };
 
 }

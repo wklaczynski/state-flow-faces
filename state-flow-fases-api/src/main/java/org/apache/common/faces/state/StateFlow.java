@@ -124,6 +124,11 @@ public class StateFlow {
     /**
      *
      */
+    public static final String BUILD_STATE_CONTINER_HINT = "javax.faces.flow.BUILD_STATE_CONTINER_HINT";
+
+    /**
+     *
+     */
     private static final String CURRENT_EXECUTOR_STACK_KEY = "javax.faces.flow.CURRENT_EXECUTOR_STACK_KEY";
 
     /**

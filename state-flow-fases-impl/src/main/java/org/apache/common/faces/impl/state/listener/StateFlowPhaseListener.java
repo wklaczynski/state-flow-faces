@@ -16,11 +16,8 @@
 package org.apache.common.faces.impl.state.listener;
 
 import com.sun.faces.context.StateContext;
-import com.sun.faces.facelets.tag.ui.UIDebug;
 import com.sun.faces.renderkit.RenderKitUtils;
 import static com.sun.faces.util.RequestStateManager.FACES_VIEW_STATE;
-import static com.sun.faces.util.Util.getStateManager;
-import static com.sun.faces.util.Util.notNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +34,6 @@ import javax.faces.application.StateManager;
 import javax.faces.application.ViewHandler;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
-import static javax.faces.component.UIViewRoot.COMPONENT_TYPE;
 import javax.faces.component.visit.VisitContext;
 import javax.faces.component.visit.VisitHint;
 import javax.faces.component.visit.VisitResult;
@@ -47,10 +43,8 @@ import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
 import javax.faces.render.ResponseStateManager;
-import javax.faces.view.StateManagementStrategy;
 import javax.faces.view.ViewDeclarationLanguage;
 import org.apache.common.scxml.SCXMLExecutor;
-import org.apache.common.faces.state.component.UIStateChartDefinition;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.scxml.model.SCXML;
 import org.apache.common.faces.impl.state.StateFlowParams;
@@ -60,7 +54,6 @@ import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
 import static org.apache.common.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
-import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.task.FacesProcessHolder;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.EventBuilder;
@@ -69,7 +62,6 @@ import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.model.ModelException;
 import static org.apache.common.faces.state.StateFlow.DECODE_DISPATCHER_EVENTS;
 import org.apache.common.faces.state.component.UIStateChartController;
-import org.apache.common.scxml.invoke.InvokerException;
 
 /**
  *
@@ -325,12 +317,10 @@ public class StateFlowPhaseListener implements PhaseListener {
             }
         }
 
-        
         StateManager stateManager = context.getApplication().getStateManager();
-            
+
         UIViewRoot root = stateManager.restoreView(context, viewId, renderKitId);
-        
-        
+
         ViewHandler viewHandler = context.getApplication().getViewHandler();
         ViewDeclarationLanguage vdl = viewHandler.getViewDeclarationLanguage(context, viewId);
         context.setResourceLibraryContracts(vdl.calculateResourceLibraryContracts(context, viewId));
@@ -366,30 +356,43 @@ public class StateFlowPhaseListener implements PhaseListener {
             return;
         }
 
-        UIComponent facet = viewRoot.getFacet(STATECHART_FACET_NAME);
-        if (facet != null) {
-            SCXML stateChart = null;
+        String pname = StateFlowParams.getRequestParamatrChartId();
 
-            String pname = StateFlowParams.getRequestParamatrChartId();
+        String scxmlId = null;
 
-            String scxmlId = null;
-
-            if (scxmlId == null) {
-                scxmlId = context.getExternalContext().getRequestParameterMap().get(pname);
-            }
-            if (scxmlId == null) {
-                scxmlId = DEFAULT_STATECHART_NAME;
-            }
-
-            UIStateChartDefinition uichart = (UIStateChartDefinition) facet.findComponent(scxmlId);
-            if (uichart != null) {
-                stateChart = uichart.getStateChart();
-            }
-
-            if (stateChart != null) {
-                startStateMachine(context, stateChart);
-            }
+        if (scxmlId == null) {
+            scxmlId = context.getExternalContext().getRequestParameterMap().get(pname);
         }
+        if (scxmlId == null) {
+            scxmlId = DEFAULT_STATECHART_NAME;
+        }
+
+        try {
+            SCXML scxml = flowHandler.findStateMachine(context, scxmlId);
+            if (scxml != null) {
+                startStateMachine(context, scxml);
+            }
+        } catch (ModelException ex) {
+            throw new FacesException(ex);
+        }
+
+    }
+
+    private void restoreControllers(FacesContext facesContext) {
+        UIViewRoot viewRoot = facesContext.getViewRoot();
+        Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
+        VisitContext visitContext = VisitContext.createVisitContext(facesContext, null, hints);
+        viewRoot.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
+            if (target instanceof UIStateChartController) {
+                UIStateChartController controller = (UIStateChartController) target;
+                try {
+                    controller.restoreExecutor(facesContext);
+                } catch (IOException ex) {
+                    throw new FacesException(ex);
+                }
+            }
+            return VisitResult.ACCEPT;
+        });
     }
 
     /**

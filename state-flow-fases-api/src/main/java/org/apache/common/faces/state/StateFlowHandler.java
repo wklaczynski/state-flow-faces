@@ -15,10 +15,12 @@
  */
 package org.apache.common.faces.state;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import javax.faces.context.FacesContext;
 import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
+import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.invoke.Invoker;
@@ -203,27 +205,78 @@ public abstract class StateFlowHandler {
      */
     public abstract void close(FacesContext context, SCXMLExecutor to);
 
+
     /**
      *
      * @param context
-     * @param path
      * @return
      * @throws ModelException
      */
-    public SCXML createStateMachine(FacesContext context, String path) throws ModelException {
-        return createStateMachine(context, path, DEFAULT_STATECHART_NAME);
+    public SCXML findMainStateMachine(FacesContext context) throws ModelException {
+        return getStateMachine(context, (String)null, STATECHART_FACET_NAME,  DEFAULT_STATECHART_NAME);
+    }
+    
+    
+    /**
+     *
+     * @param context
+     * @param id
+     * @return
+     * @throws ModelException
+     */
+    public SCXML findStateMachine(FacesContext context, String id) throws ModelException {
+        return getStateMachine(context, (String)null, STATECHART_FACET_NAME,  id);
+    }
+    
+    
+    /**
+     *
+     * @param context
+     * @param viewId
+     * @return
+     * @throws ModelException
+     */
+    public SCXML getStateMachine(FacesContext context, String viewId) throws ModelException {
+        return getStateMachine(context, viewId, STATECHART_FACET_NAME,  DEFAULT_STATECHART_NAME);
+    }
+    
+    
+    /**
+     *
+     * @param context
+     * @param viewId
+     * @param id
+     * @return
+     * @throws ModelException
+     */
+    public SCXML getStateMachine(FacesContext context, String viewId, String id) throws ModelException {
+        return getStateMachine(context, viewId, STATECHART_FACET_NAME,  id);
     }
 
     /**
      *
      * @param context
-     * @param path
+     * @param viewId
+     * @param continerName
      * @param id
      * @return
      * @throws ModelException
      */
-    public abstract SCXML createStateMachine(FacesContext context, String path, String id) throws ModelException;
+    public abstract SCXML getStateMachine(FacesContext context, String viewId, String continerName, String id) throws ModelException;
 
+
+    /**
+     *
+     * @param context
+     * @param url
+     * @param continerName
+     * @param id
+     * @return
+     * @throws ModelException
+     */
+    public abstract SCXML getStateMachine(FacesContext context, URL url, String continerName, String id) throws ModelException;
+    
+    
     /**
      *
      * @param context

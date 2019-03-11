@@ -16,6 +16,7 @@
 package org.apache.common.faces.state.component;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -37,7 +38,6 @@ import javax.faces.view.Location;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
-import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.EventBuilder;
@@ -52,11 +52,11 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class UIStateChartController extends UIPanel {
 
-    
-    
     public static final String COMPONENT_ID = UIStateChartController.class.getName() + ":clientId";
     public static final String VIEW_ID = UIStateChartController.class.getName() + ":viewId";
-    public static final String SCXML_PATH_KEY = "javax.faces.component.SCXML_PATH_KEY";
+    public static final String SCXML_URL = "javax.faces.component.SCXML_URL";
+    public static final String SCXML_UUID = "javax.faces.component.SCXML_UUID";
+    public static final String SCXML_CONTINER = "javax.faces.component.SCXML_CONTINER";
 
     /**
      *
@@ -242,6 +242,19 @@ public class UIStateChartController extends UIPanel {
     @Override
     public void encodeEnd(FacesContext context) throws IOException {
 
+        UIComponent renderComponent = getCurentRenderComponent(context);
+        if (renderComponent != null) {
+            pushExecutor(context);
+            try {
+                renderComponent.encodeAll(context);
+            } finally {
+                pushExecutor(context);
+            }
+        }
+        super.encodeEnd(context);
+    }
+
+    public void restoreExecutor(FacesContext context) throws IOException {
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
         SCXMLExecutor executor = null;
@@ -272,17 +285,15 @@ public class UIStateChartController extends UIPanel {
         }
 
         if (executor != null) {
-            UIComponent renderComponent = getCurentRenderComponent(context);
-            if (renderComponent != null) {
-                StateFlow.pushExecutorToEL(context, executor, getPath(context));
-                try {
-                    renderComponent.encodeAll(context);
-                } finally {
-                    StateFlow.popExecutorFromEL(context);
-                }
+            if (!executor.isRunning()) {
+                handler.close(context, executor);
+            }
+
+            if (context.getResponseComplete()) {
+                handler.writeState(context);
             }
         }
-        super.encodeEnd(context);
+
     }
 
     @Override
@@ -398,53 +409,48 @@ public class UIStateChartController extends UIPanel {
     }
 
     public SCXML findStateMachine(FacesContext context, String scxmlId) throws IOException {
+        StateFlowHandler handler = StateFlowHandler.getInstance();
 
         UIComponent compositeParent = UIComponent.getCurrentCompositeComponent(context);
         if (compositeParent != null) {
             Location location = (Location) compositeParent.getAttributes()
                     .get(UIComponent.VIEW_LOCATION_KEY);
 
-            String scxmlViewId = (String) getAttributes().get(SCXML_PATH_KEY);
-            
-            if (scxmlViewId == null) {
+            String continerName = (String) getAttributes().get(SCXML_CONTINER);
+            URL url = (URL) getAttributes().get(SCXML_URL);
+
+            if (continerName == null) {
                 throw new IOException(String.format(
-                        location + " " +
-                        "Can not find scxml definition \"%s\" in controler\"%s\", "
+                        location + " "
+                        + "Can not find scxml definition \"%s\" in controler\"%s\", "
                         + "view location not found in composite component.",
                         scxmlId,
                         getClientId(context)));
             }
 
             try {
-
-                StateFlowHandler handler = StateFlowHandler.getInstance();
-                SCXML stateMachine = handler.createStateMachine(context, scxmlViewId, scxmlId);
-                return stateMachine;
-
+                SCXML scxml = handler.getStateMachine(context, url, continerName, scxmlId);
+                return scxml;
             } catch (ModelException ex) {
                 throw new IOException(String.format(
-                        location + " " +
-                        "Can not find scxml definition \"%s\" in controler\"%s\", throw model exception.",
+                        location + " "
+                        + "Can not find scxml definition \"%s\" in controler\"%s\", throw model exception.",
                         scxmlId,
                         getClientId(context)),
                         ex);
             }
         } else {
-            UIComponent root = context.getViewRoot();
-            UIComponent stateContiner = null;
-            if (root.getFacetCount() > 0) {
-                stateContiner = root.getFacets().get(STATECHART_FACET_NAME);
+            try {
+                SCXML scxml = handler.findStateMachine(context, scxmlId);
+                return scxml;
+            } catch (ModelException ex) {
+                throw new IOException(String.format(
+                        "Can not find scxml definition \"%s\" in controler\"%s\", throw model exception.",
+                        scxmlId,
+                        getClientId(context)),
+                        ex);
             }
-            if (stateContiner == null && stateContiner.getChildCount() == 0) {
-                return null;
-            }
-
-            UIStateChartDefinition uichart = (UIStateChartDefinition) stateContiner.findComponent(scxmlId);
-
-            SCXML stateMachine = uichart.getStateChart();
-            return stateMachine;
         }
-
     }
 
     public SCXMLExecutor getRootExecutor(FacesContext context) {

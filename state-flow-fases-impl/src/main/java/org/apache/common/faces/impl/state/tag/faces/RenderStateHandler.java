@@ -16,23 +16,27 @@
  */
 package org.apache.common.faces.impl.state.tag.faces;
 
-import java.util.Map;
+import com.sun.faces.facelets.impl.DefaultFaceletFactory;
+import java.lang.reflect.Field;
+import java.net.URL;
+import java.util.UUID;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
+import javax.faces.view.facelets.Facelet;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagException;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
-import static org.apache.common.faces.state.component.UIStateChartController.SCXML_PATH_KEY;
-import org.apache.common.faces.state.component.UIStateChartDefinition;
+import static org.apache.common.faces.state.component.UIStateChartController.SCXML_CONTINER;
+import static org.apache.common.faces.state.component.UIStateChartController.SCXML_URL;
+import static org.apache.common.faces.state.component.UIStateChartController.SCXML_UUID;
 import org.apache.common.scxml.SCXMLConstants;
 import org.apache.common.scxml.model.CommonsSCXML;
 import org.apache.common.scxml.model.CustomAction;
 import org.apache.common.scxml.model.CustomActionWrapper;
 import org.apache.common.scxml.model.Var;
-import static org.apache.common.faces.impl.state.utils.Util.getScxmlPath;
 
 /**
  * The class in this SCXML object model that corresponds to the
@@ -66,6 +70,7 @@ public class RenderStateHandler extends ComponentHandler {
     // This attribute is not required.  If not defined, then assume the facet
     // isn't necessary.
     TagAttribute required;
+    private DefaultFaceletFactory faceletFactory;
 
     public RenderStateHandler(ComponentConfig config) {
         super(config);
@@ -75,66 +80,76 @@ public class RenderStateHandler extends ComponentHandler {
 
     @Override
     public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
-        FacesContext fc = ctx.getFacesContext();
-        UIComponent root = fc.getViewRoot();
-        UIComponent stateContiner = null;
-
-        boolean requiredValue = ((this.required != null) && this.required.getBoolean(ctx));
-        String nameValue = this.name.getValue(ctx);
-
         UIComponent compositeParent = UIComponent.getCurrentCompositeComponent(ctx.getFacesContext());
         if (compositeParent != null) {
-            stateContiner = null;
-            Map<String, UIComponent> facetMap = compositeParent.getFacets();
-            UIComponent panel = facetMap.get(UIComponent.COMPOSITE_FACET_NAME);
-            if (panel.getFacetCount() > 0) {
-                stateContiner = panel.getFacets().get(STATECHART_FACET_NAME);
+            URL url = getCompositeURL(ctx);
+            if (url == null) {
+                throw new TagException(this.tag,
+                        "Unable to localize composite url '"
+                        + name
+                        + "' in parent composite component with id '"
+                        + compositeParent.getClientId(ctx.getFacesContext())
+                        + '\'');
             }
 
-            if (requiredValue && stateContiner == null) {
-                throwRequiredException(ctx, nameValue, compositeParent);
-            }
+            String uuid = UUID.nameUUIDFromBytes(url.getPath().getBytes()).toString();
 
-            if (stateContiner != null) {
-                if (stateContiner.getChildCount() == 0 && requiredValue) {
-                    throwRequiredException(ctx, nameValue, compositeParent);
-                }
+            String stateContinerName = STATECHART_FACET_NAME + "_" + uuid;
 
-                UIStateChartDefinition uichart = (UIStateChartDefinition)
-                        stateContiner.findComponent(nameValue);
-                
-                if (uichart == null && requiredValue) {
-                    throwRequiredException(ctx, nameValue, compositeParent);
-                }
-            }
+            c.getAttributes().put(SCXML_URL, url);
+            c.getAttributes().put(SCXML_UUID, uuid);
+            c.getAttributes().put(SCXML_CONTINER, stateContinerName);
         } else {
-            if (root.getFacetCount() > 0) {
-                stateContiner = root.getFacets().get(STATECHART_FACET_NAME);
-            }
-
-            if (requiredValue && stateContiner == null) {
-                throwRequiredInRootException(ctx, nameValue, root);
-            }
-
-            if (stateContiner != null) {
-                if (stateContiner.getChildCount() == 0 && requiredValue) {
-                    throwRequiredInRootException(ctx, nameValue, root);
-                }
-
-                UIStateChartDefinition uichart = (UIStateChartDefinition)
-                        stateContiner.findComponent(nameValue);
-                
-                if (uichart == null && requiredValue) {
-                    throwRequiredInRootException(ctx, nameValue, root);
-                }
-            }
+            c.getAttributes().put(SCXML_CONTINER, STATECHART_FACET_NAME);
         }
-        
-        String path = getScxmlPath(ctx, fc.getViewRoot());
-        c.getAttributes().put(SCXML_PATH_KEY, path);
-        
+
     }
-    
+
+    public static URL getCompositeURL(FaceletContext ctx) {
+        URL url = null;
+        try {
+            Field ffield = ctx.getClass().getDeclaredField("facelet");
+            boolean faccessible = ffield.isAccessible();
+            try {
+                ffield.setAccessible(true);
+                Facelet facelet = (Facelet) ffield.get(ctx);
+                Field sfield = facelet.getClass().getDeclaredField("src");
+                boolean saccessible = sfield.isAccessible();
+                try {
+                    sfield.setAccessible(true);
+                    url = (URL) sfield.get(facelet);
+                } finally {
+                    sfield.setAccessible(saccessible);
+                }
+
+            } finally {
+                ffield.setAccessible(faccessible);
+            }
+
+        } catch (Throwable ex) {
+        }
+
+        return url;
+    }
+
+    private static String localPath(FacesContext context, String path) {
+        String base = context.getExternalContext().getRealPath("/").replace("\\", "/");
+        String result = path.replaceFirst(base, "");
+
+        if (result.startsWith("/resources")) {
+            result = result.substring(10);
+            return result;
+        }
+
+        int sep = result.lastIndexOf("/META-INF/resources");
+        if (sep > -1) {
+            result = result.substring(sep + 19);
+            return result;
+        }
+
+        return result;
+    }
+
     // --------------------------------------------------------- Private Methods
     private void throwRequiredException(FaceletContext ctx,
             String name,

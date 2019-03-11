@@ -373,19 +373,23 @@ public class Util {
         String base = context.getExternalContext().getRealPath("/").replace("\\","/");
         String result = path.replaceFirst(base, "");
         
-        int sep = result.lastIndexOf("/META-INF/resources");
-        if(sep > -1) {
-            result = result.substring(sep+9);
-            return result;
-        }
-        
+//        if(result.startsWith("/resources")) {
+//            result = result.substring(10);
+//            return result;
+//        }
+//        
+//        int sep = result.lastIndexOf("/META-INF/resources");
+//        if(sep > -1) {
+//            result = result.substring(sep+19);
+//            return result;
+//        }
+//        
         return result;
     }
     
-    
-    public static String getScxmlPath(FaceletContext ctx, UIViewRoot root) {
+    public static URL getCompositeURL(FaceletContext ctx) {
 
-        String path = root.getViewId();
+        URL url = null;
 
         try {
             Field ffield = ctx.getClass().getDeclaredField("facelet");
@@ -397,8 +401,7 @@ public class Util {
                 boolean saccessible = sfield.isAccessible();
                 try {
                     sfield.setAccessible(true);
-                    URL url = (URL) sfield.get(facelet);
-                    path = localPath(ctx.getFacesContext(), url.getPath());
+                    url = (URL) sfield.get(facelet);
                 } finally {
                     sfield.setAccessible(saccessible);
                 }
@@ -410,7 +413,7 @@ public class Util {
         } catch (Throwable ex) {
         }
 
-        return path;
+        return url;
     }
     
 }
