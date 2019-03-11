@@ -101,7 +101,7 @@ public class RenderStateHandler extends ComponentHandler {
             c.getAttributes().put(SCXML_CONTINER, stateContinerName);
         } else {
             c.getAttributes().put(SCXML_CONTINER, STATECHART_FACET_NAME);
-        }
+    }
 
     }
 

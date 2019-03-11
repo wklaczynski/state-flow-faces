@@ -368,6 +368,23 @@ public class Util {
         return c == ' ' || c == '\n' || c == '\t' || c == '\r';
     }
     
+    public static String toViewId(FacesContext context, String path) {
+        String base = context.getExternalContext().getRealPath("/").replace("\\", "/");
+        String result = path.replaceFirst(base, "");
+
+        if (result.startsWith("/resources")) {
+            result = result.substring(10);
+            return result;
+        }
+
+        int sep = result.lastIndexOf("/META-INF/resources");
+        if (sep > -1) {
+            result = result.substring(sep + 19);
+            return result;
+        }
+
+        return result;
+    }
     
     private static String localPath(FacesContext context, String path) {
         String base = context.getExternalContext().getRealPath("/").replace("\\","/");

@@ -17,7 +17,6 @@ package org.apache.common.faces.impl.state;
 
 import com.sun.faces.RIConstants;
 import com.sun.faces.application.ApplicationAssociate;
-import com.sun.faces.context.FacesFileNotFoundException;
 import com.sun.faces.facelets.impl.DefaultFaceletFactory;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -35,7 +34,6 @@ import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.Stack;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.FacesException;
@@ -62,7 +60,6 @@ import org.apache.common.scxml.model.SCXML;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
 import javax.faces.view.facelets.Facelet;
-import javax.faces.view.facelets.TagException;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CHART_LOGSTEP_PARAM_NAME;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_CHART_SERIALIZED_PARAM_NAME;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_FLOW_STACK;
@@ -73,7 +70,6 @@ import org.apache.common.faces.impl.state.config.StateWebConfiguration;
 import org.apache.common.faces.impl.state.invokers.SubInvoker;
 import org.apache.common.faces.impl.state.invokers.ViewInvoker;
 import org.apache.common.faces.impl.state.tag.faces.SetVariable;
-import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
@@ -90,6 +86,7 @@ import static org.apache.common.faces.impl.state.StateFlowImplConstants.SCXML_DA
 import org.apache.common.faces.impl.state.invokers.FacetInvoker;
 import org.apache.common.faces.impl.state.tag.faces.MethodCall;
 import org.apache.common.faces.impl.state.tag.faces.Redirect;
+import static org.apache.common.faces.impl.state.utils.Util.toViewId;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import org.apache.common.faces.state.task.TimerEventProducer;
@@ -365,24 +362,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
 
         return scxml;
-    }
-
-    private static String toViewId(FacesContext context, String path) {
-        String base = context.getExternalContext().getRealPath("/").replace("\\", "/");
-        String result = path.replaceFirst(base, "");
-
-        if (result.startsWith("/resources")) {
-            result = result.substring(10);
-            return result;
-        }
-
-        int sep = result.lastIndexOf("/META-INF/resources");
-        if (sep > -1) {
-            result = result.substring(sep + 19);
-            return result;
-        }
-
-        return result;
     }
 
     @Override

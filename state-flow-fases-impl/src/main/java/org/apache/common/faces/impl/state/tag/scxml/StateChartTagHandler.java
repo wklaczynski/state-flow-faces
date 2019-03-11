@@ -128,7 +128,7 @@ public class StateChartTagHandler extends TagHandler {
         if (stateContinerName == null) {
             stateContinerName = STATECHART_FACET_NAME;
         }
-        
+
         UIComponent facetComponent = null;
         if (root.getFacetCount() > 0) {
             facetComponent = parent.getFacets().get(stateContinerName);
@@ -186,7 +186,7 @@ public class StateChartTagHandler extends TagHandler {
             }
             parent.getFacets().put(stateContinerName, panelGroup);
             facetComponent = panelGroup;
-            
+
             if (null != facetComponent) {
                 facetComponent.setId(stateContinerName);
             }
@@ -207,7 +207,7 @@ public class StateChartTagHandler extends TagHandler {
 
         uichart.setStateChart(chart);
 
-        String path = getPath(ctx, root);
+        String path = getPath(ctx, root, parent);
 
         PathResolver resolver = baseResolver.getResolver(path);
         chart.setPathResolver(resolver);
@@ -250,8 +250,7 @@ public class StateChartTagHandler extends TagHandler {
 
     }
 
-    public String getPath(FaceletContext ctx, UIViewRoot root) {
-
+    public String getPath(FaceletContext ctx, UIViewRoot root, UIComponent parent) {
         String path = root.getViewId();
 
         try {
@@ -268,7 +267,7 @@ public class StateChartTagHandler extends TagHandler {
                     path = "/" + url.getPath();
                 } finally {
                     sfield.setAccessible(saccessible);
-                }
+        }
 
             } finally {
                 ffield.setAccessible(faccessible);
