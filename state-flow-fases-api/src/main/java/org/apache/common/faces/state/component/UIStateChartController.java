@@ -17,6 +17,7 @@ package org.apache.common.faces.state.component;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -28,6 +29,7 @@ import javax.faces.component.UIPanel;
 import javax.faces.component.UIParameter;
 import javax.faces.component.visit.VisitCallback;
 import javax.faces.component.visit.VisitContext;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.el.EvaluationException;
 import javax.faces.el.MethodBinding;
@@ -38,6 +40,7 @@ import javax.faces.view.Location;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
+import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.EventBuilder;
@@ -410,12 +413,11 @@ public class UIStateChartController extends UIPanel {
 
     public SCXML findStateMachine(FacesContext context, String scxmlId) throws IOException {
         StateFlowHandler handler = StateFlowHandler.getInstance();
+        Location location = (Location) getAttributes()
+                .get(UIComponent.VIEW_LOCATION_KEY);
 
         UIComponent compositeParent = UIComponent.getCurrentCompositeComponent(context);
         if (compositeParent != null) {
-            Location location = (Location) compositeParent.getAttributes()
-                    .get(UIComponent.VIEW_LOCATION_KEY);
-
             String continerName = (String) getAttributes().get(SCXML_CONTINER);
             URL url = (URL) getAttributes().get(SCXML_URL);
 
@@ -430,6 +432,14 @@ public class UIStateChartController extends UIPanel {
 
             try {
                 SCXML scxml = handler.getStateMachine(context, url, continerName, scxmlId);
+                if (scxml == null) {
+                    throw new IOException(String.format(
+                            location + " "
+                            + "Can not find scxml definition id=\"%s\", not found"
+                            + " in composite <f:metadata...",
+                            scxmlId));
+                }
+
                 return scxml;
             } catch (ModelException ex) {
                 throw new IOException(String.format(
@@ -442,10 +452,18 @@ public class UIStateChartController extends UIPanel {
         } else {
             try {
                 SCXML scxml = handler.findStateMachine(context, scxmlId);
+                if (scxml == null) {
+                    throw new IOException(String.format(
+                            location + " "
+                            + "Can not find scxml definition id=\"%s\", not found"
+                            + " in composite <f:metadata...",
+                            scxmlId));
+                }
                 return scxml;
             } catch (ModelException ex) {
                 throw new IOException(String.format(
-                        "Can not find scxml definition \"%s\" in controler\"%s\", throw model exception.",
+                        location + " "
+                        + "Can not find scxml definition \"%s\" in controler\"%s\", throw model exception.",
                         scxmlId,
                         getClientId(context)),
                         ex);
