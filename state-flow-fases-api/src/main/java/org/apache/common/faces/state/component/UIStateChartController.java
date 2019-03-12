@@ -38,6 +38,7 @@ import javax.faces.event.FacesEvent;
 import javax.faces.view.Location;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.scxml.Context;
@@ -53,8 +54,11 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class UIStateChartController extends UIPanel {
 
+    public static final String CONTROLLER_TYPE = "UIStateChartController";
+    
     public static final String COMPONENT_ID = UIStateChartController.class.getName() + ":clientId";
     public static final String VIEW_ID = UIStateChartController.class.getName() + ":viewId";
+    
     public static final String SCXML_URL = "javax.faces.component.SCXML_URL";
     public static final String SCXML_UUID = "javax.faces.component.SCXML_UUID";
     public static final String SCXML_CONTINER = "javax.faces.component.SCXML_CONTINER";
@@ -274,8 +278,9 @@ public class UIStateChartController extends UIPanel {
                     executor = handler.createRootExecutor(executorId, context, stateMachine);
                     executor.getSCInstance().getSystemContext();
                     Context sctx = executor.getRootContext();
-                    sctx.set(COMPONENT_ID, getClientId(context));
-                    sctx.set(VIEW_ID, context.getViewRoot().getViewId());
+                    sctx.setLocal(FACES_CHART_CONTROLLER, CONTROLLER_TYPE);
+                    sctx.setLocal(COMPONENT_ID, getClientId(context));
+                    sctx.setLocal(VIEW_ID, context.getViewRoot().getViewId());
 
                 } catch (ModelException ex) {
                     throw new IOException(ex);

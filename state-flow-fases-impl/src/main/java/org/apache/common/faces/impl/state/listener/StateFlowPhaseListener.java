@@ -61,7 +61,10 @@ import org.apache.common.scxml.EventDispatcher;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.model.ModelException;
 import static org.apache.common.faces.state.StateFlow.DECODE_DISPATCHER_EVENTS;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER;
 import org.apache.common.faces.state.component.UIStateChartController;
+import static org.apache.common.faces.state.component.UIStateChartController.CONTROLLER_TYPE;
+import static org.apache.common.faces.state.StateFlow.VIEW_CONTROLLER_TYPE;
 
 /**
  *
@@ -424,6 +427,8 @@ public class StateFlowPhaseListener implements PhaseListener {
 
             String executorId = UUID.randomUUID().toString();
             SCXMLExecutor executor = flowHandler.createRootExecutor(executorId, context, stateFlow);
+            Context sctx = executor.getRootContext();
+            sctx.setLocal(FACES_CHART_CONTROLLER, VIEW_CONTROLLER_TYPE);
 
             flowHandler.execute(context, executor, params);
             UIViewRoot result = context.getViewRoot();

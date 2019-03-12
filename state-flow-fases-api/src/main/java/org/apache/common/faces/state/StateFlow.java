@@ -64,6 +64,11 @@ public class StateFlow {
     /**
      *
      */
+    public static final String VIEW_CONTROLLER_TYPE = "VIEW";
+    
+    /**
+     *
+     */
     public static final String STATECHART_FACET_NAME = "javax_stateflow_metadata";
 
     /**
@@ -146,9 +151,14 @@ public class StateFlow {
     /**
      *
      */
-    public static final String FACES_VIEW_STATE
-                               = "com.sun.faces.FACES_VIEW_STATE";
-
+    public static final String FACES_VIEW_STATE  = "com.sun.faces.FACES_VIEW_STATE";
+    
+    
+    /**
+     *
+     */
+    public static final String FACES_CHART_CONTROLLER =  "com.sun.faces.FACES_CHART_CONTROLLER";
+    
     /**
      *
      */

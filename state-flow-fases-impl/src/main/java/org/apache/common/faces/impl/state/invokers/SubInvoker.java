@@ -40,7 +40,9 @@ import org.apache.common.scxml.model.SCXML;
 import static org.apache.common.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
 import static org.apache.common.faces.state.StateFlow.DECODE_DISPATCHER_EVENTS;
 import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER;
 import org.apache.common.faces.state.component.UIStateChartController;
+import static org.apache.common.faces.state.StateFlow.VIEW_CONTROLLER_TYPE;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -125,8 +127,9 @@ public class SubInvoker implements Invoker, StateHolder {
                 id = DEFAULT_STATECHART_NAME;
             }
 
-            String controllerId = null;
+            String controllerType = VIEW_CONTROLLER_TYPE;
 
+            String controllerId = null;
             if ("@this".equals(viewId)) {
                 String machineViewId = (String) parentSCXMLExecutor
                         .getStateMachine().getMetadata().get("faces-viewid");
@@ -134,7 +137,18 @@ public class SubInvoker implements Invoker, StateHolder {
                 viewId = machineViewId;
 
                 Context sctx = parentSCXMLExecutor.getRootContext();
-                controllerId = (String) sctx.get(UIStateChartController.COMPONENT_ID);
+
+                controllerType = (String) sctx.get(FACES_CHART_CONTROLLER);
+                if (controllerType == null) {
+                    controllerType = VIEW_CONTROLLER_TYPE;
+                }
+
+                switch (controllerType) {
+                    case UIStateChartController.CONTROLLER_TYPE:
+                        controllerId = (String) sctx.get(UIStateChartController.COMPONENT_ID);
+                        break;
+                }
+
             }
 
             int pos = viewId.indexOf("META-INF/resources/");
@@ -142,19 +156,26 @@ public class SubInvoker implements Invoker, StateHolder {
                 viewId = viewId.substring(pos + 18);
             }
 
-            if (controllerId == null) {
-                scxml = handler.getStateMachine(fc, viewId, id);
-            } else {
-                UIViewRoot viewRoot = fc.getViewRoot();
-                UIStateChartController controller = (UIStateChartController) viewRoot.findComponent(controllerId);
-                scxml = controller.findStateMachine(fc, id);
+            switch (controllerType) {
+                case VIEW_CONTROLLER_TYPE:
+                    scxml = handler.getStateMachine(fc, viewId, id);
+                    break;
+                case UIStateChartController.CONTROLLER_TYPE:
+                    UIViewRoot viewRoot = fc.getViewRoot();
+                    UIStateChartController controller = (UIStateChartController) viewRoot.findComponent(controllerId);
+                    scxml = controller.findStateMachine(fc, id);
+                    break;
+                default:
+                    throw new InvokerException(String.format(
+                            "unsuperted controller type %s", controllerType));
             }
 
             if (scxml == null) {
-                throw new InvokerException(String.format("Invoked scxml id='%s' not found in %s", id, viewId));
+                throw new InvokerException(String.format(
+                        "invoked scxml id='%s' not found in %s", id, viewId));
             }
 
-            execute(handler, viewId, scxml, params);
+            execute(handler, controllerType, viewId, scxml, params);
 
         } catch (FacesException | InvokerException ex) {
             throw ex;
@@ -175,17 +196,21 @@ public class SubInvoker implements Invoker, StateHolder {
     /**
      *
      * @param handler
+     * @param controllerType
      * @param viewId
      * @param scxml
      * @param params
      * @throws InvokerException
      */
-    protected void execute(StateFlowHandler handler, String viewId, SCXML scxml, final Map<String, Object> params) throws InvokerException {
+    protected void execute(StateFlowHandler handler, String controllerType, String viewId, SCXML scxml, final Map<String, Object> params) throws InvokerException {
         try {
             FacesContext fc = FacesContext.getCurrentInstance();
             String id = parentSCXMLExecutor.getId() + ":" + viewId + "!" + getInvokeId();
 
             executor = handler.createChildExecutor(id, fc, parentSCXMLExecutor, invokeId, scxml);
+            Context sctx = executor.getRootContext();
+            sctx.setLocal(FACES_CHART_CONTROLLER, controllerType);
+            
             handler.execute(fc, executor, params);
         } catch (FacesException ex) {
             throw ex;
