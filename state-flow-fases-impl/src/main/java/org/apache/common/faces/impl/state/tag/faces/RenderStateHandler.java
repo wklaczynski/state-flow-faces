@@ -16,11 +16,14 @@
  */
 package org.apache.common.faces.impl.state.tag.faces;
 
-import com.sun.faces.facelets.impl.DefaultFaceletFactory;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
@@ -28,15 +31,25 @@ import javax.faces.view.facelets.Facelet;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagException;
+import org.apache.common.faces.state.StateFlow;
+import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
+import static org.apache.common.faces.state.StateFlow.PORTLET_CONTROLLER_TYPE;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
-import static org.apache.common.faces.state.component.UIStateChartController.SCXML_CONTINER;
-import static org.apache.common.faces.state.component.UIStateChartController.SCXML_URL;
-import static org.apache.common.faces.state.component.UIStateChartController.SCXML_UUID;
+import org.apache.common.faces.state.StateFlowHandler;
+import org.apache.common.faces.state.component.UIStateChartController;
+import org.apache.common.scxml.Context;
 import org.apache.common.scxml.SCXMLConstants;
+import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.model.CommonsSCXML;
 import org.apache.common.scxml.model.CustomAction;
 import org.apache.common.scxml.model.CustomActionWrapper;
+import org.apache.common.scxml.model.ModelException;
+import org.apache.common.scxml.model.SCXML;
 import org.apache.common.scxml.model.Var;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_NAME;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_SOURCE;
 
 /**
  * The class in this SCXML object model that corresponds to the
@@ -70,7 +83,6 @@ public class RenderStateHandler extends ComponentHandler {
     // This attribute is not required.  If not defined, then assume the facet
     // isn't necessary.
     TagAttribute required;
-    private DefaultFaceletFactory faceletFactory;
 
     public RenderStateHandler(ComponentConfig config) {
         super(config);
@@ -79,29 +91,103 @@ public class RenderStateHandler extends ComponentHandler {
     }
 
     @Override
-    public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
+    public void apply(FaceletContext ctx, UIComponent parent) throws IOException {
+        FacesContext context = ctx.getFacesContext();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+
+        UIViewRoot viewRoot = context.getViewRoot();
+        String viewId = viewRoot.getViewId();
+
+        String scxmlName = name.getValue(ctx);
+
+        String rootId = handler.getExecutorViewRootId(context);
+
         UIComponent compositeParent = UIComponent.getCurrentCompositeComponent(ctx.getFacesContext());
         if (compositeParent != null) {
             URL url = getCompositeURL(ctx);
             if (url == null) {
                 throw new TagException(this.tag,
                         "Unable to localize composite url '"
-                        + name
+                        + scxmlName
                         + "' in parent composite component with id '"
                         + compositeParent.getClientId(ctx.getFacesContext())
                         + '\'');
             }
+            String executorName = "controller[" + tag + "]" + viewId + "!" + url.getPath() + "#" + scxmlName;
+            String executorId = rootId + ":" + UUID.nameUUIDFromBytes(executorName.getBytes()).toString();
 
             String uuid = UUID.nameUUIDFromBytes(url.getPath().getBytes()).toString();
-
             String stateContinerName = STATECHART_FACET_NAME + "_" + uuid;
 
-            c.getAttributes().put(SCXML_URL, url);
-            c.getAttributes().put(SCXML_UUID, uuid);
-            c.getAttributes().put(SCXML_CONTINER, stateContinerName);
+            applyNext(ctx, parent, executorId, stateContinerName, url);
         } else {
-            c.getAttributes().put(SCXML_CONTINER, STATECHART_FACET_NAME);
+            String executorName = "controller[" + tag + "]" + viewId + "#" + scxmlName;
+            String executorId = rootId + ":" + UUID.nameUUIDFromBytes(executorName.getBytes()).toString();
+
+            String stateContinerName = STATECHART_FACET_NAME;
+
+            applyNext(ctx, parent, executorId, stateContinerName, rootId);
+        }
     }
+
+    public void applyNext(FaceletContext ctx, UIComponent parent, String executorId, String continerName, Object continerSource) throws IOException {
+        FacesContext context = ctx.getFacesContext();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+
+        String viewId = context.getViewRoot().getViewId();
+
+        SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
+        if (executor == null) {
+
+            SCXML stateMachine = findStateMachine(ctx, continerName, continerSource);
+            try {
+                executor = handler.createRootExecutor(executorId, context, stateMachine);
+                executor.getSCInstance().getSystemContext();
+                Context sctx = executor.getRootContext();
+                sctx.setLocal(FACES_CHART_CONTROLLER, PORTLET_CONTROLLER_TYPE);
+                sctx.setLocal(FACES_CHART_CONTINER_NAME, continerName);
+                sctx.setLocal(FACES_CHART_CONTINER_SOURCE, continerSource);
+
+                sctx.setLocal(FACES_CHART_VIEW_ID, viewId);
+
+            } catch (ModelException ex) {
+                throw new IOException(ex);
+            }
+            context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
+
+            Map<String, Object> params = getParamsMap(ctx, parent);
+            handler.execute(context, executor, params, true);
+        }
+
+        if (!executor.isRunning()) {
+            handler.close(context, executor);
+        }
+
+        if (context.getResponseComplete()) {
+            handler.writeState(context);
+        }
+
+        String path = viewId + "!" + executorId;
+        StateFlow.pushExecutorToEL(context, executor, path);
+        try {
+            super.apply(ctx, parent);
+        } finally {
+            StateFlow.popExecutorFromEL(context);
+        }
+    }
+
+    @Override
+    public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
+        FacesContext context = ctx.getFacesContext();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+
+        SCXMLExecutor executor = handler.getRootExecutor(context);
+        Context sctx = executor.getRootContext();
+
+        UIStateChartController controller = (UIStateChartController) c;
+        String executorId = executor.getId();
+
+        controller.setExecutorId(executorId);
 
     }
 
@@ -130,6 +216,71 @@ public class RenderStateHandler extends ComponentHandler {
         }
 
         return url;
+    }
+
+    public SCXML findStateMachine(FaceletContext ctx, String continerName,  Object continerSource) throws IOException {
+        FacesContext context = ctx.getFacesContext();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+
+        String scxmlId = name.getValue(ctx);
+
+        UIComponent compositeParent = UIComponent.getCurrentCompositeComponent(context);
+        if (compositeParent != null) {
+
+            URL url = (URL) continerSource;
+            if (url == null) {
+                throw new TagException(this.tag,
+                        "Unable to localize composite url '"
+                        + scxmlId
+                        + "' in parent composite component with id '"
+                        + compositeParent.getClientId(ctx.getFacesContext())
+                        + '\'');
+            }
+
+            if (continerName == null) {
+                throw new TagException(tag, String.format(
+                        "Can not find scxml definition \"%s\", "
+                        + "view location not found in composite component.",
+                        scxmlId));
+            }
+
+            try {
+                SCXML scxml = handler.getStateMachine(context, url, continerName, scxmlId);
+                if (scxml == null) {
+                    throw new TagException(tag, String.format(
+                            "Can not find scxml definition id=\"%s\", not found"
+                            + " in composite <f:metadata...",
+                            scxmlId));
+                }
+
+                return scxml;
+            } catch (ModelException ex) {
+                throw new TagException(tag, String.format(
+                        "can not find scxml definition \"%s\", throw model exception.",
+                        scxmlId), ex);
+            }
+        } else {
+            try {
+                SCXML scxml = handler.findStateMachine(context, scxmlId);
+                if (scxml == null) {
+                    throw new TagException(tag, String.format(
+                            "can not find scxml definition id=\"%s\", not found"
+                            + " in composite <f:metadata...",
+                            scxmlId));
+                }
+                return scxml;
+            } catch (ModelException ex) {
+                throw new TagException(tag, String.format(
+                        "can not find scxml definition \"%s\", throw model exception.",
+                        scxmlId), ex);
+            }
+        }
+    }
+
+    private Map<String, Object> getParamsMap(FaceletContext ctx, UIComponent parent) {
+        Map<String, Object> params = new LinkedHashMap<>();
+
+        return params;
     }
 
     private static String localPath(FacesContext context, String path) {

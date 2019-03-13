@@ -18,6 +18,7 @@ package org.apache.common.faces.impl.state;
 import com.sun.faces.RIConstants;
 import com.sun.faces.application.ApplicationAssociate;
 import com.sun.faces.facelets.impl.DefaultFaceletFactory;
+import com.sun.faces.renderkit.RenderKitUtils;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -34,6 +35,7 @@ import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.Stack;
+import java.util.UUID;
 import java.util.logging.Logger;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.FacesException;
@@ -45,6 +47,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.FacesContextWrapper;
 import javax.faces.lifecycle.ClientWindow;
+import javax.faces.render.ResponseStateManager;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.events.OnFinishEvent;
@@ -90,6 +93,7 @@ import org.apache.common.faces.impl.state.tag.faces.Redirect;
 import static org.apache.common.faces.impl.state.utils.Util.toViewId;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
+import static org.apache.common.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import org.apache.common.faces.state.task.TimerEventProducer;
 import org.apache.common.scxml.ParentSCXMLIOProcessor;
 import static org.apache.common.scxml.io.StateHolderSaver.restoreContext;
@@ -104,6 +108,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     private static final Logger log = Logger.getLogger(StateFlowHandler.class.getName());
     private final List<CustomAction> customActions = Collections.synchronizedList(new ArrayList<>());
     private final Map<String, Class<? extends Invoker>> customInvokers = Collections.synchronizedMap(new HashMap<>());
+
+    public static final String VIEW_UUID_KEY = "javax.faces.state.StateFlowHandler:VIEW_UUID_KEY";
 
     /**
      *
@@ -233,8 +239,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     UIStateChartDefinition uichart = (UIStateChartDefinition) stateContiner.findComponent(id);
                     if (uichart != null) {
                         scxml = uichart.getStateChart();
+                        return scxml;
                     }
-                    return scxml;
                 }
             }
         }
@@ -251,11 +257,23 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
             UIViewRoot view = viewMetadata.createMetadataView(context);
 
-            UIComponent facet = view.getFacet(STATECHART_FACET_NAME);
+            UIComponent facet = view.getFacet(continerName);
             if (facet != null) {
                 UIStateChartDefinition uichart = (UIStateChartDefinition) facet.findComponent(id);
                 if (uichart != null) {
                     scxml = uichart.getStateChart();
+                }
+
+                if (currentViewRoot != null && !STATECHART_FACET_NAME.equals(continerName)) {
+                    UIComponent current = currentViewRoot.getFacets().get(continerName);
+                    if (current == null) {
+                        facet.setParent(null);
+                        currentViewRoot.getFacets().put(continerName, facet);
+                    } else {
+                        UIComponent found = facet.findComponent(id);
+                        found.setParent(null);
+                        current.getChildren().add(found);
+                    }
                 }
             }
 
@@ -297,7 +315,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             Map<String, Object> currentViewMapShallowCopy = Collections.emptyMap();
             try {
                 context.getAttributes().put(BUILD_STATE_CONTINER_HINT, continerName);
-                context.getAttributes().remove(BUILD_STATE_MACHINE_HINT);
+                context.getAttributes().put(BUILD_STATE_MACHINE_HINT, id);
 
                 String viewId = toViewId(context, url.getPath());
 
@@ -329,8 +347,15 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
                 UIComponent facet = scxmlViewRoot.getFacet(continerName);
                 if (facet != null) {
-                    facet.setParent(null);
-                    currentViewRoot.getFacets().put(continerName, facet);
+                    UIComponent current = currentViewRoot.getFacets().get(continerName);
+                    if (current == null) {
+                        facet.setParent(null);
+                        currentViewRoot.getFacets().put(continerName, facet);
+                    } else {
+                        UIComponent found = facet.findComponent(id);
+                        found.setParent(null);
+                        current.getChildren().add(found);
+                    }
                 }
 
             } catch (IOException ex) {
@@ -351,6 +376,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             if (currentViewRoot.getFacetCount() > 0) {
                 stateContiner = currentViewRoot.getFacets().get(continerName);
             }
+
         }
 
         if (stateContiner != null) {
@@ -382,6 +408,33 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return null;
         }
         return fs.getFlowContext();
+    }
+
+    @Override
+    public String getExecutorViewRootId(FacesContext context) {
+        String uuid = (String) context.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+
+        if (uuid == null) {
+            String viewId = context.getViewRoot().getViewId();
+            ViewHandler vh = context.getApplication().getViewHandler();
+            String renderKitId = vh.calculateRenderKitId(context);
+            ResponseStateManager rsm = RenderKitUtils.getResponseStateManager(context, renderKitId);
+            Object[] rawState = (Object[]) rsm.getState(context, viewId);
+            if (rawState != null) {
+                Map<String, Object> state = (Map<String, Object>) rawState[1];
+                if (state != null) {
+                    uuid = (String) state.get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                }
+            }
+        }
+
+        if (uuid == null) {
+            uuid = UUID.randomUUID().toString();
+        }
+
+        context.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, uuid);
+
+        return uuid;
     }
 
     @Override

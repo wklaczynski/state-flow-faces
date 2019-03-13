@@ -16,10 +16,8 @@
 package org.apache.common.faces.state.component;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
 import javax.faces.FacesException;
 import javax.faces.component.ActionSource;
 import javax.faces.component.NamingContainer;
@@ -37,8 +35,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.FacesEvent;
 import javax.faces.view.Location;
 import org.apache.common.faces.state.StateFlow;
-import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_FACET;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.scxml.Context;
@@ -46,7 +43,6 @@ import org.apache.common.scxml.EventBuilder;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.TriggerEvent;
 import org.apache.common.scxml.model.ModelException;
-import org.apache.common.scxml.model.SCXML;
 
 /**
  *
@@ -54,14 +50,7 @@ import org.apache.common.scxml.model.SCXML;
  */
 public class UIStateChartController extends UIPanel {
 
-    public static final String CONTROLLER_TYPE = "UIStateChartController";
-    
-    public static final String COMPONENT_ID = UIStateChartController.class.getName() + ":clientId";
-    public static final String VIEW_ID = UIStateChartController.class.getName() + ":viewId";
-    
-    public static final String SCXML_URL = "javax.faces.component.SCXML_URL";
-    public static final String SCXML_UUID = "javax.faces.component.SCXML_UUID";
-    public static final String SCXML_CONTINER = "javax.faces.component.SCXML_CONTINER";
+    private String _executorId;
 
     /**
      *
@@ -74,14 +63,10 @@ public class UIStateChartController extends UIPanel {
      */
     @SuppressWarnings("FieldNameHidesFieldInSuperclass")
     public static final String COMPONENT_TYPE = "org.apache.common.faces.UIStateChartController";
-    private UIComponent curentRenderComponent;
 
     enum PropertyKeys {
         name,
         required,
-        flowQueue,
-        facetId,
-        executorId
     }
 
     /**
@@ -100,6 +85,14 @@ public class UIStateChartController extends UIPanel {
         return COMPONENT_FAMILY;
     }
 
+    public String getExecutorId() {
+        return _executorId;
+    }
+
+    public void setExecutorId(String executorId) {
+        this._executorId = executorId;
+    }
+
     public String getName() {
         return (java.lang.String) getStateHelper().eval(PropertyKeys.name, null);
     }
@@ -116,23 +109,6 @@ public class UIStateChartController extends UIPanel {
         getStateHelper().put(PropertyKeys.required, _required);
     }
 
-    public String getFacetId() {
-        return (String) getStateHelper().get(PropertyKeys.facetId);
-    }
-
-    public void setFacetId(java.lang.String _facetId) {
-        curentRenderComponent = null;
-        getStateHelper().put(PropertyKeys.facetId, _facetId);
-    }
-
-    public String getExecutorId() {
-        return (java.lang.String) getStateHelper().eval(PropertyKeys.executorId, null);
-    }
-
-    public void setExecutorId(java.lang.String _executorId) {
-        getStateHelper().put(PropertyKeys.executorId, _executorId);
-    }
-
     public String getPath(FacesContext context) {
         String path = context.getViewRoot().getViewId() + "!" + getClientId(context);
         return path;
@@ -142,7 +118,7 @@ public class UIStateChartController extends UIPanel {
     public void broadcast(FacesEvent event) throws AbortProcessingException {
         super.broadcast(event);
     }
-    
+
     public boolean processAction(ActionEvent event) throws AbortProcessingException {
         boolean consumed = false;
 
@@ -185,7 +161,9 @@ public class UIStateChartController extends UIPanel {
                     OUTCOME_EVENT_PREFIX + outcome,
                     TriggerEvent.CALL_EVENT);
 
-            eb.sendId(getClientId(context));
+            String viewId = context.getViewRoot().getViewId();
+
+            eb.sendId(viewId);
 
             try {
                 TriggerEvent ev = eb.build();
@@ -251,60 +229,16 @@ public class UIStateChartController extends UIPanel {
 
     @Override
     public void encodeEnd(FacesContext context) throws IOException {
-
-        UIComponent renderComponent = getCurentRenderComponent(context);
-        if (renderComponent != null) {
-            pushExecutor(context);
-            try {
+        pushExecutor(context);
+        try {
+            UIComponent renderComponent = getCurentRenderComponent(context);
+            if (renderComponent != null) {
                 renderComponent.encodeAll(context);
-            } finally {
-                pushExecutor(context);
             }
+            super.encodeEnd(context);
+        } finally {
+            pushExecutor(context);
         }
-        super.encodeEnd(context);
-    }
-
-    public void restoreExecutor(FacesContext context) throws IOException {
-        StateFlowHandler handler = StateFlowHandler.getInstance();
-
-        SCXMLExecutor executor = null;
-        String executorId = getExecutorId();
-
-        if (executorId == null) {
-            executorId = UUID.randomUUID().toString();
-            SCXML stateMachine = findStateMachine(context, getName());
-            if (stateMachine != null) {
-                try {
-                    executor = handler.createRootExecutor(executorId, context, stateMachine);
-                    executor.getSCInstance().getSystemContext();
-                    Context sctx = executor.getRootContext();
-                    sctx.setLocal(FACES_CHART_CONTROLLER, CONTROLLER_TYPE);
-                    sctx.setLocal(COMPONENT_ID, getClientId(context));
-                    sctx.setLocal(VIEW_ID, context.getViewRoot().getViewId());
-
-                } catch (ModelException ex) {
-                    throw new IOException(ex);
-                }
-                context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
-
-                setExecutorId(executorId);
-                Map<String, Object> params = getParamsMap();
-                handler.execute(context, executor, params, true);
-            }
-        } else {
-            executor = handler.getRootExecutor(context, executorId);
-        }
-
-        if (executor != null) {
-            if (!executor.isRunning()) {
-                handler.close(context, executor);
-            }
-
-            if (context.getResponseComplete()) {
-                handler.writeState(context);
-            }
-        }
-
     }
 
     @Override
@@ -376,36 +310,28 @@ public class UIStateChartController extends UIPanel {
     @Override
     public void restoreState(FacesContext context, Object state) {
         super.restoreState(context, state);
-
-//        StateFlowHandler handler = StateFlowHandler.getInstance();
-//
-//        String name = BEFORE_PHASE_EVENT_PREFIX
-//                + PhaseId.RESTORE_VIEW.getName().toLowerCase();
-//
-//        SCXMLExecutor executor = getRootExecutor(context);
-//        if (executor != null) {
-//            EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
-//                    .sendId(context.getViewRoot().getViewId());
-//            try {
-//                executor.triggerEvent(eb.build());
-//            } catch (ModelException ex) {
-//                throw new FacesException(ex);
-//            }
-//
-//            if (!executor.isRunning()) {
-//                handler.close(context, executor);
-//            }
-//        }
     }
 
     public UIComponent getCurentRenderComponent(FacesContext context) {
-        if (curentRenderComponent == null) {
-            String facetId = getFacetId();
-            if (facetId != null) {
-                curentRenderComponent = context.getViewRoot().findComponent(facetId);
+        UIComponent facet = null;
+
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        String executorId = getExecutorId();
+        SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
+        if (executor != null) {
+            Context sctx = executor.getRootContext();
+            String source = (String) sctx.get(FACES_CHART_FACET);
+            if (source != null) {
+                if (source.startsWith("@controller:")) {
+                    String name = source.substring(12);
+                    facet = getFacet(name);
+                    if (facet == null) {
+                        throwRequiredFacetException(context, name);
+                    }
+                }
             }
         }
-        return curentRenderComponent;
+        return facet;
     }
 
     public UIComponent getRenderNamingContainer(FacesContext context) {
@@ -417,66 +343,6 @@ public class UIStateChartController extends UIPanel {
             namingContainer = namingContainer.getParent();
         }
         return null;
-    }
-
-    public SCXML findStateMachine(FacesContext context, String scxmlId) throws IOException {
-        StateFlowHandler handler = StateFlowHandler.getInstance();
-        Location location = (Location) getAttributes()
-                .get(UIComponent.VIEW_LOCATION_KEY);
-
-        UIComponent compositeParent = UIComponent.getCurrentCompositeComponent(context);
-        if (compositeParent != null) {
-            String continerName = (String) getAttributes().get(SCXML_CONTINER);
-            URL url = (URL) getAttributes().get(SCXML_URL);
-
-            if (continerName == null) {
-                throw new IOException(String.format(
-                        location + " "
-                        + "Can not find scxml definition \"%s\" in controler\"%s\", "
-                        + "view location not found in composite component.",
-                        scxmlId,
-                        getClientId(context)));
-            }
-
-            try {
-                SCXML scxml = handler.getStateMachine(context, url, continerName, scxmlId);
-                if (scxml == null) {
-                    throw new IOException(String.format(
-                            location + " "
-                            + "Can not find scxml definition id=\"%s\", not found"
-                            + " in composite <f:metadata...",
-                            scxmlId));
-                }
-
-                return scxml;
-            } catch (ModelException ex) {
-                throw new IOException(String.format(
-                        location + " "
-                        + "Can not find scxml definition \"%s\" in controler\"%s\", throw model exception.",
-                        scxmlId,
-                        getClientId(context)),
-                        ex);
-            }
-        } else {
-            try {
-                SCXML scxml = handler.findStateMachine(context, scxmlId);
-                if (scxml == null) {
-                    throw new IOException(String.format(
-                            location + " "
-                            + "Can not find scxml definition id=\"%s\", not found"
-                            + " in composite <f:metadata...",
-                            scxmlId));
-                }
-                return scxml;
-            } catch (ModelException ex) {
-                throw new IOException(String.format(
-                        location + " "
-                        + "Can not find scxml definition \"%s\" in controler\"%s\", throw model exception.",
-                        scxmlId,
-                        getClientId(context)),
-                        ex);
-            }
-        }
     }
 
     public SCXMLExecutor getRootExecutor(FacesContext context) {
@@ -507,6 +373,17 @@ public class UIStateChartController extends UIPanel {
             }
         }
         return params;
+    }
+
+    private void throwRequiredFacetException(FacesContext ctx, String name) {
+
+        Location location = (Location) getAttributes().get(UIComponent.VIEW_LOCATION_KEY);
+
+        throw new FacesException(
+                location + " "
+                + "unable to find facet named \"" + name + "\" in controller component "
+                + " with id \"" + getClientId(ctx) + "\"");
+
     }
 
 }

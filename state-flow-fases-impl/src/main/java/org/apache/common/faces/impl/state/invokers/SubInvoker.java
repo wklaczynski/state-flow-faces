@@ -16,11 +16,16 @@
  */
 package org.apache.common.faces.impl.state.invokers;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.Map;
 import java.util.logging.Logger;
 import javax.faces.FacesException;
-import javax.faces.component.UIViewRoot;
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.view.facelets.FaceletContext;
+import javax.faces.view.facelets.TagException;
+import javax.mail.internet.InternetAddress;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.task.FacesProcessHolder;
 import org.apache.common.scxml.Context;
@@ -41,8 +46,11 @@ import static org.apache.common.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
 import static org.apache.common.faces.state.StateFlow.DECODE_DISPATCHER_EVENTS;
 import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER;
-import org.apache.common.faces.state.component.UIStateChartController;
+import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import static org.apache.common.faces.state.StateFlow.VIEW_CONTROLLER_TYPE;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_NAME;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_SOURCE;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -127,48 +135,37 @@ public class SubInvoker implements Invoker, StateHolder {
                 id = DEFAULT_STATECHART_NAME;
             }
 
+            Context sctx = parentSCXMLExecutor.getRootContext();
+            
+            int pos = viewId.indexOf("META-INF/resources/");
+            if (pos >= 0) {
+                viewId = viewId.substring(pos + 18);
+            }
+            
             String controllerType = VIEW_CONTROLLER_TYPE;
+            String continerName = STATECHART_FACET_NAME;
+            Object continerSource = viewId;
 
-            String controllerId = null;
+            
+            
             if ("@this".equals(viewId)) {
                 String machineViewId = (String) parentSCXMLExecutor
                         .getStateMachine().getMetadata().get("faces-viewid");
 
                 viewId = machineViewId;
 
-                Context sctx = parentSCXMLExecutor.getRootContext();
 
                 controllerType = (String) sctx.get(FACES_CHART_CONTROLLER);
                 if (controllerType == null) {
                     controllerType = VIEW_CONTROLLER_TYPE;
                 }
 
-                switch (controllerType) {
-                    case UIStateChartController.CONTROLLER_TYPE:
-                        controllerId = (String) sctx.get(UIStateChartController.COMPONENT_ID);
-                        break;
-                }
+                continerName = (String) sctx.get(FACES_CHART_CONTINER_NAME);               
+                continerSource = sctx.get(FACES_CHART_CONTINER_SOURCE);               
 
             }
 
-            int pos = viewId.indexOf("META-INF/resources/");
-            if (pos >= 0) {
-                viewId = viewId.substring(pos + 18);
-            }
-
-            switch (controllerType) {
-                case VIEW_CONTROLLER_TYPE:
-                    scxml = handler.getStateMachine(fc, viewId, id);
-                    break;
-                case UIStateChartController.CONTROLLER_TYPE:
-                    UIViewRoot viewRoot = fc.getViewRoot();
-                    UIStateChartController controller = (UIStateChartController) viewRoot.findComponent(controllerId);
-                    scxml = controller.findStateMachine(fc, id);
-                    break;
-                default:
-                    throw new InvokerException(String.format(
-                            "unsuperted controller type %s", controllerType));
-            }
+            scxml = findStateMachine(fc, id, continerName, continerSource);
 
             if (scxml == null) {
                 throw new InvokerException(String.format(
@@ -184,6 +181,80 @@ public class SubInvoker implements Invoker, StateHolder {
         }
     }
 
+    public SCXML findStateMachine(FacesContext context, String scxmlId, String continerName, Object continerSource) throws IOException {
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+
+        if (continerSource instanceof URL) {
+
+            URL url = (URL) continerSource;
+            if (url == null) {
+                throw new FacesException(
+                        "Unable to localize scxml '"
+                        + scxmlId
+                        + "\" can not get path!");
+            }
+            
+            String path = localPath(context, url.getPath());
+
+            if (continerName == null) {
+                throw new FacesException(String.format(
+                        "Can not find scxml definition \"%s\", "
+                        + "view location not found in composite component %s.",
+                        scxmlId, path));
+            }
+
+            try {
+                SCXML scxml = handler.getStateMachine(context, url, continerName, scxmlId);
+                if (scxml == null) {
+                    throw new FacesException(String.format(
+                            "Can not find scxml definition id=\"%s\", not found"
+                            + " in composite <f:metadata... %s",
+                        scxmlId, path));
+                }
+
+                return scxml;
+            } catch (ModelException ex) {
+                throw new FacesException(String.format(
+                        "can not find scxml definition \"%s\", throw model exception %s.",
+                        scxmlId, path));
+            }
+        } else {
+            String path = (String) continerSource;
+            try {
+                SCXML scxml = handler.getStateMachine(context, path, continerName, scxmlId);
+                if (scxml == null) {
+                    throw new FacesException(String.format(
+                            "can not find scxml definition id=\"%s\", not found"
+                            + " in <f:metadata... %s",
+                        scxmlId, path));
+                }
+                return scxml;
+            } catch (ModelException ex) {
+                throw new FacesException(String.format(
+                        "can not find scxml definition \"%s\", throw model exception %s.",
+                        scxmlId, path));
+            }
+        }
+    }
+    
+    private static String localPath(FacesContext context, String path) {
+        String base = context.getExternalContext().getRealPath("/").replace("\\", "/");
+        String result = path.replaceFirst(base, "");
+
+        if (result.startsWith("/resources")) {
+            result = result.substring(10);
+            return result;
+        }
+
+        int sep = result.lastIndexOf("/META-INF/resources");
+        if (sep > -1) {
+            result = result.substring(sep + 19);
+            return result;
+        }
+
+        return result;
+    }
+    
     /**
      * {@inheritDoc}.
      */

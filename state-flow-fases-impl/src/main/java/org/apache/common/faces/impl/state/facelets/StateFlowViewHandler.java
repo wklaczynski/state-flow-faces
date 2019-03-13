@@ -128,22 +128,6 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
     @Override
     public void renderView(FacesContext facesContext, UIViewRoot viewRoot) throws IOException, FacesException {
 
-        if (!facesContext.isPostback()) {
-            Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
-            VisitContext visitContext = VisitContext.createVisitContext(facesContext, null, hints);
-            viewRoot.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
-                if (target instanceof UIStateChartController) {
-                    UIStateChartController controller = (UIStateChartController) target;
-                    try {
-                        controller.restoreExecutor(facesContext);
-                    } catch (IOException ex) {
-                        throw new FacesException(ex);
-                    }
-                }
-                return VisitResult.ACCEPT;
-            });
-        }
-
         StateFlowHandler handler = StateFlowHandler.getInstance();
         if (!facesContext.getResponseComplete() && viewRoot != null && handler.isActive(facesContext)) {
             SCXMLExecutor executor = handler.getRootExecutor(facesContext);

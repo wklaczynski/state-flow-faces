@@ -12,9 +12,20 @@
     
     <dependencies>
         <dependency>
+            <groupId>javax.faces</groupId>
+            <artifactId>javax.faces-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.faces</groupId>
+            <artifactId>jsf-impl</artifactId>
+            <scope>provided</scope>
+            <version>2.3.5.SP2</version>
+        </dependency>
+        <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
-            <version>7.0</version>
+            <version>8.0</version>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>
@@ -41,17 +52,6 @@
             <artifactId>javax.el-api</artifactId>
             <version>2.2.1</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.faces</groupId>
-            <artifactId>javax.faces-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.faces</groupId>
-            <artifactId>jsf-impl</artifactId>
-            <scope>provided</scope>
-            <version>2.3.5.SP2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.faces</groupId>

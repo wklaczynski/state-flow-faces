@@ -15,13 +15,17 @@
  */
 package org.apache.common.faces.impl.state.facelets;
 
+import java.util.Map;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.faces.view.StateManagementStrategy;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewDeclarationLanguageWrapper;
 import javax.faces.view.ViewMetadata;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.ORYGINAL_SCXML_DEFAULT_SUFIX;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.ORYGINAL_SCXML_SUFIX;
 import org.apache.common.faces.impl.state.config.StateWebConfiguration;
+import static org.apache.common.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 
 /**
  *
@@ -82,6 +86,33 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
             }
         }
         return null;
+    }
+
+    @Override
+    public StateManagementStrategy getStateManagementStrategy(FacesContext context, String viewId) {
+        StateManagementStrategy parent = super.getStateManagementStrategy(context, viewId);
+
+        return new StateManagementStrategy() {
+            @Override
+            public Object saveView(FacesContext context) {
+                String uuid = (String) context.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                Object[] rawState = (Object[]) parent.saveView(context);
+                if (uuid != null) {
+                    if (rawState != null) {
+                        Map<String, Object> state = (Map<String, Object>) rawState[1];
+                        if (state != null) {
+                            state.put(FACES_EXECUTOR_VIEW_ROOT_ID, uuid);
+                        }
+                    }
+                }
+                return rawState;
+            }
+
+            @Override
+            public UIViewRoot restoreView(FacesContext context, String viewId, String renderKitId) {
+                return parent.restoreView(context, viewId, renderKitId);
+            }
+        };
     }
 
 }

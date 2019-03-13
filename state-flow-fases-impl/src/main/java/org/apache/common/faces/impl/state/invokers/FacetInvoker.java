@@ -36,13 +36,19 @@ import javax.faces.context.Flash;
 import javax.faces.context.PartialViewContext;
 import javax.faces.render.RenderKit;
 import javax.faces.render.ResponseStateManager;
+import javax.faces.view.Location;
 import org.apache.common.faces.impl.state.StateFlowParams;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static org.apache.common.faces.state.StateFlow.AFTER_RESTORE_VIEW;
 import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_FACET;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
+import static org.apache.common.faces.state.StateFlow.PORTLET_CONTROLLER_TYPE;
+import static org.apache.common.faces.state.StateFlow.VIEW_CONTROLLER_TYPE;
 import org.apache.common.scxml.SCXMLExecutor;
 import org.apache.common.scxml.SCXMLIOProcessor;
 import org.apache.common.scxml.TriggerEvent;
@@ -55,6 +61,7 @@ import org.apache.common.scxml.InvokeContext;
 import org.apache.common.faces.state.component.UIStateChartController;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.model.ModelException;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_NAME;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -85,7 +92,6 @@ public class FacetInvoker implements Invoker, Serializable {
     private boolean cancelled;
 
     private String facetId;
-    private String controllerId;
     private Map<String, Object> facetparams;
     private Map<String, List<String>> reqparams;
     private String viewId;
@@ -138,9 +144,8 @@ public class FacetInvoker implements Invoker, Serializable {
         ExternalContext ec = context.getExternalContext();
         try {
             Context sctx = executor.getRootContext();
-            controllerId = (String) sctx.get(UIStateChartController.COMPONENT_ID);
-            viewId = (String) sctx.get(UIStateChartController.VIEW_ID);
-            path = viewId + "!" + controllerId;
+            viewId = (String) sctx.get(FACES_CHART_VIEW_ID);
+            path = viewId + "!" + executor.getId();
 
             reqparams = new HashMap<>();
             Map<String, Object> options = new HashMap();
@@ -181,8 +186,7 @@ public class FacetInvoker implements Invoker, Serializable {
             boolean redirect = false;
             boolean ajaxredirect = StateFlowParams.isDefaultAjaxRedirect();
             boolean useflash = StateFlowParams.isDefaultUseFlashInRedirect();
-            
-            
+
             if (options.containsKey("redirect")) {
                 Object val = options.get("redirect");
                 if (val instanceof String) {
@@ -192,7 +196,6 @@ public class FacetInvoker implements Invoker, Serializable {
                 }
                 ajaxredirect = redirect;
             }
-            
 
             if (options.containsKey("flash")) {
                 Object val = options.get("flash");
@@ -202,7 +205,6 @@ public class FacetInvoker implements Invoker, Serializable {
                     useflash = (Boolean) val;
                 }
             }
-            
 
             if (!transientState) {
                 stateKey = "__@@Invoke:" + invokeId + ":";
@@ -290,10 +292,10 @@ public class FacetInvoker implements Invoker, Serializable {
 
             StateFlow.setViewContext(context, path, viewContext);
 
-            if((pvc != null && pvc.isAjaxRequest())) {
+            if ((pvc != null && pvc.isAjaxRequest())) {
                 pvc.setRenderAll(true);
             }
-            
+
             executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
         } catch (FacesException | InvokerException ex) {
             throw ex;
@@ -304,24 +306,28 @@ public class FacetInvoker implements Invoker, Serializable {
     }
 
     private void setRenderFacet(FacesContext context, UIViewRoot viewRoot, String source) throws InvokerException {
-        UIStateChartController controller = (UIStateChartController) viewRoot.findComponent(controllerId);
-        facetId = getRenderFacetId(context, viewRoot, controller, source);
-        controller.setFacetId(facetId);
 
+        Context sctx = executor.getRootContext();
+
+        String controllerType = (String) sctx.get(FACES_CHART_CONTROLLER);
+        if (controllerType == null) {
+            controllerType = VIEW_CONTROLLER_TYPE;
+        }
+
+        if (source.startsWith("@controller:")) {
+            
+            if(!controllerType.equals(PORTLET_CONTROLLER_TYPE)) {
+                throwRequiredControllerException(context, source);
+            }
+            
+            sctx.setLocal(FACES_CHART_FACET, source);
+        } else {
+            throwUknowTypeException(context, source);
+        }
     }
 
     public static String getRenderFacetId(FacesContext context, UIViewRoot viewRoot, UIStateChartController controller, String source) throws InvokerException {
         String result = null;
-        if (source.startsWith("@controller:")) {
-            String name = source.substring(12);
-            UIComponent facet = controller.getFacet(name);
-            if (facet == null) {
-                throwRequiredControllerException(context, name, controller);
-            }
-            result = facet.getClientId(context);
-        } else {
-            throwUknowTypeException(context, source, controller);
-        }
         return result;
     }
 
@@ -374,23 +380,6 @@ public class FacetInvoker implements Invoker, Serializable {
         //filter all multicast call event from started viewId by this invoker
         if (event.getType() == TriggerEvent.CALL_EVENT) {
 
-            if (controllerId.equals(event.getSendId())) {
-
-                if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
-                    ExternalContext ec = context.getExternalContext();
-
-                    Map<String, String> params = new HashMap<>();
-                    params.putAll(ec.getRequestParameterMap());
-
-                    String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
-                    EventBuilder evb = new EventBuilder("view.action." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
-
-                    evb.data(params);
-                    evb.sendId(invokeId);
-                    executor.addEvent(evb.build());
-                }
-            }
-
             if (viewId.equals(event.getSendId())) {
                 UIViewRoot viewRoot = context.getViewRoot();
 
@@ -428,19 +417,19 @@ public class FacetInvoker implements Invoker, Serializable {
                     }
                 }
 
-//                if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
-//                    ExternalContext ec = context.getExternalContext();
-//
-//                    Map<String, String> params = new HashMap<>();
-//                    params.putAll(ec.getRequestParameterMap());
-//
-//                    String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
-//                    EventBuilder evb = new EventBuilder("view.action." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
-//
-//                    evb.data(params);
-//                    evb.sendId(invokeId);
-//                    executor.addEvent(evb.build());
-//                }
+                if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
+                    ExternalContext ec = context.getExternalContext();
+
+                    Map<String, String> params = new HashMap<>();
+                    params.putAll(ec.getRequestParameterMap());
+
+                    String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
+                    EventBuilder evb = new EventBuilder("view.action." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
+
+                    evb.data(params);
+                    evb.sendId(invokeId);
+                    executor.addEvent(evb.build());
+                }
             }
 
         }
@@ -472,68 +461,17 @@ public class FacetInvoker implements Invoker, Serializable {
 
     }
 
-    private static void throwRequiredCompositeException(FacesContext ctx,
-            String name,
-            UIComponent compositeParent) {
+    private static void throwRequiredControllerException(FacesContext ctx, String name) {
 
         throw new IllegalStateException(
-                "Unable to find facet named '"
-                + name
-                + "' in parent composite component with id '"
-                + compositeParent.getClientId(ctx)
-                + '\'');
+                "can not invoke facet named \"" + name + "\" in not controller execution");
 
     }
 
-    private static void throwRequiredControllerException(FacesContext ctx,
-            String name,
-            UIComponent compositeParent) {
+    private static void throwUknowTypeException(FacesContext ctx, String name) throws InvokerException {
 
         throw new IllegalStateException(
-                "Unable to find facet named '"
-                + name
-                + "' in controller component with id '"
-                + compositeParent.getClientId(ctx)
-                + '\'');
-
-    }
-
-    private static void throwRequiredThisException(FacesContext ctx,
-            String name,
-            UIComponent parent) throws InvokerException {
-
-        throw new IllegalStateException(
-                "Unable to find facet named '"
-                + name
-                + "' in component with id '"
-                + parent.getClientId(ctx)
-                + '\'');
-
-    }
-
-    private static void throwRequiredInRootException(FacesContext ctx,
-            String name,
-            UIComponent root) throws InvokerException {
-
-        throw new IllegalStateException(
-                "Unable to find facet named '"
-                + name
-                + "' in view component with id '"
-                + root.getClientId(ctx)
-                + '\'');
-
-    }
-
-    private static void throwUknowTypeException(FacesContext ctx,
-            String name,
-            UIComponent root) throws InvokerException {
-
-        throw new IllegalStateException(
-                "Unable to find facet name '"
-                + name
-                + "' type mus start with @controller: before <facet name> in controller component with id '"
-                + root.getClientId(ctx)
-                + '\'');
+                "unable to find facet name '" + name + "' type mus start with @controller:");
 
     }
 

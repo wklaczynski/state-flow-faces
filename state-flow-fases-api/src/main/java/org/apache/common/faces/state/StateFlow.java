@@ -65,6 +65,11 @@ public class StateFlow {
      *
      */
     public static final String VIEW_CONTROLLER_TYPE = "VIEW";
+
+    /**
+     *
+     */
+    public static final String PORTLET_CONTROLLER_TYPE = "PORTLET";
     
     /**
      *
@@ -145,8 +150,7 @@ public class StateFlow {
     /**
      *
      */
-    public static final String CURRENT_INVOKED_VIEW_ID
-                               = "state.flow.faces:CurrentViewId";
+    public static final String CURRENT_INVOKED_VIEW_ID = "state.flow.faces:CurrentViewId";
 
     /**
      *
@@ -158,6 +162,36 @@ public class StateFlow {
      *
      */
     public static final String FACES_CHART_CONTROLLER =  "com.sun.faces.FACES_CHART_CONTROLLER";
+    
+    
+    /**
+     *
+     */
+    public static final String FACES_CHART_CONTINER_NAME =  "com.sun.faces.FACES_CHART_CONTINER";
+    
+    
+    /**
+     *
+     */
+    public static final String FACES_CHART_CONTINER_SOURCE =  "com.sun.faces.FACES_CHART_CONTINER_SOURCE";
+    
+    
+    /**
+     *
+     */
+    public static final String FACES_CHART_FACET =  "com.sun.faces.FACES_CHART_FACET";
+    
+    
+    /**
+     *
+     */
+    public static final String FACES_CHART_VIEW_ID =  "com.sun.faces.FACES_CHART_VIEW_ID";
+    
+    
+    /**
+     *
+     */
+    public static final String FACES_EXECUTOR_VIEW_ROOT_ID =  "com.sun.faces.FACES_EXECUTOR_VIEW_ROOT_ID";
     
     /**
      *
