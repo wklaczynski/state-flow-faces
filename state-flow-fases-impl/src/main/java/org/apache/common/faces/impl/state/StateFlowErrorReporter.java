@@ -212,13 +212,6 @@ public class StateFlowErrorReporter implements ErrorReporter, Serializable {
     protected void handleErrorMessage(Tag tag, String errorCode, String errDetail,
             Object errCtx, CharSequence errorMessage, Throwable cause) {
 
-        FacesContext fc = FacesContext.getCurrentInstance();
-        if (fc.getApplication().getProjectStage() == ProjectStage.Production) {
-            if (log.isLoggable(Level.WARNING)) {
-                log.log(Level.WARNING, errorMessage.toString());
-            }
-        }
-
         if (tag != null) {
             if (cause instanceof TagException) {
                 throw (TagException) cause;
