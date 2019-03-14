@@ -27,8 +27,11 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
+import javax.faces.view.facelets.CompositeFaceletHandler;
 import javax.faces.view.facelets.Facelet;
 import javax.faces.view.facelets.FaceletContext;
+import javax.faces.view.facelets.FaceletHandler;
+import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagException;
 import org.apache.common.faces.state.StateFlow;
@@ -218,7 +221,7 @@ public class RenderStateHandler extends ComponentHandler {
         return url;
     }
 
-    public SCXML findStateMachine(FaceletContext ctx, String continerName,  Object continerSource) throws IOException {
+    public SCXML findStateMachine(FaceletContext ctx, String continerName, Object continerSource) throws IOException {
         FacesContext context = ctx.getFacesContext();
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
@@ -279,6 +282,33 @@ public class RenderStateHandler extends ComponentHandler {
 
     private Map<String, Object> getParamsMap(FaceletContext ctx, UIComponent parent) {
         Map<String, Object> params = new LinkedHashMap<>();
+
+        FaceletHandler next = nextHandler;
+        if (next instanceof CompositeFaceletHandler) {
+            CompositeFaceletHandler compo = (CompositeFaceletHandler) nextHandler;
+            FaceletHandler[] children = compo.getHandlers();
+            if (children != null) {
+                for (FaceletHandler child : children) {
+                    if (child instanceof ComponentHandler) {
+                        ComponentHandler ch = (ComponentHandler) child;
+                        Tag ctag = ch.getTag();
+                        String namespace = ctag.getNamespace();
+                        if (ctag.getLocalName().equals("param")
+                                && (namespace.equals("http://xmlns.jcp.org/jsf/core")
+                                || namespace.equals("http://java.sun.com/jsf/core"))) {
+
+                            TagAttribute nameAttr = ctag.getAttributes().get("name");
+                            TagAttribute valueAttr = ctag.getAttributes().get("value");
+                            
+                            String pname = nameAttr.getValue(ctx);
+                            Object pvalue = valueAttr.getValue(ctx);
+                            params.put(pname, pvalue);
+                        }
+                    }
+                }
+            }
+        }
+
 
         return params;
     }
