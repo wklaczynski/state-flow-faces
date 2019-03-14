@@ -468,7 +468,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         SCXMLExecutor executor = getCurrentExecutor(context);
         if (executor != null) {
-            while (executor.getParentSCXMLIOProcessor() != null) {
+            while (executor.getParentSCXMLIOProcessor() != null
+                    && executor.getParentSCXMLIOProcessor().getExecutor() != null) {
                 executor = executor.getParentSCXMLIOProcessor().getExecutor();
             }
         }

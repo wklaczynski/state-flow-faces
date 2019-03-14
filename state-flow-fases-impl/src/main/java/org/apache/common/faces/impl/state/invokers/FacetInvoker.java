@@ -28,7 +28,6 @@ import java.util.logging.Logger;
 import javax.faces.FacesException;
 import javax.faces.application.Application;
 import javax.faces.application.ViewHandler;
-import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -36,7 +35,6 @@ import javax.faces.context.Flash;
 import javax.faces.context.PartialViewContext;
 import javax.faces.render.RenderKit;
 import javax.faces.render.ResponseStateManager;
-import javax.faces.view.Location;
 import org.apache.common.faces.impl.state.StateFlowParams;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
@@ -61,7 +59,6 @@ import org.apache.common.scxml.InvokeContext;
 import org.apache.common.faces.state.component.UIStateChartController;
 import org.apache.common.scxml.Context;
 import org.apache.common.scxml.model.ModelException;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_NAME;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -456,7 +453,12 @@ public class FacetInvoker implements Invoker, Serializable {
                 storeContext.setLocal(stateKey + "LastViewId", lastViewId);
             }
         }
-        executor.getRootContext().getVars().remove(CURRENT_INVOKED_VIEW_ID, viewId);
+        
+        Context ctx = executor.getRootContext();
+        
+        ctx.removeLocal(CURRENT_INVOKED_VIEW_ID);
+        ctx.removeLocal(FACES_CHART_FACET);
+        
         context.renderResponse();
 
     }
