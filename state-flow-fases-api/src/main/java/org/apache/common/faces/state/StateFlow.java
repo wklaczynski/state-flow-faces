@@ -70,7 +70,7 @@ public class StateFlow {
      *
      */
     public static final String PORTLET_CONTROLLER_TYPE = "PORTLET";
-    
+
     /**
      *
      */
@@ -155,44 +155,38 @@ public class StateFlow {
     /**
      *
      */
-    public static final String FACES_VIEW_STATE  = "com.sun.faces.FACES_VIEW_STATE";
-    
-    
+    public static final String FACES_VIEW_STATE = "com.sun.faces.FACES_VIEW_STATE";
+
     /**
      *
      */
-    public static final String FACES_CHART_CONTROLLER =  "com.sun.faces.FACES_CHART_CONTROLLER";
-    
-    
+    public static final String FACES_CHART_CONTROLLER = "com.sun.faces.FACES_CHART_CONTROLLER";
+
     /**
      *
      */
-    public static final String FACES_CHART_CONTINER_NAME =  "com.sun.faces.FACES_CHART_CONTINER";
-    
-    
+    public static final String FACES_CHART_CONTINER_NAME = "com.sun.faces.FACES_CHART_CONTINER";
+
     /**
      *
      */
-    public static final String FACES_CHART_CONTINER_SOURCE =  "com.sun.faces.FACES_CHART_CONTINER_SOURCE";
-    
-    
+    public static final String FACES_CHART_CONTINER_SOURCE = "com.sun.faces.FACES_CHART_CONTINER_SOURCE";
+
     /**
      *
      */
-    public static final String FACES_CHART_FACET =  "com.sun.faces.FACES_CHART_FACET";
-    
-    
+    public static final String FACES_CHART_FACET = "com.sun.faces.FACES_CHART_FACET";
+
     /**
      *
      */
-    public static final String FACES_CHART_VIEW_ID =  "com.sun.faces.FACES_CHART_VIEW_ID";
-    
-    
+    public static final String FACES_CHART_VIEW_ID = "com.sun.faces.FACES_CHART_VIEW_ID";
+
     /**
      *
      */
-    public static final String FACES_EXECUTOR_VIEW_ROOT_ID =  "com.sun.faces.FACES_EXECUTOR_VIEW_ROOT_ID";
-    
+    public static final String FACES_EXECUTOR_VIEW_ROOT_ID = "com.sun.faces.FACES_EXECUTOR_VIEW_ROOT_ID";
+
     /**
      *
      */
@@ -301,20 +295,17 @@ public class StateFlow {
     public static final void resolveViewContext(FacesContext context) {
         UIViewRoot viewRoot = context.getViewRoot();
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        if (viewRoot != null && handler.hasViewRoot(context)) {
+        if (viewRoot != null && handler.isActive(context)) {
             StateFlowViewContext viewContext = (StateFlowViewContext) context.getAttributes()
                     .get(VIEW_INVOKE_CONTEXT.get(viewRoot.getViewId()));
 
             if (null == viewContext) {
                 clearCurrentViewContext(context);
                 SCXMLExecutor root = handler.getRootExecutor(context);
-
-                if (root == null) {
-                    throw new NullPointerException("StateFlowViewContext for \""
-                            + viewRoot.getViewId() + "\" mus be active!");
+                if (root != null) {
+                    Context ctx = root.getRootContext();
+                    viewContext = new StateFlowViewContext("", root, ctx);
                 }
-                Context ctx = root.getRootContext();
-                viewContext = new StateFlowViewContext("", root, ctx);
             }
 
             if (viewContext != null) {

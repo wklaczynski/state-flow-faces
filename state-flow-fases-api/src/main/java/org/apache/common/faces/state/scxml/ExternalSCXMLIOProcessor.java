@@ -51,6 +51,16 @@ public class ExternalSCXMLIOProcessor implements SCXMLIOProcessor {
      * @return String An identifier.
      */
     @Override
+    public final String getRootId() {
+        return processor.getRootId();
+    }
+
+    /**
+     * Get the id.
+     *
+     * @return String An identifier.
+     */
+    @Override
     public final String getClientId() {
         return processor.getClientId();
     }

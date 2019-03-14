@@ -184,6 +184,16 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
      * @return String An identifier.
      */
     @Override
+    public final String getRootId() {
+        return scxmlExecutor.getRootId();
+    }
+
+    /**
+     * Get the id.
+     *
+     * @return String An identifier.
+     */
+    @Override
     public final String getClientId() {
         return scxmlExecutor.getClientId();
     }

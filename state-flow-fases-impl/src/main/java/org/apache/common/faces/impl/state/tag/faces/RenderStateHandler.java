@@ -35,7 +35,6 @@ import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagException;
 import org.apache.common.faces.state.StateFlow;
-import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.PORTLET_CONTROLLER_TYPE;
@@ -156,10 +155,9 @@ public class RenderStateHandler extends ComponentHandler {
             } catch (ModelException ex) {
                 throw new IOException(ex);
             }
-            context.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
 
             Map<String, Object> params = getParamsMap(ctx, parent);
-            handler.execute(context, executor, params, true);
+            handler.execute(context, executor, params);
         }
 
         if (!executor.isRunning()) {

@@ -159,6 +159,16 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
      * @return String An identifier.
      */
     @Override
+    public final String getRootId() {
+        return parentSCXMLIOProcessor == null ? id : parentSCXMLIOProcessor.getRootId();
+    }
+
+    /**
+     * Get the id.
+     *
+     * @return String An identifier.
+     */
+    @Override
     public final String getClientId() {
         return parentSCXMLIOProcessor == null ? id : parentSCXMLIOProcessor.getClientId() + ":" + id;
     }

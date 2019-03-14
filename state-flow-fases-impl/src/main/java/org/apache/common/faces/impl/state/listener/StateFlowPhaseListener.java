@@ -138,7 +138,7 @@ public class StateFlowPhaseListener implements PhaseListener {
                 });
             }
 
-            if (handler.isViewRootActive(facesContext)) {
+            if (handler.isActive(facesContext)) {
                 if (event.getPhaseId() == PhaseId.RENDER_RESPONSE || facesContext.getResponseComplete()) {
                     handler.writeState(facesContext);
                 }
@@ -253,7 +253,7 @@ public class StateFlowPhaseListener implements PhaseListener {
             }
         } else {
             StateFlowHandler handler = StateFlowHandler.getInstance();
-            if (handler.isViewRootActive(facesContext)) {
+            if (handler.isActive(facesContext)) {
                 Context ctx = handler.getFlowContext(facesContext);
                 Object lastViewState = ctx.get(FACES_VIEW_STATE);
                 if (lastViewState != null) {
@@ -390,7 +390,7 @@ public class StateFlowPhaseListener implements PhaseListener {
         try {
             context.setProcessingEvents(false);
 
-            StateFlowHandler flowHandler = StateFlowHandler.getInstance();
+            StateFlowHandler handler = StateFlowHandler.getInstance();
 
             Flash flash = context.getExternalContext().getFlash();
             Map<String, Object> params = new LinkedHashMap<>();
@@ -403,15 +403,18 @@ public class StateFlowPhaseListener implements PhaseListener {
                 params.put(key, pmap.get(key));
             }
 
-            String viewId = currentViewRoot.getViewId();
+            String executorId = handler.getExecutorViewRootId(context);
 
-            String executorId = UUID.randomUUID().toString();
-            SCXMLExecutor executor = flowHandler.createRootExecutor(executorId, context, stateFlow);
+            SCXMLExecutor executor = handler.createRootExecutor(executorId, context, stateFlow);
             Context sctx = executor.getRootContext();
             sctx.setLocal(FACES_CHART_CONTROLLER, VIEW_CONTROLLER_TYPE);
-            sctx.setLocal(FACES_CHART_VIEW_ID, viewId);
 
-            flowHandler.execute(context, executor, params);
+            if (null != currentViewRoot) {
+                String viewId = currentViewRoot.getViewId();
+                sctx.setLocal(FACES_CHART_VIEW_ID, viewId);
+            }
+
+            handler.execute(context, executor, params);
             UIViewRoot result = context.getViewRoot();
 
             if (null != currentViewRoot) {

@@ -30,6 +30,7 @@ import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
+import static org.apache.common.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static org.apache.common.faces.state.StateFlow.FACES_VIEW_STATE;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
@@ -85,6 +86,7 @@ public class DialogInvoker implements Invoker, Serializable {
     private String lastViewId;
     private Object viewState;
     private boolean resolved;
+    private String prevExecutorId;
 
     @Override
     public String getInvokeId() {
@@ -115,13 +117,14 @@ public class DialogInvoker implements Invoker, Serializable {
             Map<String, String> requestParams = context.getExternalContext().getRequestParameterMap();
             Map<Object, Object> attrs = context.getAttributes();
 
-            if(source.equals("@this")) {
+            if (source.equals("@this")) {
                 String machineViewId = (String) executor
                         .getStateMachine().getMetadata().get("faces-viewid");
-                
+
                 source = machineViewId;
             }
-            
+            prevExecutorId = handler.getExecutorViewRootId(context);
+
             viewId = source;
             String oldInvokeViewId = (String) executor.getRootContext().get(CURRENT_INVOKED_VIEW_ID);
             if (oldInvokeViewId != null) {
@@ -312,12 +315,13 @@ public class DialogInvoker implements Invoker, Serializable {
             sb.append("});");
             PrimeFaces.current().executeScript(sb.toString());
             sb.setLength(0);
+
+            Context fctx = handler.getFlowContext(context);
             if (viewState != null) {
-                Context rootContext = executor.getRootContext();
-                rootContext.setLocal(FACES_VIEW_STATE, viewState);
+                fctx.setLocal(FACES_VIEW_STATE, viewState);
             }
-            
-            handler.pushRootExecutor(context, executor, viewId);
+
+            handler.setExecutorViewRootId(context, executor.getRootId());
 
             resolved = false;
             executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
@@ -450,10 +454,10 @@ public class DialogInvoker implements Invoker, Serializable {
         PrimeFaces.current().executeScript(sb.toString());
         sb.setLength(0);
         executor.getRootContext().getVars().remove(CURRENT_INVOKED_VIEW_ID, viewId);
-        
+
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        handler.popRootExecutor(context, executor, viewId);
-        
+        handler.setExecutorViewRootId(context, prevExecutorId);
+
     }
 
 }

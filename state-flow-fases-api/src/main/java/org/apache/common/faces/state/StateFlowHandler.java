@@ -78,6 +78,13 @@ public abstract class StateFlowHandler {
     /**
      *
      * @param context
+     * @param executorId
+     */
+    public abstract void setExecutorViewRootId(FacesContext context, String executorId);
+
+    /**
+     *
+     * @param context
      * @return
      */
     public SCXMLExecutor getRootExecutor(FacesContext context) {
@@ -95,40 +102,6 @@ public abstract class StateFlowHandler {
     /**
      *
      * @param context
-     * @param executor
-     */
-    public void pushRootExecutor(FacesContext context, SCXMLExecutor executor) {
-        pushViewRootExecutor(context, executor, null);
-    }
-
-    /**
-     *
-     * @param context
-     * @param executor
-     * @param viewId
-     */
-    public abstract void pushViewRootExecutor(FacesContext context, SCXMLExecutor executor, String viewId);
-
-    /**
-     *
-     * @param context
-     * @param executor
-     */
-    public void popRootExecutor(FacesContext context, SCXMLExecutor executor) {
-        pushViewRootExecutor(context, executor, null);
-    }
-
-    /**
-     *
-     * @param context
-     * @param executor
-     * @param viewId
-     */
-    public abstract void popViewRootExecutor(FacesContext context, SCXMLExecutor executor, String viewId);
-
-    /**
-     *
-     * @param context
      * @return
      */
     public abstract boolean hasViewRoot(FacesContext context);
@@ -138,7 +111,7 @@ public abstract class StateFlowHandler {
      * @param context
      * @return
      */
-    public abstract boolean isViewRootActive(FacesContext context);
+    public abstract boolean isActive(FacesContext context);
 
     /**
      *
@@ -168,18 +141,7 @@ public abstract class StateFlowHandler {
      * @param executor
      * @param params
      */
-    public void execute(FacesContext context, SCXMLExecutor executor, Map<String, Object> params) {
-        execute(context, executor, params, false);
-    }
-
-    /**
-     *
-     * @param context
-     * @param executor
-     * @param params
-     * @param inline
-     */
-    public abstract void execute(FacesContext context, SCXMLExecutor executor, Map<String, Object> params, boolean inline);
+    public abstract void execute(FacesContext context, SCXMLExecutor executor, Map<String, Object> params);
 
     /**
      *

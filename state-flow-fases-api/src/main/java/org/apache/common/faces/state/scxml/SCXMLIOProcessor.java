@@ -34,6 +34,13 @@ public interface SCXMLIOProcessor {
      *
      * @return String An identifier.
      */
+    String getRootId();
+
+    /**
+     * Get the id.
+     *
+     * @return String An identifier.
+     */
     String getClientId();
     
     /**
