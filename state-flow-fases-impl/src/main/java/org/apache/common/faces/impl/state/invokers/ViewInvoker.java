@@ -522,11 +522,12 @@ public class ViewInvoker implements Invoker, Serializable {
             }
         }
 
-        executor.getRootContext().getVars().remove(CURRENT_INVOKED_VIEW_ID, viewId);
+        Context ctx = executor.getRootContext();
+        
+        ctx.removeLocal(CURRENT_INVOKED_VIEW_ID);
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
         handler.popRootExecutor(context, executor, viewId);
-
         context.renderResponse();
     }
 }
