@@ -21,11 +21,7 @@ import java.net.URL;
 import java.util.Map;
 import java.util.logging.Logger;
 import javax.faces.FacesException;
-import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.view.facelets.FaceletContext;
-import javax.faces.view.facelets.TagException;
-import javax.mail.internet.InternetAddress;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.task.FacesProcessHolder;
 import org.apache.common.scxml.Context;
@@ -50,7 +46,6 @@ import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import static org.apache.common.faces.state.StateFlow.VIEW_CONTROLLER_TYPE;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_NAME;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_SOURCE;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
