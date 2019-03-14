@@ -17,18 +17,18 @@
 package org.apache.common.faces.impl.state.tag.faces;
 
 import java.util.logging.Level;
-import org.apache.common.scxml.ActionExecutionContext;
-import org.apache.common.scxml.Context;
-import org.apache.common.scxml.Evaluator;
-import org.apache.common.scxml.EventBuilder;
-import org.apache.common.scxml.SCXMLConstants;
-import org.apache.common.scxml.SCXMLExpressionException;
-import org.apache.common.scxml.TriggerEvent;
-import org.apache.common.scxml.model.Action;
-import org.apache.common.scxml.model.CommonsSCXML;
-import org.apache.common.scxml.model.CustomAction;
-import org.apache.common.scxml.model.CustomActionWrapper;
-import org.apache.common.scxml.model.ModelException;
+import org.apache.common.faces.state.scxml.ActionExecutionContext;
+import org.apache.common.faces.state.scxml.Context;
+import org.apache.common.faces.state.scxml.Evaluator;
+import org.apache.common.faces.state.scxml.EventBuilder;
+import org.apache.common.faces.state.scxml.SCXMLConstants;
+import org.apache.common.faces.state.scxml.SCXMLExpressionException;
+import org.apache.common.faces.state.scxml.TriggerEvent;
+import org.apache.common.faces.state.scxml.model.Action;
+import org.apache.common.faces.state.scxml.model.CommonsSCXML;
+import org.apache.common.faces.state.scxml.model.CustomAction;
+import org.apache.common.faces.state.scxml.model.CustomActionWrapper;
+import org.apache.common.faces.state.scxml.model.ModelException;
 
 /**
  * The class in this SCXML object model that corresponds to the

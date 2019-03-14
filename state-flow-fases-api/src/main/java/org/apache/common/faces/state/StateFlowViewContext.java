@@ -15,8 +15,8 @@
  */
 package org.apache.common.faces.state;
 
-import org.apache.common.scxml.Context;
-import org.apache.common.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.Context;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
 
 /**
  *

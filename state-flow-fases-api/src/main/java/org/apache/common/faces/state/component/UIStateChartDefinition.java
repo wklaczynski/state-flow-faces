@@ -19,7 +19,7 @@ import javax.faces.component.UIComponentBase;
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.event.ComponentSystemEventListener;
 import javax.faces.event.PostRestoreStateEvent;
-import org.apache.common.scxml.model.SCXML;
+import org.apache.common.faces.state.scxml.model.SCXML;
 
 /**
  *

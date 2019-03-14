@@ -21,12 +21,12 @@ import java.util.Map;
 import javax.faces.context.FacesContext;
 import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
-import org.apache.common.scxml.Context;
-import org.apache.common.scxml.SCXMLExecutor;
-import org.apache.common.scxml.invoke.Invoker;
-import org.apache.common.scxml.model.CustomAction;
-import org.apache.common.scxml.model.ModelException;
-import org.apache.common.scxml.model.SCXML;
+import org.apache.common.faces.state.scxml.Context;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.invoke.Invoker;
+import org.apache.common.faces.state.scxml.model.CustomAction;
+import org.apache.common.faces.state.scxml.model.ModelException;
+import org.apache.common.faces.state.scxml.model.SCXML;
 
 /**
  *

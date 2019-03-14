@@ -25,10 +25,10 @@ import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.el.PropertyNotFoundException;
 import javax.el.PropertyNotWritableException;
-import org.apache.common.scxml.Context;
-import org.apache.common.scxml.SCXMLExecutor;
-import org.apache.common.scxml.SCXMLSystemContext;
-import org.apache.common.scxml.system.EventVariable;
+import org.apache.common.faces.state.scxml.Context;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.SCXMLSystemContext;
+import org.apache.common.faces.state.scxml.system.EventVariable;
 
 /**
  *

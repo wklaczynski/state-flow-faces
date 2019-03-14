@@ -37,10 +37,10 @@ import static org.apache.common.faces.state.StateFlow.CONTROLLER_SET_HINT;
 import static org.apache.common.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.component.UIStateChartController;
-import org.apache.common.scxml.EventBuilder;
-import org.apache.common.scxml.SCXMLExecutor;
-import org.apache.common.scxml.TriggerEvent;
-import org.apache.common.scxml.model.ModelException;
+import org.apache.common.faces.state.scxml.EventBuilder;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.TriggerEvent;
+import org.apache.common.faces.state.scxml.model.ModelException;
 
 /**
  *

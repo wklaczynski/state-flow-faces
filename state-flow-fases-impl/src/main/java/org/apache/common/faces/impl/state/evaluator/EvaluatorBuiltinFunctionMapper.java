@@ -23,7 +23,7 @@ import javax.el.ELContext;
 import javax.el.FunctionMapper;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import org.apache.common.faces.impl.state.tag.FacesFlowBuiltin;
-import org.apache.common.scxml.model.SCXML;
+import org.apache.common.faces.state.scxml.model.SCXML;
 
 /**
  *

@@ -46,12 +46,12 @@ import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
 import org.apache.common.faces.impl.state.StateFlowParams;
 import org.apache.common.faces.state.StateFlow;
-import org.apache.common.scxml.Context;
-import org.apache.common.scxml.SCXMLExecutor;
-import org.apache.common.scxml.SCXMLIOProcessor;
-import org.apache.common.scxml.TriggerEvent;
-import org.apache.common.scxml.invoke.Invoker;
-import org.apache.common.scxml.invoke.InvokerException;
+import org.apache.common.faces.state.scxml.Context;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.SCXMLIOProcessor;
+import org.apache.common.faces.state.scxml.TriggerEvent;
+import org.apache.common.faces.state.scxml.invoke.Invoker;
+import org.apache.common.faces.state.scxml.invoke.InvokerException;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static org.apache.common.faces.state.StateFlow.BEFORE_APPLY_REQUEST_VALUES;
@@ -59,9 +59,9 @@ import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.StateFlowViewContext;
-import org.apache.common.scxml.EventBuilder;
-import org.apache.common.scxml.InvokeContext;
-import org.apache.common.scxml.model.ModelException;
+import org.apache.common.faces.state.scxml.EventBuilder;
+import org.apache.common.faces.state.scxml.InvokeContext;
+import org.apache.common.faces.state.scxml.model.ModelException;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not

@@ -20,10 +20,10 @@ import java.util.Map;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
-import org.apache.common.scxml.Context;
-import org.apache.common.scxml.SCXMLExecutor;
-import org.apache.common.scxml.env.EffectiveContextMap;
-import org.apache.common.scxml.env.SimpleContext;
+import org.apache.common.faces.state.scxml.Context;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.env.EffectiveContextMap;
+import org.apache.common.faces.state.scxml.env.SimpleContext;
 
 /**
  *

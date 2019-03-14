@@ -17,8 +17,8 @@ package org.apache.common.faces.state.task;
 
 import java.io.Serializable;
 import java.util.Date;
-import org.apache.common.scxml.SCXMLIOProcessor;
-import org.apache.common.scxml.TriggerEvent;
+import org.apache.common.faces.state.scxml.SCXMLIOProcessor;
+import org.apache.common.faces.state.scxml.TriggerEvent;
 
 /**
  *

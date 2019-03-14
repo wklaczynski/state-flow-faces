@@ -34,7 +34,7 @@ import javax.faces.component.UIPanel;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.Facelet;
-import org.apache.common.scxml.PathResolver;
+import org.apache.common.faces.state.scxml.PathResolver;
 import org.apache.common.faces.state.component.UIStateChartDefinition;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.Tag;
@@ -42,7 +42,7 @@ import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
 import javax.faces.view.facelets.TagHandler;
-import org.apache.common.scxml.model.SCXML;
+import org.apache.common.faces.state.scxml.model.SCXML;
 import org.apache.common.faces.impl.state.StateFlowURLResolver;
 import org.apache.common.faces.impl.state.el.VariableMapperWrapper;
 import org.apache.common.faces.impl.state.log.FlowLogger;
@@ -59,8 +59,8 @@ import static org.apache.common.faces.state.StateFlow.CUSTOM_INVOKERS_HINT;
 import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.scxml.invoke.Invoker;
-import org.apache.common.scxml.model.CustomAction;
+import org.apache.common.faces.state.scxml.invoke.Invoker;
+import org.apache.common.faces.state.scxml.model.CustomAction;
 
 /**
  *

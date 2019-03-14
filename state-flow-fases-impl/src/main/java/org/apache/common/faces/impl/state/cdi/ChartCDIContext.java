@@ -36,7 +36,7 @@ import javax.servlet.http.HttpSessionEvent;
 import org.apache.common.faces.impl.state.StateFlowImplConstants;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.annotation.ChartScoped;
 
 /**

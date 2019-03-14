@@ -17,7 +17,7 @@ package org.apache.common.faces.impl.state.cdi;
 
 import javax.faces.context.FacesContext;
 import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.annotation.ChartScoped;
 
 /**

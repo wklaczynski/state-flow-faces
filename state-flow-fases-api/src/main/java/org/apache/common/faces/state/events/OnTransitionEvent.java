@@ -15,9 +15,9 @@
  */
 package org.apache.common.faces.state.events;
 
-import org.apache.common.scxml.SCXMLExecutor;
-import org.apache.common.scxml.model.Transition;
-import org.apache.common.scxml.model.TransitionTarget;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.model.Transition;
+import org.apache.common.faces.state.scxml.model.TransitionTarget;
 
 /**
  *

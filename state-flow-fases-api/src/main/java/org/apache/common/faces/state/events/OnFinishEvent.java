@@ -15,7 +15,7 @@
  */
 package org.apache.common.faces.state.events;
 
-import org.apache.common.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
 
 /**
  *

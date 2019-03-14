@@ -30,14 +30,13 @@ import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.PassivationCapable;
-import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import org.apache.common.faces.impl.state.StateFlowImplConstants;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.annotation.DialogScoped;
 
 /**

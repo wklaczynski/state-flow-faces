@@ -25,8 +25,8 @@ import javax.enterprise.context.spi.CreationalContext;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
-import org.apache.common.scxml.SCXMLExecutor;
-import org.apache.common.scxml.SCXMLSystemContext;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.SCXMLSystemContext;
 
 /**
  *

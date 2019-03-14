@@ -17,13 +17,13 @@ package org.apache.common.faces.impl.state.tag.scxml;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import org.apache.common.scxml.model.History;
-import org.apache.common.scxml.model.State;
+import org.apache.common.faces.state.scxml.model.History;
+import org.apache.common.faces.state.scxml.model.State;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
 import org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler;
-import org.apache.common.scxml.model.SCXML;
+import org.apache.common.faces.state.scxml.model.SCXML;
 
 /**
  *

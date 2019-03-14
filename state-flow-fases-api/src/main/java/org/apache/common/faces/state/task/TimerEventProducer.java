@@ -16,7 +16,7 @@
 package org.apache.common.faces.state.task;
 
 import java.util.List;
-import org.apache.common.scxml.TriggerEvent;
+import org.apache.common.faces.state.scxml.TriggerEvent;
 
 /**
  *

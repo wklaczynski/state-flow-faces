@@ -23,8 +23,8 @@ import javax.el.*;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PostConstructCustomScopeEvent;
 import javax.faces.event.ScopeContext;
-import org.apache.common.scxml.Context;
-import org.apache.common.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.Context;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
 
 /**
  *

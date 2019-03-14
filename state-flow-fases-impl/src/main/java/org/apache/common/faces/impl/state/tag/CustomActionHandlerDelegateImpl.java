@@ -30,11 +30,11 @@ import org.apache.common.faces.impl.state.log.FlowLogger;
 import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.CURRENT_FLOW_OBJECT;
 import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.getElement;
 import org.apache.common.faces.state.tag.ActionHandler;
-import org.apache.common.scxml.model.Action;
-import org.apache.common.scxml.model.ActionsContainer;
-import org.apache.common.scxml.model.CustomAction;
-import org.apache.common.scxml.model.CustomActionWrapper;
-import org.apache.common.scxml.model.Executable;
+import org.apache.common.faces.state.scxml.model.Action;
+import org.apache.common.faces.state.scxml.model.ActionsContainer;
+import org.apache.common.faces.state.scxml.model.CustomAction;
+import org.apache.common.faces.state.scxml.model.CustomActionWrapper;
+import org.apache.common.faces.state.scxml.model.Executable;
 
 /**
  *

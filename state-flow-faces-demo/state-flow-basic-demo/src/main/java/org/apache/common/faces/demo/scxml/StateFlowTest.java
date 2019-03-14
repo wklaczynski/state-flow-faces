@@ -8,12 +8,12 @@ import java.util.logging.Logger;
 import javax.faces.application.FacesMessage;
 import static javax.faces.application.FacesMessage.SEVERITY_INFO;
 import javax.faces.context.FacesContext;
-import org.apache.common.scxml.model.Action;
+import org.apache.common.faces.state.scxml.model.Action;
 import org.apache.common.faces.state.annotation.StateChartAction;
-import org.apache.common.scxml.ActionExecutionContext;
-import org.apache.common.scxml.SCXMLExpressionException;
-import org.apache.common.scxml.model.ActionExecutionError;
-import org.apache.common.scxml.model.ModelException;
+import org.apache.common.faces.state.scxml.ActionExecutionContext;
+import org.apache.common.faces.state.scxml.SCXMLExpressionException;
+import org.apache.common.faces.state.scxml.model.ActionExecutionError;
+import org.apache.common.faces.state.scxml.model.ModelException;
 
 /**
  *

@@ -23,18 +23,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.common.faces.impl.state.utils.Util;
-import org.apache.common.scxml.ActionExecutionContext;
-import org.apache.common.scxml.Context;
-import org.apache.common.scxml.Evaluator;
-import org.apache.common.scxml.SCXMLConstants;
-import org.apache.common.scxml.SCXMLExpressionException;
-import org.apache.common.scxml.model.Action;
-import org.apache.common.scxml.model.CommonsSCXML;
-import org.apache.common.scxml.model.CustomAction;
-import org.apache.common.scxml.model.CustomActionWrapper;
-import org.apache.common.scxml.model.ModelException;
-import org.apache.common.scxml.model.Param;
-import org.apache.common.scxml.model.ParamsContainer;
+import org.apache.common.faces.state.scxml.ActionExecutionContext;
+import org.apache.common.faces.state.scxml.Context;
+import org.apache.common.faces.state.scxml.Evaluator;
+import org.apache.common.faces.state.scxml.SCXMLConstants;
+import org.apache.common.faces.state.scxml.SCXMLExpressionException;
+import org.apache.common.faces.state.scxml.model.Action;
+import org.apache.common.faces.state.scxml.model.CommonsSCXML;
+import org.apache.common.faces.state.scxml.model.CustomAction;
+import org.apache.common.faces.state.scxml.model.CustomActionWrapper;
+import org.apache.common.faces.state.scxml.model.ModelException;
+import org.apache.common.faces.state.scxml.model.Param;
+import org.apache.common.faces.state.scxml.model.ParamsContainer;
 
 /**
  * The class in this SCXML object model that corresponds to the

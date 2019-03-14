@@ -30,15 +30,15 @@ import javax.faces.context.FacesContext;
 import org.apache.common.faces.state.task.DelayedEventTask;
 import org.apache.common.faces.state.task.FacesProcessHolder;
 import org.apache.common.faces.state.task.TimerEventProducer;
-import org.apache.common.scxml.Context;
-import org.apache.common.scxml.EventBuilder;
-import org.apache.common.scxml.EventDispatcher;
-import org.apache.common.scxml.ParentSCXMLIOProcessor;
-import org.apache.common.scxml.SCXMLIOProcessor;
-import org.apache.common.scxml.SCXMLSystemContext;
-import org.apache.common.scxml.TriggerEvent;
-import org.apache.common.scxml.io.StateHolder;
-import org.apache.common.scxml.model.ActionExecutionError;
+import org.apache.common.faces.state.scxml.Context;
+import org.apache.common.faces.state.scxml.EventBuilder;
+import org.apache.common.faces.state.scxml.EventDispatcher;
+import org.apache.common.faces.state.scxml.ParentSCXMLIOProcessor;
+import org.apache.common.faces.state.scxml.SCXMLIOProcessor;
+import org.apache.common.faces.state.scxml.SCXMLSystemContext;
+import org.apache.common.faces.state.scxml.TriggerEvent;
+import org.apache.common.faces.state.scxml.io.StateHolder;
+import org.apache.common.faces.state.scxml.model.ActionExecutionError;
 
 /**
  * <p>

@@ -38,11 +38,11 @@ import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_FACET;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.scxml.Context;
-import org.apache.common.scxml.EventBuilder;
-import org.apache.common.scxml.SCXMLExecutor;
-import org.apache.common.scxml.TriggerEvent;
-import org.apache.common.scxml.model.ModelException;
+import org.apache.common.faces.state.scxml.Context;
+import org.apache.common.faces.state.scxml.EventBuilder;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.TriggerEvent;
+import org.apache.common.faces.state.scxml.model.ModelException;
 
 /**
  *

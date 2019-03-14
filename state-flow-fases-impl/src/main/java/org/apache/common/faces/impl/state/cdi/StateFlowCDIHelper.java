@@ -15,8 +15,8 @@
  */
 package org.apache.common.faces.impl.state.cdi;
 
-import org.apache.common.scxml.SCXMLExecutor;
-import org.apache.common.scxml.model.EnterableState;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.model.EnterableState;
 
 /**
  *

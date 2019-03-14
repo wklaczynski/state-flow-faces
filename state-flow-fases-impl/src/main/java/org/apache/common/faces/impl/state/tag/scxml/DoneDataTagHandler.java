@@ -21,9 +21,9 @@ import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
 import org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler;
-import org.apache.common.scxml.model.DoneData;
-import org.apache.common.scxml.model.Final;
-import org.apache.common.scxml.model.SCXML;
+import org.apache.common.faces.state.scxml.model.DoneData;
+import org.apache.common.faces.state.scxml.model.Final;
+import org.apache.common.faces.state.scxml.model.SCXML;
 
 /**
  *

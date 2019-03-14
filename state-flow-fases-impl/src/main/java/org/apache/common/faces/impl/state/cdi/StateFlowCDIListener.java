@@ -21,13 +21,13 @@ import javax.faces.context.FacesContext;
 import org.apache.common.faces.state.events.OnEntryEvent;
 import org.apache.common.faces.state.events.OnExitEvent;
 import org.apache.common.faces.state.events.OnTransitionEvent;
-import org.apache.common.scxml.SCXMLExecutor;
-import org.apache.common.scxml.SCXMLListener;
-import org.apache.common.scxml.model.EnterableState;
-import org.apache.common.scxml.model.Parallel;
-import org.apache.common.scxml.model.State;
-import org.apache.common.scxml.model.Transition;
-import org.apache.common.scxml.model.TransitionTarget;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.SCXMLListener;
+import org.apache.common.faces.state.scxml.model.EnterableState;
+import org.apache.common.faces.state.scxml.model.Parallel;
+import org.apache.common.faces.state.scxml.model.State;
+import org.apache.common.faces.state.scxml.model.Transition;
+import org.apache.common.faces.state.scxml.model.TransitionTarget;
 
 /**
  *

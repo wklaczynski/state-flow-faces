@@ -48,18 +48,18 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.FacesContextWrapper;
 import javax.faces.lifecycle.ClientWindow;
 import javax.faces.render.ResponseStateManager;
-import org.apache.common.scxml.Context;
-import org.apache.common.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.Context;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.events.OnFinishEvent;
-import org.apache.common.scxml.invoke.Invoker;
-import org.apache.common.scxml.model.CustomAction;
+import org.apache.common.faces.state.scxml.invoke.Invoker;
+import org.apache.common.faces.state.scxml.model.CustomAction;
 import javax.servlet.ServletContext;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.ANNOTATED_CLASSES;
 import org.apache.common.faces.state.component.UIStateChartDefinition;
 import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.scxml.model.Action;
-import org.apache.common.scxml.model.ModelException;
-import org.apache.common.scxml.model.SCXML;
+import org.apache.common.faces.state.scxml.model.Action;
+import org.apache.common.faces.state.scxml.model.ModelException;
+import org.apache.common.faces.state.scxml.model.SCXML;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
 import javax.faces.view.facelets.Facelet;
@@ -81,10 +81,10 @@ import org.apache.common.faces.state.annotation.StateChartInvoker;
 import org.apache.common.faces.state.annotation.StateChartAction;
 import org.apache.common.faces.state.annotation.StateChartActions;
 import org.apache.common.faces.state.annotation.StateChartInvokers;
-import org.apache.common.scxml.env.AbstractSCXMLListener;
-import org.apache.common.scxml.env.SimpleContext;
-import org.apache.common.scxml.env.SimpleSCXMLListener;
-import org.apache.common.scxml.model.EnterableState;
+import org.apache.common.faces.state.scxml.env.AbstractSCXMLListener;
+import org.apache.common.faces.state.scxml.env.SimpleContext;
+import org.apache.common.faces.state.scxml.env.SimpleSCXMLListener;
+import org.apache.common.faces.state.scxml.model.EnterableState;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.FXSCXML_DATA_MODEL;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
 import org.apache.common.faces.impl.state.invokers.FacetInvoker;
@@ -95,9 +95,9 @@ import static org.apache.common.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import org.apache.common.faces.state.task.TimerEventProducer;
-import org.apache.common.scxml.ParentSCXMLIOProcessor;
-import static org.apache.common.scxml.io.StateHolderSaver.restoreContext;
-import static org.apache.common.scxml.io.StateHolderSaver.saveContext;
+import org.apache.common.faces.state.scxml.ParentSCXMLIOProcessor;
+import static org.apache.common.faces.state.scxml.io.StateHolderSaver.restoreContext;
+import static org.apache.common.faces.state.scxml.io.StateHolderSaver.saveContext;
 
 /**
  *
@@ -728,26 +728,28 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                         SCXMLExecutor last = executors.get(lastId);
                         close(context, fs, last);
                     }
-
                     if (executorId.equals(lastId)) {
-                        executor = null;
+                        break;
                     }
                 }
             }
 
-            if (executor != null) {
-                executorExited(executor);
-                executors.remove(executorId);
+            if (executor != null && executors.containsKey(executorId)) {
+                if (!stack.contains(executorId)) {
 
-                Map<String, List<String>> map = fs.getMap();
-                if (map.containsKey(executorId)) {
-                    List<String> children = map.get(executorId);
-                    for (String childId : children) {
-                        if (executors.containsKey(childId)) {
-                            SCXMLExecutor child = executors.get(childId);
-                            close(context, fs, child);
+                    Map<String, List<String>> map = fs.getMap();
+                    if (map.containsKey(executorId)) {
+                        List<String> children = map.get(executorId);
+                        for (String childId : children) {
+                            if (executors.containsKey(childId)) {
+                                SCXMLExecutor child = executors.get(childId);
+                                close(context, fs, child);
+                            }
                         }
                     }
+
+                    executorExited(executor);
+                    executors.remove(executorId);
                 }
             }
         }

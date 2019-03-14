@@ -16,12 +16,12 @@
 package org.apache.common.faces.impl.state.tag;
 
 import com.sun.faces.facelets.compiler.UIInstructions;
-import org.apache.common.scxml.model.Initial;
-import org.apache.common.scxml.model.Transition;
-import org.apache.common.scxml.model.Executable;
-import org.apache.common.scxml.model.History;
-import org.apache.common.scxml.model.Action;
-import org.apache.common.scxml.model.TransitionTarget;
+import org.apache.common.faces.state.scxml.model.Initial;
+import org.apache.common.faces.state.scxml.model.Transition;
+import org.apache.common.faces.state.scxml.model.Executable;
+import org.apache.common.faces.state.scxml.model.History;
+import org.apache.common.faces.state.scxml.model.Action;
+import org.apache.common.faces.state.scxml.model.TransitionTarget;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -47,19 +47,19 @@ import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
 import javax.faces.view.facelets.TagHandler;
-import org.apache.common.scxml.model.EnterableState;
-import org.apache.common.scxml.model.Parallel;
-import org.apache.common.scxml.model.SCXML;
-import org.apache.common.scxml.model.State;
-import org.apache.common.scxml.model.TransitionalState;
+import org.apache.common.faces.state.scxml.model.EnterableState;
+import org.apache.common.faces.state.scxml.model.Parallel;
+import org.apache.common.faces.state.scxml.model.SCXML;
+import org.apache.common.faces.state.scxml.model.State;
+import org.apache.common.faces.state.scxml.model.TransitionalState;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import org.apache.common.faces.impl.state.utils.Util;
 import static org.apache.common.faces.state.StateFlow.CUSTOM_ACTIONS_HINT;
-import org.apache.common.scxml.io.ContentParser;
-import org.apache.common.scxml.model.ActionsContainer;
-import org.apache.common.scxml.model.CustomAction;
-import org.apache.common.scxml.model.SCComponent;
-import org.apache.common.scxml.model.ParsedValue;
+import org.apache.common.faces.state.scxml.io.ContentParser;
+import org.apache.common.faces.state.scxml.model.ActionsContainer;
+import org.apache.common.faces.state.scxml.model.CustomAction;
+import org.apache.common.faces.state.scxml.model.SCComponent;
+import org.apache.common.faces.state.scxml.model.ParsedValue;
 
 /**
  *

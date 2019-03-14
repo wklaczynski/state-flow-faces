@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
-import org.apache.common.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
 
 /**
  *

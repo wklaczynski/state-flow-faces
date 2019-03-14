@@ -24,14 +24,14 @@ import javax.faces.application.FacesMessage;
 import static javax.faces.application.FacesMessage.SEVERITY_INFO;
 import javax.faces.context.FacesContext;
 import org.apache.common.faces.state.annotation.StateChartInvoker;
-import org.apache.common.scxml.Context;
-import org.apache.common.scxml.InvokeContext;
-import org.apache.common.scxml.SCXMLExecutor;
-import org.apache.common.scxml.SCXMLIOProcessor;
-import org.apache.common.scxml.TriggerEvent;
-import org.apache.common.scxml.invoke.Invoker;
-import org.apache.common.scxml.invoke.InvokerException;
-import org.apache.common.scxml.io.StateHolder;
+import org.apache.common.faces.state.scxml.Context;
+import org.apache.common.faces.state.scxml.InvokeContext;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.SCXMLIOProcessor;
+import org.apache.common.faces.state.scxml.TriggerEvent;
+import org.apache.common.faces.state.scxml.invoke.Invoker;
+import org.apache.common.faces.state.scxml.invoke.InvokerException;
+import org.apache.common.faces.state.scxml.io.StateHolder;
 
 /**
  * A test custom invoker {@link Invoker} for SCXML documents. Invoked demo 

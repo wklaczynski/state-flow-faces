@@ -20,8 +20,8 @@ import java.util.Map;
 import javax.el.ELContext;
 import javax.enterprise.context.RequestScoped;
 import javax.faces.context.FacesContext;
-import org.apache.common.scxml.Context;
-import org.apache.common.scxml.env.EffectiveContextMap;
+import org.apache.common.faces.state.scxml.Context;
+import org.apache.common.faces.state.scxml.env.EffectiveContextMap;
 
 /**
  *
