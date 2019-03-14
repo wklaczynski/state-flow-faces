@@ -251,7 +251,7 @@ public class ViewInvoker implements Invoker, Serializable {
                 viewState = null;
             }
 
-            handler.pushRootExecutor(context, executor, viewId);
+            handler.pushViewRootExecutor(context, executor, viewId);
 
             UIViewRoot currentViewRoot = context.getViewRoot();
             if (currentViewRoot != null) {
@@ -527,7 +527,7 @@ public class ViewInvoker implements Invoker, Serializable {
         ctx.removeLocal(CURRENT_INVOKED_VIEW_ID);
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        handler.popRootExecutor(context, executor, viewId);
+        handler.popViewRootExecutor(context, executor, viewId);
         context.renderResponse();
     }
 }

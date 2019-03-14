@@ -133,13 +133,13 @@ public class Redirect extends Action implements ParamsContainer {
                 ec.getClientWindow().disableClientWindowRenderMode(fc);
                 String redirectPath = ec.encodeRedirectURL(actionURL, params);
                 ec.redirect(redirectPath);
-                handler.close(fc);
+                handler.closeAll(fc);
                 fc.responseComplete();
             } else {
                 ec.getClientWindow().disableClientWindowRenderMode(fc);
                 String redirectPath = ec.encodeRedirectURL(url, params);
                 ec.redirect(redirectPath);
-                handler.close(fc);
+                handler.closeAll(fc);
                 fc.responseComplete();
             }
 

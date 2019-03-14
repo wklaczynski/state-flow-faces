@@ -301,7 +301,7 @@ public class StateFlow {
     public static final void resolveViewContext(FacesContext context) {
         UIViewRoot viewRoot = context.getViewRoot();
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        if (viewRoot != null && handler.isActive(context)) {
+        if (viewRoot != null && handler.hasViewRoot(context)) {
             StateFlowViewContext viewContext = (StateFlowViewContext) context.getAttributes()
                     .get(VIEW_INVOKE_CONTEXT.get(viewRoot.getViewId()));
 

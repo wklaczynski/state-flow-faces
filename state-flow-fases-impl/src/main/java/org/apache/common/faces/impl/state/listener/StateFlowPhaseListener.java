@@ -87,7 +87,7 @@ public class StateFlowPhaseListener implements PhaseListener {
             String name = AFTER_PHASE_EVENT_PREFIX
                     + event.getPhaseId().getName().toLowerCase();
 
-            if (handler.isActive(facesContext)) {
+            if (handler.hasViewRoot(facesContext)) {
                 SCXMLExecutor executor = handler.getRootExecutor(facesContext);
 
                 EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
@@ -138,7 +138,7 @@ public class StateFlowPhaseListener implements PhaseListener {
                 });
             }
 
-            if (handler.isInWindow(facesContext)) {
+            if (handler.isViewRootActive(facesContext)) {
                 if (event.getPhaseId() == PhaseId.RENDER_RESPONSE || facesContext.getResponseComplete()) {
                     handler.writeState(facesContext);
                 }
@@ -162,7 +162,7 @@ public class StateFlowPhaseListener implements PhaseListener {
 
                 StateFlow.initViewContext(facesContext);
 
-                if (handler.isActive(facesContext)) {
+                if (handler.hasViewRoot(facesContext)) {
 
                     EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
                             .sendId(viewRoot.getViewId());
@@ -250,13 +250,10 @@ public class StateFlowPhaseListener implements PhaseListener {
             } else if (event.getPhaseId() == PhaseId.APPLY_REQUEST_VALUES
                     && !facesContext.getResponseComplete()) {
 
-                if (handler.isFinal(facesContext)) {
-                    handler.close(facesContext);
-                }
             }
         } else {
             StateFlowHandler handler = StateFlowHandler.getInstance();
-            if (handler.isInWindow(facesContext)) {
+            if (handler.isViewRootActive(facesContext)) {
                 Context ctx = handler.getFlowContext(facesContext);
                 Object lastViewState = ctx.get(FACES_VIEW_STATE);
                 if (lastViewState != null) {
@@ -355,7 +352,7 @@ public class StateFlowPhaseListener implements PhaseListener {
         }
 
         StateFlowHandler flowHandler = StateFlowHandler.getInstance();
-        if (flowHandler.isActive(context)) {
+        if (flowHandler.hasViewRoot(context)) {
             return;
         }
 

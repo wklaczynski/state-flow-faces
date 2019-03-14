@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -478,7 +479,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public void pushRootExecutor(FacesContext context, SCXMLExecutor executor, String viewId) {
+    public void pushViewRootExecutor(FacesContext context, SCXMLExecutor executor, String viewId) {
         FlowDeque fs = getFlowDeque(context, false);
         if (fs == null) {
             return;
@@ -496,7 +497,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public void popRootExecutor(FacesContext context, SCXMLExecutor executor, String viewId) {
+    public void popViewRootExecutor(FacesContext context, SCXMLExecutor executor, String viewId) {
         FlowDeque fs = getFlowDeque(context, false);
         if (fs == null) {
             return;
@@ -510,11 +511,16 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         String executorId = executor.getId();
 
         Stack<String> roots = fs.getRoots();
-        roots.pop();
+        if (roots.contains(executorId)) {
+            String lastId = roots.pop();
+            while (!Objects.equals(lastId, executorId)) {
+                lastId = roots.pop();
+            }
+        }
     }
 
     @Override
-    public boolean isActive(FacesContext context) {
+    public boolean hasViewRoot(FacesContext context) {
         FlowDeque fs = getFlowDeque(context, false);
         if (fs == null) {
             return false;
@@ -524,16 +530,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public boolean isFinal(FacesContext context) {
-        FlowDeque fs = getFlowDeque(context, false);
-        if (fs == null) {
-            return false;
-        }
-        return fs.isClosed();
-    }
-
-    @Override
-    public boolean isInWindow(FacesContext context) {
+    public boolean isViewRootActive(FacesContext context) {
         FlowDeque fs = getFlowDeque(context, false);
         return fs != null && !fs.isClosed();
     }
@@ -686,7 +683,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public void close(FacesContext context, SCXMLExecutor executor) {
+    public void closeAll(FacesContext context) {
         FlowDeque fs = getFlowDeque(context, false);
         if (fs == null) {
             return;
@@ -695,8 +692,41 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         Stack<String> stack = fs.getRoots();
         Map<String, SCXMLExecutor> executors = fs.getExecutors();
 
+        SCXMLExecutor executor = null;
+        if (executor == null && !stack.isEmpty()) {
+            executor = executors.get(stack.firstElement());
+        }
+
+        close(context, executor);
+
+    }
+
+    @Override
+    public void close(FacesContext context, SCXMLExecutor executor) {
+        FlowDeque fs = getFlowDeque(context, false);
+        if (fs == null || fs.isClosed()) {
+            return;
+        }
+
+        Stack<String> stack = fs.getRoots();
+        Map<String, SCXMLExecutor> executors = fs.getExecutors();
+
         if (executor == null && !stack.isEmpty()) {
             executor = executors.get(stack.peek());
+        }
+
+        String executorId = executor.getId();
+
+        while (stack.contains(executorId)) {
+            String lastId = stack.pop();
+            if (!stack.contains(lastId)) {
+                if (executorId.equals(lastId)) {
+                    break;
+                } else if (executors.containsKey(lastId)) {
+                    SCXMLExecutor last = executors.get(lastId);
+                    close(context, fs, last);
+                }
+            }
         }
 
         if (executor != null) {
@@ -720,38 +750,28 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         String executorId = executor.getId();
 
-        if (executor != null) {
-            while (stack.contains(executorId)) {
-                String lastId = stack.pop();
-                if (!stack.contains(lastId)) {
-                    if (executors.containsKey(lastId)) {
-                        SCXMLExecutor last = executors.get(lastId);
-                        close(context, fs, last);
-                    }
-                    if (executorId.equals(lastId)) {
-                        break;
-                    }
-                }
-            }
+        if (executor == null) {
+            return;
+        }
 
-            if (executor != null && executors.containsKey(executorId)) {
-                if (!stack.contains(executorId)) {
-
-                    Map<String, List<String>> map = fs.getMap();
-                    if (map.containsKey(executorId)) {
-                        List<String> children = map.get(executorId);
-                        for (String childId : children) {
-                            if (executors.containsKey(childId)) {
-                                SCXMLExecutor child = executors.get(childId);
-                                close(context, fs, child);
-                            }
+        if (executors.containsKey(executorId)) {
+            if (!stack.contains(executorId)) {
+                Map<String, List<String>> map = fs.getMap();
+                if (map.containsKey(executorId)) {
+                    List<String> children = map.get(executorId);
+                    for (String childId : children) {
+                        if (executors.containsKey(childId)) {
+                            SCXMLExecutor child = executors.get(childId);
+                            close(context, fs, child);
                         }
                     }
-
-                    executorExited(executor);
-                    executors.remove(executorId);
                 }
+
+                executorExited(executor);
+                executors.remove(executorId);
             }
+        } else {
+            executorExited(executor);
         }
 
     }
@@ -888,7 +908,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         public FlowDeque(final String sessionKey) {
             roots = new Stack<>();
-            executors = new HashMap<>();
+            executors = new LinkedHashMap<>();
             map = new HashMap<>();
             flowContext = new SimpleContext();
             this.key = sessionKey;

@@ -66,7 +66,7 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
         String name = BEFORE_PHASE_EVENT_PREFIX
                 + PhaseId.RESTORE_VIEW.getName().toLowerCase();
 
-        if (handler.isActive(facesContext)) {
+        if (handler.hasViewRoot(facesContext)) {
 
             EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
                     .sendId(viewId);
@@ -129,7 +129,7 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
     public void renderView(FacesContext facesContext, UIViewRoot viewRoot) throws IOException, FacesException {
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        if (!facesContext.getResponseComplete() && viewRoot != null && handler.isActive(facesContext)) {
+        if (!facesContext.getResponseComplete() && viewRoot != null && handler.hasViewRoot(facesContext)) {
             SCXMLExecutor executor = handler.getRootExecutor(facesContext);
             try {
                 EventDispatcher ed = executor.getEventdispatcher();

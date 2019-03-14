@@ -63,12 +63,12 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
     public void handleNavigation(FacesContext facesContext, String fromAction, String outcome) {
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
-        if (handler.isActive(facesContext)) {
+        if (handler.hasViewRoot(facesContext)) {
             if (outcome == null) {
                 return;
             }
             if (outcome.endsWith(".xhtml")) {
-                handler.close(facesContext);
+                handler.closeAll(facesContext);
                 wrappedNavigationHandler.handleNavigation(facesContext, fromAction, outcome);
             } else {
                 EventBuilder eb = new EventBuilder(

@@ -98,7 +98,7 @@ public abstract class StateFlowHandler {
      * @param executor
      */
     public void pushRootExecutor(FacesContext context, SCXMLExecutor executor) {
-        pushRootExecutor(context, executor, null);
+        pushViewRootExecutor(context, executor, null);
     }
 
     /**
@@ -107,7 +107,7 @@ public abstract class StateFlowHandler {
      * @param executor
      * @param viewId
      */
-    public abstract void pushRootExecutor(FacesContext context, SCXMLExecutor executor, String viewId);
+    public abstract void pushViewRootExecutor(FacesContext context, SCXMLExecutor executor, String viewId);
 
     /**
      *
@@ -115,7 +115,7 @@ public abstract class StateFlowHandler {
      * @param executor
      */
     public void popRootExecutor(FacesContext context, SCXMLExecutor executor) {
-        pushRootExecutor(context, executor, null);
+        pushViewRootExecutor(context, executor, null);
     }
 
     /**
@@ -124,28 +124,21 @@ public abstract class StateFlowHandler {
      * @param executor
      * @param viewId
      */
-    public abstract void popRootExecutor(FacesContext context, SCXMLExecutor executor, String viewId);
+    public abstract void popViewRootExecutor(FacesContext context, SCXMLExecutor executor, String viewId);
 
     /**
      *
      * @param context
      * @return
      */
-    public abstract boolean isActive(FacesContext context);
+    public abstract boolean hasViewRoot(FacesContext context);
 
     /**
      *
      * @param context
      * @return
      */
-    public abstract boolean isFinal(FacesContext context);
-
-    /**
-     *
-     * @param context
-     * @return
-     */
-    public abstract boolean isInWindow(FacesContext context);
+    public abstract boolean isViewRootActive(FacesContext context);
 
     /**
      *
@@ -199,9 +192,7 @@ public abstract class StateFlowHandler {
      *
      * @param context
      */
-    public void close(FacesContext context) {
-        close(context, null);
-    }
+    public abstract void closeAll(FacesContext context);
 
     /**
      *
