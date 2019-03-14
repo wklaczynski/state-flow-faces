@@ -217,25 +217,24 @@ public class StateFlowErrorReporter implements ErrorReporter, Serializable {
             if (log.isLoggable(Level.WARNING)) {
                 log.log(Level.WARNING, errorMessage.toString());
             }
-            WebMessage.error(fc, errorMessage.toString());
-        } else {
-            if (tag != null) {
-                if (cause instanceof TagException) {
-                    throw (TagException) cause;
-                } else {
-                    throw new TagException(tag, errorMessage.toString(), cause);
-                }
+        }
+
+        if (tag != null) {
+            if (cause instanceof TagException) {
+                throw (TagException) cause;
             } else {
-                if (cause instanceof FacesException) {
-                    throw (FacesException) cause;
-                } else if (cause instanceof FaceletException) {
-                    throw (FaceletException) cause;
-                } else if (cause instanceof InvokerException) {
-                    InvokerException ie = (InvokerException) cause;
-                    throw new FaceletException(ie.toString(), cause);
-                } else {
-                    throw new FaceletException(errorMessage.toString(), cause);
-                }
+                throw new TagException(tag, errorMessage.toString(), cause);
+            }
+        } else {
+            if (cause instanceof FacesException) {
+                throw (FacesException) cause;
+            } else if (cause instanceof FaceletException) {
+                throw (FaceletException) cause;
+            } else if (cause instanceof InvokerException) {
+                InvokerException ie = (InvokerException) cause;
+                throw new FaceletException(ie.toString(), cause);
+            } else {
+                throw new FaceletException(errorMessage.toString(), cause);
             }
         }
     }
