@@ -467,7 +467,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             Context fctx = fs.getFlowContext();
             fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
         }
-        
+
         StateFlow.resolveViewContext(context);
     }
 
@@ -723,13 +723,15 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         String executorId = executor.getId();
 
-        Map<String, List<String>> map = fs.getMap();
-        if (map.containsKey(executorId)) {
-            List<String> children = map.get(executorId);
-            for (String childId : children) {
-                if (executors.containsKey(childId)) {
-                    SCXMLExecutor child = executors.get(childId);
-                    close(context, fs, child);
+        if (executors.containsKey(executorId)) {
+            Map<String, List<String>> map = fs.getMap();
+            if (map.containsKey(executorId)) {
+                List<String> children = map.get(executorId);
+                for (String childId : children) {
+                    if (executors.containsKey(childId)) {
+                        SCXMLExecutor child = executors.get(childId);
+                        close(context, fs, child);
+                    }
                 }
             }
         }
@@ -988,8 +990,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                         Object[] values = (Object[]) entry;
 
                         String executorId = (String) values[0];
-                        String viewId = (String) values[1];
-                        String id = (String) values[2];
+                        String viewId = (String) values[2];
+                        String id = (String) values[3];
 
                         SCXML stateMachine = null;
                         try {
