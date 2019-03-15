@@ -299,6 +299,14 @@ public class StateFlow {
             StateFlowViewContext viewContext = (StateFlowViewContext) context.getAttributes()
                     .get(VIEW_INVOKE_CONTEXT.get(viewRoot.getViewId()));
 
+            if (viewContext != null) {
+                if (!viewContext.getExecutor().isRunning()) {
+                    viewContext = null;
+                    context.getAttributes()
+                            .remove(VIEW_INVOKE_CONTEXT.get(viewRoot.getViewId()));
+                }
+            }
+
             if (null == viewContext) {
                 clearCurrentViewContext(context);
                 SCXMLExecutor root = handler.getRootExecutor(context);
