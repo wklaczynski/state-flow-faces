@@ -41,6 +41,8 @@
                 <x:transition event="error.execution" target="error"/>
                 <x:transition event="view.action.cancel" target="cancel"/>
                 <x:transition event="view.action.view" target="view-process"/>
+                
+                <x:transition event="view.portlet.close" target="cancel"/>
             </x:state>
 
             <x:state id="view-process">

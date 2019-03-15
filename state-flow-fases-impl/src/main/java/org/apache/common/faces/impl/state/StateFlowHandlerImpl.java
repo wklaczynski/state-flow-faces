@@ -95,6 +95,8 @@ import static org.apache.common.faces.impl.state.utils.Util.toViewId;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
+import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.PORTLET_EVENT_PREFIX;
@@ -725,17 +727,14 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             try {
                 String outcome = "close";
 
+                String viewId = (String) executor.getRootContext().get(FACES_CHART_VIEW_ID);
+                
                 SCXMLExecutor parent = executors.get(parentId);
                 
                 parent.addEvent(new EventBuilder(
                     PORTLET_EVENT_PREFIX + outcome,
                     TriggerEvent.CALL_EVENT)
-                    .sendId(executorId).build());
-
-                parent.addEvent(new EventBuilder(
-                    "view.portlet." + outcome,
-                    TriggerEvent.SIGNAL_EVENT)
-                    .sendId(executorId).build());
+                    .sendId(viewId).build());
 
                 parent.triggerEvents();
             } catch (ModelException ex) {

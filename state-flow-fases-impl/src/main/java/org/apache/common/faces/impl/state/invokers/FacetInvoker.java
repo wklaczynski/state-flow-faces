@@ -47,6 +47,7 @@ import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.PORTLET_CONTROLLER_TYPE;
 import static org.apache.common.faces.state.StateFlow.VIEW_CONTROLLER_TYPE;
+import static org.apache.common.faces.state.StateFlow.VIEW_EVENT_PREFIX;
 import org.apache.common.faces.state.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.scxml.SCXMLIOProcessor;
 import org.apache.common.faces.state.scxml.TriggerEvent;
@@ -410,14 +411,14 @@ public class FacetInvoker implements Invoker, Serializable {
                     }
                 }
 
-                if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
+                if (event.getName().startsWith(VIEW_EVENT_PREFIX)) {
                     ExternalContext ec = context.getExternalContext();
 
                     Map<String, String> params = new HashMap<>();
                     params.putAll(ec.getRequestParameterMap());
 
-                    String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
-                    EventBuilder evb = new EventBuilder("view.action." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
+                    String outcome = event.getName().substring(VIEW_EVENT_PREFIX.length());
+                    EventBuilder evb = new EventBuilder("view." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
 
                     evb.data(params);
                     evb.sendId(invokeId);

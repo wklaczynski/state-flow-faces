@@ -190,6 +190,11 @@ public class StateFlow {
     /**
      *
      */
+    public static final String VIEW_EVENT_PREFIX = "faces.view.";
+
+    /**
+     *
+     */
     public static final String OUTCOME_EVENT_PREFIX = "faces.view.action.";
 
     /**

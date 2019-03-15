@@ -30,9 +30,8 @@ import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
-import static org.apache.common.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static org.apache.common.faces.state.StateFlow.FACES_VIEW_STATE;
-import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
+import static org.apache.common.faces.state.StateFlow.VIEW_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.StateFlowViewContext;
 import org.apache.common.faces.state.annotation.StateChartInvoker;
@@ -379,14 +378,14 @@ public class DialogInvoker implements Invoker, Serializable {
                 }
             }
 
-            if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
+            if (event.getName().startsWith(VIEW_EVENT_PREFIX)) {
                 ExternalContext ec = context.getExternalContext();
 
                 Map<String, String> params = new HashMap<>();
                 params.putAll(ec.getRequestParameterMap());
 
-                String outcome = event.getName().substring(OUTCOME_EVENT_PREFIX.length());
-                EventBuilder evb = new EventBuilder("view.action." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
+                String outcome = event.getName().substring(VIEW_EVENT_PREFIX.length());
+                EventBuilder evb = new EventBuilder("view." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
 
                 evb.data(params);
                 evb.sendId(invokeId);
