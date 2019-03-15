@@ -173,10 +173,6 @@ public class UIStateChartController extends UIPanel {
                 throw new FacesException(ex);
             }
 
-            if (!executor.isRunning()) {
-                handler.close(context, executor);
-            }
-
             if (context.getResponseComplete()) {
                 handler.writeState(context);
             }

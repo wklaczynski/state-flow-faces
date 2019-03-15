@@ -100,11 +100,6 @@ public class StateFlowControllerListener implements SystemEventListener {
                                 throw new FacesException(ex);
                             }
                         }
-
-                        if (!executor.isRunning()) {
-                            handler.close(facesContext, executor);
-                        }
-
                     }
                     return VisitResult.ACCEPT;
                 });
@@ -131,11 +126,6 @@ public class StateFlowControllerListener implements SystemEventListener {
                                 throw new FacesException(ex);
                             }
                         }
-
-                        if (!executor.isRunning()) {
-                            handler.close(facesContext, executor);
-                        }
-
                     }
                     return VisitResult.ACCEPT;
                 });

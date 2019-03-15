@@ -160,10 +160,6 @@ public class RenderStateHandler extends ComponentHandler {
             handler.execute(context, executor, params);
         }
 
-        if (!executor.isRunning()) {
-            handler.close(context, executor);
-        }
-
         if (context.getResponseComplete()) {
             handler.writeState(context);
         }

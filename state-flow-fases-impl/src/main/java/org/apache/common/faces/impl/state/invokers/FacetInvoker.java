@@ -231,8 +231,6 @@ public class FacetInvoker implements Invoker, Serializable {
                     StateFlowViewContext viewContext = new StateFlowViewContext(
                             invokeId, executor, ictx.getContext());
 
-                    StateFlow.setViewContext(context, path, viewContext);
-
                     return;
                 }
             }
@@ -286,8 +284,6 @@ public class FacetInvoker implements Invoker, Serializable {
 
             StateFlowViewContext viewContext = new StateFlowViewContext(
                     invokeId, executor, ictx.getContext());
-
-            StateFlow.setViewContext(context, path, viewContext);
 
             if ((pvc != null && pvc.isAjaxRequest())) {
                 pvc.setRenderAll(true);

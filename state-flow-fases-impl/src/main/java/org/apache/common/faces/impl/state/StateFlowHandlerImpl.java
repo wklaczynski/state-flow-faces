@@ -92,6 +92,7 @@ import org.apache.common.faces.impl.state.invokers.FacetInvoker;
 import org.apache.common.faces.impl.state.tag.faces.MethodCall;
 import org.apache.common.faces.impl.state.tag.faces.Redirect;
 import static org.apache.common.faces.impl.state.utils.Util.toViewId;
+import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
@@ -466,6 +467,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             Context fctx = fs.getFlowContext();
             fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
         }
+        
+        StateFlow.resolveViewContext(context);
     }
 
     @Override

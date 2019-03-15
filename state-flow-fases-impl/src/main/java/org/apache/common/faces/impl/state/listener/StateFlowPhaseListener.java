@@ -99,10 +99,6 @@ public class StateFlowPhaseListener implements PhaseListener {
                     throw new FacesException(ex);
                 }
 
-                if (!executor.isRunning()) {
-                    handler.close(facesContext, executor);
-                }
-
                 Context.setCurrentInstance(
                         (Context) facesContext.getELContext().getContext(Context.class));
 
@@ -126,10 +122,6 @@ public class StateFlowPhaseListener implements PhaseListener {
                                 executor.triggerEvent(veb.build());
                             } catch (ModelException ex) {
                                 throw new FacesException(ex);
-                            }
-
-                            if (!executor.isRunning()) {
-                                handler.close(facesContext, executor);
                             }
                         }
 
@@ -191,10 +183,6 @@ public class StateFlowPhaseListener implements PhaseListener {
                         }
                     }
 
-                    if (!executor.isRunning()) {
-                        handler.close(facesContext, executor);
-                    }
-
                 }
 
                 ArrayList<String> clientIds = getControllerClientIds(facesContext);
@@ -234,10 +222,6 @@ public class StateFlowPhaseListener implements PhaseListener {
                                             throw new FacesException(ex);
                                         }
                                     }
-                                }
-
-                                if (!executor.isRunning()) {
-                                    handler.close(facesContext, executor);
                                 }
                             }
                         }

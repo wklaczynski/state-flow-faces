@@ -85,10 +85,6 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
                     throw new FacesException(ex);
                 }
 
-                if (!executor.isRunning()) {
-                    handler.close(facesContext, executor);
-                }
-
                 if (facesContext.getResponseComplete()) {
                     handler.writeState(facesContext);
                 }

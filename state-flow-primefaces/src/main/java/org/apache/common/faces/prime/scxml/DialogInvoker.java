@@ -379,19 +379,6 @@ public class DialogInvoker implements Invoker, Serializable {
                 }
             }
 
-            if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
-                UIViewRoot viewRoot = context.getViewRoot();
-                if (viewRoot != null) {
-                    try {
-                        StateFlowViewContext viewContext = new StateFlowViewContext(
-                                invokeId, executor, ictx.getContext());
-                        StateFlow.setViewContext(context, viewId, viewContext);
-                    } catch (ModelException ex) {
-                        throw new InvokerException(ex);
-                    }
-                }
-            }
-
             if (event.getName().startsWith(OUTCOME_EVENT_PREFIX)) {
                 ExternalContext ec = context.getExternalContext();
 
