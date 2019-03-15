@@ -96,8 +96,12 @@ import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
+import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
+import static org.apache.common.faces.state.StateFlow.PORTLET_EVENT_PREFIX;
+import org.apache.common.faces.state.scxml.EventBuilder;
 import org.apache.common.faces.state.task.TimerEventProducer;
 import org.apache.common.faces.state.scxml.ParentSCXMLIOProcessor;
+import org.apache.common.faces.state.scxml.TriggerEvent;
 import static org.apache.common.faces.state.scxml.io.StateHolderSaver.restoreContext;
 import static org.apache.common.faces.state.scxml.io.StateHolderSaver.saveContext;
 
@@ -626,6 +630,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
 
             Map<String, List<String>> map = fs.getMap();
+            Map<String, String> roots = fs.getRoots();
             Map<String, SCXMLExecutor> executors = fs.getExecutors();
 
             String executorId = executor.getId();
@@ -634,12 +639,9 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 SCXMLExecutor viewroot = getRootExecutor(context);
                 if (viewroot != null) {
                     String parentId = viewroot.getId();
-                    List<String> children = map.get(parentId);
-                    if (children == null) {
-                        children = new ArrayList<>();
-                        map.put(parentId, children);
-                    }
-                    children.add(executorId);
+                    map.computeIfAbsent(parentId, (t) -> new ArrayList<>())
+                            .add(executorId);
+                    roots.put(executorId, parentId);
                 }
                 executors.put(executorId, executor);
             } else {
@@ -699,9 +701,18 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return;
         }
 
+        Map<String, String> roots = fs.getRoots();
+        Map<String, SCXMLExecutor> executors = fs.getExecutors();
+
+        String parentId = null;
+        String executorId = executor.getId();
+
+        if (executors.containsKey(executorId)) {
+            parentId = roots.get(executorId);
+        }
+
         close(context, fs, executor);
 
-        Map<String, SCXMLExecutor> executors = fs.getExecutors();
         if (executors.isEmpty()) {
             if (executors.isEmpty()) {
                 closeFlowDeque(context);
@@ -709,6 +720,26 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             if (CdiUtil.isCdiAvailable(context)) {
                 BeanManager bm = CdiUtil.getCdiBeanManager(context);
                 bm.fireEvent(new OnFinishEvent(executor));
+            }
+        } else if (parentId != null && executors.containsKey(parentId)) {
+            try {
+                String outcome = "close";
+
+                SCXMLExecutor parent = executors.get(parentId);
+                
+                parent.addEvent(new EventBuilder(
+                    PORTLET_EVENT_PREFIX + outcome,
+                    TriggerEvent.CALL_EVENT)
+                    .sendId(executorId).build());
+
+                parent.addEvent(new EventBuilder(
+                    "view.portlet." + outcome,
+                    TriggerEvent.SIGNAL_EVENT)
+                    .sendId(executorId).build());
+
+                parent.triggerEvents();
+            } catch (ModelException ex) {
+                throw new FacesException(ex);
             }
         }
     }
@@ -864,16 +895,16 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     private static class FlowDeque implements Serializable {
 
-        private final Stack<String> roots;
         private final Map<String, SCXMLExecutor> executors;
+        private final Map<String, String> roots;
         private final Map<String, List<String>> map;
         private final String key;
         private final SimpleContext flowContext;
         private boolean closed;
 
         public FlowDeque(final String sessionKey) {
-            roots = new Stack<>();
-            executors = new LinkedHashMap<>();
+            executors = new HashMap<>();
+            roots = new HashMap<>();
             map = new HashMap<>();
             flowContext = new SimpleContext();
             this.key = sessionKey;
@@ -887,7 +918,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return executors;
         }
 
-        public Stack<String> getRoots() {
+        public Map<String, String> getRoots() {
             return roots;
         }
 
@@ -932,8 +963,12 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             if (null != roots && !roots.isEmpty()) {
                 Object[] attached = new Object[executors.size()];
                 int i = 0;
-                for (String rootId : roots) {
-                    attached[i++] = rootId;
+                for (Map.Entry<String, String> entry : roots.entrySet()) {
+                    Object values[] = new Object[2];
+                    values[0] = entry.getKey();
+                    values[1] = entry.getValue();
+                    attached[i++] = values;
+
                 }
                 states[1] = attached;
             }
@@ -978,9 +1013,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 closed = (boolean) blocks[0];
 
                 if (blocks[1] != null) {
-                    Object[] entries = (Object[]) blocks[1];
-                    for (Object entry : entries) {
-                        roots.addElement((String) entry);
+                    Object[] values = (Object[]) blocks[1];
+                    for (Object value : values) {
+                        Object[] entry = (Object[]) value;
+                        roots.put(String.valueOf(entry[0]), String.valueOf(entry[1]));
                     }
                 }
 
