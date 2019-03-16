@@ -80,7 +80,7 @@ public class DialogCDIContext implements Context, Serializable {
                     }
 
                     if (!executor.isRunning()) {
-                        throw new ContextNotActiveException("Request to activate bean in executor, but that executor is not active.");
+                        LOGGER.warning("Request to activate bean in executor, but that executor is not active.");
                     }
 
                     result = contextual.create(creational);

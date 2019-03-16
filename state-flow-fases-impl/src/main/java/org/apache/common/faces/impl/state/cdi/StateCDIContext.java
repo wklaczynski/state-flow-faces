@@ -139,7 +139,7 @@ public class StateCDIContext implements Context, Serializable {
                     }
 
                     if (!executor.isRunning()) {
-                        throw new ContextNotActiveException("Request to activate bean in state, but that executor is not running.");
+                        LOGGER.warning("Request to activate bean in state, but that executor is not running.");
                     }
 
                     if (!executor.getStatus().isInState(state.getId())) {
@@ -171,7 +171,7 @@ public class StateCDIContext implements Context, Serializable {
         SCXMLExecutor executor = getExecutor(facesContext);
 
         if (!executor.isRunning()) {
-            throw new ContextNotActiveException("Request to bean in state, but that executor is not running.");
+            LOGGER.warning("Request to bean in state, but that executor is not running.");
         }
 
         TargetBeanInfo tbi = targetIds.get(contextual);
@@ -199,7 +199,7 @@ public class StateCDIContext implements Context, Serializable {
         }
 
         if (!executor.isRunning()) {
-            return null;
+            LOGGER.warning("Request to bean in state, but that executor is not running.");
         }
 
         if (!executor.getStatus().isInState(state.getId())) {

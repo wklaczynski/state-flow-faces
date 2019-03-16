@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.enterprise.context.ContextNotActiveException;
 import javax.enterprise.context.spi.Context;
 import javax.enterprise.context.spi.Contextual;
 import javax.enterprise.context.spi.CreationalContext;
@@ -80,7 +79,7 @@ public class ChartCDIContext implements Context, Serializable {
                     }
                     
                     if (!executor.isRunning()) {
-                        throw new ContextNotActiveException("Request to activate bean in executor, but that executor is not active.");
+                        LOGGER.warning("Request to activate bean in executor, but that executor is not active.");
                     }
 
                     
