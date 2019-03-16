@@ -22,9 +22,11 @@ import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.faces.event.PhaseId;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.CompositeFaceletHandler;
@@ -35,6 +37,7 @@ import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagException;
 import org.apache.common.faces.state.StateFlow;
+import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.PORTLET_CONTROLLER_TYPE;
@@ -52,6 +55,8 @@ import org.apache.common.faces.state.scxml.model.SCXML;
 import org.apache.common.faces.state.scxml.model.Var;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_NAME;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_SOURCE;
+import org.apache.common.faces.state.scxml.EventBuilder;
+import org.apache.common.faces.state.scxml.TriggerEvent;
 
 /**
  * The class in this SCXML object model that corresponds to the
@@ -160,6 +165,20 @@ public class RenderStateHandler extends ComponentHandler {
             handler.execute(context, executor, params);
         }
 
+        try {
+            String evtname = BEFORE_PHASE_EVENT_PREFIX
+                    + PhaseId.RESTORE_VIEW.getName().toLowerCase();
+
+            EventBuilder eb = new EventBuilder(evtname, TriggerEvent.CALL_EVENT)
+                    .sendId(viewId);
+
+            executor.triggerEvent(eb.build());
+        } catch (ModelException ex) {
+            throw new TagException(tag, ex);
+        }
+
+        StateFlow.resolveViewContext(context);
+        
         if (context.getResponseComplete()) {
             handler.writeState(context);
         }
@@ -293,7 +312,7 @@ public class RenderStateHandler extends ComponentHandler {
 
                             TagAttribute nameAttr = ctag.getAttributes().get("name");
                             TagAttribute valueAttr = ctag.getAttributes().get("value");
-                            
+
                             String pname = nameAttr.getValue(ctx);
                             Object pvalue = valueAttr.getValue(ctx);
                             params.put(pname, pvalue);
@@ -302,7 +321,6 @@ public class RenderStateHandler extends ComponentHandler {
                 }
             }
         }
-
 
         return params;
     }

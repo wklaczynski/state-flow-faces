@@ -79,34 +79,10 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
                 throw new FacesException(ex);
             }
         }
+
+        StateFlow.resolveViewContext(facesContext);
+
         UIViewRoot viewRoot = super.restoreView(facesContext, viewId);
-
-        ArrayList<String> clientIds = getControllerClientIds(facesContext);
-        if (clientIds != null && !clientIds.isEmpty()) {
-            Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
-            VisitContext visitContext = VisitContext.createVisitContext(facesContext, clientIds, hints);
-            viewRoot.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
-                if (target instanceof UIStateChartController) {
-                    UIStateChartController controller = (UIStateChartController) target;
-                    String controllerId = controller.getClientId(facesContext);
-
-                    EventBuilder veb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
-                            .sendId(viewRoot.getViewId());
-
-                    SCXMLExecutor executor = controller.getRootExecutor(facesContext);
-                    if (executor != null) {
-                        try {
-                            executor.triggerEvent(veb.build());
-                        } catch (ModelException ex) {
-                            throw new FacesException(ex);
-                        }
-                    }
-
-                }
-                return VisitResult.ACCEPT;
-            });
-        }
-
         return viewRoot;
 
     }
