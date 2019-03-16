@@ -89,6 +89,7 @@ import static org.apache.common.faces.impl.state.StateFlowImplConstants.SCXML_DA
 import org.apache.common.faces.impl.state.invokers.FacetInvoker;
 import org.apache.common.faces.impl.state.tag.faces.MethodCall;
 import org.apache.common.faces.impl.state.tag.faces.Redirect;
+import org.apache.common.faces.impl.state.utils.ComponentUtils;
 import static org.apache.common.faces.impl.state.utils.Util.toViewId;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
@@ -96,6 +97,7 @@ import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static org.apache.common.faces.state.StateFlow.PORTLET_EVENT_PREFIX;
+import org.apache.common.faces.state.component.UIStateChartController;
 import org.apache.common.faces.state.scxml.EventBuilder;
 import org.apache.common.faces.state.task.TimerEventProducer;
 import org.apache.common.faces.state.scxml.ParentSCXMLIOProcessor;
@@ -475,6 +477,19 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     @Override
     public SCXMLExecutor getCurrentExecutor(FacesContext context) {
+        UIComponent currentComponent = UIComponent.getCurrentComponent(context);
+        if (currentComponent != null) {
+            UIStateChartController controller = ComponentUtils.closest(UIStateChartController.class, currentComponent);
+            if (controller != null) {
+                String executorId = controller.getExecutorId();
+                FlowDeque fs = getFlowDeque(context, false);
+                if (fs == null) {
+                    return null;
+                }
+                return fs.getExecutors().get(executorId);
+            }
+        }
+
         SCXMLExecutor executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);
         if (executor == null) {
             FlowDeque fs = getFlowDeque(context, false);
@@ -724,13 +739,13 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 String outcome = "close";
 
                 String viewId = (String) executor.getRootContext().get(FACES_CHART_VIEW_ID);
-                
+
                 SCXMLExecutor parent = executors.get(parentId);
-                
+
                 parent.addEvent(new EventBuilder(
-                    PORTLET_EVENT_PREFIX + outcome,
-                    TriggerEvent.CALL_EVENT)
-                    .sendId(viewId).build());
+                        PORTLET_EVENT_PREFIX + outcome,
+                        TriggerEvent.CALL_EVENT)
+                        .sendId(viewId).build());
 
                 parent.triggerEvents();
             } catch (ModelException ex) {

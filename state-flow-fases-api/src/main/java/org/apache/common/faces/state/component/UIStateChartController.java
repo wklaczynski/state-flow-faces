@@ -20,8 +20,6 @@ import javax.faces.FacesException;
 import javax.faces.component.ActionSource;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
-import javax.faces.component.visit.VisitCallback;
-import javax.faces.component.visit.VisitContext;
 import javax.faces.context.FacesContext;
 import javax.faces.el.EvaluationException;
 import javax.faces.el.MethodBinding;
