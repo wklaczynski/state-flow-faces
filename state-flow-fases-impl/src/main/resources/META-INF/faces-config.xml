@@ -65,6 +65,11 @@
         <component-type>org.apache.common.faces.UIStateChartController</component-type>
         <component-class>org.apache.common.faces.state.component.UIStateChartController</component-class>
     </component>
+
+    <component>
+        <component-type>org.apache.common.faces.UIStateChartFacetRender</component-type>
+        <component-class>org.apache.common.faces.state.component.UIStateChartFacetRender</component-class>
+    </component>
     
     <render-kit>
         <render-kit-id>HTML_BASIC</render-kit-id>

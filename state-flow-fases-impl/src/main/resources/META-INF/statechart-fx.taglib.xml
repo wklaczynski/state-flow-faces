@@ -49,7 +49,7 @@ limitations under the License.
         <tag-name>renderState</tag-name>
         <description><![CDATA[The <renderState> element is redirect to faces action or url.]]></description>
         <component>
-            <component-type>org.apache.common.faces.UIStateChartController</component-type>
+            <component-type>org.apache.common.faces.UIStateChartFacetRender</component-type>
             <handler-class>org.apache.common.faces.impl.state.tag.faces.RenderStateHandler</handler-class>
         </component>
         <attribute>

@@ -44,7 +44,6 @@ import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_FACET;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
-import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.PORTLET_CONTROLLER_TYPE;
 import static org.apache.common.faces.state.StateFlow.VIEW_CONTROLLER_TYPE;
 import static org.apache.common.faces.state.StateFlow.VIEW_EVENT_PREFIX;
@@ -308,7 +307,7 @@ public class FacetInvoker implements Invoker, Serializable {
             controllerType = VIEW_CONTROLLER_TYPE;
         }
 
-        if (source.startsWith("@controller:")) {
+        if (source.startsWith("@renderer:")) {
             
             if(!controllerType.equals(PORTLET_CONTROLLER_TYPE)) {
                 throwRequiredControllerException(context, source);

@@ -192,7 +192,7 @@ public class StateFlowPhaseListener implements PhaseListener {
                         if (target instanceof UIStateChartController) {
                             UIStateChartController controller = (UIStateChartController) target;
                             String controllerId = controller.getClientId(facesContext);
-
+                            
                             EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
                                     .sendId(viewRoot.getViewId());
 

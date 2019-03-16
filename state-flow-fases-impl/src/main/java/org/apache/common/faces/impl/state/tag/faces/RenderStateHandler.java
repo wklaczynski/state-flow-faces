@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIPanel;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
@@ -54,6 +55,8 @@ import org.apache.common.faces.state.scxml.model.SCXML;
 import org.apache.common.faces.state.scxml.model.Var;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_NAME;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_SOURCE;
+import static org.apache.common.faces.state.component.UIStateChartController.CONTROLLER_FACET_NAME;
+import org.apache.common.faces.state.component.UIStateChartFacetRender;
 import org.apache.common.faces.state.scxml.EventBuilder;
 import org.apache.common.faces.state.scxml.TriggerEvent;
 
@@ -110,6 +113,18 @@ public class RenderStateHandler extends ComponentHandler {
 
         UIComponent compositeParent = UIComponent.getCurrentCompositeComponent(ctx.getFacesContext());
         if (compositeParent != null) {
+            UIPanel facetComponent = (UIPanel) compositeParent.getFacets().get(UIComponent.COMPOSITE_FACET_NAME);
+            UIStateChartController controller;
+            if (facetComponent instanceof UIStateChartController) {
+                controller = (UIStateChartController) facetComponent;
+                parent = controller.getFacet(CONTROLLER_FACET_NAME);
+            } else {
+                controller = (UIStateChartController) context.getApplication().createComponent("org.apache.common.faces.UIStateChartController");
+                compositeParent.getFacets().remove(UIComponent.COMPOSITE_FACET_NAME);
+                compositeParent.getFacets().put(UIComponent.COMPOSITE_FACET_NAME, controller);
+                controller.getFacets().put(CONTROLLER_FACET_NAME, facetComponent);
+            }
+            
             URL url = getCompositeURL(ctx);
             if (url == null) {
                 throw new TagException(this.tag,
@@ -122,6 +137,12 @@ public class RenderStateHandler extends ComponentHandler {
             String executorName = "controller[" + tag + "]" + viewId + "!" + url.getPath() + "#" + scxmlName;
             String executorId = rootId + ":" + UUID.nameUUIDFromBytes(executorName.getBytes()).toString();
 
+            String controllerExecutorId = controller.getExecutorId();
+            if(controllerExecutorId != null && !controllerExecutorId.equals(executorId)) {
+               throw new TagException(this.tag, "Render state component can not multiple start in the same composite component.");
+            }
+            controller.setExecutorId(executorId);
+            
             String uuid = UUID.nameUUIDFromBytes(url.getPath().getBytes()).toString();
             String stateContinerName = STATECHART_FACET_NAME + "_" + uuid;
 
@@ -177,7 +198,7 @@ public class RenderStateHandler extends ComponentHandler {
         }
 
         StateFlow.resolveViewContext(context);
-        
+
         if (context.getResponseComplete()) {
             handler.writeState(context);
         }
@@ -199,10 +220,10 @@ public class RenderStateHandler extends ComponentHandler {
         SCXMLExecutor executor = handler.getRootExecutor(context);
         Context sctx = executor.getRootContext();
 
-        UIStateChartController controller = (UIStateChartController) c;
+        UIStateChartFacetRender render = (UIStateChartFacetRender) c;
         String executorId = executor.getId();
 
-        controller.setExecutorId(executorId);
+        render.setExecutorId(executorId);
 
     }
 
