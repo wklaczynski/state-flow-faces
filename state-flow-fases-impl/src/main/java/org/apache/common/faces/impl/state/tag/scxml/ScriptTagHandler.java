@@ -17,20 +17,20 @@ package org.apache.common.faces.impl.state.tag.scxml;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import org.apache.common.faces.state.scxml.model.Finalize;
-import org.apache.common.faces.state.scxml.model.If;
-import org.apache.common.faces.state.scxml.model.OnEntry;
-import org.apache.common.faces.state.scxml.model.OnExit;
-import org.apache.common.faces.state.scxml.model.Transition;
+import javax.faces.state.scxml.model.Finalize;
+import javax.faces.state.scxml.model.If;
+import javax.faces.state.scxml.model.OnEntry;
+import javax.faces.state.scxml.model.OnExit;
+import javax.faces.state.scxml.model.Transition;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
 import org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler;
-import org.apache.common.faces.state.scxml.PathResolver;
-import org.apache.common.faces.state.scxml.model.ActionsContainer;
-import org.apache.common.faces.state.scxml.model.SCXML;
-import org.apache.common.faces.state.scxml.model.Script;
+import javax.faces.state.scxml.PathResolver;
+import javax.faces.state.scxml.model.ActionsContainer;
+import javax.faces.state.scxml.model.SCXML;
+import javax.faces.state.scxml.model.Script;
 
 /**
  *

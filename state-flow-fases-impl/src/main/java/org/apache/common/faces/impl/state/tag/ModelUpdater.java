@@ -25,22 +25,22 @@ import java.util.StringTokenizer;
 import java.util.UUID;
 import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagException;
-import static org.apache.common.faces.state.scxml.SCXMLConstants.META_ELEMENT_IDMAP;
-import org.apache.common.faces.state.scxml.model.Action;
-import org.apache.common.faces.state.scxml.model.EnterableState;
-import org.apache.common.faces.state.scxml.model.Finalize;
-import org.apache.common.faces.state.scxml.model.History;
-import org.apache.common.faces.state.scxml.model.Initial;
-import org.apache.common.faces.state.scxml.model.Invoke;
-import org.apache.common.faces.state.scxml.model.OnEntry;
-import org.apache.common.faces.state.scxml.model.OnExit;
-import org.apache.common.faces.state.scxml.model.Parallel;
-import org.apache.common.faces.state.scxml.model.SCXML;
-import org.apache.common.faces.state.scxml.model.SimpleTransition;
-import org.apache.common.faces.state.scxml.model.State;
-import org.apache.common.faces.state.scxml.model.Transition;
-import org.apache.common.faces.state.scxml.model.TransitionTarget;
-import org.apache.common.faces.state.scxml.model.TransitionalState;
+import static javax.faces.state.scxml.SCXMLConstants.META_ELEMENT_IDMAP;
+import javax.faces.state.scxml.model.Action;
+import javax.faces.state.scxml.model.EnterableState;
+import javax.faces.state.scxml.model.Finalize;
+import javax.faces.state.scxml.model.History;
+import javax.faces.state.scxml.model.Initial;
+import javax.faces.state.scxml.model.Invoke;
+import javax.faces.state.scxml.model.OnEntry;
+import javax.faces.state.scxml.model.OnExit;
+import javax.faces.state.scxml.model.Parallel;
+import javax.faces.state.scxml.model.SCXML;
+import javax.faces.state.scxml.model.SimpleTransition;
+import javax.faces.state.scxml.model.State;
+import javax.faces.state.scxml.model.Transition;
+import javax.faces.state.scxml.model.TransitionTarget;
+import javax.faces.state.scxml.model.TransitionalState;
 
 /**
  * The ModelUpdater provides the utility methods to check the Commons SCXML

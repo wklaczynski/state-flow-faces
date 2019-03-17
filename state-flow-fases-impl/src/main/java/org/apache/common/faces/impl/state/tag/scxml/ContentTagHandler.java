@@ -22,13 +22,13 @@ import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
 import org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler;
-import org.apache.common.faces.state.scxml.model.ParsedValue;
-import org.apache.common.faces.state.scxml.model.SCXML;
-import org.apache.common.faces.state.scxml.model.Content;
-import org.apache.common.faces.state.scxml.model.ContentContainer;
-import org.apache.common.faces.state.scxml.model.DoneData;
-import org.apache.common.faces.state.scxml.model.Invoke;
-import org.apache.common.faces.state.scxml.model.Send;
+import javax.faces.state.scxml.model.ParsedValue;
+import javax.faces.state.scxml.model.SCXML;
+import javax.faces.state.scxml.model.Content;
+import javax.faces.state.scxml.model.ContentContainer;
+import javax.faces.state.scxml.model.DoneData;
+import javax.faces.state.scxml.model.Invoke;
+import javax.faces.state.scxml.model.Send;
 
 /**
  *

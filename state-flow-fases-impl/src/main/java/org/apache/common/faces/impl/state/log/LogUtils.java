@@ -16,8 +16,8 @@
  */
 package org.apache.common.faces.impl.state.log;
 
-import org.apache.common.faces.state.scxml.model.Transition;
-import org.apache.common.faces.state.scxml.model.TransitionTarget;
+import javax.faces.state.scxml.model.Transition;
+import javax.faces.state.scxml.model.TransitionTarget;
 
 /**
  * Helper methods for Commons SCXML logging.

@@ -25,15 +25,15 @@ import javax.faces.application.NavigationHandler;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
-import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
-import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
-import org.apache.common.faces.state.scxml.EventBuilder;
-import org.apache.common.faces.state.scxml.SCXMLExecutor;
-import org.apache.common.faces.state.scxml.TriggerEvent;
-import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.component.UIStateChartFacetRender;
-import org.apache.common.faces.state.scxml.model.ModelException;
-import org.apache.common.faces.state.utils.ComponentUtils;
+import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
+import static javax.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
+import javax.faces.state.scxml.EventBuilder;
+import javax.faces.state.scxml.SCXMLExecutor;
+import javax.faces.state.scxml.TriggerEvent;
+import javax.faces.state.StateFlowHandler;
+import javax.faces.state.component.UIStateChartFacetRender;
+import javax.faces.state.scxml.model.ModelException;
+import javax.faces.state.utils.ComponentUtils;
 
 /**
  *

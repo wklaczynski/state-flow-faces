@@ -29,18 +29,18 @@ import javax.el.ValueExpression;
 import javax.el.VariableMapper;
 import javax.faces.context.FacesContext;
 import org.apache.common.faces.impl.state.StateFlowContext;
-import org.apache.common.faces.state.scxml.Context;
-import org.apache.common.faces.state.scxml.SCXMLExecutor;
-import org.apache.common.faces.state.scxml.SCXMLExpressionException;
-import org.apache.common.faces.state.scxml.env.AbstractBaseEvaluator;
+import javax.faces.state.scxml.Context;
+import javax.faces.state.scxml.SCXMLExecutor;
+import javax.faces.state.scxml.SCXMLExpressionException;
+import javax.faces.state.scxml.env.AbstractBaseEvaluator;
 import org.apache.common.faces.impl.state.utils.Util;
-import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
-import org.apache.common.faces.state.scxml.SCXMLIOProcessor;
-import org.apache.common.faces.state.scxml.SCXMLSystemContext;
-import org.apache.common.faces.state.scxml.env.EffectiveContextMap;
+import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
+import javax.faces.state.scxml.SCXMLIOProcessor;
+import javax.faces.state.scxml.SCXMLSystemContext;
+import javax.faces.state.scxml.env.EffectiveContextMap;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
 import org.apache.common.faces.impl.state.el.CompositeFunctionMapper;
-import org.apache.common.faces.state.scxml.model.SCXML;
+import javax.faces.state.scxml.model.SCXML;
 
 /**
  *

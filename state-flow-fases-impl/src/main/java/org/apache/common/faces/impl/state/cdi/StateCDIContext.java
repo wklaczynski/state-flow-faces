@@ -37,14 +37,14 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import org.apache.common.faces.impl.state.StateFlowImplConstants;
 import org.apache.common.faces.impl.state.log.FlowLogger;
-import org.apache.common.faces.state.StateChartExecuteContext;
-import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.scxml.SCXMLExecutor;
-import org.apache.common.faces.state.scxml.model.EnterableState;
-import org.apache.common.faces.state.scxml.model.Parallel;
-import org.apache.common.faces.state.scxml.model.SCXML;
-import org.apache.common.faces.state.scxml.model.TransitionTarget;
-import org.apache.common.faces.state.annotation.StateScoped;
+import javax.faces.state.StateChartExecuteContext;
+import javax.faces.state.StateFlowHandler;
+import javax.faces.state.scxml.SCXMLExecutor;
+import javax.faces.state.scxml.model.EnterableState;
+import javax.faces.state.scxml.model.Parallel;
+import javax.faces.state.scxml.model.SCXML;
+import javax.faces.state.scxml.model.TransitionTarget;
+import javax.faces.state.annotation.StateScoped;
 
 /**
  *

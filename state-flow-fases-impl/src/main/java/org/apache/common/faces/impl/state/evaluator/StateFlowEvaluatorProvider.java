@@ -15,9 +15,9 @@
  */
 package org.apache.common.faces.impl.state.evaluator;
 
-import org.apache.common.faces.state.scxml.Evaluator;
-import org.apache.common.faces.state.scxml.EvaluatorProvider;
-import org.apache.common.faces.state.scxml.model.SCXML;
+import javax.faces.state.scxml.Evaluator;
+import javax.faces.state.scxml.EvaluatorProvider;
+import javax.faces.state.scxml.model.SCXML;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
 import org.kohsuke.MetaInfServices;
 

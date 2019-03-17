@@ -21,7 +21,7 @@ import java.util.List;
 import javax.inject.Named;
 import org.apache.common.faces.demo.order.data.Order;
 import org.apache.common.faces.demo.order.data.Product;
-import org.apache.common.faces.state.annotation.DialogScoped;
+import javax.faces.state.annotation.DialogScoped;
 
 /**
  *

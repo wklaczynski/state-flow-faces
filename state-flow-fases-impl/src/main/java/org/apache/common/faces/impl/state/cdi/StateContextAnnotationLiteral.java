@@ -16,7 +16,7 @@
 package org.apache.common.faces.impl.state.cdi;
 
 import javax.enterprise.util.AnnotationLiteral;
-import org.apache.common.faces.state.annotation.StateContext;
+import javax.faces.state.annotation.StateContext;
 
 /**
  *

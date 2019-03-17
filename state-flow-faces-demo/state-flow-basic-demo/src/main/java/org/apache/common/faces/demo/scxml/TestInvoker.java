@@ -23,15 +23,15 @@ import java.util.logging.Logger;
 import javax.faces.application.FacesMessage;
 import static javax.faces.application.FacesMessage.SEVERITY_INFO;
 import javax.faces.context.FacesContext;
-import org.apache.common.faces.state.annotation.StateChartInvoker;
-import org.apache.common.faces.state.scxml.Context;
-import org.apache.common.faces.state.scxml.InvokeContext;
-import org.apache.common.faces.state.scxml.SCXMLExecutor;
-import org.apache.common.faces.state.scxml.SCXMLIOProcessor;
-import org.apache.common.faces.state.scxml.TriggerEvent;
-import org.apache.common.faces.state.scxml.invoke.Invoker;
-import org.apache.common.faces.state.scxml.invoke.InvokerException;
-import org.apache.common.faces.state.scxml.io.StateHolder;
+import javax.faces.state.annotation.StateChartInvoker;
+import javax.faces.state.scxml.Context;
+import javax.faces.state.scxml.InvokeContext;
+import javax.faces.state.scxml.SCXMLExecutor;
+import javax.faces.state.scxml.SCXMLIOProcessor;
+import javax.faces.state.scxml.TriggerEvent;
+import javax.faces.state.scxml.invoke.Invoker;
+import javax.faces.state.scxml.invoke.InvokerException;
+import javax.faces.state.scxml.io.StateHolder;
 
 /**
  * A test custom invoker {@link Invoker} for SCXML documents. Invoked demo 

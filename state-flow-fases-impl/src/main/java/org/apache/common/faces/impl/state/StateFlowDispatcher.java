@@ -27,18 +27,18 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
-import org.apache.common.faces.state.task.DelayedEventTask;
-import org.apache.common.faces.state.task.FacesProcessHolder;
-import org.apache.common.faces.state.task.TimerEventProducer;
-import org.apache.common.faces.state.scxml.Context;
-import org.apache.common.faces.state.scxml.EventBuilder;
-import org.apache.common.faces.state.scxml.EventDispatcher;
-import org.apache.common.faces.state.scxml.ParentSCXMLIOProcessor;
-import org.apache.common.faces.state.scxml.SCXMLIOProcessor;
-import org.apache.common.faces.state.scxml.SCXMLSystemContext;
-import org.apache.common.faces.state.scxml.TriggerEvent;
-import org.apache.common.faces.state.scxml.io.StateHolder;
-import org.apache.common.faces.state.scxml.model.ActionExecutionError;
+import javax.faces.state.task.DelayedEventTask;
+import javax.faces.state.task.FacesProcessHolder;
+import javax.faces.state.task.TimerEventProducer;
+import javax.faces.state.scxml.Context;
+import javax.faces.state.scxml.EventBuilder;
+import javax.faces.state.scxml.EventDispatcher;
+import javax.faces.state.scxml.ParentSCXMLIOProcessor;
+import javax.faces.state.scxml.SCXMLIOProcessor;
+import javax.faces.state.scxml.SCXMLSystemContext;
+import javax.faces.state.scxml.TriggerEvent;
+import javax.faces.state.scxml.io.StateHolder;
+import javax.faces.state.scxml.model.ActionExecutionError;
 
 /**
  * <p>

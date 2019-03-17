@@ -29,12 +29,12 @@ import javax.faces.view.facelets.TagHandlerDelegate;
 import org.apache.common.faces.impl.state.log.FlowLogger;
 import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.CURRENT_FLOW_OBJECT;
 import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.getElement;
-import org.apache.common.faces.state.tag.ActionHandler;
-import org.apache.common.faces.state.scxml.model.Action;
-import org.apache.common.faces.state.scxml.model.ActionsContainer;
-import org.apache.common.faces.state.scxml.model.CustomAction;
-import org.apache.common.faces.state.scxml.model.CustomActionWrapper;
-import org.apache.common.faces.state.scxml.model.Executable;
+import javax.faces.state.tag.ActionHandler;
+import javax.faces.state.scxml.model.Action;
+import javax.faces.state.scxml.model.ActionsContainer;
+import javax.faces.state.scxml.model.CustomAction;
+import javax.faces.state.scxml.model.CustomActionWrapper;
+import javax.faces.state.scxml.model.Executable;
 
 /**
  *

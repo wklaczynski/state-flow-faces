@@ -25,20 +25,20 @@ import javax.faces.application.ConfigurableNavigationHandler;
 import javax.faces.application.NavigationCase;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.scxml.ActionExecutionContext;
-import org.apache.common.faces.state.scxml.Context;
-import org.apache.common.faces.state.scxml.Evaluator;
-import org.apache.common.faces.state.scxml.SCXMLConstants;
-import org.apache.common.faces.state.scxml.SCXMLExpressionException;
-import org.apache.common.faces.state.scxml.model.Action;
-import org.apache.common.faces.state.scxml.model.CommonsSCXML;
-import org.apache.common.faces.state.scxml.model.CustomAction;
-import org.apache.common.faces.state.scxml.model.CustomActionWrapper;
-import org.apache.common.faces.state.scxml.model.ModelException;
-import org.apache.common.faces.state.scxml.model.Param;
-import org.apache.common.faces.state.scxml.model.ParamsContainer;
-import org.apache.common.faces.state.scxml.model.Var;
+import javax.faces.state.StateFlowHandler;
+import javax.faces.state.scxml.ActionExecutionContext;
+import javax.faces.state.scxml.Context;
+import javax.faces.state.scxml.Evaluator;
+import javax.faces.state.scxml.SCXMLConstants;
+import javax.faces.state.scxml.SCXMLExpressionException;
+import javax.faces.state.scxml.model.Action;
+import javax.faces.state.scxml.model.CommonsSCXML;
+import javax.faces.state.scxml.model.CustomAction;
+import javax.faces.state.scxml.model.CustomActionWrapper;
+import javax.faces.state.scxml.model.ModelException;
+import javax.faces.state.scxml.model.Param;
+import javax.faces.state.scxml.model.ParamsContainer;
+import javax.faces.state.scxml.model.Var;
 
 /**
  * The class in this SCXML object model that corresponds to the

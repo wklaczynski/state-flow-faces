@@ -23,11 +23,11 @@ import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagException;
-import org.apache.common.faces.state.utils.ComponentUtils;
-import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.component.UIStateChartExecutor;
-import org.apache.common.faces.state.component.UIStateChartFacetRender;
-import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import javax.faces.state.utils.ComponentUtils;
+import javax.faces.state.StateFlowHandler;
+import javax.faces.state.component.UIStateChartExecutor;
+import javax.faces.state.component.UIStateChartFacetRender;
+import javax.faces.state.scxml.SCXMLExecutor;
 
 /**
  */

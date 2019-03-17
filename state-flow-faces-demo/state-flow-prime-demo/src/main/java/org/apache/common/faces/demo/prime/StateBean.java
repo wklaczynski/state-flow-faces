@@ -17,7 +17,7 @@ package org.apache.common.faces.demo.prime;
 
 import java.io.Serializable;
 import javax.inject.Named;
-import org.apache.common.faces.state.annotation.StateScoped;
+import javax.faces.state.annotation.StateScoped;
 
 /**
  *

@@ -23,10 +23,10 @@ import javax.el.*;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PostConstructCustomScopeEvent;
 import javax.faces.event.ScopeContext;
-import org.apache.common.faces.state.StateChartExecuteContext;
-import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.scxml.Context;
-import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import javax.faces.state.StateChartExecuteContext;
+import javax.faces.state.StateFlowHandler;
+import javax.faces.state.scxml.Context;
+import javax.faces.state.scxml.SCXMLExecutor;
 
 /**
  *

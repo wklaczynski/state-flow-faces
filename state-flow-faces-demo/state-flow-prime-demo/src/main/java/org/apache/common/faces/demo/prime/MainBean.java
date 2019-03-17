@@ -20,7 +20,7 @@ import javax.faces.application.FacesMessage;
 import static javax.faces.application.FacesMessage.SEVERITY_INFO;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
-import org.apache.common.faces.state.annotation.DialogScoped;
+import javax.faces.state.annotation.DialogScoped;
 
 /**
  *

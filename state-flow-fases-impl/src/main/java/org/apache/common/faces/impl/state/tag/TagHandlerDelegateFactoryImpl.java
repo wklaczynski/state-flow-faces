@@ -17,8 +17,8 @@ package org.apache.common.faces.impl.state.tag;
 
 import org.apache.common.faces.impl.state.tag.CustomActionHandlerDelegateImpl;
 import javax.faces.view.facelets.TagHandlerDelegate;
-import org.apache.common.faces.state.tag.ActionHandler;
-import org.apache.common.faces.state.tag.TagHandlerDelegateFactory;
+import javax.faces.state.tag.ActionHandler;
+import javax.faces.state.tag.TagHandlerDelegateFactory;
 
 /**
  *

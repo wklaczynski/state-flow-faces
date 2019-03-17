@@ -25,8 +25,8 @@ import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.PartialViewContext;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_FLOW_DISPATCH_TASK;
-import org.apache.common.faces.state.task.DelayedEventTask;
-import org.apache.common.faces.state.task.TimerEventProducer;
+import javax.faces.state.task.DelayedEventTask;
+import javax.faces.state.task.TimerEventProducer;
 
 /**
  *

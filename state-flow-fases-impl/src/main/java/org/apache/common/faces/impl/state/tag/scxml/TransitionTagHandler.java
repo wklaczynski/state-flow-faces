@@ -17,19 +17,19 @@ package org.apache.common.faces.impl.state.tag.scxml;
 
 import java.io.IOException;
 import javax.faces.component.UIComponent;
-import org.apache.common.faces.state.scxml.model.History;
-import org.apache.common.faces.state.scxml.model.Initial;
-import org.apache.common.faces.state.scxml.model.Parallel;
-import org.apache.common.faces.state.scxml.model.State;
-import org.apache.common.faces.state.scxml.model.Transition;
+import javax.faces.state.scxml.model.History;
+import javax.faces.state.scxml.model.Initial;
+import javax.faces.state.scxml.model.Parallel;
+import javax.faces.state.scxml.model.State;
+import javax.faces.state.scxml.model.Transition;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagAttributeException;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
 import org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler;
-import org.apache.common.faces.state.scxml.model.SCXML;
-import org.apache.common.faces.state.scxml.model.TransitionType;
+import javax.faces.state.scxml.model.SCXML;
+import javax.faces.state.scxml.model.TransitionType;
 
 /**
  *

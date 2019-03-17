@@ -20,8 +20,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.common.faces.state.scxml.Context;
-import org.apache.common.faces.state.scxml.SCXMLSystemContext;
+import javax.faces.state.scxml.Context;
+import javax.faces.state.scxml.SCXMLSystemContext;
 
 /**
  *

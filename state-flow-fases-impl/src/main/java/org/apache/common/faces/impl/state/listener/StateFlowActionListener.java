@@ -28,11 +28,11 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
-import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
-import org.apache.common.faces.state.component.UIStateChartExecutor;
-import org.apache.common.faces.state.scxml.SCXMLExecutor;
-import org.apache.common.faces.state.utils.ComponentUtils;
+import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
+import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
+import javax.faces.state.component.UIStateChartExecutor;
+import javax.faces.state.scxml.SCXMLExecutor;
+import javax.faces.state.utils.ComponentUtils;
 
 /**
  *

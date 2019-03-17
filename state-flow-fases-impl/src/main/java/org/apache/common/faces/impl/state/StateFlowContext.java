@@ -17,8 +17,8 @@
 package org.apache.common.faces.impl.state;
 
 import java.util.Map;
-import org.apache.common.faces.state.scxml.Context;
-import org.apache.common.faces.state.scxml.env.AbstractContext;
+import javax.faces.state.scxml.Context;
+import javax.faces.state.scxml.env.AbstractContext;
 
 /**
  * Simple Context wrapping a map of variables.

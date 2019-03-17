@@ -32,20 +32,20 @@ import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagException;
 import org.apache.common.faces.impl.state.log.FlowLogger;
-import org.apache.common.faces.state.scxml.ErrorReporter;
-import org.apache.common.faces.state.scxml.model.Data;
-import org.apache.common.faces.state.scxml.model.EnterableState;
-import org.apache.common.faces.state.scxml.model.Executable;
-import org.apache.common.faces.state.scxml.model.Final;
-import org.apache.common.faces.state.scxml.model.Invoke;
-import org.apache.common.faces.state.scxml.model.SCXML;
-import org.apache.common.faces.state.scxml.model.Send;
-import org.apache.common.faces.state.scxml.model.State;
-import org.apache.common.faces.state.scxml.model.TransitionTarget;
-import org.apache.common.faces.state.scxml.semantics.ErrorConstants;
+import javax.faces.state.scxml.ErrorReporter;
+import javax.faces.state.scxml.model.Data;
+import javax.faces.state.scxml.model.EnterableState;
+import javax.faces.state.scxml.model.Executable;
+import javax.faces.state.scxml.model.Final;
+import javax.faces.state.scxml.model.Invoke;
+import javax.faces.state.scxml.model.SCXML;
+import javax.faces.state.scxml.model.Send;
+import javax.faces.state.scxml.model.State;
+import javax.faces.state.scxml.model.TransitionTarget;
+import javax.faces.state.scxml.semantics.ErrorConstants;
 import org.apache.common.faces.impl.state.log.WebMessage;
-import org.apache.common.faces.state.scxml.invoke.InvokerException;
-import org.apache.common.faces.state.scxml.model.SCComponent;
+import javax.faces.state.scxml.invoke.InvokerException;
+import javax.faces.state.scxml.model.SCComponent;
 
 /**
  * Custom error reporter that log execution errors.

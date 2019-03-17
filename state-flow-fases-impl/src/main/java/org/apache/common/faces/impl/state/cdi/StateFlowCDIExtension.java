@@ -29,9 +29,9 @@ import javax.enterprise.inject.spi.BeforeBeanDiscovery;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessBean;
 import org.apache.common.faces.impl.state.log.FlowLogger;
-import org.apache.common.faces.state.annotation.DialogScoped;
-import org.apache.common.faces.state.annotation.ChartScoped;
-import org.apache.common.faces.state.annotation.StateScoped;
+import javax.faces.state.annotation.DialogScoped;
+import javax.faces.state.annotation.ChartScoped;
+import javax.faces.state.annotation.StateScoped;
 import org.kohsuke.MetaInfServices;
 
 /**

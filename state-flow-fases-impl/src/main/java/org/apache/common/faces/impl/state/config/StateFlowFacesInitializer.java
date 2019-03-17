@@ -22,10 +22,10 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.HandlesTypes;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.ANNOTATED_CLASSES;
-import org.apache.common.faces.state.annotation.StateChartAction;
-import org.apache.common.faces.state.annotation.StateChartActions;
-import org.apache.common.faces.state.annotation.StateChartInvoker;
-import org.apache.common.faces.state.annotation.StateChartInvokers;
+import javax.faces.state.annotation.StateChartAction;
+import javax.faces.state.annotation.StateChartActions;
+import javax.faces.state.annotation.StateChartInvoker;
+import javax.faces.state.annotation.StateChartInvokers;
 import org.kohsuke.MetaInfServices;
 
 /**

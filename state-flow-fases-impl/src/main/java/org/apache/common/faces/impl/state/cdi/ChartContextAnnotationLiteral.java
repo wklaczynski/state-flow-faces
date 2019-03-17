@@ -16,7 +16,7 @@
 package org.apache.common.faces.impl.state.cdi;
 
 import javax.enterprise.util.AnnotationLiteral;
-import org.apache.common.faces.state.annotation.ChartContext;
+import javax.faces.state.annotation.ChartContext;
 
 /**
  *

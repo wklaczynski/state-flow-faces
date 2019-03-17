@@ -34,22 +34,22 @@ import javax.faces.view.facelets.FaceletHandler;
 import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagException;
-import org.apache.common.faces.state.StateFlow;
-import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
-import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.component.UIStateChartExecutor;
-import org.apache.common.faces.state.scxml.Context;
-import org.apache.common.faces.state.scxml.SCXMLExecutor;
-import org.apache.common.faces.state.scxml.model.ModelException;
-import org.apache.common.faces.state.scxml.model.SCXML;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_NAME;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_SOURCE;
-import org.apache.common.faces.state.scxml.EventBuilder;
-import org.apache.common.faces.state.scxml.TriggerEvent;
-import static org.apache.common.faces.state.StateFlow.EXECUTOR_CONTROLLER_TYPE;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
-import static org.apache.common.faces.state.StateFlow.STATE_CHART_FACET_NAME;
+import javax.faces.state.StateFlow;
+import static javax.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
+import javax.faces.state.StateFlowHandler;
+import javax.faces.state.component.UIStateChartExecutor;
+import javax.faces.state.scxml.Context;
+import javax.faces.state.scxml.SCXMLExecutor;
+import javax.faces.state.scxml.model.ModelException;
+import javax.faces.state.scxml.model.SCXML;
+import static javax.faces.state.StateFlow.FACES_CHART_CONTINER_NAME;
+import static javax.faces.state.StateFlow.FACES_CHART_CONTINER_SOURCE;
+import javax.faces.state.scxml.EventBuilder;
+import javax.faces.state.scxml.TriggerEvent;
+import static javax.faces.state.StateFlow.EXECUTOR_CONTROLLER_TYPE;
+import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
+import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
+import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
 
 /**
  */

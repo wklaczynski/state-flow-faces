@@ -25,7 +25,7 @@ import javax.faces.FacesException;
 import javax.faces.application.Resource;
 import javax.faces.application.ResourceHandler;
 import javax.faces.context.FacesContext;
-import org.apache.common.faces.state.scxml.PathResolver;
+import javax.faces.state.scxml.PathResolver;
 
 /*
  * To change this license header, choose License Headers in Project Properties.

@@ -22,8 +22,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.PostAddToViewEvent;
 import javax.faces.event.SystemEvent;
 import javax.faces.event.SystemEventListener;
-import static org.apache.common.faces.state.StateFlow.DEFINITION_SET_HINT;
-import org.apache.common.faces.state.component.UIStateChartMachine;
+import static javax.faces.state.StateFlow.DEFINITION_SET_HINT;
+import javax.faces.state.component.UIStateChartMachine;
 
 /**
  *

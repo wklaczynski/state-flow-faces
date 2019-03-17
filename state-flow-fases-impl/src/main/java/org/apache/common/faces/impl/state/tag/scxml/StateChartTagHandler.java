@@ -34,15 +34,15 @@ import javax.faces.component.UIPanel;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.Facelet;
-import org.apache.common.faces.state.scxml.PathResolver;
-import org.apache.common.faces.state.component.UIStateChartMachine;
+import javax.faces.state.scxml.PathResolver;
+import javax.faces.state.component.UIStateChartMachine;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagException;
 import javax.faces.view.facelets.TagHandler;
-import org.apache.common.faces.state.scxml.model.SCXML;
+import javax.faces.state.scxml.model.SCXML;
 import org.apache.common.faces.impl.state.StateFlowURLResolver;
 import org.apache.common.faces.impl.state.el.VariableMapperWrapper;
 import org.apache.common.faces.impl.state.log.FlowLogger;
@@ -52,15 +52,15 @@ import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.getE
 import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.popElement;
 import static org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler.pushElement;
 import org.apache.common.faces.impl.state.tag.ModelUpdater;
-import static org.apache.common.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
-import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
-import static org.apache.common.faces.state.StateFlow.CUSTOM_ACTIONS_HINT;
-import static org.apache.common.faces.state.StateFlow.CUSTOM_INVOKERS_HINT;
-import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.scxml.invoke.Invoker;
-import org.apache.common.faces.state.scxml.model.CustomAction;
-import static org.apache.common.faces.state.StateFlow.DEFAULT_STATE_MACHINE_NAME;
-import static org.apache.common.faces.state.StateFlow.STATE_CHART_FACET_NAME;
+import static javax.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
+import static javax.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
+import static javax.faces.state.StateFlow.CUSTOM_ACTIONS_HINT;
+import static javax.faces.state.StateFlow.CUSTOM_INVOKERS_HINT;
+import javax.faces.state.StateFlowHandler;
+import javax.faces.state.scxml.invoke.Invoker;
+import javax.faces.state.scxml.model.CustomAction;
+import static javax.faces.state.StateFlow.DEFAULT_STATE_MACHINE_NAME;
+import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
 
 /**
  *

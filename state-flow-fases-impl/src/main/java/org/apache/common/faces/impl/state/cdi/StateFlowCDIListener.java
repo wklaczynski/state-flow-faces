@@ -18,16 +18,16 @@ package org.apache.common.faces.impl.state.cdi;
 import java.io.Serializable;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.context.FacesContext;
-import org.apache.common.faces.state.events.OnEntryEvent;
-import org.apache.common.faces.state.events.OnExitEvent;
-import org.apache.common.faces.state.events.OnTransitionEvent;
-import org.apache.common.faces.state.scxml.SCXMLExecutor;
-import org.apache.common.faces.state.scxml.SCXMLListener;
-import org.apache.common.faces.state.scxml.model.EnterableState;
-import org.apache.common.faces.state.scxml.model.Parallel;
-import org.apache.common.faces.state.scxml.model.State;
-import org.apache.common.faces.state.scxml.model.Transition;
-import org.apache.common.faces.state.scxml.model.TransitionTarget;
+import javax.faces.state.events.OnEntryEvent;
+import javax.faces.state.events.OnExitEvent;
+import javax.faces.state.events.OnTransitionEvent;
+import javax.faces.state.scxml.SCXMLExecutor;
+import javax.faces.state.scxml.SCXMLListener;
+import javax.faces.state.scxml.model.EnterableState;
+import javax.faces.state.scxml.model.Parallel;
+import javax.faces.state.scxml.model.State;
+import javax.faces.state.scxml.model.Transition;
+import javax.faces.state.scxml.model.TransitionTarget;
 
 /**
  *

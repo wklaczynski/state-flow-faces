@@ -32,15 +32,15 @@ import javax.faces.event.PostRestoreStateEvent;
 import javax.faces.event.PreRenderViewEvent;
 import javax.faces.event.SystemEvent;
 import javax.faces.event.SystemEventListener;
-import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
-import static org.apache.common.faces.state.StateFlow.CONTROLLER_SET_HINT;
-import static org.apache.common.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
-import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.component.UIStateChartExecutor;
-import org.apache.common.faces.state.scxml.EventBuilder;
-import org.apache.common.faces.state.scxml.SCXMLExecutor;
-import org.apache.common.faces.state.scxml.TriggerEvent;
-import org.apache.common.faces.state.scxml.model.ModelException;
+import static javax.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
+import static javax.faces.state.StateFlow.CONTROLLER_SET_HINT;
+import static javax.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
+import javax.faces.state.StateFlowHandler;
+import javax.faces.state.component.UIStateChartExecutor;
+import javax.faces.state.scxml.EventBuilder;
+import javax.faces.state.scxml.SCXMLExecutor;
+import javax.faces.state.scxml.TriggerEvent;
+import javax.faces.state.scxml.model.ModelException;
 
 /**
  *

@@ -21,11 +21,11 @@ import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
 import org.apache.common.faces.impl.state.tag.AbstractFlowTagHandler;
-import org.apache.common.faces.state.scxml.PathResolver;
-import org.apache.common.faces.state.scxml.model.Data;
-import org.apache.common.faces.state.scxml.model.Datamodel;
-import org.apache.common.faces.state.scxml.model.ParsedValue;
-import org.apache.common.faces.state.scxml.model.SCXML;
+import javax.faces.state.scxml.PathResolver;
+import javax.faces.state.scxml.model.Data;
+import javax.faces.state.scxml.model.Datamodel;
+import javax.faces.state.scxml.model.ParsedValue;
+import javax.faces.state.scxml.model.SCXML;
 
 /**
  *

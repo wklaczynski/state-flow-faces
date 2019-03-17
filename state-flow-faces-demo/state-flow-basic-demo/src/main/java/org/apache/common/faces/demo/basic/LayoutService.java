@@ -23,10 +23,10 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Observes;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import org.apache.common.faces.state.events.OnEntryEvent;
-import org.apache.common.faces.state.events.OnExitEvent;
-import org.apache.common.faces.state.events.OnFinishEvent;
-import org.apache.common.faces.state.events.OnTransitionEvent;
+import javax.faces.state.events.OnEntryEvent;
+import javax.faces.state.events.OnExitEvent;
+import javax.faces.state.events.OnFinishEvent;
+import javax.faces.state.events.OnTransitionEvent;
 
 /**
  *

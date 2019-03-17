@@ -25,7 +25,7 @@ import javax.faces.view.ViewMetadata;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.ORYGINAL_SCXML_DEFAULT_SUFIX;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.ORYGINAL_SCXML_SUFIX;
 import org.apache.common.faces.impl.state.config.StateWebConfiguration;
-import static org.apache.common.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
+import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 
 /**
  *

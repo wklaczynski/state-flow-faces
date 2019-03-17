@@ -19,8 +19,8 @@ import java.io.Serializable;
 import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
 import org.apache.common.faces.impl.state.log.FlowLogger;
-import org.apache.common.faces.state.StateChartExecuteContext;
-import org.apache.common.faces.state.StateFlowHandler;
+import javax.faces.state.StateChartExecuteContext;
+import javax.faces.state.StateFlowHandler;
 
 /**
  *

@@ -15,7 +15,7 @@
  */
 package org.apache.common.faces.impl.state.config;
 
-import org.apache.common.faces.state.StateFlowHandler;
+import javax.faces.state.StateFlowHandler;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -26,7 +26,7 @@ import org.apache.common.faces.impl.state.cdi.ChartCDIContext;
 import org.apache.common.faces.impl.state.cdi.DialogCDIContext;
 import org.apache.common.faces.impl.state.cdi.StateCDIContext;
 import org.apache.common.faces.impl.state.tag.TagHandlerDelegateFactoryImpl;
-import org.apache.common.faces.state.tag.TagHandlerDelegateFactory;
+import javax.faces.state.tag.TagHandlerDelegateFactory;
 
 /**
  *

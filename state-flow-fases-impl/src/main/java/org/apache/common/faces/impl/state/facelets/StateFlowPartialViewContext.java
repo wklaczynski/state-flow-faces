@@ -24,7 +24,7 @@ import javax.faces.context.PartialResponseWriter;
 import javax.faces.context.PartialViewContext;
 import javax.faces.context.PartialViewContextWrapper;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.STATE_FLOW_DISPATCH_TASK;
-import org.apache.common.faces.state.task.DelayedEventTask;
+import javax.faces.state.task.DelayedEventTask;
 
 /**
  *

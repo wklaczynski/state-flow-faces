@@ -18,9 +18,9 @@ package org.apache.common.faces.impl.state.parser;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import org.apache.common.faces.state.scxml.io.ContentParser;
-import org.apache.common.faces.state.scxml.model.JsonValue;
-import org.apache.common.faces.state.scxml.model.ParsedValue;
+import javax.faces.state.scxml.io.ContentParser;
+import javax.faces.state.scxml.model.JsonValue;
+import javax.faces.state.scxml.model.ParsedValue;
 import org.kohsuke.MetaInfServices;
 
 /**

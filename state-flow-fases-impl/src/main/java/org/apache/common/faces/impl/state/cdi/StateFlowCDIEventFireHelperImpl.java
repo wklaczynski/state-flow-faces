@@ -19,11 +19,11 @@ import javax.enterprise.context.Destroyed;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import org.apache.common.faces.state.scxml.SCXMLExecutor;
-import org.apache.common.faces.state.scxml.model.TransitionTarget;
-import org.apache.common.faces.state.annotation.DialogScoped;
-import org.apache.common.faces.state.annotation.ChartScoped;
-import org.apache.common.faces.state.annotation.StateScoped;
+import javax.faces.state.scxml.SCXMLExecutor;
+import javax.faces.state.scxml.model.TransitionTarget;
+import javax.faces.state.annotation.DialogScoped;
+import javax.faces.state.annotation.ChartScoped;
+import javax.faces.state.annotation.StateScoped;
 
 /**
  *

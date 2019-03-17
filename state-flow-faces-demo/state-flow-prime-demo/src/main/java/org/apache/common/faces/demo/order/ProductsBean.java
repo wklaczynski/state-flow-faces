@@ -20,7 +20,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.apache.common.faces.demo.order.data.Product;
-import org.apache.common.faces.state.annotation.ChartScoped;
+import javax.faces.state.annotation.ChartScoped;
 
 /**
  *
