@@ -56,7 +56,7 @@ import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.StateFlowViewContext;
 import org.apache.common.faces.state.scxml.EventBuilder;
 import org.apache.common.faces.state.scxml.InvokeContext;
-import org.apache.common.faces.state.component.UIStateChartController;
+import org.apache.common.faces.state.component.UIStateChartExecutor;
 import org.apache.common.faces.state.scxml.Context;
 import org.apache.common.faces.state.scxml.model.ModelException;
 
@@ -319,7 +319,7 @@ public class FacetInvoker implements Invoker, Serializable {
         }
     }
 
-    public static String getRenderFacetId(FacesContext context, UIViewRoot viewRoot, UIStateChartController controller, String source) throws InvokerException {
+    public static String getRenderFacetId(FacesContext context, UIViewRoot viewRoot, UIStateChartExecutor controller, String source) throws InvokerException {
         String result = null;
         return result;
     }

@@ -15,13 +15,10 @@
  */
 package org.apache.common.faces.impl.state.listener;
 
-import org.apache.common.faces.impl.state.listener.StateFlowControllerListener;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.component.visit.VisitContext;
@@ -32,7 +29,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import org.apache.common.faces.impl.state.utils.ComponentUtils;
-import org.apache.common.faces.state.component.UIStateChartController;
+import org.apache.common.faces.state.component.UIStateChartExecutor;
 import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 
 /**
@@ -78,9 +75,9 @@ public class StateFlowActionListener implements ActionListener {
             Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
             VisitContext visitContext = VisitContext.createVisitContext(facesContext, controllers, hints);
             root.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
-                if (target instanceof UIStateChartController) {
+                if (target instanceof UIStateChartExecutor) {
                     if (ComponentUtils.isInOrEqual(target, source)) {
-                        UIStateChartController controller = (UIStateChartController) target;
+                        UIStateChartExecutor controller = (UIStateChartExecutor) target;
                         if (controller.processAction(event)) {
                             consumed.set(true);
                             return VisitResult.COMPLETE;

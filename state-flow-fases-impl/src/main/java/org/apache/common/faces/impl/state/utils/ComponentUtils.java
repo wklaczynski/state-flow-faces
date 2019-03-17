@@ -40,6 +40,24 @@ public class ComponentUtils {
         return null;
     }
 
+    public static <T> T assigned(Class<T> type, UIComponent base) {
+        if(type.isAssignableFrom(base.getClass())) {
+            return (T) base;
+        }
+        
+        UIComponent parent = base.getParent();
+
+        while (parent != null) {
+            if (type.isAssignableFrom(parent.getClass())) {
+                return (T) parent;
+            }
+
+            parent = parent.getParent();
+        }
+
+        return null;
+    }
+    
     public static <T> ArrayList<T> children(Class<T> type, UIComponent base) {
 
         ArrayList<T> result = new ArrayList<>();

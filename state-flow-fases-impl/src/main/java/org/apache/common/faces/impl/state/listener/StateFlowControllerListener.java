@@ -36,7 +36,7 @@ import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.CONTROLLER_SET_HINT;
 import static org.apache.common.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
 import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.component.UIStateChartController;
+import org.apache.common.faces.state.component.UIStateChartExecutor;
 import org.apache.common.faces.state.scxml.EventBuilder;
 import org.apache.common.faces.state.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.scxml.TriggerEvent;
@@ -50,12 +50,12 @@ public class StateFlowControllerListener implements SystemEventListener {
 
     @Override
     public void processEvent(SystemEvent cse) throws AbortProcessingException {
-        if (!(cse.getSource() instanceof UIStateChartController)) {
+        if (!(cse.getSource() instanceof UIStateChartExecutor)) {
             return;
         }
 
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        UIStateChartController component = (UIStateChartController) cse.getSource();
+        UIStateChartExecutor component = (UIStateChartExecutor) cse.getSource();
         String clientId = ((UIComponent) component).getClientId(facesContext);
 
         ArrayList<String> clientIds = getControllerClientIds(facesContext);
@@ -85,8 +85,8 @@ public class StateFlowControllerListener implements SystemEventListener {
                 Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
                 VisitContext visitContext = VisitContext.createVisitContext(facesContext, clientIds, hints);
                 root.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
-                    if (target instanceof UIStateChartController) {
-                        UIStateChartController controller = (UIStateChartController) target;
+                    if (target instanceof UIStateChartExecutor) {
+                        UIStateChartExecutor controller = (UIStateChartExecutor) target;
                         String controllerId = controller.getClientId(facesContext);
 
                         EventBuilder eb = new EventBuilder(eventName, TriggerEvent.CALL_EVENT)
@@ -111,8 +111,8 @@ public class StateFlowControllerListener implements SystemEventListener {
                 Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
                 VisitContext visitContext = VisitContext.createVisitContext(facesContext, clientIds, hints);
                 root.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
-                    if (target instanceof UIStateChartController) {
-                        UIStateChartController controller = (UIStateChartController) target;
+                    if (target instanceof UIStateChartExecutor) {
+                        UIStateChartExecutor controller = (UIStateChartExecutor) target;
                         String controllerId = controller.getClientId(facesContext);
 
                         EventBuilder eb = new EventBuilder(eventName, TriggerEvent.CALL_EVENT)
@@ -136,7 +136,7 @@ public class StateFlowControllerListener implements SystemEventListener {
 
     @Override
     public boolean isListenerForSource(Object o) {
-        return o instanceof UIStateChartController;
+        return o instanceof UIStateChartExecutor;
     }
 
     public static ArrayList<String> getControllerClientIds(FacesContext context) {

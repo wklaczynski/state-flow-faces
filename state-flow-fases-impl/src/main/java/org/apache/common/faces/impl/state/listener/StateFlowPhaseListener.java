@@ -62,7 +62,7 @@ import org.apache.common.faces.state.scxml.model.ModelException;
 import static org.apache.common.faces.state.StateFlow.DECODE_DISPATCHER_EVENTS;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
-import org.apache.common.faces.state.component.UIStateChartController;
+import org.apache.common.faces.state.component.UIStateChartExecutor;
 import static org.apache.common.faces.state.StateFlow.VIEW_CONTROLLER_TYPE;
 
 /**
@@ -108,8 +108,8 @@ public class StateFlowPhaseListener implements PhaseListener {
                 Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
                 VisitContext visitContext = VisitContext.createVisitContext(facesContext, clientIds, hints);
                 viewRoot.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
-                    if (target instanceof UIStateChartController) {
-                        UIStateChartController controller = (UIStateChartController) target;
+                    if (target instanceof UIStateChartExecutor) {
+                        UIStateChartExecutor controller = (UIStateChartExecutor) target;
                         String controllerId = controller.getClientId(facesContext);
 
                         EventBuilder veb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
@@ -189,8 +189,8 @@ public class StateFlowPhaseListener implements PhaseListener {
                     Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
                     VisitContext visitContext = VisitContext.createVisitContext(facesContext, clientIds, hints);
                     viewRoot.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
-                        if (target instanceof UIStateChartController) {
-                            UIStateChartController controller = (UIStateChartController) target;
+                        if (target instanceof UIStateChartExecutor) {
+                            UIStateChartExecutor controller = (UIStateChartExecutor) target;
                             String controllerId = controller.getClientId(facesContext);
                             
                             EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)

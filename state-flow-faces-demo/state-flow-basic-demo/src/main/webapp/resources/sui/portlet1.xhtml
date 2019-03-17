@@ -146,135 +146,138 @@
         <cc:attribute name="path" required="false"/>
         <cc:attribute name="caption" required="false"/>
     </cc:interface>
-    
+
     <cc:implementation>
+        <fx:execute name="default">
 
-        <fx:renderState name="default">
-            <f:param name="path" value="#{cc.attrs.path}"/>
-            <f:param name="caption" value="#{cc.attrs.caption}"/>
+            <fx:renderFacet>
+                <f:param name="path" value="#{cc.attrs.path}"/>
+                <f:param name="caption" value="#{cc.attrs.caption}"/>
 
-            <f:facet name="facet1">
-                <h:panelGrid columns="1">
-                    <h:panelGroup>
-                        <h3>#{chart.title}</h3>
-                        Render in portlet.
-                        <hr/>
-                        <h:outputLabel value="#{chart.caption}"/>
-                        <p/>
-                        <b>Used facet:</b>
-                        <p/>facet name = <i>facet1</i>
-                        <p/>\#{chart.path} = <i>"#{chart.path}"</i>
-                        <p/>
-                        <b>Used bean main:</b>
-                        <p/>\#{main.beanTitle} = <i>"#{main.beanTitle}"</i>
-                        <p/>\#{main.assignedTest1} = <i>"#{main.assignedTest1}"</i>
-                        <pre>This beans are in dialog scope. This beans can see data from parent and child execution.</pre>
-                        <p/><b>Used bean client:</b>
-                        <p/>"\#{currentState.beanTitle}" = <i>"#{currentState.beanTitle}"</i> 
-                        <p/>"\#{currentState.assignedTest1}" = <i>"#{currentState.assignedTest1}"</i> 
-                        <pre>This bean is in state scope in "@composite".</pre>
-                        <pre>This bean can not see data from parent targets not in the common composite state or parallel.</pre>
-                        <hr/>
-                    </h:panelGroup>
-                    <b>Test action and invoke elements.</b>
-                    <h:panelGrid cellspacing="4" columns="6" style="bottom: 0px">
-                        <h:commandButton
-                            action="portlet-action"
-                            value="Custom Portlet Action"
-                            immediate="false">
-                        </h:commandButton>
-                        <h:commandButton
-                            action="portlet-ajax-action"
-                            value="Ajax Portlet Action"
-                            immediate="false">
-                            <f:ajax render="@form"/>
-                        </h:commandButton>
-                        <h:commandButton
-                            action="next"
-                            value="Go Next"
-                            immediate="false">
-                        </h:commandButton>
-                        <h:commandButton
-                            action="view"
-                            value="Go View"
-                            immediate="false">
-                        </h:commandButton>
-                        <h:commandButton
-                            action="other"
-                            value="Go Other"
-                            immediate="false">
-                        </h:commandButton>
-                        <h:commandButton
-                            action="flow1"
-                            value="Go Flow1"
-                            immediate="false">
-                        </h:commandButton>
+                <f:facet name="facet1">
+                    <h:panelGrid columns="1">
+                        <h:panelGroup>
+                            <h3>#{chart.title}</h3>
+                            Render in portlet.
+                            <hr/>
+                            <h:outputLabel value="#{chart.caption}"/>
+                            <p/>
+                            <b>Used facet:</b>
+                            <p/>facet name = <i>facet1</i>
+                            <p/>\#{chart.path} = <i>"#{chart.path}"</i>
+                            <p/>
+                            <b>Used bean main:</b>
+                            <p/>\#{main.beanTitle} = <i>"#{main.beanTitle}"</i>
+                            <p/>\#{main.assignedTest1} = <i>"#{main.assignedTest1}"</i>
+                            <pre>This beans are in dialog scope. This beans can see data from parent and child execution.</pre>
+                            <p/><b>Used bean client:</b>
+                            <p/>"\#{currentState.beanTitle}" = <i>"#{currentState.beanTitle}"</i> 
+                            <p/>"\#{currentState.assignedTest1}" = <i>"#{currentState.assignedTest1}"</i> 
+                            <pre>This bean is in state scope in "@composite".</pre>
+                            <pre>This bean can not see data from parent targets not in the common composite state or parallel.</pre>
+                            <hr/>
+                        </h:panelGroup>
+                        <b>Test action and invoke elements.</b>
+                        <h:panelGrid cellspacing="4" columns="6" style="bottom: 0px">
+                            <h:commandButton
+                                action="portlet-action"
+                                value="Custom Portlet Action"
+                                immediate="false">
+                            </h:commandButton>
+                            <h:commandButton
+                                action="portlet-ajax-action"
+                                value="Ajax Portlet Action"
+                                immediate="false">
+                                <f:ajax render="@form"/>
+                            </h:commandButton>
+                            <h:commandButton
+                                action="next"
+                                value="Go Next"
+                                immediate="false">
+                            </h:commandButton>
+                            <h:commandButton
+                                action="view"
+                                value="Go View"
+                                immediate="false">
+                            </h:commandButton>
+                            <h:commandButton
+                                action="other"
+                                value="Go Other"
+                                immediate="false">
+                            </h:commandButton>
+                            <h:commandButton
+                                action="flow1"
+                                value="Go Flow1"
+                                immediate="false">
+                            </h:commandButton>
+                        </h:panelGrid>
                     </h:panelGrid>
-                </h:panelGrid>
-            </f:facet>
+                </f:facet>
 
-            <f:facet name="facet2">
-                <h:panelGrid columns="1">
-                    <h:outputLabel value="#{chart.caption}"/>
-                    <h:panelGroup>
-                        <h3>#{chart.title}</h3>
-                        Render in portlet.
-                        <hr/>
+                <f:facet name="facet2">
+                    <h:panelGrid columns="1">
                         <h:outputLabel value="#{chart.caption}"/>
-                        <p/>
-                        <b>Used facet:</b>
-                        <p/>facet name = <i>facet2</i>
-                        <p/>\#{chart.path} = <i>"#{chart.path}"</i>
-                        <p/>
-                        <b>Used bean main:</b>
-                        <p/>\#{main.beanTitle} = <i>"#{main.beanTitle}"</i>
-                        <p/>\#{main.assignedTest1} = <i>"#{main.assignedTest1}"</i>
-                        <pre>This beans are in dialog scope. This beans can see data from parent and child execution.</pre>
-                        <p/><b>Used bean client:</b>
-                        <p/>"\#{currentState.beanTitle}" = <i>"#{currentState.beanTitle}"</i> 
-                        <p/>"\#{currentState.assignedTest1}" = <i>"#{currentState.assignedTest1}"</i> 
-                        <pre>This bean is in state scope in "@composite".</pre>
-                        <pre>This bean can not see data from parent targets not in the common composite state or parallel.</pre>
-                        <hr/>
-                    </h:panelGroup>
-                    <b>Test action and invoke elements.</b>
-                    <h:panelGrid cellspacing="4" columns="6" style="bottom: 0px">
-                        <h:commandButton
-                            action="portlet-action"
-                            value="Custom Portlet Action"
-                            immediate="false">
-                        </h:commandButton>
-                        <h:commandButton
-                            action="portlet-ajax-action"
-                            value="Ajax Portlet Action"
-                            immediate="false">
-                            <f:ajax render="@form"/>
-                        </h:commandButton>
-                        <h:commandButton
-                            action="prev"
-                            value="Go Prev"
-                            immediate="false">
-                        </h:commandButton>
-                        <h:commandButton
-                            action="view"
-                            value="Go View"
-                            immediate="false">
-                        </h:commandButton>
-                        <h:commandButton
-                            action="other"
-                            value="Go Other"
-                            immediate="false">
-                        </h:commandButton>
-                        <h:commandButton
-                            action="flow1"
-                            value="Go Flow1"
-                            immediate="false">
-                        </h:commandButton>
+                        <h:panelGroup>
+                            <h3>#{chart.title}</h3>
+                            Render in portlet.
+                            <hr/>
+                            <h:outputLabel value="#{chart.caption}"/>
+                            <p/>
+                            <b>Used facet:</b>
+                            <p/>facet name = <i>facet2</i>
+                            <p/>\#{chart.path} = <i>"#{chart.path}"</i>
+                            <p/>
+                            <b>Used bean main:</b>
+                            <p/>\#{main.beanTitle} = <i>"#{main.beanTitle}"</i>
+                            <p/>\#{main.assignedTest1} = <i>"#{main.assignedTest1}"</i>
+                            <pre>This beans are in dialog scope. This beans can see data from parent and child execution.</pre>
+                            <p/><b>Used bean client:</b>
+                            <p/>"\#{currentState.beanTitle}" = <i>"#{currentState.beanTitle}"</i> 
+                            <p/>"\#{currentState.assignedTest1}" = <i>"#{currentState.assignedTest1}"</i> 
+                            <pre>This bean is in state scope in "@composite".</pre>
+                            <pre>This bean can not see data from parent targets not in the common composite state or parallel.</pre>
+                            <hr/>
+                        </h:panelGroup>
+                        <b>Test action and invoke elements.</b>
+                        <h:panelGrid cellspacing="4" columns="6" style="bottom: 0px">
+                            <h:commandButton
+                                action="portlet-action"
+                                value="Custom Portlet Action"
+                                immediate="false">
+                            </h:commandButton>
+                            <h:commandButton
+                                action="portlet-ajax-action"
+                                value="Ajax Portlet Action"
+                                immediate="false">
+                                <f:ajax render="@form"/>
+                            </h:commandButton>
+                            <h:commandButton
+                                action="prev"
+                                value="Go Prev"
+                                immediate="false">
+                            </h:commandButton>
+                            <h:commandButton
+                                action="view"
+                                value="Go View"
+                                immediate="false">
+                            </h:commandButton>
+                            <h:commandButton
+                                action="other"
+                                value="Go Other"
+                                immediate="false">
+                            </h:commandButton>
+                            <h:commandButton
+                                action="flow1"
+                                value="Go Flow1"
+                                immediate="false">
+                            </h:commandButton>
+                        </h:panelGrid>
                     </h:panelGrid>
-                </h:panelGrid>
-            </f:facet>
+                </f:facet>
 
-        </fx:renderState>
+            </fx:renderFacet>
+
+        </fx:execute>
 
     </cc:implementation>
 </html>

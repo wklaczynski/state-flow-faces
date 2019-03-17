@@ -25,7 +25,7 @@ import org.apache.common.faces.state.scxml.model.SCXML;
  *
  * @author Waldemar Kłaczyński
  */
-public class UIStateChartDefinition extends UIComponentBase {
+public class UIStateChartMachine extends UIComponentBase {
 
     /**
      *
@@ -35,7 +35,7 @@ public class UIStateChartDefinition extends UIComponentBase {
     /**
      *
      */
-    public static final String COMPONENT_TYPE = "org.apache.common.faces.UIStateChartDefinition";
+    public static final String COMPONENT_TYPE = "org.apache.common.faces.UIStateChartMachine";
 
     enum PropertyKeys {
         stateChart
@@ -45,7 +45,7 @@ public class UIStateChartDefinition extends UIComponentBase {
      *
      */
     @SuppressWarnings("OverridableMethodCallInConstructor")
-    public UIStateChartDefinition() {
+    public UIStateChartMachine() {
         super();
         setRendererType(null);
         setTransient(false);

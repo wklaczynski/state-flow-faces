@@ -20,6 +20,8 @@ import javax.faces.FacesException;
 import javax.faces.component.ActionSource;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
+import javax.faces.component.visit.VisitCallback;
+import javax.faces.component.visit.VisitContext;
 import javax.faces.context.FacesContext;
 import javax.faces.el.EvaluationException;
 import javax.faces.el.MethodBinding;
@@ -40,7 +42,7 @@ import org.apache.common.faces.state.scxml.model.ModelException;
  *
  * @author Waldemar Kłaczyński
  */
-public class UIStateChartController extends UIPanel {
+public class UIStateChartExecutor extends UIPanel {
 
     public static final String CONTROLLER_FACET_NAME = "javax.faces.component.CONTROLLER_FACET_NAME";
 
@@ -56,7 +58,7 @@ public class UIStateChartController extends UIPanel {
      *
      */
     @SuppressWarnings("FieldNameHidesFieldInSuperclass")
-    public static final String COMPONENT_TYPE = "org.apache.common.faces.UIStateChartController";
+    public static final String COMPONENT_TYPE = "org.apache.common.faces.UIStateChartExecutor";
 
     enum PropertyKeys {
         name,
@@ -67,7 +69,7 @@ public class UIStateChartController extends UIPanel {
      *
      */
     @SuppressWarnings("OverridableMethodCallInConstructor")
-    public UIStateChartController() {
+    public UIStateChartExecutor() {
         super();
         setRendererType(null);
         setTransient(false);
@@ -104,7 +106,7 @@ public class UIStateChartController extends UIPanel {
     }
 
     public String getPath(FacesContext context) {
-        String path = context.getViewRoot().getViewId() + "!" + getClientId(context);
+        String path = context.getViewRoot().getViewId() + "!" + getName();
         return path;
     }
 
@@ -112,7 +114,7 @@ public class UIStateChartController extends UIPanel {
     public void broadcast(FacesEvent event) throws AbortProcessingException {
         super.broadcast(event);
     }
-
+    
     public boolean processAction(ActionEvent event) throws AbortProcessingException {
         boolean consumed = false;
 
@@ -183,22 +185,19 @@ public class UIStateChartController extends UIPanel {
     public void pushComponentToEL(FacesContext context, UIComponent component) {
         pushExecutor(context);
         super.pushComponentToEL(context, component);
-//        UIComponent renderComponent = getFacet(CONTROLLER_FACET_NAME);
-//        if (renderComponent != null) {
-//            renderComponent.pushComponentToEL(context, component);
-//        }
     }
 
     @Override
     public void popComponentFromEL(FacesContext context) {
-//        UIComponent renderComponent = getFacet(CONTROLLER_FACET_NAME);
-//        if (renderComponent != null) {
-//            renderComponent.popComponentFromEL(context);
-//        }
         super.popComponentFromEL(context);
         popExecutor(context);
     }
 
+    @Override
+    public boolean visitTree(VisitContext context, VisitCallback callback) {
+        return super.visitTree(context, callback); //To change body of generated methods, choose Tools | Templates.
+    }
+    
     @Override
     public void encodeEnd(FacesContext context) throws IOException {
         UIComponent renderComponent = getFacet(CONTROLLER_FACET_NAME);

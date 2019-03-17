@@ -48,7 +48,7 @@ public class UIStateChartFacetRender extends UIPanel {
     public static final String COMPONENT_TYPE = "org.apache.common.faces.UIStateChartFacetRender";
 
     enum PropertyKeys {
-        name,
+        slot,
         required,
     }
 
@@ -76,12 +76,12 @@ public class UIStateChartFacetRender extends UIPanel {
         this._executorId = executorId;
     }
 
-    public String getName() {
-        return (java.lang.String) getStateHelper().eval(PropertyKeys.name, null);
+    public String getSlot() {
+        return (java.lang.String) getStateHelper().eval(PropertyKeys.slot, "content");
     }
 
-    public void setName(java.lang.String _name) {
-        getStateHelper().put(PropertyKeys.name, _name);
+    public void setSlot(java.lang.String _slot) {
+        getStateHelper().put(PropertyKeys.slot, _slot);
     }
 
     public boolean isRequired() {

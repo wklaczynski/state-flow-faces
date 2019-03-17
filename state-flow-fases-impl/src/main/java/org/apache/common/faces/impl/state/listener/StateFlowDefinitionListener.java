@@ -23,7 +23,7 @@ import javax.faces.event.PostAddToViewEvent;
 import javax.faces.event.SystemEvent;
 import javax.faces.event.SystemEventListener;
 import static org.apache.common.faces.state.StateFlow.DEFINITION_SET_HINT;
-import org.apache.common.faces.state.component.UIStateChartDefinition;
+import org.apache.common.faces.state.component.UIStateChartMachine;
 
 /**
  *
@@ -33,12 +33,12 @@ public class StateFlowDefinitionListener implements SystemEventListener {
 
     @Override
     public void processEvent(SystemEvent cse) throws AbortProcessingException {
-        if (!(cse.getSource() instanceof UIStateChartDefinition)) {
+        if (!(cse.getSource() instanceof UIStateChartMachine)) {
             return;
         }
 
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        UIStateChartDefinition component = (UIStateChartDefinition) cse.getSource();
+        UIStateChartMachine component = (UIStateChartMachine) cse.getSource();
         String clientId = ((UIComponent) component).getClientId(facesContext);
         if(facesContext.getViewRoot() == null) {
             return ;
@@ -62,7 +62,7 @@ public class StateFlowDefinitionListener implements SystemEventListener {
 
     @Override
     public boolean isListenerForSource(Object o) {
-        return o instanceof UIStateChartDefinition;
+        return o instanceof UIStateChartMachine;
     }
 
     public static ArrayList<String> getDefinitionClientIds(FacesContext context) {

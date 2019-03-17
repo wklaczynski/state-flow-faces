@@ -28,25 +28,25 @@
         <system-event-listener>
             <system-event-listener-class>org.apache.common.faces.impl.state.listener.StateFlowDefinitionListener</system-event-listener-class>
             <system-event-class>javax.faces.event.PostAddToViewEvent</system-event-class>
-            <source-class>org.apache.common.faces.state.component.UIStateChartDefinition</source-class>
+            <source-class>org.apache.common.faces.state.component.UIStateChartMachine</source-class>
         </system-event-listener>
                         
         <system-event-listener>
             <system-event-listener-class>org.apache.common.faces.impl.state.listener.StateFlowControllerListener</system-event-listener-class>
             <system-event-class>javax.faces.event.PostAddToViewEvent</system-event-class>
-            <source-class>org.apache.common.faces.state.component.UIStateChartController</source-class>
+            <source-class>org.apache.common.faces.state.component.UIStateChartExecutor</source-class>
         </system-event-listener>
 
         <system-event-listener>
             <system-event-listener-class>org.apache.common.faces.impl.state.listener.StateFlowControllerListener</system-event-listener-class>
             <system-event-class>javax.faces.event.PostRestoreStateEvent</system-event-class>
-            <source-class>org.apache.common.faces.state.component.UIStateChartController</source-class>
+            <source-class>org.apache.common.faces.state.component.UIStateChartExecutor</source-class>
         </system-event-listener>
 
         <system-event-listener>
             <system-event-listener-class>org.apache.common.faces.impl.state.listener.StateFlowControllerListener</system-event-listener-class>
             <system-event-class>javax.faces.event.PreRenderViewEvent</system-event-class>
-            <source-class>org.apache.common.faces.state.component.UIStateChartController</source-class>
+            <source-class>org.apache.common.faces.state.component.UIStateChartExecutor</source-class>
         </system-event-listener>
         
     </application>
@@ -57,13 +57,13 @@
     </factory>
 
     <component>
-        <component-type>org.apache.common.faces.UIStateChartDefinition</component-type>
-        <component-class>org.apache.common.faces.state.component.UIStateChartDefinition</component-class>
+        <component-type>org.apache.common.faces.UIStateChartMachine</component-type>
+        <component-class>org.apache.common.faces.state.component.UIStateChartMachine</component-class>
     </component>
 
     <component>
-        <component-type>org.apache.common.faces.UIStateChartController</component-type>
-        <component-class>org.apache.common.faces.state.component.UIStateChartController</component-class>
+        <component-type>org.apache.common.faces.UIStateChartExecutor</component-type>
+        <component-class>org.apache.common.faces.state.component.UIStateChartExecutor</component-class>
     </component>
 
     <component>

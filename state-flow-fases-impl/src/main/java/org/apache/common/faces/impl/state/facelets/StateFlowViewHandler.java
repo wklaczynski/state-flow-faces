@@ -34,7 +34,7 @@ import org.apache.common.faces.state.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.scxml.TriggerEvent;
 import org.apache.common.faces.state.scxml.model.ModelException;
 import static org.apache.common.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
-import org.apache.common.faces.state.component.UIStateChartController;
+import org.apache.common.faces.state.component.UIStateChartExecutor;
 
 /**
  *
@@ -114,8 +114,8 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
             Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
             VisitContext visitContext = VisitContext.createVisitContext(facesContext, clientIds, hints);
             viewRoot.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
-                if (target instanceof UIStateChartController) {
-                    UIStateChartController controller = (UIStateChartController) target;
+                if (target instanceof UIStateChartExecutor) {
+                    UIStateChartExecutor controller = (UIStateChartExecutor) target;
                     String controllerId = controller.getClientId(facesContext);
 
                     EventBuilder veb = new EventBuilder(ENCODE_DISPATCHER_EVENTS, TriggerEvent.CALL_EVENT)

@@ -35,7 +35,7 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.Facelet;
 import org.apache.common.faces.state.scxml.PathResolver;
-import org.apache.common.faces.state.component.UIStateChartDefinition;
+import org.apache.common.faces.state.component.UIStateChartMachine;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagAttribute;
@@ -134,7 +134,7 @@ public class StateChartTagHandler extends TagHandler {
             facetComponent = parent.getFacets().get(stateContinerName);
         }
 
-        UIStateChartDefinition uichart = null;
+        UIStateChartMachine uichart = null;
 
         String chartId = DEFAULT_STATECHART_NAME;
         if (id != null) {
@@ -147,7 +147,7 @@ public class StateChartTagHandler extends TagHandler {
         }
 
         if (facetComponent != null) {
-            uichart = (UIStateChartDefinition) facetComponent.findComponent(chartId);
+            uichart = (UIStateChartMachine) facetComponent.findComponent(chartId);
         }
 
         Application app = ctx.getFacesContext().getApplication();
@@ -193,7 +193,7 @@ public class StateChartTagHandler extends TagHandler {
         }
 
         if (uichart == null) {
-            uichart = (UIStateChartDefinition) app.createComponent(UIStateChartDefinition.COMPONENT_TYPE);
+            uichart = (UIStateChartMachine) app.createComponent(UIStateChartMachine.COMPONENT_TYPE);
             uichart.setId(chartId);
             facetComponent.getChildren().add(uichart);
         }

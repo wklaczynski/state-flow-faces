@@ -16,14 +16,12 @@
  */
 package org.apache.common.faces.impl.state.tag.faces;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import javax.faces.component.UIComponent;
-import javax.faces.component.UIPanel;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
@@ -43,64 +41,34 @@ import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.PORTLET_CONTROLLER_TYPE;
 import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.component.UIStateChartController;
+import org.apache.common.faces.state.component.UIStateChartExecutor;
 import org.apache.common.faces.state.scxml.Context;
-import org.apache.common.faces.state.scxml.SCXMLConstants;
 import org.apache.common.faces.state.scxml.SCXMLExecutor;
-import org.apache.common.faces.state.scxml.model.CommonsSCXML;
-import org.apache.common.faces.state.scxml.model.CustomAction;
-import org.apache.common.faces.state.scxml.model.CustomActionWrapper;
 import org.apache.common.faces.state.scxml.model.ModelException;
 import org.apache.common.faces.state.scxml.model.SCXML;
-import org.apache.common.faces.state.scxml.model.Var;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_NAME;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_SOURCE;
-import static org.apache.common.faces.state.component.UIStateChartController.CONTROLLER_FACET_NAME;
-import org.apache.common.faces.state.component.UIStateChartFacetRender;
 import org.apache.common.faces.state.scxml.EventBuilder;
 import org.apache.common.faces.state.scxml.TriggerEvent;
 
 /**
- * The class in this SCXML object model that corresponds to the
- * {@link CustomAction} &lt;var&gt; SCXML element.
- * <p>
- * When manually constructing or modifying a SCXML model using this custom
- * action, either:
- * <ul>
- * <li>derive from {@link CommonsSCXML}, or</li>
- * <li>make sure to add the {@link SCXMLConstants#XMLNS_COMMONS_SCXML} namespace
- * with the {@link SCXMLConstants#XMLNS_COMMONS_SCXML_PREFIX} prefix to the
- * SCXML object, or</li>
- * <li>wrap the {@link Var} instance in a {@link CustomActionWrapper} (for which
- * the {@link #CUSTOM_ACTION} can be useful) before adding it to the object
- * model</li>
- * </ul>
- * before write the SCXML model with {@link SCXMLWriter}. The writing will fail
- * otherwise!
- * </p>
  */
-public class RenderStateHandler extends ComponentHandler {
+public class ExecuteHandler extends ComponentHandler {
 
     // Supported attribute names
     private static final String NAME_ATTRIBUTE = "name";
-    private static final String REQUIRED_ATTRIBUTE = "required";
 
     // Attributes
     // This attribute is required.
     TagAttribute name;
 
-    // This attribute is not required.  If not defined, then assume the facet
-    // isn't necessary.
-    TagAttribute required;
-
-    public RenderStateHandler(ComponentConfig config) {
+    public ExecuteHandler(ComponentConfig config) {
         super(config);
         name = this.getAttribute(NAME_ATTRIBUTE);
-        required = this.getAttribute(REQUIRED_ATTRIBUTE);
     }
 
     @Override
-    public void apply(FaceletContext ctx, UIComponent parent) throws IOException {
+    public void onComponentCreated(FaceletContext ctx, UIComponent c, UIComponent parent) {
         FacesContext context = ctx.getFacesContext();
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
@@ -108,23 +76,13 @@ public class RenderStateHandler extends ComponentHandler {
         String viewId = viewRoot.getViewId();
 
         String scxmlName = name.getValue(ctx);
-
         String rootId = handler.getExecutorViewRootId(context);
+
+        UIStateChartExecutor controller = (UIStateChartExecutor) c;
 
         UIComponent compositeParent = UIComponent.getCurrentCompositeComponent(ctx.getFacesContext());
         if (compositeParent != null) {
-            UIPanel facetComponent = (UIPanel) compositeParent.getFacets().get(UIComponent.COMPOSITE_FACET_NAME);
-            UIStateChartController controller;
-            if (facetComponent instanceof UIStateChartController) {
-                controller = (UIStateChartController) facetComponent;
-                parent = controller.getFacet(CONTROLLER_FACET_NAME);
-            } else {
-                controller = (UIStateChartController) context.getApplication().createComponent("org.apache.common.faces.UIStateChartController");
-                compositeParent.getFacets().remove(UIComponent.COMPOSITE_FACET_NAME);
-                compositeParent.getFacets().put(UIComponent.COMPOSITE_FACET_NAME, controller);
-                controller.getFacets().put(CONTROLLER_FACET_NAME, facetComponent);
-            }
-            
+
             URL url = getCompositeURL(ctx);
             if (url == null) {
                 throw new TagException(this.tag,
@@ -138,26 +96,42 @@ public class RenderStateHandler extends ComponentHandler {
             String executorId = rootId + ":" + UUID.nameUUIDFromBytes(executorName.getBytes()).toString();
 
             String controllerExecutorId = controller.getExecutorId();
-            if(controllerExecutorId != null && !controllerExecutorId.equals(executorId)) {
-               throw new TagException(this.tag, "Render state component can not multiple start in the same composite component.");
+            if (controllerExecutorId != null && !controllerExecutorId.equals(executorId)) {
+                throw new TagException(this.tag, "Render state component can not multiple start in the same composite component.");
             }
             controller.setExecutorId(executorId);
-            
+
             String uuid = UUID.nameUUIDFromBytes(url.getPath().getBytes()).toString();
             String stateContinerName = STATECHART_FACET_NAME + "_" + uuid;
 
-            applyNext(ctx, parent, executorId, stateContinerName, url);
+
+            controller.setExecutorId(executorId);
+
+            execute(ctx, executorId, stateContinerName, url);
         } else {
             String executorName = "controller[" + tag + "]" + viewId + "#" + scxmlName;
             String executorId = rootId + ":" + UUID.nameUUIDFromBytes(executorName.getBytes()).toString();
 
             String stateContinerName = STATECHART_FACET_NAME;
+            controller.setExecutorId(executorId);
 
-            applyNext(ctx, parent, executorId, stateContinerName, rootId);
+            controller.setExecutorId(executorId);
+
+            execute(ctx, executorId, stateContinerName, rootId);
         }
     }
 
-    public void applyNext(FaceletContext ctx, UIComponent parent, String executorId, String continerName, Object continerSource) throws IOException {
+    @Override
+    public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
+        FacesContext context = ctx.getFacesContext();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+
+        
+        
+        
+    }
+
+    public void execute(FaceletContext ctx, String executorId, String continerName, Object continerSource) {
         FacesContext context = ctx.getFacesContext();
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
@@ -166,8 +140,8 @@ public class RenderStateHandler extends ComponentHandler {
         SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
         if (executor == null) {
 
-            SCXML stateMachine = findStateMachine(ctx, continerName, continerSource);
             try {
+                SCXML stateMachine = findStateMachine(ctx, continerName, continerSource);
                 executor = handler.createRootExecutor(executorId, context, stateMachine);
                 executor.getSCInstance().getSystemContext();
                 Context sctx = executor.getRootContext();
@@ -178,10 +152,11 @@ public class RenderStateHandler extends ComponentHandler {
                 sctx.setLocal(FACES_CHART_VIEW_ID, viewId);
 
             } catch (ModelException ex) {
-                throw new IOException(ex);
+                throw new TagException(tag, ex);
             }
-
-            Map<String, Object> params = getParamsMap(ctx, parent);
+            
+            Map<String, Object> params = getParamsMap(ctx);
+            
             handler.execute(context, executor, params);
         }
 
@@ -204,27 +179,6 @@ public class RenderStateHandler extends ComponentHandler {
         }
 
         String path = viewId + "!" + executorId;
-        StateFlow.pushExecutorToEL(context, executor, path);
-        try {
-            super.apply(ctx, parent);
-        } finally {
-            StateFlow.popExecutorFromEL(context);
-        }
-    }
-
-    @Override
-    public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
-        FacesContext context = ctx.getFacesContext();
-        StateFlowHandler handler = StateFlowHandler.getInstance();
-
-        SCXMLExecutor executor = handler.getRootExecutor(context);
-        Context sctx = executor.getRootContext();
-
-        UIStateChartFacetRender render = (UIStateChartFacetRender) c;
-        String executorId = executor.getId();
-
-        render.setExecutorId(executorId);
-
     }
 
     public static URL getCompositeURL(FaceletContext ctx) {
@@ -254,7 +208,7 @@ public class RenderStateHandler extends ComponentHandler {
         return url;
     }
 
-    public SCXML findStateMachine(FaceletContext ctx, String continerName, Object continerSource) throws IOException {
+    public SCXML findStateMachine(FaceletContext ctx, String continerName, Object continerSource) {
         FacesContext context = ctx.getFacesContext();
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
@@ -313,7 +267,7 @@ public class RenderStateHandler extends ComponentHandler {
         }
     }
 
-    private Map<String, Object> getParamsMap(FaceletContext ctx, UIComponent parent) {
+    private Map<String, Object> getParamsMap(FaceletContext ctx) {
         Map<String, Object> params = new LinkedHashMap<>();
 
         FaceletHandler next = nextHandler;
@@ -345,49 +299,5 @@ public class RenderStateHandler extends ComponentHandler {
         return params;
     }
 
-    private static String localPath(FacesContext context, String path) {
-        String base = context.getExternalContext().getRealPath("/").replace("\\", "/");
-        String result = path.replaceFirst(base, "");
-
-        if (result.startsWith("/resources")) {
-            result = result.substring(10);
-            return result;
-        }
-
-        int sep = result.lastIndexOf("/META-INF/resources");
-        if (sep > -1) {
-            result = result.substring(sep + 19);
-            return result;
-        }
-
-        return result;
-    }
-
-    // --------------------------------------------------------- Private Methods
-    private void throwRequiredException(FaceletContext ctx,
-            String name,
-            UIComponent compositeParent) {
-
-        throw new TagException(this.tag,
-                "Unable to find facet named '"
-                + name
-                + "' in parent composite component with id '"
-                + compositeParent.getClientId(ctx.getFacesContext())
-                + '\'');
-
-    }
-
-    private void throwRequiredInRootException(FaceletContext ctx,
-            String name,
-            UIComponent root) {
-
-        throw new TagException(this.tag,
-                "Unable to find facet named '"
-                + name
-                + "' in view component with id '"
-                + root.getClientId(ctx.getFacesContext())
-                + '\'');
-
-    }
 
 }

@@ -54,7 +54,7 @@ import org.apache.common.faces.state.scxml.invoke.Invoker;
 import org.apache.common.faces.state.scxml.model.CustomAction;
 import javax.servlet.ServletContext;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.ANNOTATED_CLASSES;
-import org.apache.common.faces.state.component.UIStateChartDefinition;
+import org.apache.common.faces.state.component.UIStateChartMachine;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.scxml.model.Action;
 import org.apache.common.faces.state.scxml.model.ModelException;
@@ -97,7 +97,7 @@ import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static org.apache.common.faces.state.StateFlow.PORTLET_EVENT_PREFIX;
-import org.apache.common.faces.state.component.UIStateChartController;
+import org.apache.common.faces.state.component.UIStateChartExecutor;
 import org.apache.common.faces.state.scxml.EventBuilder;
 import org.apache.common.faces.state.task.TimerEventProducer;
 import org.apache.common.faces.state.scxml.ParentSCXMLIOProcessor;
@@ -230,7 +230,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         if ((viewId == null || Objects.equals(currentViewId, viewId))) {
             UIComponent facet = currentViewRoot.getFacet(continerName);
             if (facet != null) {
-                UIStateChartDefinition uichart = (UIStateChartDefinition) facet.findComponent(id);
+                UIStateChartMachine uichart = (UIStateChartMachine) facet.findComponent(id);
                 if (uichart != null) {
                     scxml = uichart.getStateChart();
                 }
@@ -242,7 +242,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             if (currentViewRoot.getFacetCount() > 0) {
                 UIComponent stateContiner = currentViewRoot.getFacets().get(continerName);
                 if (stateContiner != null) {
-                    UIStateChartDefinition uichart = (UIStateChartDefinition) stateContiner.findComponent(id);
+                    UIStateChartMachine uichart = (UIStateChartMachine) stateContiner.findComponent(id);
                     if (uichart != null) {
                         scxml = uichart.getStateChart();
                         return scxml;
@@ -265,7 +265,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
             UIComponent facet = view.getFacet(continerName);
             if (facet != null) {
-                UIStateChartDefinition uichart = (UIStateChartDefinition) facet.findComponent(id);
+                UIStateChartMachine uichart = (UIStateChartMachine) facet.findComponent(id);
                 if (uichart != null) {
                     scxml = uichart.getStateChart();
                 }
@@ -305,7 +305,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         if (url == null) {
             UIComponent facet = currentViewRoot.getFacet(continerName);
             if (facet != null) {
-                UIStateChartDefinition uichart = (UIStateChartDefinition) facet.findComponent(id);
+                UIStateChartMachine uichart = (UIStateChartMachine) facet.findComponent(id);
                 if (uichart != null) {
                     scxml = uichart.getStateChart();
                 }
@@ -387,7 +387,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         if (stateContiner != null) {
             if (stateContiner.getChildCount() != 0) {
-                UIStateChartDefinition uichart = (UIStateChartDefinition) stateContiner.findComponent(id);
+                UIStateChartMachine uichart = (UIStateChartMachine) stateContiner.findComponent(id);
                 if (uichart != null) {
                     scxml = uichart.getStateChart();
                 }
@@ -479,7 +479,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     public SCXMLExecutor getCurrentExecutor(FacesContext context) {
         UIComponent currentComponent = UIComponent.getCurrentComponent(context);
         if (currentComponent != null) {
-            UIStateChartController controller = ComponentUtils.closest(UIStateChartController.class, currentComponent);
+            UIStateChartExecutor controller = ComponentUtils.closest(UIStateChartExecutor.class, currentComponent);
             if (controller != null) {
                 String executorId = controller.getExecutorId();
                 FlowDeque fs = getFlowDeque(context, false);
