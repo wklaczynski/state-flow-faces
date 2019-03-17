@@ -67,7 +67,7 @@ public class TimerEventProducerImpl extends TimerEventProducer {
             Application application = context.getApplication();
 
             UIComponent componentResource = application.createComponent(UIOutput.COMPONENT_TYPE);
-            componentResource.setRendererType("org.apache.common.faces.StateFlowScriptRenderer");
+            componentResource.setRendererType("javax.faces.state.StateFlowScriptRenderer");
             componentResource.getAttributes().put("target", "head");
             componentResource.setId("stateFlowDispatcher");
             componentResource.setRendered(true);

@@ -63,7 +63,7 @@
 
     <component>
         <component-type>javax.faces.state.UIStateChartExecutor</component-type>
-        <component-class>javax.faces.state.state.component.UIStateChartExecutor</component-class>
+        <component-class>javax.faces.state.component.UIStateChartExecutor</component-class>
     </component>
 
     <component>
@@ -75,7 +75,7 @@
         <render-kit-id>HTML_BASIC</render-kit-id>
         <renderer>
             <component-family>javax.faces.Output</component-family>
-            <renderer-type>org.apache.common.faces.StateFlowScriptRenderer</renderer-type>
+            <renderer-type>javax.faces.state.StateFlowScriptRenderer</renderer-type>
             <renderer-class>org.ssoft.faces.impl.state.renderer.StateFlowScriptRenderer</renderer-class>
         </renderer>
     </render-kit>

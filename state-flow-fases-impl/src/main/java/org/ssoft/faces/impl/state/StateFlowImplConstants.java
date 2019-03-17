@@ -124,17 +124,17 @@ public class StateFlowImplConstants {
     /**
      *
      */
-    public static final String SCXML_DATA_MODEL = "http://xmlns.apache.org/faces/scxml";
+    public static final String SCXML_DATA_MODEL = "http://xmlns.ssoft.org/faces/scxml";
     
     /**
      *
      */
-    public static final String FXSCXML_DATA_MODEL = "http://xmlns.apache.org/faces/fxscxml";
+    public static final String FXSCXML_DATA_MODEL = "http://xmlns.ssoft.org/faces/fxscxml";
 
     /**
      *
      */
-    public final static String STATE_FLOW_DISPATCH_TASK = "org.apache.faces.state.STATE_FLOW_DISPATCH_TASK";
+    public final static String STATE_FLOW_DISPATCH_TASK = "org.ssoft.faces.state.STATE_FLOW_DISPATCH_TASK";
     
     
 }

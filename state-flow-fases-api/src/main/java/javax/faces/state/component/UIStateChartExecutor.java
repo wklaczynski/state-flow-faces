@@ -15,24 +15,10 @@
  */
 package javax.faces.state.component;
 
-import javax.faces.FacesException;
-import javax.faces.component.ActionSource;
-import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
-import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
-import javax.faces.el.EvaluationException;
-import javax.faces.el.MethodBinding;
-import javax.faces.el.MethodNotFoundException;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ActionEvent;
-import static javax.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import javax.faces.state.StateFlowHandler;
-import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.scxml.SCXMLExecutor;
-import javax.faces.state.scxml.TriggerEvent;
-import javax.faces.state.scxml.model.ModelException;
-import javax.faces.state.utils.ComponentUtils;
 
 /**
  *
@@ -48,13 +34,13 @@ public class UIStateChartExecutor extends UIPanel {
      *
      */
     @SuppressWarnings("FieldNameHidesFieldInSuperclass")
-    public static final String COMPONENT_FAMILY = "org.apache.common.faces.StateFlow";
+    public static final String COMPONENT_FAMILY = "javax.faces.state.StateFlow";
 
     /**
      *
      */
     @SuppressWarnings("FieldNameHidesFieldInSuperclass")
-    public static final String COMPONENT_TYPE = "org.apache.common.faces.UIStateChartExecutor";
+    public static final String COMPONENT_TYPE = "javax.faces.state.UIStateChartExecutor";
 
     enum PropertyKeys {
         name,

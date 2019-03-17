@@ -19,7 +19,7 @@ import javax.faces.state.scxml.model.ModelException;
  *
  * @author Waldemar Kłaczyński
  */
-@StateChartAction(value = "test", namespaceURI = "http://xmlns.apache.org/faces/basic/demo")
+@StateChartAction(value = "test", namespaceURI = "http://xmlns.ssoft.org/faces/basic/demo")
 public class StateFlowTest extends Action {
 
     static final Logger log = Logger.getLogger(StateFlowTest.class.getName());

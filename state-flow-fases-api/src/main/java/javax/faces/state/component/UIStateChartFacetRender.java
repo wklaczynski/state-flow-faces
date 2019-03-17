@@ -42,13 +42,13 @@ public class UIStateChartFacetRender extends UIPanel {
      *
      */
     @SuppressWarnings("FieldNameHidesFieldInSuperclass")
-    public static final String COMPONENT_FAMILY = "org.apache.common.faces.StateFlow";
+    public static final String COMPONENT_FAMILY = "javax.faces.state.StateFlow";
 
     /**
      *
      */
     @SuppressWarnings("FieldNameHidesFieldInSuperclass")
-    public static final String COMPONENT_TYPE = "org.apache.common.faces.UIStateChartFacetRender";
+    public static final String COMPONENT_TYPE = "javax.faces.state.UIStateChartFacetRender";
 
     enum PropertyKeys {
         slot

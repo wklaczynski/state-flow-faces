@@ -30,12 +30,12 @@ public class UIStateChartMachine extends UIComponentBase {
     /**
      *
      */
-    public static final String COMPONENT_FAMILY = "org.apache.common.faces.StateFlow";
+    public static final String COMPONENT_FAMILY = "javax.faces.state.StateFlow";
     
     /**
      *
      */
-    public static final String COMPONENT_TYPE = "org.apache.common.faces.UIStateChartMachine";
+    public static final String COMPONENT_TYPE = "javax.faces.state.UIStateChartMachine";
 
     enum PropertyKeys {
         stateChart

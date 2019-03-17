@@ -49,7 +49,7 @@ limitations under the License.
         <tag-name>execute</tag-name>
         <description><![CDATA[The <renderState> element is redirect to faces action or url.]]></description>
         <component>
-            <component-type>org.apache.common.faces.UIStateChartExecutor</component-type>
+            <component-type>javax.faces.state.UIStateChartExecutor</component-type>
             <handler-class>org.ssoft.faces.impl.state.tag.faces.ExecuteHandler</handler-class>
         </component>
         <attribute>
@@ -64,7 +64,7 @@ limitations under the License.
         <tag-name>renderFacet</tag-name>
         <description><![CDATA[The <renderFacet> element is redirect to faces action or url.]]></description>
         <component>
-            <component-type>org.apache.common.faces.UIStateChartFacetRender</component-type>
+            <component-type>javax.faces.state.UIStateChartFacetRender</component-type>
             <handler-class>org.ssoft.faces.impl.state.tag.faces.RenderFacetHandler</handler-class>
         </component>
         <attribute>
