@@ -67,47 +67,52 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
     @Override
     public void handleNavigation(FacesContext facesContext, String fromAction, String outcome) {
         StateFlowHandler handler = StateFlowHandler.getInstance();
+        boolean consumed = false;
 
-        if (handler.hasViewRoot(facesContext)) {
+        if (handler.isActive(facesContext)) {
             if (outcome == null) {
                 return;
             }
             if (outcome.endsWith(".xhtml")) {
                 handler.closeAll(facesContext);
-                wrappedNavigationHandler.handleNavigation(facesContext, fromAction, outcome);
             } else {
-                UIViewRoot viewRoot = facesContext.getViewRoot();
-                String sendId = viewRoot.getViewId();
-                
-                String sorceId = (String) facesContext.getAttributes().get(CURRENT_COMPONENT_HINT);
-                if (sorceId != null) {
-                    UIComponent source = viewRoot.findComponent(sorceId);
-                    UIStateChartFacetRender render = ComponentUtils.assigned(UIStateChartFacetRender.class, source);
-                    if(render != null) {
-                       sendId = render.getInvokePath(facesContext);
+                SCXMLExecutor executor = handler.getRootExecutor(facesContext);
+                if (executor != null) {
+                    consumed = true;
+
+                    UIViewRoot viewRoot = facesContext.getViewRoot();
+                    String sendId = viewRoot.getViewId();
+
+                    String sorceId = (String) facesContext.getAttributes().get(CURRENT_COMPONENT_HINT);
+                    if (sorceId != null) {
+                        UIComponent source = viewRoot.findComponent(sorceId);
+                        UIStateChartFacetRender render = ComponentUtils.assigned(UIStateChartFacetRender.class, source);
+                        if (render != null) {
+                            sendId = render.getInvokePath(facesContext);
+                        }
+                    }
+
+                    EventBuilder eb = new EventBuilder(
+                            OUTCOME_EVENT_PREFIX + outcome,
+                            TriggerEvent.CALL_EVENT);
+
+                    eb.sendId(sendId);
+
+                    try {
+                        TriggerEvent ev = eb.build();
+                        executor.triggerEvent(ev);
+                    } catch (ModelException ex) {
+                        throw new FacesException(ex);
+                    }
+
+                    if (facesContext.getResponseComplete()) {
+                        handler.writeState(facesContext);
                     }
                 }
-
-                EventBuilder eb = new EventBuilder(
-                        OUTCOME_EVENT_PREFIX + outcome,
-                        TriggerEvent.CALL_EVENT);
-
-                eb.sendId(sendId);
-
-                SCXMLExecutor executor = handler.getRootExecutor(facesContext);
-                try {
-                    TriggerEvent ev = eb.build();
-                    executor.triggerEvent(ev);
-                } catch (ModelException ex) {
-                    throw new FacesException(ex);
-                }
-
-                if (facesContext.getResponseComplete()) {
-                    handler.writeState(facesContext);
-                }
-
             }
-        } else {
+        }
+
+        if (!consumed) {
             wrappedNavigationHandler.handleNavigation(facesContext, fromAction, outcome);
         }
     }

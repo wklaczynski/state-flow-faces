@@ -31,6 +31,7 @@ import javax.faces.event.ActionListener;
 import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import org.apache.common.faces.state.component.UIStateChartExecutor;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.utils.ComponentUtils;
 
 /**
@@ -69,8 +70,8 @@ public class StateFlowActionListener implements ActionListener {
                     if (target instanceof UIStateChartExecutor) {
                         if (ComponentUtils.isInOrEqual(target, source)) {
                             UIStateChartExecutor controller = (UIStateChartExecutor) target;
-                            String executorId = controller.getExecutorId();
-                            facesContext.getAttributes().put(CURRENT_EXECUTOR_HINT, executorId);
+                            SCXMLExecutor executor = controller.getRootExecutor(facesContext);
+                            facesContext.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
                             return VisitResult.COMPLETE;
                         }
                     }
