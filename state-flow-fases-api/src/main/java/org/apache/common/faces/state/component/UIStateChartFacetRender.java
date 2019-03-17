@@ -78,7 +78,7 @@ public class UIStateChartFacetRender extends UIPanel {
         this._executorId = executorId;
     }
 
-    public String getInvoketPath(FacesContext context) {
+    public String getInvokePath(FacesContext context) {
         if(_path == null) {
             String viewId = context.getViewRoot().getViewId();
             _path = viewId + "!" + _executorId + ":" + getSlot();

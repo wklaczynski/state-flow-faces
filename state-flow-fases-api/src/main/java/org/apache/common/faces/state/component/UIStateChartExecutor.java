@@ -15,7 +15,6 @@
  */
 package org.apache.common.faces.state.component;
 
-import java.io.IOException;
 import javax.faces.FacesException;
 import javax.faces.component.ActionSource;
 import javax.faces.component.UIComponent;
@@ -27,9 +26,6 @@ import javax.faces.el.MethodBinding;
 import javax.faces.el.MethodNotFoundException;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
-import javax.faces.event.FacesEvent;
-import javax.faces.view.Location;
-import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.scxml.EventBuilder;
@@ -110,139 +106,12 @@ public class UIStateChartExecutor extends UIPanel {
         return path;
     }
 
-    @Override
-    public void broadcast(FacesEvent event) throws AbortProcessingException {
-        super.broadcast(event);
-    }
-
-    public boolean processAction(ActionEvent event) throws AbortProcessingException {
-        boolean consumed = false;
-
-        FacesContext context = FacesContext.getCurrentInstance();
-        StateFlowHandler handler = StateFlowHandler.getInstance();
-
-        String executorId = getExecutorId();
-        SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
-        if (executor == null) {
-            return false;
-        }
-
-        try {
-            StateFlow.pushExecutorToEL(context, executor, getPath(context));
-
-            UIComponent source = event.getComponent();
-            ActionSource actionSource = (ActionSource) source;
-
-            UIViewRoot viewRoot = context.getViewRoot();
-            String sendId = viewRoot.getViewId();
-
-            UIStateChartFacetRender render = ComponentUtils.assigned(UIStateChartFacetRender.class, source);
-            if (render != null) {
-                sendId = render.getInvoketPath(context);
-            }
-
-            Object invokeResult;
-            String outcome = null;
-            MethodBinding binding;
-
-            binding = actionSource.getAction();
-            if (binding != null) {
-                try {
-                    if (null != (invokeResult = binding.invoke(context, null))) {
-                        outcome = invokeResult.toString();
-                    }
-                    // else, default to null, as assigned above.
-                } catch (MethodNotFoundException e) {
-                    throw new FacesException(binding.getExpressionString() + ": " + e.getMessage(),
-                            e);
-                } catch (EvaluationException e) {
-                    throw new FacesException(binding.getExpressionString() + ": " + e.getMessage(),
-                            e);
-                }
-            }
-
-            EventBuilder eb = new EventBuilder(
-                    OUTCOME_EVENT_PREFIX + outcome,
-                    TriggerEvent.CALL_EVENT);
-
-            eb.sendId(sendId);
-
-            try {
-                TriggerEvent ev = eb.build();
-                executor.triggerEvent(ev);
-                consumed = true;
-            } catch (ModelException ex) {
-                throw new FacesException(ex);
-            }
-
-            if (context.getResponseComplete()) {
-                handler.writeState(context);
-            }
-
-        } finally {
-            StateFlow.popExecutorFromEL(context);
-        }
-
-        return consumed;
-
-    }
-
-    @Override
-    public void pushComponentToEL(FacesContext context, UIComponent component) {
-        pushExecutor(context);
-        super.pushComponentToEL(context, component);
-    }
-
-    @Override
-    public void popComponentFromEL(FacesContext context) {
-        super.popComponentFromEL(context);
-        popExecutor(context);
-    }
-
-    @Override
-    public void encodeEnd(FacesContext context) throws IOException {
-        UIComponent renderComponent = getFacet(CONTROLLER_FACET_NAME);
-        if (renderComponent != null) {
-            renderComponent.encodeAll(context);
-        }
-        super.encodeEnd(context);
-    }
-
-    private void pushExecutor(FacesContext context) {
-        StateFlowHandler handler = StateFlowHandler.getInstance();
-        String executorId = getExecutorId();
-        SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
-        if (executor != null) {
-            StateFlow.pushExecutorToEL(context, executor, getPath(context));
-        }
-    }
-
-    private void popExecutor(FacesContext context) {
-        StateFlowHandler handler = StateFlowHandler.getInstance();
-        String executorId = getExecutorId();
-        SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
-        if (executor != null) {
-            StateFlow.popExecutorFromEL(context);
-        }
-    }
-
     public SCXMLExecutor getRootExecutor(FacesContext context) {
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
         String executorId = getExecutorId();
         SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
         return executor;
-    }
-
-    private void throwRequiredFacetException(FacesContext ctx, String name) {
-
-        Location location = (Location) getAttributes().get(UIComponent.VIEW_LOCATION_KEY);
-
-        throw new FacesException(
-                location + " "
-                + "unable to find facet named \"" + name + "\" in controller component "
-                + " with id \"" + getClientId(ctx) + "\"");
-
     }
 
 }

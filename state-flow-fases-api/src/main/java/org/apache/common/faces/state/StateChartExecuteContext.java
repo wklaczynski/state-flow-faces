@@ -17,12 +17,14 @@ package org.apache.common.faces.state;
 
 import org.apache.common.faces.state.scxml.Context;
 import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.scxml.env.EffectiveContextMap;
+import org.apache.common.faces.state.scxml.env.SimpleContext;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class StateFlowViewContext {
+public class StateChartExecuteContext {
 
     /**
      * invokeId ID.
@@ -45,7 +47,7 @@ public class StateFlowViewContext {
      * @param executor
      * @param context
      */
-    public StateFlowViewContext(String invokeId, SCXMLExecutor executor, Context context) {
+    public StateChartExecuteContext(String invokeId, SCXMLExecutor executor, Context context) {
         this.invokeId = invokeId;
         this.executor = executor;
         this.context = context;
@@ -72,5 +74,4 @@ public class StateFlowViewContext {
         return executor;
     }
 
-    
 }

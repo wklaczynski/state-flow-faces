@@ -18,6 +18,7 @@ package org.apache.common.faces.state;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import javax.el.ELContext;
 import javax.faces.context.FacesContext;
 import org.apache.common.faces.state.scxml.Context;
 import org.apache.common.faces.state.scxml.SCXMLExecutor;
@@ -142,6 +143,21 @@ public abstract class StateFlowHandler {
      * @param params
      */
     public abstract void execute(FacesContext context, SCXMLExecutor executor, Map<String, Object> params);
+
+    /**
+     *
+     * @param context
+     * @param viewId
+     * @param viewContext
+     */
+    public abstract void initViewContext(FacesContext context, String viewId, StateChartExecuteContext viewContext);
+
+    /**
+     *
+     * @param context
+     * @return
+     */
+    public abstract StateChartExecuteContext getCurrentExecuteContext(FacesContext context);
 
     /**
      *
