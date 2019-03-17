@@ -56,11 +56,11 @@ import static org.apache.common.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.CUSTOM_ACTIONS_HINT;
 import static org.apache.common.faces.state.StateFlow.CUSTOM_INVOKERS_HINT;
-import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
-import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.scxml.invoke.Invoker;
 import org.apache.common.faces.state.scxml.model.CustomAction;
+import static org.apache.common.faces.state.StateFlow.DEFAULT_STATE_MACHINE_NAME;
+import static org.apache.common.faces.state.StateFlow.STATE_CHART_FACET_NAME;
 
 /**
  *
@@ -126,7 +126,7 @@ public class StateChartTagHandler extends TagHandler {
 
         String stateContinerName = (String) ctx.getFacesContext().getAttributes().get(BUILD_STATE_CONTINER_HINT);
         if (stateContinerName == null) {
-            stateContinerName = STATECHART_FACET_NAME;
+            stateContinerName = STATE_CHART_FACET_NAME;
         }
 
         UIComponent facetComponent = null;
@@ -136,7 +136,7 @@ public class StateChartTagHandler extends TagHandler {
 
         UIStateChartMachine uichart = null;
 
-        String chartId = DEFAULT_STATECHART_NAME;
+        String chartId = DEFAULT_STATE_MACHINE_NAME;
         if (id != null) {
             chartId = id.getValue();
         }

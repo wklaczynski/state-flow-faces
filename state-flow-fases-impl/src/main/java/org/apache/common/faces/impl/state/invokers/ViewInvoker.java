@@ -55,13 +55,13 @@ import org.apache.common.faces.state.scxml.invoke.InvokerException;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static org.apache.common.faces.state.StateFlow.BEFORE_APPLY_REQUEST_VALUES;
-import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.VIEW_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.StateFlowViewContext;
 import org.apache.common.faces.state.scxml.EventBuilder;
 import org.apache.common.faces.state.scxml.InvokeContext;
 import org.apache.common.faces.state.scxml.model.ModelException;
+import static org.apache.common.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -164,7 +164,7 @@ public class ViewInvoker implements Invoker, Serializable {
             viewId = vh.deriveLogicalViewId(context, viewId);
             prevExecutorId = handler.getExecutorViewRootId(context);
 
-            String oldInvokeViewId = (String) executor.getRootContext().get(CURRENT_INVOKED_VIEW_ID);
+            String oldInvokeViewId = (String) executor.getRootContext().get(EXECUTOR_CONTEXT_VIEW_PATH);
             if (oldInvokeViewId != null) {
                 throw new InvokerException(String.format(
                         "can not start invoke new view: \"%s\", in other view: \"%s\".",
@@ -259,7 +259,7 @@ public class ViewInvoker implements Invoker, Serializable {
             if (currentViewRoot != null) {
                 String currentViewId = currentViewRoot.getViewId();
                 if (currentViewId.equals(viewId)) {
-                    executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
+                    executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
                     return;
                 }
             }
@@ -326,7 +326,7 @@ public class ViewInvoker implements Invoker, Serializable {
                 pvc.setRenderAll(true);
             }
 
-            executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
+            executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
 
         } catch (FacesException | InvokerException ex) {
             throw ex;
@@ -526,7 +526,7 @@ public class ViewInvoker implements Invoker, Serializable {
 
         Context ctx = executor.getRootContext();
         
-        ctx.removeLocal(CURRENT_INVOKED_VIEW_ID);
+        ctx.removeLocal(EXECUTOR_CONTEXT_VIEW_PATH);
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
         handler.setExecutorViewRootId(context, prevExecutorId);

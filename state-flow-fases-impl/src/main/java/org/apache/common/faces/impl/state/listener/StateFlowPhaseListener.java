@@ -51,7 +51,6 @@ import static org.apache.common.faces.impl.state.listener.StateFlowControllerLis
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
-import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
 import static org.apache.common.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
 import org.apache.common.faces.state.task.FacesProcessHolder;
 import org.apache.common.faces.state.scxml.Context;
@@ -60,10 +59,11 @@ import org.apache.common.faces.state.scxml.EventDispatcher;
 import org.apache.common.faces.state.scxml.TriggerEvent;
 import org.apache.common.faces.state.scxml.model.ModelException;
 import static org.apache.common.faces.state.StateFlow.DECODE_DISPATCHER_EVENTS;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
 import org.apache.common.faces.state.component.UIStateChartExecutor;
-import static org.apache.common.faces.state.StateFlow.VIEW_CONTROLLER_TYPE;
+import static org.apache.common.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
+import static org.apache.common.faces.state.StateFlow.DEFAULT_STATE_MACHINE_NAME;
 
 /**
  *
@@ -347,7 +347,7 @@ public class StateFlowPhaseListener implements PhaseListener {
             scxmlId = context.getExternalContext().getRequestParameterMap().get(pname);
         }
         if (scxmlId == null) {
-            scxmlId = DEFAULT_STATECHART_NAME;
+            scxmlId = DEFAULT_STATE_MACHINE_NAME;
         }
 
         try {
@@ -390,11 +390,11 @@ public class StateFlowPhaseListener implements PhaseListener {
 
             SCXMLExecutor executor = handler.createRootExecutor(executorId, context, stateFlow);
             Context sctx = executor.getRootContext();
-            sctx.setLocal(FACES_CHART_CONTROLLER, VIEW_CONTROLLER_TYPE);
+            sctx.setLocal(FACES_CHART_CONTROLLER_TYPE, VIEWROOT_CONTROLLER_TYPE);
 
             if (null != currentViewRoot) {
                 String viewId = currentViewRoot.getViewId();
-                sctx.setLocal(FACES_CHART_VIEW_ID, viewId);
+                sctx.setLocal(FACES_CHART_EXECUTOR_VIEW_ID, viewId);
             }
 
             handler.execute(context, executor, params);

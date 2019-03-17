@@ -36,10 +36,6 @@ import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagException;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
-import static org.apache.common.faces.state.StateFlow.PORTLET_CONTROLLER_TYPE;
-import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.component.UIStateChartExecutor;
 import org.apache.common.faces.state.scxml.Context;
@@ -50,6 +46,10 @@ import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_NAME;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_SOURCE;
 import org.apache.common.faces.state.scxml.EventBuilder;
 import org.apache.common.faces.state.scxml.TriggerEvent;
+import static org.apache.common.faces.state.StateFlow.EXECUTOR_CONTROLLER_TYPE;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
+import static org.apache.common.faces.state.StateFlow.STATE_CHART_FACET_NAME;
 
 /**
  */
@@ -102,7 +102,7 @@ public class ExecuteHandler extends ComponentHandler {
             controller.setExecutorId(executorId);
 
             String uuid = UUID.nameUUIDFromBytes(url.getPath().getBytes()).toString();
-            String stateContinerName = STATECHART_FACET_NAME + "_" + uuid;
+            String stateContinerName = STATE_CHART_FACET_NAME + "_" + uuid;
 
 
             controller.setExecutorId(executorId);
@@ -112,7 +112,7 @@ public class ExecuteHandler extends ComponentHandler {
             String executorName = "controller[" + tag + "]" + viewId + "#" + scxmlName;
             String executorId = rootId + ":" + UUID.nameUUIDFromBytes(executorName.getBytes()).toString();
 
-            String stateContinerName = STATECHART_FACET_NAME;
+            String stateContinerName = STATE_CHART_FACET_NAME;
             controller.setExecutorId(executorId);
 
             controller.setExecutorId(executorId);
@@ -145,11 +145,11 @@ public class ExecuteHandler extends ComponentHandler {
                 executor = handler.createRootExecutor(executorId, context, stateMachine);
                 executor.getSCInstance().getSystemContext();
                 Context sctx = executor.getRootContext();
-                sctx.setLocal(FACES_CHART_CONTROLLER, PORTLET_CONTROLLER_TYPE);
+                sctx.setLocal(FACES_CHART_CONTROLLER_TYPE, EXECUTOR_CONTROLLER_TYPE);
                 sctx.setLocal(FACES_CHART_CONTINER_NAME, continerName);
                 sctx.setLocal(FACES_CHART_CONTINER_SOURCE, continerSource);
 
-                sctx.setLocal(FACES_CHART_VIEW_ID, viewId);
+                sctx.setLocal(FACES_CHART_EXECUTOR_VIEW_ID, viewId);
 
             } catch (ModelException ex) {
                 throw new TagException(tag, ex);

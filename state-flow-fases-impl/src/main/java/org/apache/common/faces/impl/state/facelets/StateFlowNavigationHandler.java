@@ -22,13 +22,18 @@ import javax.faces.FacesException;
 import javax.faces.application.ConfigurableNavigationHandler;
 import javax.faces.application.NavigationCase;
 import javax.faces.application.NavigationHandler;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import static org.apache.common.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import org.apache.common.faces.state.scxml.EventBuilder;
 import org.apache.common.faces.state.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.scxml.TriggerEvent;
 import org.apache.common.faces.state.StateFlowHandler;
+import org.apache.common.faces.state.component.UIStateChartFacetRender;
 import org.apache.common.faces.state.scxml.model.ModelException;
+import org.apache.common.faces.state.utils.ComponentUtils;
 
 /**
  *
@@ -71,11 +76,23 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
                 handler.closeAll(facesContext);
                 wrappedNavigationHandler.handleNavigation(facesContext, fromAction, outcome);
             } else {
+                UIViewRoot viewRoot = facesContext.getViewRoot();
+                String sendId = viewRoot.getViewId();
+                
+                String sorceId = (String) facesContext.getAttributes().get(CURRENT_COMPONENT_HINT);
+                if (sorceId != null) {
+                    UIComponent source = viewRoot.findComponent(sorceId);
+                    UIStateChartFacetRender render = ComponentUtils.assigned(UIStateChartFacetRender.class, source);
+                    if(render != null) {
+                       sendId = render.getInvoketPath(facesContext);
+                    }
+                }
+
                 EventBuilder eb = new EventBuilder(
                         OUTCOME_EVENT_PREFIX + outcome,
                         TriggerEvent.CALL_EVENT);
 
-                eb.sendId(facesContext.getViewRoot().getViewId());
+                eb.sendId(sendId);
 
                 SCXMLExecutor executor = handler.getRootExecutor(facesContext);
                 try {

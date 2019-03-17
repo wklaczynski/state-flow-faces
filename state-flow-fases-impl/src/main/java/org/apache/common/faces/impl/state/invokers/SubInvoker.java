@@ -40,12 +40,12 @@ import org.apache.common.faces.state.scxml.model.ModelException;
 import org.apache.common.faces.state.scxml.model.SCXML;
 import static org.apache.common.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
 import static org.apache.common.faces.state.StateFlow.DECODE_DISPATCHER_EVENTS;
-import static org.apache.common.faces.state.StateFlow.DEFAULT_STATECHART_NAME;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER;
-import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
-import static org.apache.common.faces.state.StateFlow.VIEW_CONTROLLER_TYPE;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_NAME;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTINER_SOURCE;
+import static org.apache.common.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
+import static org.apache.common.faces.state.StateFlow.DEFAULT_STATE_MACHINE_NAME;
+import static org.apache.common.faces.state.StateFlow.STATE_CHART_FACET_NAME;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -127,7 +127,7 @@ public class SubInvoker implements Invoker, StateHolder {
                 id = viewId.substring(sep + 1);
                 viewId = viewId.substring(0, sep);
             } else {
-                id = DEFAULT_STATECHART_NAME;
+                id = DEFAULT_STATE_MACHINE_NAME;
             }
 
             Context sctx = parentSCXMLExecutor.getRootContext();
@@ -137,8 +137,8 @@ public class SubInvoker implements Invoker, StateHolder {
                 viewId = viewId.substring(pos + 18);
             }
             
-            String controllerType = VIEW_CONTROLLER_TYPE;
-            String continerName = STATECHART_FACET_NAME;
+            String controllerType = VIEWROOT_CONTROLLER_TYPE;
+            String continerName = STATE_CHART_FACET_NAME;
             Object continerSource = viewId;
 
             
@@ -150,9 +150,9 @@ public class SubInvoker implements Invoker, StateHolder {
                 viewId = machineViewId;
 
 
-                controllerType = (String) sctx.get(FACES_CHART_CONTROLLER);
+                controllerType = (String) sctx.get(FACES_CHART_CONTROLLER_TYPE);
                 if (controllerType == null) {
-                    controllerType = VIEW_CONTROLLER_TYPE;
+                    controllerType = VIEWROOT_CONTROLLER_TYPE;
                 }
 
                 continerName = (String) sctx.get(FACES_CHART_CONTINER_NAME);               
@@ -275,7 +275,7 @@ public class SubInvoker implements Invoker, StateHolder {
 
             executor = handler.createChildExecutor(id, fc, parentSCXMLExecutor, invokeId, scxml);
             Context sctx = executor.getRootContext();
-            sctx.setLocal(FACES_CHART_CONTROLLER, controllerType);
+            sctx.setLocal(FACES_CHART_CONTROLLER_TYPE, controllerType);
             
             handler.execute(fc, executor, params);
         } catch (FacesException ex) {

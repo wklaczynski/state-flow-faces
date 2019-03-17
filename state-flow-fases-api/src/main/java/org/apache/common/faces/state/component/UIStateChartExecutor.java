@@ -20,8 +20,7 @@ import javax.faces.FacesException;
 import javax.faces.component.ActionSource;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
-import javax.faces.component.visit.VisitCallback;
-import javax.faces.component.visit.VisitContext;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.el.EvaluationException;
 import javax.faces.el.MethodBinding;
@@ -37,6 +36,7 @@ import org.apache.common.faces.state.scxml.EventBuilder;
 import org.apache.common.faces.state.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.scxml.TriggerEvent;
 import org.apache.common.faces.state.scxml.model.ModelException;
+import org.apache.common.faces.state.utils.ComponentUtils;
 
 /**
  *
@@ -114,7 +114,7 @@ public class UIStateChartExecutor extends UIPanel {
     public void broadcast(FacesEvent event) throws AbortProcessingException {
         super.broadcast(event);
     }
-    
+
     public boolean processAction(ActionEvent event) throws AbortProcessingException {
         boolean consumed = false;
 
@@ -132,6 +132,14 @@ public class UIStateChartExecutor extends UIPanel {
 
             UIComponent source = event.getComponent();
             ActionSource actionSource = (ActionSource) source;
+
+            UIViewRoot viewRoot = context.getViewRoot();
+            String sendId = viewRoot.getViewId();
+
+            UIStateChartFacetRender render = ComponentUtils.assigned(UIStateChartFacetRender.class, source);
+            if (render != null) {
+                sendId = render.getInvoketPath(context);
+            }
 
             Object invokeResult;
             String outcome = null;
@@ -157,9 +165,7 @@ public class UIStateChartExecutor extends UIPanel {
                     OUTCOME_EVENT_PREFIX + outcome,
                     TriggerEvent.CALL_EVENT);
 
-            String viewId = context.getViewRoot().getViewId();
-
-            eb.sendId(viewId);
+            eb.sendId(sendId);
 
             try {
                 TriggerEvent ev = eb.build();
@@ -193,11 +199,6 @@ public class UIStateChartExecutor extends UIPanel {
         popExecutor(context);
     }
 
-    @Override
-    public boolean visitTree(VisitContext context, VisitCallback callback) {
-        return super.visitTree(context, callback); //To change body of generated methods, choose Tools | Templates.
-    }
-    
     @Override
     public void encodeEnd(FacesContext context) throws IOException {
         UIComponent renderComponent = getFacet(CONTROLLER_FACET_NAME);

@@ -75,7 +75,6 @@ import org.apache.common.faces.impl.state.invokers.ViewInvoker;
 import org.apache.common.faces.impl.state.tag.faces.SetVariable;
 import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static org.apache.common.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
-import static org.apache.common.faces.state.StateFlow.STATECHART_FACET_NAME;
 import org.apache.common.faces.state.annotation.StateChartInvoker;
 import org.apache.common.faces.state.annotation.StateChartAction;
 import org.apache.common.faces.state.annotation.StateChartActions;
@@ -89,12 +88,11 @@ import static org.apache.common.faces.impl.state.StateFlowImplConstants.SCXML_DA
 import org.apache.common.faces.impl.state.invokers.FacetInvoker;
 import org.apache.common.faces.impl.state.tag.faces.MethodCall;
 import org.apache.common.faces.impl.state.tag.faces.Redirect;
-import org.apache.common.faces.impl.state.utils.ComponentUtils;
+import org.apache.common.faces.state.utils.ComponentUtils;
 import static org.apache.common.faces.impl.state.utils.Util.toViewId;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static org.apache.common.faces.state.StateFlow.PORTLET_EVENT_PREFIX;
 import org.apache.common.faces.state.component.UIStateChartExecutor;
@@ -104,6 +102,8 @@ import org.apache.common.faces.state.scxml.ParentSCXMLIOProcessor;
 import org.apache.common.faces.state.scxml.TriggerEvent;
 import static org.apache.common.faces.state.scxml.io.StateHolderSaver.restoreContext;
 import static org.apache.common.faces.state.scxml.io.StateHolderSaver.saveContext;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
+import static org.apache.common.faces.state.StateFlow.STATE_CHART_FACET_NAME;
 
 /**
  *
@@ -224,7 +224,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
 
         if (continerName == null) {
-            continerName = STATECHART_FACET_NAME;
+            continerName = STATE_CHART_FACET_NAME;
         }
 
         if ((viewId == null || Objects.equals(currentViewId, viewId))) {
@@ -238,7 +238,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return scxml;
         }
 
-        if (currentViewRoot != null && !STATECHART_FACET_NAME.equals(continerName)) {
+        if (currentViewRoot != null && !STATE_CHART_FACET_NAME.equals(continerName)) {
             if (currentViewRoot.getFacetCount() > 0) {
                 UIComponent stateContiner = currentViewRoot.getFacets().get(continerName);
                 if (stateContiner != null) {
@@ -270,7 +270,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     scxml = uichart.getStateChart();
                 }
 
-                if (currentViewRoot != null && !STATECHART_FACET_NAME.equals(continerName)) {
+                if (currentViewRoot != null && !STATE_CHART_FACET_NAME.equals(continerName)) {
                     UIComponent current = currentViewRoot.getFacets().get(continerName);
                     if (current == null) {
                         facet.setParent(null);
@@ -299,7 +299,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         UIViewRoot currentViewRoot = context.getViewRoot();
 
         if (continerName == null) {
-            continerName = STATECHART_FACET_NAME;
+            continerName = STATE_CHART_FACET_NAME;
         }
 
         if (url == null) {
@@ -738,7 +738,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             try {
                 String outcome = "close";
 
-                String viewId = (String) executor.getRootContext().get(FACES_CHART_VIEW_ID);
+                String viewId = (String) executor.getRootContext().get(FACES_CHART_EXECUTOR_VIEW_ID);
 
                 SCXMLExecutor parent = executors.get(parentId);
 

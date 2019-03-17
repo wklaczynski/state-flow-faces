@@ -2,6 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:fx="http://xmlns.apache.org/faces/fxscxml"
       xmlns:f="http://xmlns.jcp.org/jsf/core">
     <h:head>
         <title>Multiple State Flow Faces</title>
@@ -36,6 +37,30 @@
                     <p/>"\#{currentState.assignedTest1}" = <i>"#{currentState.assignedTest1}"</i> 
                     <p/>"\#{showState.assignedTest1}" = <i>"#{showState.assignedTest1}"</i> 
                     <pre>This beans are in state scope in "@composite". This bean can not see data from parent targets not in the common composite state or parallel.</pre>
+                    <hr/>
+                </h:panelGroup>
+                <h:panelGroup>
+                    <b>Render facet from slot "monit":</b>
+                    <p/>
+                    <fx:renderFacet slot="monit">
+                        <f:facet name="facet1">
+                            <h:panelGroup id="render-facet1-test">
+                                <h4>A'm facet 1.</h4>
+                            </h:panelGroup>        
+                        </f:facet>
+
+                        <f:facet name="facet2">
+                            <h:panelGroup id="render-facet2-test">
+                                <h4>A'm facet 2.</h4>
+                            </h:panelGroup>        
+                        </f:facet>
+
+                        <f:facet name="facet3">
+                            <h:panelGroup id="render-facet3-test">
+                                <h4>A'm facet 3.</h4>
+                            </h:panelGroup>        
+                        </f:facet>
+                    </fx:renderFacet>
                     <hr/>
                 </h:panelGroup>
                 <h:panelGroup id="asign-test">

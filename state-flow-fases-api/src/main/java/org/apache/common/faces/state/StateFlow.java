@@ -64,22 +64,22 @@ public class StateFlow {
     /**
      *
      */
-    public static final String VIEW_CONTROLLER_TYPE = "VIEW";
+    public static final String VIEWROOT_CONTROLLER_TYPE = "VIEWROOT";
 
     /**
      *
      */
-    public static final String PORTLET_CONTROLLER_TYPE = "PORTLET";
+    public static final String EXECUTOR_CONTROLLER_TYPE = "EXECUTOR";
 
     /**
      *
      */
-    public static final String STATECHART_FACET_NAME = "javax_stateflow_metadata";
+    public static final String STATE_CHART_FACET_NAME = "javax_stateflow_metadata";
 
     /**
      *
      */
-    public static final String STATE_MACHINE_HINT = "javax.faces.flow.STATE_MACHINE_HINT";
+    public static final String STATE_CHART_MACHINE_HINT = "javax.faces.flow.STATE_MACHINE_HINT";
 
     /**
      *
@@ -111,15 +111,35 @@ public class StateFlow {
      */
     public static final String DEFINITION_SET_HINT = "javax.faces.flow.DEFINITION_SET_HINT";
 
-    /**
-     *
-     */
-    public static final String STATEFLOW_COMPONENT_NAME = "javax_faces_stateflow";
 
     /**
      *
      */
-    public static final String DEFAULT_STATECHART_NAME = "main";
+    public static final Name RENDER_EXECUTOR_FACET = new NameResolver(
+            "state.flow.faces:", ":RENDER_EXECUTOR_FACET");
+
+    /**
+     *
+     */
+    public static final Name EXECUTOR_CONTEXT_PATH = new NameResolver(
+            "state.flow.faces:", ":RENDER_CONTEXT_PATH");
+    
+
+    /**
+     *
+     */
+    public static final Name VIEW_INVOKE_CONTEXT = new NameResolver(
+            "state.flow.faces:", ":ViewState");
+
+    /**
+     *
+     */
+    public static final String EXECUTOR_CONTEXT_VIEW_PATH = EXECUTOR_CONTEXT_PATH.get("ViewRoot");
+    
+    /**
+     *
+     */
+    public static final String DEFAULT_STATE_MACHINE_NAME = "main";
 
     /**
      *
@@ -139,28 +159,17 @@ public class StateFlow {
     /**
      *
      */
-    private static final String CURRENT_EXECUTOR_STACK_KEY = "javax.faces.flow.CURRENT_EXECUTOR_STACK_KEY";
+    private static final String FACES_CHART_EXECUTOR_STACK_KEY = "javax.faces.flow.CURRENT_EXECUTOR_STACK_KEY";
 
     /**
      *
      */
-    public static final Name VIEW_INVOKE_CONTEXT = new NameResolver(
-            "state.flow.faces:", ":ViewState");
+    public static final String FACES_CHART_VIEW_STATE = "com.sun.faces.FACES_VIEW_STATE";
 
     /**
      *
      */
-    public static final String CURRENT_INVOKED_VIEW_ID = "state.flow.faces:CurrentViewId";
-
-    /**
-     *
-     */
-    public static final String FACES_VIEW_STATE = "com.sun.faces.FACES_VIEW_STATE";
-
-    /**
-     *
-     */
-    public static final String FACES_CHART_CONTROLLER = "com.sun.faces.FACES_CHART_CONTROLLER";
+    public static final String FACES_CHART_CONTROLLER_TYPE = "com.sun.faces.FACES_CHART_CONTROLLER";
 
     /**
      *
@@ -175,12 +184,7 @@ public class StateFlow {
     /**
      *
      */
-    public static final String FACES_CHART_FACET = "com.sun.faces.FACES_CHART_FACET";
-
-    /**
-     *
-     */
-    public static final String FACES_CHART_VIEW_ID = "com.sun.faces.FACES_CHART_VIEW_ID";
+    public static final String FACES_CHART_EXECUTOR_VIEW_ID = "com.sun.faces.FACES_CHART_EXECUTOR_VIEW_ID";
 
     /**
      *
@@ -395,11 +399,11 @@ public class StateFlow {
 
     private static ArrayDeque<StateFlowViewContext> getExecutorStack(FacesContext context) {
         Map<Object, Object> contextAttributes = context.getAttributes();
-        ArrayDeque<StateFlowViewContext> elStack = (ArrayDeque<StateFlowViewContext>) contextAttributes.get(CURRENT_EXECUTOR_STACK_KEY);
+        ArrayDeque<StateFlowViewContext> elStack = (ArrayDeque<StateFlowViewContext>) contextAttributes.get(FACES_CHART_EXECUTOR_STACK_KEY);
 
         if (elStack == null) {
             elStack = new ArrayDeque<>();
-            contextAttributes.put(CURRENT_EXECUTOR_STACK_KEY, elStack);
+            contextAttributes.put(FACES_CHART_EXECUTOR_STACK_KEY, elStack);
         }
 
         return elStack;

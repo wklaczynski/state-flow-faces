@@ -20,12 +20,14 @@ import javax.faces.FacesException;
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.view.Location;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_FACET;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.scxml.Context;
 import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import static org.apache.common.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
+import org.apache.common.faces.state.utils.ComponentUtils;
 
 /**
  *
@@ -34,6 +36,7 @@ import org.apache.common.faces.state.scxml.SCXMLExecutor;
 public class UIStateChartFacetRender extends UIPanel {
 
     private String _executorId;
+    private String _path;
 
     /**
      *
@@ -48,8 +51,7 @@ public class UIStateChartFacetRender extends UIPanel {
     public static final String COMPONENT_TYPE = "org.apache.common.faces.UIStateChartFacetRender";
 
     enum PropertyKeys {
-        slot,
-        required,
+        slot
     }
 
     /**
@@ -76,20 +78,20 @@ public class UIStateChartFacetRender extends UIPanel {
         this._executorId = executorId;
     }
 
+    public String getInvoketPath(FacesContext context) {
+        if(_path == null) {
+            String viewId = context.getViewRoot().getViewId();
+            _path = viewId + "!" + _executorId + ":" + getSlot();
+        }
+        return _path;
+    }
+
     public String getSlot() {
         return (java.lang.String) getStateHelper().eval(PropertyKeys.slot, "content");
     }
 
     public void setSlot(java.lang.String _slot) {
         getStateHelper().put(PropertyKeys.slot, _slot);
-    }
-
-    public boolean isRequired() {
-        return (java.lang.Boolean) getStateHelper().eval(PropertyKeys.required, true);
-    }
-
-    public void setRequired(boolean _required) {
-        getStateHelper().put(PropertyKeys.required, _required);
     }
 
     @Override
@@ -109,19 +111,41 @@ public class UIStateChartFacetRender extends UIPanel {
         SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
         if (executor != null) {
             Context sctx = executor.getRootContext();
-            String source = (String) sctx.get(FACES_CHART_FACET);
+            String slot = getSlot();
+            String source = (String) sctx.get(RENDER_EXECUTOR_FACET.get(slot));
             if (source != null) {
+                UIStateChartExecutor controller = ComponentUtils.assigned(UIStateChartExecutor.class, this);
                 if (source.startsWith("@renderer:")) {
                     String name = source.substring(10);
                     facet = getFacet(name);
                     if (facet == null) {
-                        throwRequiredFacetException(context, name);
+                        throwRequiredRendererFacetException(context, name);
                     }
-                } else if (source.startsWith("@cc:")) {
-                    String name = source.substring(4);
-                    facet = getFacet(name);
+                } else if (source.startsWith("@executor:")) {
+                    if (controller == null) {
+                        throwNoInController(context, "@executor");
+                    }
+
+                    String name = source.substring(10);
+
+                    facet = controller.getFacet(name);
+                    
                     if (facet == null) {
-                        throwRequiredFacetException(context, name);
+                        throwRequiredExecutorFacetException(context, name);
+                    }
+                } else if (source.startsWith("@viewroot:")) {
+                    if (controller != null) {
+                        throwInControler(context, "@executor");
+                    }
+
+                    String name = source.substring(10);
+                    UIViewRoot view = context.getViewRoot();
+                    if (view != null) {
+                        facet = view.getFacet(name);
+                    }
+
+                    if (facet == null) {
+                        throwRequiredViewFacetException(context, name);
                     }
                 }
             }
@@ -140,15 +164,61 @@ public class UIStateChartFacetRender extends UIPanel {
         return null;
     }
 
-    private void throwRequiredFacetException(FacesContext ctx, String name) {
+    private void throwRequiredRendererFacetException(FacesContext ctx, String name) {
 
         Location location = (Location) getAttributes().get(UIComponent.VIEW_LOCATION_KEY);
 
         throw new FacesException(
                 location + " "
-                + "unable to find facet named \"" + name + "\" in controller component "
+                + "unable to find facet named \"" + name + "\" in renderer component "
                 + " with id \"" + getClientId(ctx) + "\"");
 
     }
+
+    private void throwRequiredExecutorFacetException(FacesContext ctx, String name) {
+
+        Location location = (Location) getAttributes().get(UIComponent.VIEW_LOCATION_KEY);
+
+        throw new FacesException(
+                location + " "
+                + "unable to find facet named \"" + name + "\" in executor component "
+                + " with id \"" + getClientId(ctx) + "\"");
+
+    }
+
+    private void throwRequiredViewFacetException(FacesContext ctx, String name) {
+
+        Location location = (Location) getAttributes().get(UIComponent.VIEW_LOCATION_KEY);
+
+        throw new FacesException(
+                location + " "
+                + "unable to find facet named \"" + name + "\" in view root "
+                + " with id \"" + getClientId(ctx) + "\"");
+
+    }
+
+    private void throwNoInController(FacesContext ctx, String type) {
+
+        Location location = (Location) getAttributes().get(UIComponent.VIEW_LOCATION_KEY);
+
+        throw new FacesException(
+                location + " "
+                + "unable to render facet slot type \"" + type + "\" in view root executor "
+                + " with id \"" + getClientId(ctx) + "\"");
+        
+
+    }
+
+    private void throwInControler(FacesContext ctx, String type) {
+
+        Location location = (Location) getAttributes().get(UIComponent.VIEW_LOCATION_KEY);
+
+        throw new FacesException(
+                location + " "
+                + "unable to render facet slot type \"" + type + "\" in controller executor "
+                + " with id \"" + getClientId(ctx) + "\"");
+
+    }
+
     
 }

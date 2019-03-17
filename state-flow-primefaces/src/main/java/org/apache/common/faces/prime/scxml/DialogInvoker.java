@@ -29,8 +29,6 @@ import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
-import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
-import static org.apache.common.faces.state.StateFlow.FACES_VIEW_STATE;
 import static org.apache.common.faces.state.StateFlow.VIEW_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.StateFlowViewContext;
@@ -51,6 +49,8 @@ import org.primefaces.util.AjaxRequestBuilder;
 import org.primefaces.util.ComponentTraversalUtils;
 import org.primefaces.util.ComponentUtils;
 import org.primefaces.util.Constants;
+import static org.apache.common.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_STATE;
 
 /**
  *
@@ -125,7 +125,7 @@ public class DialogInvoker implements Invoker, Serializable {
             prevExecutorId = handler.getExecutorViewRootId(context);
 
             viewId = source;
-            String oldInvokeViewId = (String) executor.getRootContext().get(CURRENT_INVOKED_VIEW_ID);
+            String oldInvokeViewId = (String) executor.getRootContext().get(EXECUTOR_CONTEXT_VIEW_PATH);
             if (oldInvokeViewId != null) {
                 throw new InvokerException(String.format(
                         "Can not start invoke new view: \"%s\", in other view: \"%s\".",
@@ -317,13 +317,13 @@ public class DialogInvoker implements Invoker, Serializable {
 
             Context fctx = handler.getFlowContext(context);
             if (viewState != null) {
-                fctx.setLocal(FACES_VIEW_STATE, viewState);
+                fctx.setLocal(FACES_CHART_VIEW_STATE, viewState);
             }
 
             handler.setExecutorViewRootId(context, executor.getRootId());
 
             resolved = false;
-            executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
+            executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
         } catch (InvokerException ex) {
             throw ex;
         } catch (Throwable ex) {
@@ -439,7 +439,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
         PrimeFaces.current().executeScript(sb.toString());
         sb.setLength(0);
-        executor.getRootContext().getVars().remove(CURRENT_INVOKED_VIEW_ID, viewId);
+        executor.getRootContext().getVars().remove(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
         handler.setExecutorViewRootId(context, prevExecutorId);

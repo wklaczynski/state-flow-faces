@@ -28,7 +28,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-import org.apache.common.faces.impl.state.utils.ComponentUtils;
+import org.apache.common.faces.state.utils.ComponentUtils;
 import org.apache.common.faces.state.component.UIStateChartExecutor;
 import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 

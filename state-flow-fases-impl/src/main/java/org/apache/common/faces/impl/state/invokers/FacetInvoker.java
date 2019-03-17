@@ -39,13 +39,6 @@ import org.apache.common.faces.impl.state.StateFlowParams;
 import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
-import static org.apache.common.faces.state.StateFlow.AFTER_RESTORE_VIEW;
-import static org.apache.common.faces.state.StateFlow.CURRENT_INVOKED_VIEW_ID;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_FACET;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_ID;
-import static org.apache.common.faces.state.StateFlow.PORTLET_CONTROLLER_TYPE;
-import static org.apache.common.faces.state.StateFlow.VIEW_CONTROLLER_TYPE;
 import static org.apache.common.faces.state.StateFlow.VIEW_EVENT_PREFIX;
 import org.apache.common.faces.state.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.scxml.SCXMLIOProcessor;
@@ -59,14 +52,19 @@ import org.apache.common.faces.state.scxml.InvokeContext;
 import org.apache.common.faces.state.component.UIStateChartExecutor;
 import org.apache.common.faces.state.scxml.Context;
 import org.apache.common.faces.state.scxml.model.ModelException;
+import static org.apache.common.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
+import static org.apache.common.faces.state.StateFlow.EXECUTOR_CONTEXT_PATH;
+import static org.apache.common.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
+import static org.apache.common.faces.state.StateFlow.EXECUTOR_CONTROLLER_TYPE;
+import static org.apache.common.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
+import static org.apache.common.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
  * contain external namespace elements, further invokes etc.
  */
 public class FacetInvoker implements Invoker, Serializable {
-
-    public static final String RENDER_FACET_SRC = FacetInvoker.class.getName() + ":RENDER_FACET_SRC";
 
     private final static Logger logger = Logger.getLogger(FacetInvoker.class.getName());
 
@@ -96,6 +94,7 @@ public class FacetInvoker implements Invoker, Serializable {
     private String lastViewId;
     private Object viewState;
     private String path;
+    private String slot;
 
     /**
      * {@inheritDoc}.
@@ -141,8 +140,7 @@ public class FacetInvoker implements Invoker, Serializable {
         ExternalContext ec = context.getExternalContext();
         try {
             Context sctx = executor.getRootContext();
-            viewId = (String) sctx.get(FACES_CHART_VIEW_ID);
-            path = viewId + "!" + executor.getId();
+            viewId = context.getViewRoot().getViewId();
 
             reqparams = new HashMap<>();
             Map<String, Object> options = new HashMap();
@@ -169,6 +167,24 @@ public class FacetInvoker implements Invoker, Serializable {
                     facetparams.put(skey, value.toString());
                 }
             }
+
+            slot = "content";
+            if (facetparams.containsKey("slot")) {
+                Object val = facetparams.get("slot");
+                slot = String.valueOf(val);
+                facetparams.remove("slot");
+            }
+
+            Context ctx = executor.getRootContext();
+            path = viewId + "!" + executor.getId() + ":" + slot;
+
+            String oldPath = (String) ctx.get(EXECUTOR_CONTEXT_PATH.get(slot));
+            if (oldPath != null) {
+                throw new InvokerException(String.format(
+                        "can not start invoke new facet slot : \"%s\", in view: \"%s\".",
+                        slot, viewId));
+            }
+            ctx.setLocal(EXECUTOR_CONTEXT_PATH.get(slot), path);
 
             boolean transientState = false;
             if (options.containsKey("transient")) {
@@ -221,12 +237,12 @@ public class FacetInvoker implements Invoker, Serializable {
                 viewState = null;
             }
 
+            setRenderFacet(context, source);
+
             UIViewRoot currentViewRoot = context.getViewRoot();
             if (currentViewRoot != null) {
                 String currentViewId = currentViewRoot.getViewId();
                 if (currentViewId.equals(viewId)) {
-                    executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
-                    setRenderFacet(context, currentViewRoot, source);
 
                     StateFlowViewContext viewContext = new StateFlowViewContext(
                             invokeId, executor, ictx.getContext());
@@ -244,8 +260,6 @@ public class FacetInvoker implements Invoker, Serializable {
                     Context flowContext = handler.getFlowContext(context);
                     flowContext.setLocal(FACES_VIEW_STATE, viewState);
                 }
-                Context rootContext = executor.getRootContext();
-                rootContext.setLocal(RENDER_FACET_SRC, source);
 
                 Application application = context.getApplication();
                 ViewHandler viewHandler = application.getViewHandler();
@@ -278,7 +292,6 @@ public class FacetInvoker implements Invoker, Serializable {
                     viewRoot.setViewId(viewId);
                 }
                 context.setViewRoot(viewRoot);
-                setRenderFacet(context, viewRoot, source);
                 context.renderResponse();
             }
 
@@ -289,7 +302,6 @@ public class FacetInvoker implements Invoker, Serializable {
                 pvc.setRenderAll(true);
             }
 
-            executor.getRootContext().setLocal(CURRENT_INVOKED_VIEW_ID, viewId);
         } catch (FacesException | InvokerException ex) {
             throw ex;
         } catch (Throwable ex) {
@@ -298,22 +310,42 @@ public class FacetInvoker implements Invoker, Serializable {
         }
     }
 
-    private void setRenderFacet(FacesContext context, UIViewRoot viewRoot, String source) throws InvokerException {
+    private void setRenderFacet(FacesContext context, String source) throws InvokerException {
 
-        Context sctx = executor.getRootContext();
+        Context ctx = executor.getRootContext();
 
-        String controllerType = (String) sctx.get(FACES_CHART_CONTROLLER);
+        String controllerType = (String) ctx.get(FACES_CHART_CONTROLLER_TYPE);
         if (controllerType == null) {
-            controllerType = VIEW_CONTROLLER_TYPE;
+            controllerType = VIEWROOT_CONTROLLER_TYPE;
         }
 
         if (source.startsWith("@renderer:")) {
+
+
+            ctx.setLocal(RENDER_EXECUTOR_FACET.get(slot), source);
             
-            if(!controllerType.equals(PORTLET_CONTROLLER_TYPE)) {
-                throwRequiredControllerException(context, source);
-            }
             
-            sctx.setLocal(FACES_CHART_FACET, source);
+            
+//        } else if (source.startsWith("@executor:")) {
+//            if (!controllerType.equals(EXECUTOR_CONTROLLER_TYPE)) {
+//                throwRequiredExecutorException(context, source);
+//            }
+//
+//            if (!controllerType.equals(PORTLET_CONTROLLER_TYPE)) {
+//                throwRequiredControllerException(context, source);
+//            }
+//
+//            ctx.setLocal(RENDER_EXECUTOR_FACET.get(slot), source);
+//        } else if (source.startsWith("@viewroot:")) {
+//            if (!controllerType.equals(VIEWROOT_CONTROLLER_TYPE)) {
+//                throwRequiredViewRootException(context, source);
+//            }
+//
+//            if (!controllerType.equals(PORTLET_CONTROLLER_TYPE)) {
+//                throwRequiredControllerException(context, source);
+//            }
+//
+//            ctx.setLocal(RENDER_EXECUTOR_FACET.get(slot), source);
         } else {
             throwUknowTypeException(context, source);
         }
@@ -389,18 +421,6 @@ public class FacetInvoker implements Invoker, Serializable {
                     }
                 }
 
-                if (event.getName().startsWith(AFTER_RESTORE_VIEW)) {
-                    if (viewRoot != null) {
-                        Context rctx = executor.getRootContext();
-                        String source = (String) rctx.get(RENDER_FACET_SRC);
-                        if (source != null) {
-                            setRenderFacet(context, viewRoot, source);
-                            rctx.getVars().remove(RENDER_FACET_SRC);
-                        }
-                    }
-
-                }
-
                 if (event.getName().startsWith(AFTER_RENDER_VIEW)) {
                     if (viewRoot != null) {
                         lastViewId = viewRoot.getViewId();
@@ -410,6 +430,9 @@ public class FacetInvoker implements Invoker, Serializable {
                     }
                 }
 
+            }
+
+            if (path.equals(event.getSendId())) {
                 if (event.getName().startsWith(VIEW_EVENT_PREFIX)) {
                     ExternalContext ec = context.getExternalContext();
 
@@ -424,7 +447,8 @@ public class FacetInvoker implements Invoker, Serializable {
                     executor.addEvent(evb.build());
                 }
             }
-
+            
+            
         }
     }
 
@@ -449,27 +473,36 @@ public class FacetInvoker implements Invoker, Serializable {
                 storeContext.setLocal(stateKey + "LastViewId", lastViewId);
             }
         }
-        
+
         Context ctx = executor.getRootContext();
-        
-        ctx.removeLocal(CURRENT_INVOKED_VIEW_ID);
-        ctx.removeLocal(FACES_CHART_FACET);
-        
+
+        ctx.removeLocal(EXECUTOR_CONTEXT_PATH.get(slot));
+        ctx.removeLocal(RENDER_EXECUTOR_FACET.get(slot));
+
         context.renderResponse();
 
     }
 
-    private static void throwRequiredControllerException(FacesContext ctx, String name) {
+    private static void throwRequiredExecutorException(FacesContext ctx, String name) {
 
         throw new IllegalStateException(
-                "can not invoke facet named \"" + name + "\" in not controller execution");
+                "can not invoke facet named \"" + name + "\" in not executor controller execution");
 
     }
 
+    private static void throwRequiredViewRootException(FacesContext ctx, String name) {
+
+        throw new IllegalStateException(
+                "can not invoke facet named \"" + name + "\" in not view root controller execution");
+
+    }
+    
     private static void throwUknowTypeException(FacesContext ctx, String name) throws InvokerException {
 
         throw new IllegalStateException(
-                "unable to find facet name '" + name + "' type mus start with @controller:");
+                "unable define facet name \"" + name + "\", type prefix type mus be equal with one of [\"@renderer:\"]");
+//        throw new IllegalStateException(
+//                "unable to find facet name '" + name + "' type mus start with [\"@renderer:\",\"@executor:\",\"@viewroot:\"]");
 
     }
 

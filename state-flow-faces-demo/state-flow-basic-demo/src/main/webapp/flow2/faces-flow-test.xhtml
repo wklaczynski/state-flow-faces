@@ -36,7 +36,7 @@
 
         <x:parallel id="show">
             <x:state id="test-view">
-                <x:invoke type="view" src="TestPage.xhtml">
+                <x:invoke id="window" type="view" src="TestPage.xhtml">
                     <!--Default is true if not set in web.xml-->
                     <x:param name="@view.redirect" expr="true"/>
                 </x:invoke>
@@ -93,6 +93,11 @@
                         <x:assign location="test_hasnext" expr="true"/>
                         <x:assign location="test_hasback" expr="false"/>
                     </x:onentry>
+
+                    <x:invoke type="facet" src="@renderer:facet1">
+                        <x:param name="slot" expr="monit"/>
+                    </x:invoke>
+                    
                     <x:transition event="view.action.next" target="test-process-2"/>
                 </x:state>     
 
@@ -105,6 +110,11 @@
                         <x:assign location="test_hasnext" expr="true"/>
                         <x:assign location="test_hasback" expr="true"/>
                     </x:onentry>
+
+                    <x:invoke type="facet" src="@renderer:facet2">
+                        <x:param name="slot" expr="monit"/>
+                    </x:invoke>
+                    
                     <x:transition event="view.action.back" target="test-process-1"/>
                     <x:transition event="view.action.next" target="test-process-3"/>
                 </x:state>             
@@ -118,6 +128,11 @@
                         <x:assign location="test_hasnext" expr="false"/>
                         <x:assign location="test_hasback" expr="true"/>
                     </x:onentry>
+
+                    <x:invoke type="facet" src="@renderer:facet3">
+                        <x:param name="slot" expr="monit"/>
+                    </x:invoke>
+                    
                     <x:transition event="view.action.back" target="test-process-2"/>
                 </x:state>             
             </x:state> 

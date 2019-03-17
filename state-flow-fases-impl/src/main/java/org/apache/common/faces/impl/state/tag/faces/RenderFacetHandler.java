@@ -17,14 +17,17 @@
 package org.apache.common.faces.impl.state.tag.faces;
 
 import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagException;
-import org.apache.common.faces.impl.state.utils.ComponentUtils;
+import org.apache.common.faces.state.utils.ComponentUtils;
+import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.component.UIStateChartExecutor;
 import org.apache.common.faces.state.component.UIStateChartFacetRender;
+import org.apache.common.faces.state.scxml.SCXMLExecutor;
 
 /**
  */
@@ -46,20 +49,39 @@ public class RenderFacetHandler extends ComponentHandler {
     public void onComponentCreated(FaceletContext ctx, UIComponent c, UIComponent parent) {
         super.onComponentCreated(ctx, c, parent); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
     public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
+        FacesContext context = ctx.getFacesContext();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
 
         UIStateChartExecutor controller = ComponentUtils.assigned(UIStateChartExecutor.class, parent);
-        if (controller == null) {
-            throw new TagException(this.tag,
-                    "Unable to localize execute component, "
-                    + "this component must be closet in execute component.");
+        if (controller != null) {
+            String executorId = controller.getExecutorId();
+            UIStateChartFacetRender render = (UIStateChartFacetRender) c;
+
+            SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
+            if (executor == null) {
+                throw new TagException(this.tag,
+                        "Unable to render facet execute component, controller "
+                        + "executor can not be started.");
+            }
+
+            render.setExecutorId(executorId);
+        } else {
+            SCXMLExecutor executor = handler.getRootExecutor(context);
+            if (executor == null) {
+                throw new TagException(this.tag,
+                        "Unable to render facet execute component, "
+                        + " view root executor can not be started.");
+            }
+            
+            String executorId = executor.getId();
+            UIStateChartFacetRender render = (UIStateChartFacetRender) c;
+            render.setExecutorId(executorId);
+
         }
 
-        String executorId = controller.getExecutorId();
-        UIStateChartFacetRender render = (UIStateChartFacetRender) c;
-        render.setExecutorId(executorId);
     }
 
 }
