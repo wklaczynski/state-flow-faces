@@ -28,9 +28,10 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-import org.apache.common.faces.state.utils.ComponentUtils;
-import org.apache.common.faces.state.component.UIStateChartExecutor;
 import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
+import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
+import org.apache.common.faces.state.component.UIStateChartExecutor;
+import org.apache.common.faces.state.utils.ComponentUtils;
 
 /**
  *
@@ -39,12 +40,6 @@ import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 public class StateFlowActionListener implements ActionListener {
 
     private final ActionListener base;
-    private final ThreadLocal<Boolean> consumed = new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return false;
-        }
-    };
 
     /**
      *
@@ -55,41 +50,37 @@ public class StateFlowActionListener implements ActionListener {
     }
 
     @Override
-    @SuppressWarnings("UnusedAssignment")
     public void processAction(ActionEvent event) throws AbortProcessingException {
-
-        consumed.set(false);
-
         UIComponent source = event.getComponent();
         FacesContext facesContext = FacesContext.getCurrentInstance();
+        try {
+            String sorceId = source.getClientId(facesContext);
 
-        String sorceId = source.getClientId(facesContext);
+            Map<Object, Object> attrs = facesContext.getAttributes();
+            attrs.put(CURRENT_COMPONENT_HINT, sorceId);
 
-        Map<Object, Object> attrs = facesContext.getAttributes();
-        attrs.put(CURRENT_COMPONENT_HINT, sorceId);
+            Collection<String> controllers = StateFlowControllerListener.getControllerClientIds(facesContext);
+            UIViewRoot root = facesContext.getViewRoot();
+            if (root != null && controllers != null && !controllers.isEmpty()) {
 
-        Collection<String> controllers = StateFlowControllerListener.getControllerClientIds(facesContext);
-        UIViewRoot root = facesContext.getViewRoot();
-        if (root != null && controllers != null && !controllers.isEmpty()) {
-
-            Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
-            VisitContext visitContext = VisitContext.createVisitContext(facesContext, controllers, hints);
-            root.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
-                if (target instanceof UIStateChartExecutor) {
-                    if (ComponentUtils.isInOrEqual(target, source)) {
-                        UIStateChartExecutor controller = (UIStateChartExecutor) target;
-                        if (controller.processAction(event)) {
-                            consumed.set(true);
+                Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
+                VisitContext visitContext = VisitContext.createVisitContext(facesContext, controllers, hints);
+                root.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
+                    if (target instanceof UIStateChartExecutor) {
+                        if (ComponentUtils.isInOrEqual(target, source)) {
+                            UIStateChartExecutor controller = (UIStateChartExecutor) target;
+                            String executorId = controller.getExecutorId();
+                            facesContext.getAttributes().put(CURRENT_EXECUTOR_HINT, executorId);
                             return VisitResult.COMPLETE;
                         }
                     }
-                }
-                return VisitResult.ACCEPT;
-            });
-        }
+                    return VisitResult.ACCEPT;
+                });
+            }
 
-        if (!consumed.get()) {
             base.processAction(event);
+        } finally {
+            facesContext.getAttributes().remove(CURRENT_EXECUTOR_HINT);
         }
     }
 

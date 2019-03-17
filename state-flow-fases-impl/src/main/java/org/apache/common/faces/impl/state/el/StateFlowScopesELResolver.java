@@ -23,6 +23,8 @@ import javax.el.*;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PostConstructCustomScopeEvent;
 import javax.faces.event.ScopeContext;
+import org.apache.common.faces.state.StateChartExecuteContext;
+import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.scxml.Context;
 import org.apache.common.faces.state.scxml.SCXMLExecutor;
 
@@ -333,9 +335,13 @@ public class StateFlowScopesELResolver extends ELResolver {
 
     private DialogScope getDialogScope(ELContext context) {
         DialogScope attrScope = null;
-        SCXMLExecutor executor = (SCXMLExecutor) context.getContext(SCXMLExecutor.class);
-        if (executor != null) {
-            Context ctx = executor.getRootContext();
+        
+        FacesContext fc = FacesContext.getCurrentInstance();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        StateChartExecuteContext ec = handler.getCurrentExecuteContext(fc);
+        
+        if (ec != null) {
+            Context ctx = ec.getExecutor().getRootContext();
             attrScope = (DialogScope) ctx.get(CHART_PARAM_MAP);
             if (attrScope == null) {
                 attrScope = new DialogScope();
@@ -348,9 +354,13 @@ public class StateFlowScopesELResolver extends ELResolver {
 
     private ChartScope getChartScope(ELContext context) {
         ChartScope attrScope = null;
-        SCXMLExecutor executor = (SCXMLExecutor) context.getContext(SCXMLExecutor.class);
-        if (executor != null) {
-            Context ctx = executor.getGlobalContext();
+        
+        FacesContext fc = FacesContext.getCurrentInstance();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        StateChartExecuteContext ec = handler.getCurrentExecuteContext(fc);
+        
+        if (ec != null) {
+            Context ctx = ec.getExecutor().getGlobalContext();
             attrScope = (ChartScope) ctx.get(CHART_PARAM_MAP);
             if (attrScope == null) {
                 attrScope = new ChartScope();
@@ -363,8 +373,13 @@ public class StateFlowScopesELResolver extends ELResolver {
     
     private DialogParams getDialogParams(ELContext context) {
         DialogParams attrScope = null;
-        SCXMLExecutor executor = (SCXMLExecutor) context.getContext(SCXMLExecutor.class);
-        if (executor != null) {
+        
+        FacesContext fc = FacesContext.getCurrentInstance();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        StateChartExecuteContext ec = handler.getCurrentExecuteContext(fc);
+        
+        if (ec != null) {
+            SCXMLExecutor executor = ec.getExecutor();
             attrScope = new DialogParams(executor);
         }
         return attrScope;
@@ -372,8 +387,13 @@ public class StateFlowScopesELResolver extends ELResolver {
 
     private ChartParams getChartParams(ELContext context) {
         ChartParams attrScope = null;
-        SCXMLExecutor executor = (SCXMLExecutor) context.getContext(SCXMLExecutor.class);
-        if (executor != null) {
+        
+        FacesContext fc = FacesContext.getCurrentInstance();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        StateChartExecuteContext ec = handler.getCurrentExecuteContext(fc);
+        
+        if (ec != null) {
+            SCXMLExecutor executor = ec.getExecutor();
             attrScope = new ChartParams(executor);
         }
         return attrScope;
@@ -381,9 +401,13 @@ public class StateFlowScopesELResolver extends ELResolver {
 
     private StateParams getStateParams(ELContext context) {
         StateParams attrScope = null;
-        SCXMLExecutor executor = (SCXMLExecutor) context.getContext(SCXMLExecutor.class);
-        if (executor != null) {
-            Context ctx = (Context) context.getContext(Context.class);
+
+        FacesContext fc = FacesContext.getCurrentInstance();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        StateChartExecuteContext executeContext = handler.getCurrentExecuteContext(fc);
+        
+        if (executeContext != null) {
+            Context ctx = executeContext.getContext();
             if (ctx != null) {
                 attrScope = new StateParams(ctx);
             }

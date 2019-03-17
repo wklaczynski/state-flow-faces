@@ -90,7 +90,7 @@ import org.apache.common.faces.impl.state.tag.faces.MethodCall;
 import org.apache.common.faces.impl.state.tag.faces.Redirect;
 import org.apache.common.faces.state.utils.ComponentUtils;
 import static org.apache.common.faces.impl.state.utils.Util.toViewId;
-import org.apache.common.faces.state.StateFlow;
+import org.apache.common.faces.state.StateChartExecuteContext;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static org.apache.common.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static org.apache.common.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
@@ -104,6 +104,8 @@ import static org.apache.common.faces.state.scxml.io.StateHolderSaver.restoreCon
 import static org.apache.common.faces.state.scxml.io.StateHolderSaver.saveContext;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import static org.apache.common.faces.state.StateFlow.STATE_CHART_FACET_NAME;
+import static org.apache.common.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
+import org.apache.common.faces.state.component.UIStateChartFacetRender;
 
 /**
  *
@@ -472,33 +474,78 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
         }
 
-        StateFlow.resolveViewContext(context);
+    }
+
+    @Override
+    public void initViewContext(FacesContext context, String viewId, StateChartExecuteContext viewContext) {
+        context.getAttributes().put(VIEW_INVOKE_CONTEXT.get(viewId), viewContext);
+    }
+
+    @Override
+    public StateChartExecuteContext getCurrentExecuteContext(FacesContext context) {
+        UIViewRoot viewRoot = context.getViewRoot();
+        StateChartExecuteContext viewContext = null;
+        String executorId = null;
+
+        if (isActive(context)) {
+
+            if (viewRoot != null) {
+
+                SCXMLExecutor executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);
+                if (executor != null) {
+                    Context ctx = executor.getRootContext();
+                    viewContext = new StateChartExecuteContext(null, executor, ctx);
+                    return viewContext;
+                }
+
+                String path = viewRoot.getViewId();
+
+                UIComponent currentComponent = UIComponent.getCurrentComponent(context);
+                if (currentComponent != null) {
+                    UIStateChartFacetRender render = ComponentUtils.closest(UIStateChartFacetRender.class, currentComponent);
+                    if (render != null) {
+                        path = render.getInvokePath(context);
+                        executorId = render.getExecutorId();
+                    } else {
+                        UIStateChartExecutor controller = ComponentUtils.closest(UIStateChartExecutor.class, currentComponent);
+                        if (controller != null) {
+                            executorId = controller.getExecutorId();
+                        }
+                    }
+                }
+
+                viewContext = (StateChartExecuteContext) context.getAttributes()
+                        .get(VIEW_INVOKE_CONTEXT.get(path));
+
+            }
+
+            if (viewContext == null) {
+                if (executorId == null) {
+                    executorId = getExecutorViewRootId(context);
+                }
+
+                SCXMLExecutor root = getRootExecutor(context, executorId);
+                if (root != null) {
+                    Context ctx = root.getRootContext();
+                    viewContext = new StateChartExecuteContext(null, root, ctx);
+                }
+            }
+        }
+
+        return viewContext;
     }
 
     @Override
     public SCXMLExecutor getCurrentExecutor(FacesContext context) {
-        UIComponent currentComponent = UIComponent.getCurrentComponent(context);
-        if (currentComponent != null) {
-            UIStateChartExecutor controller = ComponentUtils.closest(UIStateChartExecutor.class, currentComponent);
-            if (controller != null) {
-                String executorId = controller.getExecutorId();
-                FlowDeque fs = getFlowDeque(context, false);
-                if (fs == null) {
-                    return null;
-                }
-                return fs.getExecutors().get(executorId);
-            }
-        }
 
         SCXMLExecutor executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);
         if (executor == null) {
-            FlowDeque fs = getFlowDeque(context, false);
-            if (fs == null) {
-                return null;
+            StateChartExecuteContext viewContext = getCurrentExecuteContext(context);
+            if (viewContext != null) {
+                executor = viewContext.getExecutor();
             }
-            String executorId = getExecutorViewRootId(context);
-            return fs.getExecutors().get(executorId);
         }
+
         return executor;
     }
 

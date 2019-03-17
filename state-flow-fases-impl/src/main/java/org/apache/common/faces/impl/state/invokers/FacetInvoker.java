@@ -46,7 +46,7 @@ import org.apache.common.faces.state.scxml.TriggerEvent;
 import org.apache.common.faces.state.scxml.invoke.Invoker;
 import org.apache.common.faces.state.scxml.invoke.InvokerException;
 import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.StateFlowViewContext;
+import org.apache.common.faces.state.StateChartExecuteContext;
 import org.apache.common.faces.state.scxml.EventBuilder;
 import org.apache.common.faces.state.scxml.InvokeContext;
 import org.apache.common.faces.state.component.UIStateChartExecutor;
@@ -54,11 +54,9 @@ import org.apache.common.faces.state.scxml.Context;
 import org.apache.common.faces.state.scxml.model.ModelException;
 import static org.apache.common.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
 import static org.apache.common.faces.state.StateFlow.EXECUTOR_CONTEXT_PATH;
-import static org.apache.common.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
-import static org.apache.common.faces.state.StateFlow.EXECUTOR_CONTROLLER_TYPE;
 import static org.apache.common.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
-import static org.apache.common.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
+import static org.apache.common.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -244,7 +242,7 @@ public class FacetInvoker implements Invoker, Serializable {
                 String currentViewId = currentViewRoot.getViewId();
                 if (currentViewId.equals(viewId)) {
 
-                    StateFlowViewContext viewContext = new StateFlowViewContext(
+                    StateChartExecuteContext viewContext = new StateChartExecuteContext(
                             invokeId, executor, ictx.getContext());
 
                     return;
@@ -295,7 +293,7 @@ public class FacetInvoker implements Invoker, Serializable {
                 context.renderResponse();
             }
 
-            StateFlowViewContext viewContext = new StateFlowViewContext(
+            StateChartExecuteContext viewContext = new StateChartExecuteContext(
                     invokeId, executor, ictx.getContext());
 
             if ((pvc != null && pvc.isAjaxRequest())) {
@@ -310,6 +308,7 @@ public class FacetInvoker implements Invoker, Serializable {
         }
     }
 
+    @SuppressWarnings("UnusedAssignment")
     private void setRenderFacet(FacesContext context, String source) throws InvokerException {
 
         Context ctx = executor.getRootContext();
@@ -321,11 +320,8 @@ public class FacetInvoker implements Invoker, Serializable {
 
         if (source.startsWith("@renderer:")) {
 
-
             ctx.setLocal(RENDER_EXECUTOR_FACET.get(slot), source);
-            
-            
-            
+
 //        } else if (source.startsWith("@executor:")) {
 //            if (!controllerType.equals(EXECUTOR_CONTROLLER_TYPE)) {
 //                throwRequiredExecutorException(context, source);
@@ -411,10 +407,11 @@ public class FacetInvoker implements Invoker, Serializable {
                 if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
                     if (viewRoot != null) {
                         try {
-                            StateFlowViewContext viewContext = new StateFlowViewContext(
+                            StateChartExecuteContext viewContext = new StateChartExecuteContext(
                                     invokeId, executor, ictx.getContext());
 
-                            StateFlow.setViewContext(context, path, viewContext);
+                            StateFlowHandler handler = StateFlowHandler.getInstance();
+                            handler.initViewContext(context, path, viewContext);
                         } catch (ModelException ex) {
                             throw new InvokerException(ex);
                         }
@@ -447,8 +444,7 @@ public class FacetInvoker implements Invoker, Serializable {
                     executor.addEvent(evb.build());
                 }
             }
-            
-            
+
         }
     }
 
@@ -476,8 +472,8 @@ public class FacetInvoker implements Invoker, Serializable {
 
         Context ctx = executor.getRootContext();
 
-        ctx.removeLocal(EXECUTOR_CONTEXT_PATH.get(slot));
         ctx.removeLocal(RENDER_EXECUTOR_FACET.get(slot));
+        ctx.removeLocal(EXECUTOR_CONTEXT_PATH.get(slot));
 
         context.renderResponse();
 
@@ -496,7 +492,7 @@ public class FacetInvoker implements Invoker, Serializable {
                 "can not invoke facet named \"" + name + "\" in not view root controller execution");
 
     }
-    
+
     private static void throwUknowTypeException(FacesContext ctx, String name) throws InvokerException {
 
         throw new IllegalStateException(

@@ -57,11 +57,12 @@ import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static org.apache.common.faces.state.StateFlow.BEFORE_APPLY_REQUEST_VALUES;
 import static org.apache.common.faces.state.StateFlow.VIEW_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.StateFlowViewContext;
+import org.apache.common.faces.state.StateChartExecuteContext;
 import org.apache.common.faces.state.scxml.EventBuilder;
 import org.apache.common.faces.state.scxml.InvokeContext;
 import org.apache.common.faces.state.scxml.model.ModelException;
 import static org.apache.common.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
+import static org.apache.common.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -270,7 +271,7 @@ public class ViewInvoker implements Invoker, Serializable {
                 if (viewState != null) {
                     fctx.setLocal(FACES_VIEW_STATE, viewState);
                 }
-                
+
                 Application application = context.getApplication();
                 ViewHandler viewHandler = application.getViewHandler();
                 String url = viewHandler.getRedirectURL(context, viewId, reqparams, false);
@@ -461,10 +462,11 @@ public class ViewInvoker implements Invoker, Serializable {
                 if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
                     if (viewRoot != null) {
                         try {
-                            StateFlowViewContext viewContext = new StateFlowViewContext(
+                            StateChartExecuteContext viewContext = new StateChartExecuteContext(
                                     invokeId, executor, ictx.getContext());
 
-                            StateFlow.setViewContext(context, viewId, viewContext);
+                            StateFlowHandler handler = StateFlowHandler.getInstance();
+                            handler.initViewContext(context, viewId, viewContext);
                         } catch (ModelException ex) {
                             throw new InvokerException(ex);
                         }
@@ -525,12 +527,12 @@ public class ViewInvoker implements Invoker, Serializable {
         }
 
         Context ctx = executor.getRootContext();
-        
+
         ctx.removeLocal(EXECUTOR_CONTEXT_VIEW_PATH);
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
         handler.setExecutorViewRootId(context, prevExecutorId);
-        
+
         context.renderResponse();
     }
 }

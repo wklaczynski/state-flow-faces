@@ -151,8 +151,6 @@ public class StateFlowPhaseListener implements PhaseListener {
                 String name = BEFORE_PHASE_EVENT_PREFIX
                         + event.getPhaseId().getName().toLowerCase();
 
-                StateFlow.initViewContext(facesContext);
-
                 if (handler.hasViewRoot(facesContext)) {
 
                     EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
@@ -227,8 +225,6 @@ public class StateFlowPhaseListener implements PhaseListener {
                         return VisitResult.ACCEPT;
                     });
                 }
-
-                StateFlow.resolveViewContext(facesContext);
 
             } else if (event.getPhaseId() == PhaseId.APPLY_REQUEST_VALUES
                     && !facesContext.getResponseComplete()) {

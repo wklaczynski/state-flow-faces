@@ -172,8 +172,6 @@ public class ExecuteHandler extends ComponentHandler {
             throw new TagException(tag, ex);
         }
 
-        StateFlow.resolveViewContext(context);
-
         if (context.getResponseComplete()) {
             handler.writeState(context);
         }

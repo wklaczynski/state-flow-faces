@@ -25,13 +25,12 @@ import javax.faces.context.FacesContext;
 import javax.faces.render.RenderKit;
 import javax.faces.render.ResponseStateManager;
 import static org.apache.common.faces.prime.PrimeFacesFlowUtils.applyParams;
-import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static org.apache.common.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static org.apache.common.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import static org.apache.common.faces.state.StateFlow.VIEW_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
-import org.apache.common.faces.state.StateFlowViewContext;
+import org.apache.common.faces.state.StateChartExecuteContext;
 import org.apache.common.faces.state.annotation.StateChartInvoker;
 import org.apache.common.faces.state.scxml.Context;
 import org.apache.common.faces.state.scxml.EventBuilder;
@@ -51,6 +50,7 @@ import org.primefaces.util.ComponentUtils;
 import org.primefaces.util.Constants;
 import static org.apache.common.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
 import static org.apache.common.faces.state.StateFlow.FACES_CHART_VIEW_STATE;
+import static org.apache.common.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 
 /**
  *
@@ -353,10 +353,10 @@ public class DialogInvoker implements Invoker, Serializable {
                 UIViewRoot viewRoot = context.getViewRoot();
                 if (viewRoot != null) {
                     try {
-                        StateFlowViewContext viewContext = new StateFlowViewContext(
+                        StateChartExecuteContext viewContext = new StateChartExecuteContext(
                                 invokeId, executor, ictx.getContext());
 
-                        StateFlow.setViewContext(context, viewId, viewContext);
+                        handler.initViewContext(context, viewId, viewContext);
                     } catch (ModelException ex) {
                         throw new InvokerException(ex);
                     }

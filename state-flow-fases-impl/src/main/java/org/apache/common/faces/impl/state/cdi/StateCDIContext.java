@@ -37,6 +37,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import org.apache.common.faces.impl.state.StateFlowImplConstants;
 import org.apache.common.faces.impl.state.log.FlowLogger;
+import org.apache.common.faces.state.StateChartExecuteContext;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.scxml.SCXMLExecutor;
 import org.apache.common.faces.state.scxml.model.EnterableState;
@@ -446,14 +447,16 @@ public class StateCDIContext implements Context, Serializable {
     }
 
     private static SCXMLExecutor getExecutor(FacesContext context) {
-
         StateFlowHandler flowHandler = StateFlowHandler.getInstance();
         if (null == flowHandler) {
             return null;
         }
 
-        SCXMLExecutor result = flowHandler.getCurrentExecutor(context);
-
+        SCXMLExecutor result = null;
+        StateChartExecuteContext ec = flowHandler.getCurrentExecuteContext(context);
+        if (ec != null) {
+            result = ec.getExecutor();
+        }        
         return result;
 
     }

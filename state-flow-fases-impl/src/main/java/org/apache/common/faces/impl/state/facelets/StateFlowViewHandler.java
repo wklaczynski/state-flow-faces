@@ -24,7 +24,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
 import org.apache.common.faces.impl.state.config.StateWebConfiguration;
 import static org.apache.common.faces.impl.state.listener.StateFlowControllerListener.getControllerClientIds;
-import org.apache.common.faces.state.StateFlow;
 import static org.apache.common.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import org.apache.common.faces.state.StateFlowHandler;
 import org.apache.common.faces.state.task.FacesProcessHolder;
@@ -79,8 +78,6 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
                 throw new FacesException(ex);
             }
         }
-
-        StateFlow.resolveViewContext(facesContext);
 
         UIViewRoot viewRoot = super.restoreView(facesContext, viewId);
         return viewRoot;
@@ -139,8 +136,6 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
                 return VisitResult.ACCEPT;
             });
         }
-        
-        StateFlow.resolveViewContext(facesContext);
 
         super.renderView(facesContext, viewRoot);
     }

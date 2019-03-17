@@ -19,8 +19,8 @@ import java.io.Serializable;
 import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
 import org.apache.common.faces.impl.state.log.FlowLogger;
-import static org.apache.common.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
-import org.apache.common.faces.state.scxml.SCXMLExecutor;
+import org.apache.common.faces.state.StateChartExecuteContext;
+import org.apache.common.faces.state.StateFlowHandler;
 
 /**
  *
@@ -48,9 +48,10 @@ public class FacesFlowBuiltin implements Serializable {
         FacesContext fc = FacesContext.getCurrentInstance();
         boolean result = false;
 
-        SCXMLExecutor executor = (SCXMLExecutor) fc.getAttributes().get(CURRENT_EXECUTOR_HINT);
-        if (executor != null) {
-            result = executor.getStatus().isInState(state);
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        StateChartExecuteContext ec = handler.getCurrentExecuteContext(fc);
+        if (ec != null) {
+            result = ec.getExecutor().getStatus().isInState(state);
         }
 
         return result;
