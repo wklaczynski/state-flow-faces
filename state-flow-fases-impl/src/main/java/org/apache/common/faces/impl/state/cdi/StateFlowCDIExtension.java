@@ -32,11 +32,13 @@ import org.apache.common.faces.impl.state.log.FlowLogger;
 import org.apache.common.faces.state.annotation.DialogScoped;
 import org.apache.common.faces.state.annotation.ChartScoped;
 import org.apache.common.faces.state.annotation.StateScoped;
+import org.kohsuke.MetaInfServices;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
+@MetaInfServices(Extension.class)
 public class StateFlowCDIExtension implements Extension {
 
     private boolean cdiOneOneOrGreater = false;

@@ -26,6 +26,7 @@ import org.apache.common.faces.state.annotation.StateChartAction;
 import org.apache.common.faces.state.annotation.StateChartActions;
 import org.apache.common.faces.state.annotation.StateChartInvoker;
 import org.apache.common.faces.state.annotation.StateChartInvokers;
+import org.kohsuke.MetaInfServices;
 
 /**
  *
@@ -38,6 +39,7 @@ import org.apache.common.faces.state.annotation.StateChartInvokers;
     StateChartInvoker.class,
     StateChartInvokers.class
 })
+@MetaInfServices(ServletContainerInitializer.class)
 public class StateFlowFacesInitializer implements ServletContainerInitializer {
 
     /**

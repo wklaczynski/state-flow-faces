@@ -19,11 +19,13 @@ import org.apache.common.faces.state.scxml.Evaluator;
 import org.apache.common.faces.state.scxml.EvaluatorProvider;
 import org.apache.common.faces.state.scxml.model.SCXML;
 import static org.apache.common.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
+import org.kohsuke.MetaInfServices;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
+@MetaInfServices(EvaluatorProvider.class)
 public class StateFlowEvaluatorProvider implements EvaluatorProvider {
 
     @Override

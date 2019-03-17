@@ -21,11 +21,13 @@ import java.io.IOException;
 import org.apache.common.faces.state.scxml.io.ContentParser;
 import org.apache.common.faces.state.scxml.model.JsonValue;
 import org.apache.common.faces.state.scxml.model.ParsedValue;
+import org.kohsuke.MetaInfServices;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
+@MetaInfServices(ContentParser.class)
 public class StateFlowJsonContentParser extends ContentParser {
 
     /**

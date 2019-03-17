@@ -30,6 +30,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.kohsuke.MetaInfServices;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -39,6 +40,7 @@ import org.xml.sax.SAXException;
  *
  * @author Waldemar Kłaczyński
  */
+@MetaInfServices(ContentParser.class)
 public class StateFlowXmlContentParser extends ContentParser {
 
     /**
