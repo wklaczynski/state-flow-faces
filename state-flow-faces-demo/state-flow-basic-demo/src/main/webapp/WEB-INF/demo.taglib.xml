@@ -20,7 +20,7 @@ limitations under the License.
     xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-facelettaglibrary_2_2.xsd"
     version="2.2">
     
-    <namespace>http://xmlns.apache.org/faces/basic/demo</namespace>
+    <namespace>http://xmlns.ssoft.org/faces/basic/demo</namespace>
         
     <!--Test custom action unspecfied SCXML-->
     <tag>

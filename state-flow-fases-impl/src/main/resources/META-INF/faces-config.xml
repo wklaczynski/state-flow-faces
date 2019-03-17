@@ -15,60 +15,60 @@
     </ordering>    
     
     <lifecycle>
-        <phase-listener>org.apache.common.faces.impl.state.listener.StateFlowPhaseListener</phase-listener>
+        <phase-listener>org.ssoft.faces.impl.state.listener.StateFlowPhaseListener</phase-listener>
     </lifecycle>
     
             
     <application>
-        <el-resolver>org.apache.common.faces.impl.state.el.StateFlowELResolver</el-resolver>
-        <navigation-handler>org.apache.common.faces.impl.state.facelets.StateFlowNavigationHandler</navigation-handler>
-        <view-handler>org.apache.common.faces.impl.state.facelets.StateFlowViewHandler</view-handler>
-        <action-listener>org.apache.common.faces.impl.state.listener.StateFlowActionListener</action-listener>
+        <el-resolver>org.ssoft.faces.impl.state.el.StateFlowELResolver</el-resolver>
+        <navigation-handler>org.ssoft.faces.impl.state.facelets.StateFlowNavigationHandler</navigation-handler>
+        <view-handler>org.ssoft.faces.impl.state.facelets.StateFlowViewHandler</view-handler>
+        <action-listener>org.ssoft.faces.impl.state.listener.StateFlowActionListener</action-listener>
 
         <system-event-listener>
-            <system-event-listener-class>org.apache.common.faces.impl.state.listener.StateFlowDefinitionListener</system-event-listener-class>
+            <system-event-listener-class>org.ssoft.faces.impl.state.listener.StateFlowDefinitionListener</system-event-listener-class>
             <system-event-class>javax.faces.event.PostAddToViewEvent</system-event-class>
-            <source-class>org.apache.common.faces.state.component.UIStateChartMachine</source-class>
+            <source-class>javax.faces.state.component.UIStateChartMachine</source-class>
         </system-event-listener>
                         
         <system-event-listener>
-            <system-event-listener-class>org.apache.common.faces.impl.state.listener.StateFlowControllerListener</system-event-listener-class>
+            <system-event-listener-class>org.ssoft.faces.impl.state.listener.StateFlowControllerListener</system-event-listener-class>
             <system-event-class>javax.faces.event.PostAddToViewEvent</system-event-class>
-            <source-class>org.apache.common.faces.state.component.UIStateChartExecutor</source-class>
+            <source-class>javax.faces.state.component.UIStateChartExecutor</source-class>
         </system-event-listener>
 
         <system-event-listener>
-            <system-event-listener-class>org.apache.common.faces.impl.state.listener.StateFlowControllerListener</system-event-listener-class>
+            <system-event-listener-class>org.ssoft.faces.impl.state.listener.StateFlowControllerListener</system-event-listener-class>
             <system-event-class>javax.faces.event.PostRestoreStateEvent</system-event-class>
-            <source-class>org.apache.common.faces.state.component.UIStateChartExecutor</source-class>
+            <source-class>javax.faces.state.component.UIStateChartExecutor</source-class>
         </system-event-listener>
 
         <system-event-listener>
-            <system-event-listener-class>org.apache.common.faces.impl.state.listener.StateFlowControllerListener</system-event-listener-class>
+            <system-event-listener-class>org.ssoft.faces.impl.state.listener.StateFlowControllerListener</system-event-listener-class>
             <system-event-class>javax.faces.event.PreRenderViewEvent</system-event-class>
-            <source-class>org.apache.common.faces.state.component.UIStateChartExecutor</source-class>
+            <source-class>javax.faces.state.component.UIStateChartExecutor</source-class>
         </system-event-listener>
         
     </application>
     
     <factory>
-        <view-declaration-language-factory>org.apache.common.faces.impl.state.facelets.StateFlowViewDeclarationLanguageFactory</view-declaration-language-factory>
-        <partial-view-context-factory>org.apache.common.faces.impl.state.facelets.StateFlowPartialViewContextFactory</partial-view-context-factory>
+        <view-declaration-language-factory>org.ssoft.faces.impl.state.facelets.StateFlowViewDeclarationLanguageFactory</view-declaration-language-factory>
+        <partial-view-context-factory>org.ssoft.faces.impl.state.facelets.StateFlowPartialViewContextFactory</partial-view-context-factory>
     </factory>
 
     <component>
-        <component-type>org.apache.common.faces.UIStateChartMachine</component-type>
-        <component-class>org.apache.common.faces.state.component.UIStateChartMachine</component-class>
+        <component-type>javax.faces.state.UIStateChartMachine</component-type>
+        <component-class>javax.faces.state.component.UIStateChartMachine</component-class>
     </component>
 
     <component>
-        <component-type>org.apache.common.faces.UIStateChartExecutor</component-type>
-        <component-class>org.apache.common.faces.state.component.UIStateChartExecutor</component-class>
+        <component-type>javax.faces.state.UIStateChartExecutor</component-type>
+        <component-class>javax.faces.state.state.component.UIStateChartExecutor</component-class>
     </component>
 
     <component>
-        <component-type>org.apache.common.faces.UIStateChartFacetRender</component-type>
-        <component-class>org.apache.common.faces.state.component.UIStateChartFacetRender</component-class>
+        <component-type>javax.faces.state.UIStateChartFacetRender</component-type>
+        <component-class>javax.faces.state.component.UIStateChartFacetRender</component-class>
     </component>
     
     <render-kit>
@@ -76,7 +76,7 @@
         <renderer>
             <component-family>javax.faces.Output</component-family>
             <renderer-type>org.apache.common.faces.StateFlowScriptRenderer</renderer-type>
-            <renderer-class>org.apache.common.faces.impl.state.renderer.StateFlowScriptRenderer</renderer-class>
+            <renderer-class>org.ssoft.faces.impl.state.renderer.StateFlowScriptRenderer</renderer-class>
         </renderer>
     </render-kit>
     

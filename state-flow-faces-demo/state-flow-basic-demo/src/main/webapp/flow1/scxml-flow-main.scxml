@@ -15,10 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <scxml 
-    xmlns="http://xmlns.apache.org/faces/scxml"
+    xmlns="http://xmlns.ssoft.org/faces/scxml"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:fx="http://xmlns.apache.org/faces/fxscxml"
-    xmlns:d="http://xmlns.apache.org/faces/basic/demo"
+    xmlns:fx="http://xmlns.ssoft.org/faces/fxscxml"
+    xmlns:d="http://xmlns.ssoft.org/faces/basic/demo"
     initial="start">
 
     <datamodel>
