@@ -19,13 +19,11 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Map;
 import javax.faces.FacesException;
-import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.view.Location;
-import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
 import static javax.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
@@ -41,8 +39,8 @@ public class UIStateChartFacetRender extends UIPanel {
     private static final String _CURRENT_RENDERER_STACK_KEY
                                 = "javax.faces.state.component.CURRENT_RENDERER_STACK_KEY";
 
-    private SCXMLExecutor _executor;
-    private String _path;
+    private transient SCXMLExecutor _executor;
+    private transient String _path;
 
     private int _isPushedAsCurrentRefCount = 0;
 
