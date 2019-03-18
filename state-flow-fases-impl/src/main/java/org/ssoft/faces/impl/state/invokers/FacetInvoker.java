@@ -138,7 +138,9 @@ public class FacetInvoker implements Invoker, Serializable {
         ExternalContext ec = context.getExternalContext();
         try {
             Context sctx = executor.getRootContext();
-            viewId = context.getViewRoot().getViewId();
+            if (viewId == null) {
+                viewId = context.getViewRoot().getViewId();
+            }
 
             reqparams = new HashMap<>();
             Map<String, Object> options = new HashMap();
@@ -174,15 +176,7 @@ public class FacetInvoker implements Invoker, Serializable {
             }
 
             Context ctx = executor.getRootContext();
-            path = viewId + "!" + executor.getId() + ":" + slot;
-
-            String oldPath = (String) ctx.get(EXECUTOR_CONTEXT_PATH.get(slot));
-            if (oldPath != null) {
-                throw new InvokerException(String.format(
-                        "can not start invoke new facet slot : \"%s\", in view: \"%s\".",
-                        slot, viewId));
-            }
-            ctx.setLocal(EXECUTOR_CONTEXT_PATH.get(slot), path);
+            path = executor.getId() + ":" + slot;
 
             boolean transientState = false;
             if (options.containsKey("transient")) {
@@ -235,6 +229,15 @@ public class FacetInvoker implements Invoker, Serializable {
                 viewState = null;
             }
 
+            String oldPath = (String) ctx.get(EXECUTOR_CONTEXT_PATH.get(slot));
+            if (oldPath != null) {
+                throw new InvokerException(String.format(
+                        "can not start invoke new facet slot : \"%s\", in view: \"%s\".",
+                        slot, viewId));
+            }
+            ctx.setLocal(EXECUTOR_CONTEXT_PATH.get(slot), path);
+            
+            
             setRenderFacet(context, source);
 
             UIViewRoot currentViewRoot = context.getViewRoot();
