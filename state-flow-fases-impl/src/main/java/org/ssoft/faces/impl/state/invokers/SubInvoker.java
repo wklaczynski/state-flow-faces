@@ -19,6 +19,7 @@ package org.ssoft.faces.impl.state.invokers;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Logger;
 import javax.faces.FacesException;
 import javax.faces.context.FacesContext;
@@ -120,54 +121,63 @@ public class SubInvoker implements Invoker, StateHolder {
         StateFlowHandler handler = StateFlowHandler.getInstance();
         SCXML scxml;
         try {
-            String id;
+            String scxmlId;
             String viewId = url;
             int sep = viewId.lastIndexOf("#");
             if (sep > -1) {
-                id = viewId.substring(sep + 1);
+                scxmlId = viewId.substring(sep + 1);
                 viewId = viewId.substring(0, sep);
             } else {
-                id = DEFAULT_STATE_MACHINE_NAME;
+                scxmlId = DEFAULT_STATE_MACHINE_NAME;
             }
 
             Context sctx = parentSCXMLExecutor.getRootContext();
-            
+
             int pos = viewId.indexOf("META-INF/resources/");
             if (pos >= 0) {
                 viewId = viewId.substring(pos + 18);
             }
-            
+
             String controllerType = VIEWROOT_CONTROLLER_TYPE;
             String continerName = STATE_CHART_FACET_NAME;
             Object continerSource = viewId;
 
-            
-            
             if ("@this".equals(viewId)) {
-                String machineViewId = (String) parentSCXMLExecutor
+                viewId = (String) ictx
                         .getStateMachine().getMetadata().get("faces-viewid");
-
-                viewId = machineViewId;
-
 
                 controllerType = (String) sctx.get(FACES_CHART_CONTROLLER_TYPE);
                 if (controllerType == null) {
                     controllerType = VIEWROOT_CONTROLLER_TYPE;
                 }
 
-                continerName = (String) sctx.get(FACES_CHART_CONTINER_NAME);               
-                continerSource = sctx.get(FACES_CHART_CONTINER_SOURCE);               
+                continerName = (String) sctx.get(FACES_CHART_CONTINER_NAME);
+                continerSource = sctx.get(FACES_CHART_CONTINER_SOURCE);
 
             }
 
-            scxml = findStateMachine(fc, id, continerName, continerSource);
+            scxml = findStateMachine(fc, scxmlId, continerName, continerSource);
 
             if (scxml == null) {
                 throw new InvokerException(String.format(
-                        "invoked scxml id='%s' not found in %s", id, viewId));
+                        "invoked scxml id='%s' not found in %s", scxmlId, viewId));
             }
 
-            execute(handler, controllerType, viewId, scxml, params);
+            String childId = UUID.randomUUID().toString();
+
+            executor = handler.createChildExecutor(childId, fc, parentSCXMLExecutor, invokeId, scxml);
+            Context cctx = executor.getRootContext();
+            cctx.setLocal(FACES_CHART_CONTROLLER_TYPE, controllerType);
+            cctx.setLocal(FACES_CHART_CONTINER_NAME, continerName);
+            cctx.setLocal(FACES_CHART_CONTINER_SOURCE, continerSource);
+
+            handler.execute(fc, executor, params);
+
+            if (!executor.isRunning()) {
+                logger.warning(String.format(
+                        "request to activate bean in executor \"%s\", "
+                        + "but that executor is not active.", scxmlId));
+            }
 
         } catch (FacesException | InvokerException ex) {
             throw ex;
@@ -188,7 +198,7 @@ public class SubInvoker implements Invoker, StateHolder {
                         + scxmlId
                         + "\" can not get path!");
             }
-            
+
             String path = localPath(context, url.getPath());
 
             if (continerName == null) {
@@ -204,7 +214,7 @@ public class SubInvoker implements Invoker, StateHolder {
                     throw new FacesException(String.format(
                             "Can not find scxml definition id=\"%s\", not found"
                             + " in composite <f:metadata... %s",
-                        scxmlId, path));
+                            scxmlId, path));
                 }
 
                 return scxml;
@@ -221,7 +231,7 @@ public class SubInvoker implements Invoker, StateHolder {
                     throw new FacesException(String.format(
                             "can not find scxml definition id=\"%s\", not found"
                             + " in <f:metadata... %s",
-                        scxmlId, path));
+                            scxmlId, path));
                 }
                 return scxml;
             } catch (ModelException ex) {
@@ -231,7 +241,7 @@ public class SubInvoker implements Invoker, StateHolder {
             }
         }
     }
-    
+
     private static String localPath(FacesContext context, String path) {
         String base = context.getExternalContext().getRealPath("/").replace("\\", "/");
         String result = path.replaceFirst(base, "");
@@ -249,7 +259,7 @@ public class SubInvoker implements Invoker, StateHolder {
 
         return result;
     }
-    
+
     /**
      * {@inheritDoc}.
      */
@@ -257,32 +267,6 @@ public class SubInvoker implements Invoker, StateHolder {
     public void invokeContent(final InvokeContext ictx, final String content, final Map<String, Object> params)
             throws InvokerException {
 
-    }
-
-    /**
-     *
-     * @param handler
-     * @param controllerType
-     * @param viewId
-     * @param scxml
-     * @param params
-     * @throws InvokerException
-     */
-    protected void execute(StateFlowHandler handler, String controllerType, String viewId, SCXML scxml, final Map<String, Object> params) throws InvokerException {
-        try {
-            FacesContext fc = FacesContext.getCurrentInstance();
-            String id = parentSCXMLExecutor.getId() + ":" + viewId + "!" + getInvokeId();
-
-            executor = handler.createChildExecutor(id, fc, parentSCXMLExecutor, invokeId, scxml);
-            Context sctx = executor.getRootContext();
-            sctx.setLocal(FACES_CHART_CONTROLLER_TYPE, controllerType);
-            
-            handler.execute(fc, executor, params);
-        } catch (FacesException ex) {
-            throw ex;
-        } catch (Throwable me) {
-            throw new InvokerException(me.getMessage(), me);
-        }
     }
 
     /**
