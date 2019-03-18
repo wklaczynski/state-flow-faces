@@ -108,19 +108,19 @@ public class UIStateChartFacetRender extends UIPanel {
         super.encodeEnd(context);
     }
 
-    @Override
-    public void pushComponentToEL(FacesContext context, UIComponent component) {
-        super.pushComponentToEL(context, component);
-        pushRendererToEl(context, (UIStateChartFacetRender) component);
-    }
+//    @Override
+//    public void pushComponentToEL(FacesContext context, UIComponent component) {
+//        super.pushComponentToEL(context, component);
+//        pushRendererToEl(context, (UIStateChartFacetRender) component);
+//    }
+//
+//    @Override
+//    public void popComponentFromEL(FacesContext context) {
+//        super.popComponentFromEL(context);
+//        popRendererFromEl(context);
+//    }
 
-    @Override
-    public void popComponentFromEL(FacesContext context) {
-        super.popComponentFromEL(context);
-        popRendererFromEl(context);
-    }
-
-    private void pushRendererToEl(FacesContext context, UIStateChartFacetRender component) {
+    public void pushRendererToEl(FacesContext context, UIStateChartFacetRender component) {
         if (context == null) {
             throw new NullPointerException();
         }
@@ -137,7 +137,7 @@ public class UIStateChartFacetRender extends UIPanel {
         component._isPushedAsCurrentRefCount++;
     }
 
-    private void popRendererFromEl(FacesContext context) {
+    public void popRendererFromEl(FacesContext context) {
         if (context == null) {
             throw new NullPointerException();
         }

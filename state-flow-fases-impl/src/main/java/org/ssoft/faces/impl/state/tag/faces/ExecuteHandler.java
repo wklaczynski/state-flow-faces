@@ -35,7 +35,6 @@ import javax.faces.view.facelets.FaceletHandler;
 import javax.faces.view.facelets.Tag;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagException;
-import javax.faces.state.StateFlow;
 import static javax.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.component.UIStateChartExecutor;
@@ -121,13 +120,16 @@ public class ExecuteHandler extends ComponentHandler {
 
             execute(ctx, controller, executorId, stateContinerName, rootId);
         }
+        
+        controller.pushExecutorToEl(context, controller);
     }
 
     @Override
     public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
         FacesContext context = ctx.getFacesContext();
-        StateFlowHandler handler = StateFlowHandler.getInstance();
+        UIStateChartExecutor controller = (UIStateChartExecutor) c;
 
+        controller.popExecutorFromEl(context);
     }
 
     public void execute(FaceletContext ctx, UIStateChartExecutor controller, String executorId, String continerName, Object continerSource) {

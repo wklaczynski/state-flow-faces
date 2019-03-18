@@ -48,7 +48,6 @@ import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.model.SCXML;
 import org.ssoft.faces.impl.state.StateFlowParams;
 import static org.ssoft.faces.impl.state.listener.StateFlowControllerListener.getControllerClientIds;
-import javax.faces.state.StateFlow;
 import static javax.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static javax.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import static javax.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;

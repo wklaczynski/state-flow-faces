@@ -20,7 +20,6 @@ import java.util.Map;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
 import javax.faces.context.FacesContext;
-import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.SCXMLExecutor;
 import static javax.faces.state.utils.ComponentUtils.getComponentStack;
 
@@ -100,19 +99,19 @@ public class UIStateChartExecutor extends UIPanel {
         return path;
     }
 
-    @Override
-    public void pushComponentToEL(FacesContext context, UIComponent component) {
-        super.pushComponentToEL(context, component);
-        pushExecutorToEl(context, (UIStateChartExecutor) component);
-    }
+//    @Override
+//    public void pushComponentToEL(FacesContext context, UIComponent component) {
+//        super.pushComponentToEL(context, component);
+//        pushExecutorToEl(context, (UIStateChartExecutor) component);
+//    }
+//
+//    @Override
+//    public void popComponentFromEL(FacesContext context) {
+//        super.popComponentFromEL(context);
+//        popExecutorFromEl(context);
+//    }
 
-    @Override
-    public void popComponentFromEL(FacesContext context) {
-        super.popComponentFromEL(context);
-        popExecutorFromEl(context);
-    }
-
-    private void pushExecutorToEl(FacesContext context, UIStateChartExecutor component) {
+    public void pushExecutorToEl(FacesContext context, UIStateChartExecutor component) {
         if (context == null) {
             throw new NullPointerException();
         }
@@ -129,7 +128,7 @@ public class UIStateChartExecutor extends UIPanel {
         component._isPushedAsCurrentRefCount++;
     }
 
-    private void popExecutorFromEl(FacesContext context) {
+    public void popExecutorFromEl(FacesContext context) {
         if (context == null) {
             throw new NullPointerException();
         }

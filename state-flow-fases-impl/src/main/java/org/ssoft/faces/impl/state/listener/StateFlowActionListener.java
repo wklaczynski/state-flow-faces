@@ -15,24 +15,16 @@
  */
 package org.ssoft.faces.impl.state.listener;
 
-import java.util.Collection;
-import java.util.EnumSet;
 import java.util.Map;
-import java.util.Set;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
-import javax.faces.component.visit.VisitContext;
-import javax.faces.component.visit.VisitHint;
-import javax.faces.component.visit.VisitResult;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
-import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.component.UIStateChartFacetRender;
-import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.utils.ComponentUtils;
 
 /**
@@ -57,7 +49,8 @@ public class StateFlowActionListener implements ActionListener {
         UIComponent source = event.getComponent();
         FacesContext facesContext = FacesContext.getCurrentInstance();
         UIViewRoot viewRoot = facesContext.getViewRoot();
-        UIComponent controller = null;
+        UIStateChartFacetRender render = null;
+        UIStateChartExecutor executor = null;
         try {
             String sorceId = source.getClientId(facesContext);
 
@@ -65,24 +58,24 @@ public class StateFlowActionListener implements ActionListener {
             attrs.put(CURRENT_COMPONENT_HINT, sorceId);
 
             if (viewRoot != null) {
-                UIStateChartFacetRender render = ComponentUtils.assigned(UIStateChartFacetRender.class, source);
-                if (render == null) {
-                    controller = ComponentUtils.assigned(UIStateChartExecutor.class, source);
-                } else {
-                    controller = render;
+                executor = ComponentUtils.assigned(UIStateChartExecutor.class, source);
+                if (executor != null) {
+                    executor.pushExecutorToEl(facesContext, executor);
+                }
+                render = ComponentUtils.assigned(UIStateChartFacetRender.class, source);
+                if (render != null) {
+                    render.pushRendererToEl(facesContext, render);
                 }
             }
-
-            if (controller != null) {
-                controller.pushComponentToEL(facesContext, controller);
-            }
-
             base.processAction(event);
         } finally {
-            facesContext.getAttributes().remove(CURRENT_COMPONENT_HINT);
-            if (controller != null) {
-                controller.popComponentFromEL(facesContext);
+            if (render != null) {
+                render.popRendererFromEl(facesContext);
             }
+            if (executor != null) {
+                executor.popExecutorFromEl(facesContext);
+            }
+            facesContext.getAttributes().remove(CURRENT_COMPONENT_HINT);
         }
     }
 

@@ -53,6 +53,7 @@ public class RenderFacetHandler extends ComponentHandler {
     public void onComponentCreated(FaceletContext ctx, UIComponent c, UIComponent parent) {
         FacesContext context = ctx.getFacesContext();
         StateFlowHandler handler = StateFlowHandler.getInstance();
+        UIStateChartFacetRender render = (UIStateChartFacetRender) c;
 
         UIStateChartExecutor controller = UIStateChartExecutor.getCurrentExecutor(context);
         if (controller == null) {
@@ -61,7 +62,6 @@ public class RenderFacetHandler extends ComponentHandler {
 
         if (controller != null) {
             SCXMLExecutor executor = controller.getExecutor();
-            UIStateChartFacetRender render = (UIStateChartFacetRender) c;
 
             if (executor == null) {
                 throw new TagException(this.tag,
@@ -90,15 +90,18 @@ public class RenderFacetHandler extends ComponentHandler {
                         + "but that executor is not active.", tag));
             }
 
-            UIStateChartFacetRender render = (UIStateChartFacetRender) c;
             render.setExecutor(executor);
-
         }
+        
+        render.pushRendererToEl(context, render);
     }
 
     @Override
     public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
-
+        FacesContext context = ctx.getFacesContext();
+        UIStateChartFacetRender render = (UIStateChartFacetRender) c;
+        
+        render.popRendererFromEl(context);
     }
 
 }
