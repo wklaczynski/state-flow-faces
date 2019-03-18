@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>org.ssoft.faces</groupId>
+  <artifactId>state-flow-faces-demo</artifactId>
+  <version>1.1-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <timestamp>20190318.003811</timestamp>
+      <buildNumber>1</buildNumber>
+    </snapshot>
+    <lastUpdated>20190318003811</lastUpdated>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>1.1-20190318.003811-1</value>
+        <updated>20190318003811</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+</metadata>
