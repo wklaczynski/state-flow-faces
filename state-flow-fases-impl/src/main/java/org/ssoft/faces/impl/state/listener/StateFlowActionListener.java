@@ -31,6 +31,7 @@ import javax.faces.event.ActionListener;
 import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import javax.faces.state.component.UIStateChartExecutor;
+import javax.faces.state.component.UIStateChartFacetRender;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.utils.ComponentUtils;
 
@@ -51,38 +52,37 @@ public class StateFlowActionListener implements ActionListener {
     }
 
     @Override
+    @SuppressWarnings("FinallyDiscardsException")
     public void processAction(ActionEvent event) throws AbortProcessingException {
         UIComponent source = event.getComponent();
         FacesContext facesContext = FacesContext.getCurrentInstance();
+        UIViewRoot viewRoot = facesContext.getViewRoot();
+        UIComponent controller = null;
         try {
             String sorceId = source.getClientId(facesContext);
 
             Map<Object, Object> attrs = facesContext.getAttributes();
             attrs.put(CURRENT_COMPONENT_HINT, sorceId);
 
-            Collection<String> controllers = StateFlowControllerListener.getControllerClientIds(facesContext);
-            UIViewRoot root = facesContext.getViewRoot();
-            if (root != null && controllers != null && !controllers.isEmpty()) {
+            if (viewRoot != null) {
+                UIStateChartFacetRender render = ComponentUtils.assigned(UIStateChartFacetRender.class, source);
+                if (render == null) {
+                    controller = ComponentUtils.assigned(UIStateChartExecutor.class, source);
+                } else {
+                    controller = render;
+                }
+            }
 
-                Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
-                VisitContext visitContext = VisitContext.createVisitContext(facesContext, controllers, hints);
-                root.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
-                    if (target instanceof UIStateChartExecutor) {
-                        if (ComponentUtils.isInOrEqual(target, source)) {
-                            UIStateChartExecutor controller = (UIStateChartExecutor) target;
-                            SCXMLExecutor executor = controller.getRootExecutor(facesContext);
-                            facesContext.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
-                            return VisitResult.COMPLETE;
-                        }
-                    }
-                    return VisitResult.ACCEPT;
-                });
+            if (controller != null) {
+                controller.pushComponentToEL(facesContext, controller);
             }
 
             base.processAction(event);
         } finally {
-            facesContext.getAttributes().remove(CURRENT_EXECUTOR_HINT);
             facesContext.getAttributes().remove(CURRENT_COMPONENT_HINT);
+            if (controller != null) {
+                controller.popComponentFromEL(facesContext);
+            }
         }
     }
 

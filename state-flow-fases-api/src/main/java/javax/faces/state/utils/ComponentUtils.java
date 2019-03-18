@@ -15,8 +15,10 @@
  */
 package javax.faces.state.utils;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 import javax.faces.component.UIComponent;
 
@@ -41,10 +43,10 @@ public class ComponentUtils {
     }
 
     public static <T> T assigned(Class<T> type, UIComponent base) {
-        if(type.isAssignableFrom(base.getClass())) {
+        if (type.isAssignableFrom(base.getClass())) {
             return (T) base;
         }
-        
+
         UIComponent parent = base.getParent();
 
         while (parent != null) {
@@ -57,7 +59,7 @@ public class ComponentUtils {
 
         return null;
     }
-    
+
     public static <T> ArrayList<T> children(Class<T> type, UIComponent base) {
 
         ArrayList<T> result = new ArrayList<>();
@@ -72,7 +74,7 @@ public class ComponentUtils {
 
         return result;
     }
-    
+
     public static boolean isInOrEqual(UIComponent top, UIComponent base) {
         UIComponent parent = base;
         while (parent != null) {
@@ -83,5 +85,13 @@ public class ComponentUtils {
         }
         return false;
     }
-    
+
+    public static ArrayDeque<UIComponent> getComponentStack(String keyName, Map<Object, Object> contextAttributes) {
+        ArrayDeque<UIComponent> stack = (ArrayDeque<UIComponent>) contextAttributes.computeIfAbsent(keyName, (t) -> {
+            return new ArrayDeque<>();
+        });
+        
+        return stack;
+    }
+
 }

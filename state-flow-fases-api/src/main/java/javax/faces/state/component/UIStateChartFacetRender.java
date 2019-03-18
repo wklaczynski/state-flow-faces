@@ -16,6 +16,8 @@
 package javax.faces.state.component;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Map;
 import javax.faces.FacesException;
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
@@ -28,6 +30,7 @@ import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
 import static javax.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
 import javax.faces.state.utils.ComponentUtils;
+import static javax.faces.state.utils.ComponentUtils.getComponentStack;
 
 /**
  *
@@ -35,8 +38,13 @@ import javax.faces.state.utils.ComponentUtils;
  */
 public class UIStateChartFacetRender extends UIPanel {
 
+    private static final String _CURRENT_RENDERER_STACK_KEY
+                                = "javax.faces.state.component.CURRENT_RENDERER_STACK_KEY";
+
     private String _executorId;
     private String _path;
+
+    private int _isPushedAsCurrentRefCount = 0;
 
     /**
      *
@@ -79,7 +87,7 @@ public class UIStateChartFacetRender extends UIPanel {
     }
 
     public String getInvokePath(FacesContext context) {
-        if(_path == null) {
+        if (_path == null) {
             _path = _executorId + ":" + getSlot();
         }
         return _path;
@@ -95,14 +103,80 @@ public class UIStateChartFacetRender extends UIPanel {
 
     @Override
     public void encodeEnd(FacesContext context) throws IOException {
-        UIComponent renderComponent = getCurentRenderComponent(context);
+        UIComponent renderComponent = getCurentEncodeFacet(context);
         if (renderComponent != null) {
             renderComponent.encodeAll(context);
         }
         super.encodeEnd(context);
     }
 
-    public UIComponent getCurentRenderComponent(FacesContext context) {
+    @Override
+    public void pushComponentToEL(FacesContext context, UIComponent component) {
+        super.pushComponentToEL(context, component);
+        pushRendererToEl(context, (UIStateChartFacetRender) component);
+    }
+
+    @Override
+    public void popComponentFromEL(FacesContext context) {
+        super.popComponentFromEL(context);
+        popRendererFromEl(context);
+    }
+
+    private void pushRendererToEl(FacesContext context, UIStateChartFacetRender component) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        if (null == component) {
+            component = this;
+        }
+
+        Map<Object, Object> contextAttributes = context.getAttributes();
+        ArrayDeque<UIComponent> componentStack = getComponentStack(_CURRENT_RENDERER_STACK_KEY,
+                contextAttributes);
+
+        componentStack.push(component);
+        component._isPushedAsCurrentRefCount++;
+    }
+
+    private void popRendererFromEl(FacesContext context) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        if (_isPushedAsCurrentRefCount < 1) {
+            return;
+        }
+
+        Map<Object, Object> contextAttributes = context.getAttributes();
+        ArrayDeque<UIComponent> componentStack = getComponentStack(_CURRENT_RENDERER_STACK_KEY,
+                contextAttributes);
+
+        for (UIComponent topComponent = componentStack.peek();
+                topComponent != this;
+                topComponent = componentStack.peek()) {
+            if (topComponent instanceof UIStateChartFacetRender) {
+                ((UIStateChartFacetRender) topComponent).popRendererFromEl(context);
+
+            } else {
+                componentStack.pop();
+            }
+        }
+
+        componentStack.pop();
+        _isPushedAsCurrentRefCount--;
+
+    }
+
+    public static UIStateChartFacetRender getCurrentRenderer(FacesContext context) {
+        Map<Object, Object> contextAttributes = context.getAttributes();
+        ArrayDeque<UIComponent> componentStack = getComponentStack(_CURRENT_RENDERER_STACK_KEY,
+                contextAttributes);
+
+        return (UIStateChartFacetRender) componentStack.peek();
+    }
+
+    private UIComponent getCurentEncodeFacet(FacesContext context) {
         UIComponent facet = null;
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
@@ -128,7 +202,7 @@ public class UIStateChartFacetRender extends UIPanel {
                     String name = source.substring(10);
 
                     facet = controller.getFacet(name);
-                    
+
                     if (facet == null) {
                         throwRequiredExecutorFacetException(context, name);
                     }
@@ -150,17 +224,6 @@ public class UIStateChartFacetRender extends UIPanel {
             }
         }
         return facet;
-    }
-
-    public UIComponent getRenderNamingContainer(FacesContext context) {
-        UIComponent namingContainer = getCurentRenderComponent(context);
-        while (namingContainer != null) {
-            if (namingContainer instanceof NamingContainer) {
-                return namingContainer;
-            }
-            namingContainer = namingContainer.getParent();
-        }
-        return null;
     }
 
     private void throwRequiredRendererFacetException(FacesContext ctx, String name) {
@@ -204,7 +267,6 @@ public class UIStateChartFacetRender extends UIPanel {
                 location + " "
                 + "unable to render facet slot type \"" + type + "\" in view root executor "
                 + " with id \"" + getClientId(ctx) + "\"");
-        
 
     }
 
@@ -219,5 +281,4 @@ public class UIStateChartFacetRender extends UIPanel {
 
     }
 
-    
 }

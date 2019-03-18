@@ -501,16 +501,25 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 String path = viewRoot.getViewId();
 
                 UIComponent currentComponent = UIComponent.getCurrentComponent(context);
-                if (currentComponent != null) {
-                    UIStateChartFacetRender render = ComponentUtils.closest(UIStateChartFacetRender.class, currentComponent);
-                    if (render != null) {
-                        path = render.getInvokePath(context);
-                        executorId = render.getExecutorId();
-                    } else {
-                        UIStateChartExecutor controller = ComponentUtils.closest(UIStateChartExecutor.class, currentComponent);
-                        if (controller != null) {
-                            executorId = controller.getExecutorId();
+                UIStateChartFacetRender render = UIStateChartFacetRender.getCurrentRenderer(context);
+                if (render == null) {
+                    if (currentComponent != null) {
+                        render = ComponentUtils.closest(UIStateChartFacetRender.class, currentComponent);
+                    }
+                }
+
+                if (render != null) {
+                    path = render.getInvokePath(context);
+                    executorId = render.getExecutorId();
+                } else {
+                    UIStateChartExecutor controller = UIStateChartExecutor.getCurrentExecutor(context);
+                    if (controller == null) {
+                        if (currentComponent != null) {
+                            controller = ComponentUtils.closest(UIStateChartExecutor.class, currentComponent);
                         }
+                    }
+                    if (controller != null) {
+                        executorId = controller.getExecutorId();
                     }
                 }
 

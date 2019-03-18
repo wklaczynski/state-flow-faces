@@ -15,10 +15,14 @@
  */
 package javax.faces.state.component;
 
+import java.util.ArrayDeque;
+import java.util.Map;
+import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
 import javax.faces.context.FacesContext;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.SCXMLExecutor;
+import static javax.faces.state.utils.ComponentUtils.getComponentStack;
 
 /**
  *
@@ -26,9 +30,12 @@ import javax.faces.state.scxml.SCXMLExecutor;
  */
 public class UIStateChartExecutor extends UIPanel {
 
-    public static final String CONTROLLER_FACET_NAME = "javax.faces.component.CONTROLLER_FACET_NAME";
+    private static final String _CURRENT_EXECUTOR_STACK_KEY
+                                = "javax.faces.state.component.CURRENT_EXECUTOR_STACK_KEY";
 
     private String _executorId;
+
+    private int _isPushedAsCurrentRefCount = 0;
 
     /**
      *
@@ -98,6 +105,72 @@ public class UIStateChartExecutor extends UIPanel {
         String executorId = getExecutorId();
         SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
         return executor;
+    }
+
+    @Override
+    public void pushComponentToEL(FacesContext context, UIComponent component) {
+        super.pushComponentToEL(context, component);
+        pushExecutorToEl(context, (UIStateChartExecutor) component);
+    }
+
+    @Override
+    public void popComponentFromEL(FacesContext context) {
+        super.popComponentFromEL(context);
+        popExecutorFromEl(context);
+    }
+
+    private void pushExecutorToEl(FacesContext context, UIStateChartExecutor component) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+        
+        if (null == component) {
+            component = this;
+        }
+
+        Map<Object, Object> contextAttributes = context.getAttributes();
+        ArrayDeque<UIComponent> componentStack = getComponentStack(_CURRENT_EXECUTOR_STACK_KEY,
+                contextAttributes);
+
+        componentStack.push(component);
+        component._isPushedAsCurrentRefCount++;
+    }
+
+    private void popExecutorFromEl(FacesContext context) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        if (_isPushedAsCurrentRefCount < 1) {
+            return;
+        }
+
+        Map<Object, Object> contextAttributes = context.getAttributes();
+        ArrayDeque<UIComponent> componentStack = getComponentStack(_CURRENT_EXECUTOR_STACK_KEY,
+                contextAttributes);
+
+        for (UIComponent topComponent = componentStack.peek();
+                topComponent != this;
+                topComponent = componentStack.peek()) {
+            if (topComponent instanceof UIStateChartFacetRender) {
+                ((UIStateChartExecutor) topComponent).popExecutorFromEl(context);
+
+            } else {
+                componentStack.pop();
+            }
+        }
+
+        componentStack.pop();
+        _isPushedAsCurrentRefCount--;
+
+    }
+
+    public static UIStateChartExecutor getCurrentExecutor(FacesContext context) {
+        Map<Object, Object> contextAttributes = context.getAttributes();
+        ArrayDeque<UIComponent> componentStack = getComponentStack(_CURRENT_EXECUTOR_STACK_KEY,
+                contextAttributes);
+
+        return (UIStateChartExecutor) componentStack.peek();
     }
 
 }
