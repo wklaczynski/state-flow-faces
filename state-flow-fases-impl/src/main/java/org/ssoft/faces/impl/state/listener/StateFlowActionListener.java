@@ -82,6 +82,7 @@ public class StateFlowActionListener implements ActionListener {
             base.processAction(event);
         } finally {
             facesContext.getAttributes().remove(CURRENT_EXECUTOR_HINT);
+            facesContext.getAttributes().remove(CURRENT_COMPONENT_HINT);
         }
     }
 

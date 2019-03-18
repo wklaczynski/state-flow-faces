@@ -86,9 +86,11 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
                     String sorceId = (String) facesContext.getAttributes().get(CURRENT_COMPONENT_HINT);
                     if (sorceId != null) {
                         UIComponent source = viewRoot.findComponent(sorceId);
-                        UIStateChartFacetRender render = ComponentUtils.assigned(UIStateChartFacetRender.class, source);
-                        if (render != null) {
-                            sendId = render.getInvokePath(facesContext);
+                        if (source != null) {
+                            UIStateChartFacetRender render = ComponentUtils.assigned(UIStateChartFacetRender.class, source);
+                            if (render != null) {
+                                sendId = render.getInvokePath(facesContext);
+                            }
                         }
                     }
 
