@@ -41,7 +41,7 @@ public class UIStateChartFacetRender extends UIPanel {
     private static final String _CURRENT_RENDERER_STACK_KEY
                                 = "javax.faces.state.component.CURRENT_RENDERER_STACK_KEY";
 
-    private String _executorId;
+    private SCXMLExecutor _executor;
     private String _path;
 
     private int _isPushedAsCurrentRefCount = 0;
@@ -78,17 +78,17 @@ public class UIStateChartFacetRender extends UIPanel {
         return COMPONENT_FAMILY;
     }
 
-    public String getExecutorId() {
-        return _executorId;
+    public SCXMLExecutor getExecutor() {
+        return _executor;
     }
 
-    public void setExecutorId(String executorId) {
-        this._executorId = executorId;
+    public void setExecutor(SCXMLExecutor executor) {
+        this._executor = executor;
     }
 
     public String getInvokePath(FacesContext context) {
-        if (_path == null) {
-            _path = _executorId + ":" + getSlot();
+        if (_path == null && _executor != null) {
+            _path = _executor.getId() + ":" + getSlot();
         }
         return _path;
     }
@@ -179,9 +179,7 @@ public class UIStateChartFacetRender extends UIPanel {
     private UIComponent getCurentEncodeFacet(FacesContext context) {
         UIComponent facet = null;
 
-        StateFlowHandler handler = StateFlowHandler.getInstance();
-        String executorId = getExecutorId();
-        SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
+        SCXMLExecutor executor = getExecutor();
         if (executor != null) {
             Context sctx = executor.getRootContext();
             String slot = getSlot();

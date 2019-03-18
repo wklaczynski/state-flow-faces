@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Logger;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
@@ -50,10 +51,13 @@ import static javax.faces.state.StateFlow.EXECUTOR_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
+import org.ssoft.faces.impl.state.log.FlowLogger;
 
 /**
  */
 public class ExecuteHandler extends ComponentHandler {
+
+    private static final Logger LOGGER = FlowLogger.FACES.getLogger();
 
     // Supported attribute names
     private static final String NAME_ATTRIBUTE = "name";
@@ -95,29 +99,27 @@ public class ExecuteHandler extends ComponentHandler {
             String executorName = "controller[" + tag + "]" + viewId + "!" + url.getPath() + "#" + scxmlName;
             String executorId = rootId + ":" + UUID.nameUUIDFromBytes(executorName.getBytes()).toString();
 
-            String controllerExecutorId = controller.getExecutorId();
-            if (controllerExecutorId != null && !controllerExecutorId.equals(executorId)) {
+            SCXMLExecutor currentExecutor = controller.getExecutor();
+            if (currentExecutor != null && !currentExecutor.getId().equals(executorId)) {
                 throw new TagException(this.tag, "Render state component can not multiple start in the same composite component.");
             }
-            controller.setExecutorId(executorId);
 
             String uuid = UUID.nameUUIDFromBytes(url.getPath().getBytes()).toString();
             String stateContinerName = STATE_CHART_FACET_NAME + "_" + uuid;
 
-
-            controller.setExecutorId(executorId);
-
-            execute(ctx, executorId, stateContinerName, url);
+            execute(ctx, controller, executorId, stateContinerName, url);
         } else {
             String executorName = "controller[" + tag + "]" + viewId + "#" + scxmlName;
             String executorId = rootId + ":" + UUID.nameUUIDFromBytes(executorName.getBytes()).toString();
 
+            SCXMLExecutor currentExecutor = controller.getExecutor();
+            if (currentExecutor != null && !currentExecutor.getId().equals(executorId)) {
+                throw new TagException(this.tag, "Render state component can not multiple start in the same composite component.");
+            }
+
             String stateContinerName = STATE_CHART_FACET_NAME;
-            controller.setExecutorId(executorId);
 
-            controller.setExecutorId(executorId);
-
-            execute(ctx, executorId, stateContinerName, rootId);
+            execute(ctx, controller, executorId, stateContinerName, rootId);
         }
     }
 
@@ -126,14 +128,13 @@ public class ExecuteHandler extends ComponentHandler {
         FacesContext context = ctx.getFacesContext();
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
-        
-        
-        
     }
 
-    public void execute(FaceletContext ctx, String executorId, String continerName, Object continerSource) {
+    public void execute(FaceletContext ctx, UIStateChartExecutor controller, String executorId, String continerName, Object continerSource) {
         FacesContext context = ctx.getFacesContext();
         StateFlowHandler handler = StateFlowHandler.getInstance();
+
+        String scxmlName = name.getValue(ctx);
 
         String viewId = context.getViewRoot().getViewId();
 
@@ -154,10 +155,19 @@ public class ExecuteHandler extends ComponentHandler {
             } catch (ModelException ex) {
                 throw new TagException(tag, ex);
             }
-            
+
             Map<String, Object> params = getParamsMap(ctx);
-            
+
             handler.execute(context, executor, params);
+
+        }
+
+        controller.setExecutor(executor);
+
+        if (!executor.isRunning()) {
+            LOGGER.warning(String.format(
+                    "%s request to activate bean in executor \"%s\", "
+                    + "but that executor is not active.", tag, scxmlName));
         }
 
         try {
@@ -296,6 +306,5 @@ public class ExecuteHandler extends ComponentHandler {
 
         return params;
     }
-
 
 }

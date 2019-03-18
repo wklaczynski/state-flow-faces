@@ -33,7 +33,7 @@ public class UIStateChartExecutor extends UIPanel {
     private static final String _CURRENT_EXECUTOR_STACK_KEY
                                 = "javax.faces.state.component.CURRENT_EXECUTOR_STACK_KEY";
 
-    private String _executorId;
+    private transient SCXMLExecutor _executor;
 
     private int _isPushedAsCurrentRefCount = 0;
 
@@ -70,13 +70,14 @@ public class UIStateChartExecutor extends UIPanel {
         return COMPONENT_FAMILY;
     }
 
-    public String getExecutorId() {
-        return _executorId;
+    public SCXMLExecutor getExecutor() {
+        return _executor;
     }
 
-    public void setExecutorId(String executorId) {
-        this._executorId = executorId;
+    public void setExecutor(SCXMLExecutor executor) {
+        this._executor = executor;
     }
+
 
     public String getName() {
         return (java.lang.String) getStateHelper().eval(PropertyKeys.name, null);
@@ -97,14 +98,6 @@ public class UIStateChartExecutor extends UIPanel {
     public String getPath(FacesContext context) {
         String path = context.getViewRoot().getViewId() + "!" + getName();
         return path;
-    }
-
-    public SCXMLExecutor getRootExecutor(FacesContext context) {
-        StateFlowHandler handler = StateFlowHandler.getInstance();
-
-        String executorId = getExecutorId();
-        SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
-        return executor;
     }
 
     @Override

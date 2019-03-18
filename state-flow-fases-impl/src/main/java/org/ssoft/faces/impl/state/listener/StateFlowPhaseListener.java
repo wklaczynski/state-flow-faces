@@ -115,7 +115,7 @@ public class StateFlowPhaseListener implements PhaseListener {
                         EventBuilder veb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
                                 .sendId(viewRoot.getViewId());
 
-                        SCXMLExecutor executor = controller.getRootExecutor(facesContext);
+                        SCXMLExecutor executor = controller.getExecutor();
                         if (executor != null) {
                             try {
                                 executor.triggerEvent(veb.build());
@@ -194,7 +194,7 @@ public class StateFlowPhaseListener implements PhaseListener {
                             EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
                                     .sendId(viewRoot.getViewId());
 
-                            SCXMLExecutor executor = controller.getRootExecutor(facesContext);
+                            SCXMLExecutor executor = controller.getExecutor();
                             if (executor != null) {
                                 try {
                                     executor.triggerEvent(eb.build());

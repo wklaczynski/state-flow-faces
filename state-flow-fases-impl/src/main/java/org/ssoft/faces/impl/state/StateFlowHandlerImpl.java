@@ -486,12 +486,13 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         UIViewRoot viewRoot = context.getViewRoot();
         StateChartExecuteContext viewContext = null;
         String executorId = null;
+        SCXMLExecutor executor = null;
 
         if (isActive(context)) {
 
             if (viewRoot != null) {
 
-                SCXMLExecutor executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);
+                executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);
                 if (executor != null) {
                     Context ctx = executor.getRootContext();
                     viewContext = new StateChartExecuteContext(null, executor, ctx);
@@ -510,7 +511,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
                 if (render != null) {
                     path = render.getInvokePath(context);
-                    executorId = render.getExecutorId();
+                    executor = render.getExecutor();
+                    executorId = executor.getId();
                 } else {
                     UIStateChartExecutor controller = UIStateChartExecutor.getCurrentExecutor(context);
                     if (controller == null) {
@@ -519,7 +521,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                         }
                     }
                     if (controller != null) {
-                        executorId = controller.getExecutorId();
+                        executor = controller.getExecutor();
+                        executorId = executor.getId();
                     }
                 }
 
@@ -533,10 +536,13 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     executorId = getExecutorViewRootId(context);
                 }
 
-                SCXMLExecutor root = getRootExecutor(context, executorId);
-                if (root != null) {
-                    Context ctx = root.getRootContext();
-                    viewContext = new StateChartExecuteContext(null, root, ctx);
+                if (executor == null) {
+                    executor = getRootExecutor(context, executorId);
+                }
+                
+                if (executor != null) {
+                    Context ctx = executor.getRootContext();
+                    viewContext = new StateChartExecuteContext(null, executor, ctx);
                 }
             }
         }

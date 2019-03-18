@@ -118,7 +118,7 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
                     EventBuilder veb = new EventBuilder(ENCODE_DISPATCHER_EVENTS, TriggerEvent.CALL_EVENT)
                             .sendId(viewRoot.getViewId());
 
-                    SCXMLExecutor executor = controller.getRootExecutor(facesContext);
+                    SCXMLExecutor executor = controller.getExecutor();
                     if (executor != null) {
                         try {
                             EventDispatcher ed = executor.getEventdispatcher();

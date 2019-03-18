@@ -16,6 +16,7 @@
  */
 package org.ssoft.faces.impl.state.tag.faces;
 
+import java.util.logging.Logger;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.ComponentConfig;
@@ -28,10 +29,13 @@ import javax.faces.state.StateFlowHandler;
 import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.component.UIStateChartFacetRender;
 import javax.faces.state.scxml.SCXMLExecutor;
+import org.ssoft.faces.impl.state.log.FlowLogger;
 
 /**
  */
 public class RenderFacetHandler extends ComponentHandler {
+
+    private static final Logger LOGGER = FlowLogger.FACES.getLogger();
 
     // Supported attribute names
     private static final String SLOT_ATTRIBUTE = "slot";
@@ -47,27 +51,31 @@ public class RenderFacetHandler extends ComponentHandler {
 
     @Override
     public void onComponentCreated(FaceletContext ctx, UIComponent c, UIComponent parent) {
-        super.onComponentCreated(ctx, c, parent); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
         FacesContext context = ctx.getFacesContext();
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
-        UIStateChartExecutor controller = ComponentUtils.assigned(UIStateChartExecutor.class, parent);
+        UIStateChartExecutor controller = UIStateChartExecutor.getCurrentExecutor(context);
+        if (controller == null) {
+            controller = ComponentUtils.assigned(UIStateChartExecutor.class, parent);
+        }
+
         if (controller != null) {
-            String executorId = controller.getExecutorId();
+            SCXMLExecutor executor = controller.getExecutor();
             UIStateChartFacetRender render = (UIStateChartFacetRender) c;
 
-            SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
             if (executor == null) {
                 throw new TagException(this.tag,
                         "Unable to render facet execute component, controller "
                         + "executor can not be started.");
             }
 
-            render.setExecutorId(executorId);
+            if (!executor.isRunning()) {
+                LOGGER.warning(String.format(
+                        "%s request to activate bean in executor, "
+                        + "but that executor is not active.", tag));
+            }
+
+            render.setExecutor(executor);
         } else {
             SCXMLExecutor executor = handler.getRootExecutor(context);
             if (executor == null) {
@@ -75,12 +83,21 @@ public class RenderFacetHandler extends ComponentHandler {
                         "Unable to render facet execute component, "
                         + " view root executor can not be started.");
             }
-            
-            String executorId = executor.getId();
+
+            if (!executor.isRunning()) {
+                LOGGER.warning(String.format(
+                        "%s request to activate bean in executor, "
+                        + "but that executor is not active.", tag));
+            }
+
             UIStateChartFacetRender render = (UIStateChartFacetRender) c;
-            render.setExecutorId(executorId);
+            render.setExecutor(executor);
 
         }
+    }
+
+    @Override
+    public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
 
     }
 
