@@ -56,6 +56,7 @@ import static javax.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_PATH;
 import static javax.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
+import static javax.faces.state.StateFlow.PORTLET_EVENT_PREFIX;
 import static javax.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 
 /**
@@ -430,6 +431,21 @@ public class FacetInvoker implements Invoker, Serializable {
                     }
                 }
 
+                if (event.getName().startsWith(VIEW_EVENT_PREFIX)) {
+                    ExternalContext ec = context.getExternalContext();
+
+                    Map<String, String> params = new HashMap<>();
+                    params.putAll(ec.getRequestParameterMap());
+
+                    String outcome = event.getName().substring(VIEW_EVENT_PREFIX.length());
+                    EventBuilder evb = new EventBuilder("view." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
+
+                    evb.data(params);
+                    evb.sendId(invokeId);
+                    executor.addEvent(evb.build());
+                }
+                
+                
             }
 
             if (path.equals(event.getSendId())) {
