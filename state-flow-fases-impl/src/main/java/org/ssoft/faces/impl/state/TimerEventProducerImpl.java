@@ -27,6 +27,7 @@ import javax.faces.context.PartialViewContext;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.STATE_FLOW_DISPATCH_TASK;
 import javax.faces.state.task.DelayedEventTask;
 import javax.faces.state.task.TimerEventProducer;
+import org.ssoft.faces.impl.state.renderer.StateFlowScriptRenderer;
 
 /**
  *
@@ -67,7 +68,7 @@ public class TimerEventProducerImpl extends TimerEventProducer {
             Application application = context.getApplication();
 
             UIComponent componentResource = application.createComponent(UIOutput.COMPONENT_TYPE);
-            componentResource.setRendererType("javax.faces.state.StateFlowScriptRenderer");
+            componentResource.setRendererType(StateFlowScriptRenderer.RENDERER_TYPE);
             componentResource.getAttributes().put("target", "head");
             componentResource.setId("stateFlowDispatcher");
             componentResource.setRendered(true);

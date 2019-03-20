@@ -553,7 +553,7 @@ public class ViewInvoker implements Invoker, Serializable {
 //            context.setProcessingEvents(true);
 //            vh.initView(context);
 //        }
-//
+
 //        PartialViewContext pvc = context.getPartialViewContext();
 //        if ((pvc != null && pvc.isAjaxRequest())) {
 //            pvc.setRenderAll(true);

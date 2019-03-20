@@ -30,6 +30,9 @@ import javax.faces.state.task.DelayedEventTask;
  */
 public class StateFlowScriptRenderer extends Renderer {
 
+    public static final String RENDERER_TYPE = "javax.faces.state.StateFlowScriptRenderer";
+    
+    
     @Override
     public void encodeBegin(FacesContext context, UIComponent component) throws IOException {
 
