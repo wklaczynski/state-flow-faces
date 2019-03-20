@@ -50,7 +50,6 @@ import org.primefaces.util.ComponentUtils;
 import org.primefaces.util.Constants;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
 import static javax.faces.state.StateFlow.FACES_CHART_VIEW_STATE;
-import static javax.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 
 /**
  *
@@ -81,11 +80,16 @@ public class DialogInvoker implements Invoker, Serializable {
     private String viewId;
     private String pfdlgcid;
     private Map<String, Object> vieparams;
-    private String stateKey;
-    private String lastViewId;
-    private Object viewState;
     private boolean resolved;
     private String prevExecutorId;
+
+    private String lastStateKey;
+    private String lastViewId;
+    private Object lastViewState;
+
+    private String prevStateKey;
+    private String prevViewId;
+    private Object prevViewState;
 
     @Override
     public String getInvokeId() {
@@ -177,27 +181,39 @@ public class DialogInvoker implements Invoker, Serializable {
                 }
             }
 
+            Context rctx = executor.getRootContext();
+
             if (!transientState) {
-                stateKey = "__@@Invoke:" + invokeId + ":";
+                lastStateKey = "__@@Invoke:last:" + invokeId + ":";
             }
 
-            if (stateKey != null) {
-                stateKey = "__@@Invoke:" + invokeId + ":";
-
-                Context stateContext = executor.getGlobalContext();
-                viewState = stateContext.get(stateKey + "ViewState");
-                lastViewId = (String) stateContext.get(stateKey + "LastViewId");
-                if (lastViewId != null) {
-                    viewId = lastViewId;
+            if (lastStateKey != null) {
+                lastStateKey = "__@@Invoke:last:" + invokeId + ":";
+                if (rctx.hasLocal(lastStateKey + "ViewState")) {
+                    lastViewState = rctx.get(lastStateKey + "ViewState");
+                    lastViewId = (String) rctx.get(lastStateKey + "ViewId");
+                    if (lastViewId != null) {
+                        viewId = lastViewId;
+                    }
                 }
             } else {
                 lastViewId = null;
-                viewState = null;
+                lastViewState = null;
             }
 
-            UIViewRoot view = context.getViewRoot();
+            UIViewRoot currentViewRoot = context.getViewRoot();
 
-            PrimeFacesFlowUtils.loadResorces(context, view, this, "head");
+            prevStateKey = "__@@Invoke:prev:" + invokeId + ":";
+            prevViewId = currentViewRoot.getViewId();
+
+            RenderKit renderKit = context.getRenderKit();
+            ResponseStateManager rsm = renderKit.getResponseStateManager();
+            prevViewState = rsm.getState(context, prevViewId);
+
+            rctx.setLocal(prevStateKey + "ViewState", prevViewState);
+            rctx.setLocal(prevStateKey + "ViewId", prevViewId);
+
+            PrimeFacesFlowUtils.loadResorces(context, currentViewRoot, this, "head");
 
             String url = context.getApplication().getViewHandler().getBookmarkableURL(context, viewId, query, false);
             url = ComponentUtils.escapeEcmaScriptText(url);
@@ -226,7 +242,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
             String formId = null;
             UIComponent form;
-            String sourceId = view.getId();
+            String sourceId = currentViewRoot.getId();
             UIComponent component;
 
             if (sourceComponentId != null) {
@@ -239,8 +255,8 @@ public class DialogInvoker implements Invoker, Serializable {
                     sourceId = component.getClientId();
                 }
             } else {
-                sourceId = view.getId();
-                component = view;
+                sourceId = currentViewRoot.getId();
+                component = currentViewRoot;
                 update = "@all";
             }
 
@@ -248,7 +264,7 @@ public class DialogInvoker implements Invoker, Serializable {
                     .source(sourceId)
                     .form(formId)
                     .event("scxmlhide")
-                    .update(component, update != null ? update : "@form")
+                    .update(component, update != null ? update : "@none")
                     .process(component, process != null ? process : "@none")
                     .async(false)
                     .global(global != null ? Boolean.parseBoolean(global) : true)
@@ -316,8 +332,8 @@ public class DialogInvoker implements Invoker, Serializable {
             sb.setLength(0);
 
             Context fctx = handler.getFlowContext(context);
-            if (viewState != null) {
-                fctx.setLocal(FACES_CHART_VIEW_STATE, viewState);
+            if (lastViewState != null) {
+                fctx.setLocal(FACES_CHART_VIEW_STATE, lastViewState);
             }
 
             handler.setExecutorViewRootId(context, executor.getRootId());
@@ -374,7 +390,7 @@ public class DialogInvoker implements Invoker, Serializable {
                     lastViewId = viewRoot.getViewId();
                     RenderKit renderKit = context.getRenderKit();
                     ResponseStateManager rsm = renderKit.getResponseStateManager();
-                    viewState = rsm.getState(context, lastViewId);
+                    lastViewState = rsm.getState(context, lastViewId);
                 }
             }
 
@@ -417,18 +433,19 @@ public class DialogInvoker implements Invoker, Serializable {
     public void cancel() throws InvokerException {
         cancelled = true;
 
+        Context rctx = executor.getRootContext();
+
         FacesContext context = FacesContext.getCurrentInstance();
         UIViewRoot viewRoot = context.getViewRoot();
         if (viewRoot != null) {
-            if (stateKey != null) {
+            if (lastStateKey != null) {
                 lastViewId = viewRoot.getViewId();
                 RenderKit renderKit = context.getRenderKit();
                 ResponseStateManager rsm = renderKit.getResponseStateManager();
-                viewState = rsm.getState(context, lastViewId);
-                Context storeContext = executor.getGlobalContext();
+                lastViewState = rsm.getState(context, lastViewId);
 
-                storeContext.setLocal(stateKey + "ViewState", viewState);
-                storeContext.setLocal(stateKey + "LastViewId", lastViewId);
+                rctx.setLocal(lastStateKey + "ViewState", lastViewState);
+                rctx.setLocal(lastStateKey + "ViewId", lastViewId);
             }
         }
 
@@ -439,11 +456,17 @@ public class DialogInvoker implements Invoker, Serializable {
 
         PrimeFaces.current().executeScript(sb.toString());
         sb.setLength(0);
-        executor.getRootContext().getVars().remove(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
         handler.setExecutorViewRootId(context, prevExecutorId);
 
+//        PartialViewContext pvc = context.getPartialViewContext();
+//        if ((pvc != null && pvc.isAjaxRequest())) {
+//            pvc.setRenderAll(true);
+//        }
+        rctx.removeLocal(EXECUTOR_CONTEXT_VIEW_PATH);
+
+        context.renderResponse();
     }
 
 }

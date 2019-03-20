@@ -15,15 +15,7 @@
  */
 package javax.faces.state;
 
-import java.util.ArrayDeque;
-import java.util.Map;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
-import javax.faces.state.scxml.Context;
-import javax.faces.state.scxml.SCXMLExecutor;
-import javax.faces.state.scxml.env.EffectiveContextMap;
-import javax.faces.state.scxml.env.SimpleContext;
 
 /**
  *
@@ -226,6 +218,11 @@ public class StateFlow {
      */
     public static final String BEFORE_PHASE_EVENT_PREFIX = PHASE_EVENT_PREFIX + "before.";
 
+    /**
+     *
+     */
+    public static final String FACES_VIEW_STATE = "com.sun.faces.FACES_VIEW_STATE";
+    
     /**
      *
      */

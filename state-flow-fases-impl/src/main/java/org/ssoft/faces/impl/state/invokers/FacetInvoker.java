@@ -36,7 +36,6 @@ import javax.faces.context.PartialViewContext;
 import javax.faces.render.RenderKit;
 import javax.faces.render.ResponseStateManager;
 import org.ssoft.faces.impl.state.StateFlowParams;
-import javax.faces.state.StateFlow;
 import static javax.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static javax.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static javax.faces.state.StateFlow.VIEW_EVENT_PREFIX;
@@ -56,8 +55,6 @@ import static javax.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_PATH;
 import static javax.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
-import static javax.faces.state.StateFlow.PORTLET_EVENT_PREFIX;
-import static javax.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not

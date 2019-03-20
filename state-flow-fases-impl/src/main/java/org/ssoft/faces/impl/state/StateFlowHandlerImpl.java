@@ -466,12 +466,20 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     @Override
     public void setExecutorViewRootId(FacesContext context, String executorId) {
-        context.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
-
         FlowDeque fs = getFlowDeque(context, false);
-        if (fs != null) {
-            Context fctx = fs.getFlowContext();
-            fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+
+        if (executorId != null) {
+            context.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+            if (fs != null) {
+                Context fctx = fs.getFlowContext();
+                fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+            }
+        } else {
+            context.getAttributes().remove(FACES_EXECUTOR_VIEW_ROOT_ID);
+            if (fs != null) {
+                Context fctx = fs.getFlowContext();
+                fctx.removeLocal(FACES_EXECUTOR_VIEW_ROOT_ID);
+            }
         }
 
     }
@@ -539,7 +547,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 if (executor == null) {
                     executor = getRootExecutor(context, executorId);
                 }
-                
+
                 if (executor != null) {
                     Context ctx = executor.getRootContext();
                     viewContext = new StateChartExecuteContext(null, executor, ctx);

@@ -105,7 +105,7 @@ public class TimerEventProducerImpl extends TimerEventProducer {
                 sourceId = component.getClientId();
             }
         } else {
-            update = "@all";
+            update = "@none";
             component = viewRoot;
         }
 

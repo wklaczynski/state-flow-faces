@@ -45,7 +45,6 @@ import javax.faces.render.ResponseStateManager;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
 import org.ssoft.faces.impl.state.StateFlowParams;
-import javax.faces.state.StateFlow;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.SCXMLIOProcessor;
@@ -62,7 +61,6 @@ import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.scxml.InvokeContext;
 import javax.faces.state.scxml.model.ModelException;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
-import static javax.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -94,10 +92,16 @@ public class ViewInvoker implements Invoker, Serializable {
     private boolean resolved;
     private Map<String, Object> vieparams;
     private Map<String, List<String>> reqparams;
-    private String stateKey;
-    private String lastViewId;
-    private Object viewState;
+
     private String prevExecutorId;
+
+    private String lastStateKey;
+    private String lastViewId;
+    private Object lastViewState;
+
+    private String prevStateKey;
+    private String prevViewId;
+    private Object prevViewState;
 
     /**
      * {@inheritDoc}.
@@ -236,40 +240,56 @@ public class ViewInvoker implements Invoker, Serializable {
                 }
             }
 
+            Context rctx = executor.getRootContext();
+
             if (!transientState) {
-                stateKey = "__@@Invoke:" + invokeId + ":";
+                lastStateKey = "__@@Invoke:last:" + invokeId + ":";
             }
 
-            if (stateKey != null) {
-                stateKey = "__@@Invoke:" + invokeId + ":";
-
-                Context stateContext = executor.getGlobalContext();
-                viewState = stateContext.get(stateKey + "ViewState");
-                lastViewId = (String) stateContext.get(stateKey + "LastViewId");
-                if (lastViewId != null) {
-                    viewId = lastViewId;
+            if (lastStateKey != null) {
+                lastStateKey = "__@@Invoke:last:" + invokeId + ":";
+                if (rctx.hasLocal(lastStateKey + "ViewState")) {
+                    lastViewState = rctx.get(lastStateKey + "ViewState");
+                    lastViewId = (String) rctx.get(lastStateKey + "ViewId");
+                    if (lastViewId != null) {
+                        viewId = lastViewId;
+                    }
                 }
             } else {
                 lastViewId = null;
-                viewState = null;
+                lastViewState = null;
             }
 
             handler.setExecutorViewRootId(context, executor.getRootId());
+            executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
 
             UIViewRoot currentViewRoot = context.getViewRoot();
             if (currentViewRoot != null) {
                 String currentViewId = currentViewRoot.getViewId();
                 if (currentViewId.equals(viewId)) {
-                    executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
+                    PartialViewContext pvc = context.getPartialViewContext();
+                    if ((pvc != null && pvc.isAjaxRequest())) {
+                        pvc.setRenderAll(true);
+                    }
                     return;
                 }
             }
 
+            prevStateKey = "__@@Invoke:prev:" + invokeId + ":";
+            prevViewId = currentViewRoot.getViewId();
+
+            RenderKit renderKit = context.getRenderKit();
+            ResponseStateManager rsm = renderKit.getResponseStateManager();
+            prevViewState = rsm.getState(context, prevViewId);
+
+            rctx.setLocal(prevStateKey + "ViewState", prevViewState);
+            rctx.setLocal(prevStateKey + "ViewId", prevViewId);
+
             PartialViewContext pvc = context.getPartialViewContext();
             if ((redirect || (pvc != null && ajaxredirect && pvc.isAjaxRequest()))) {
                 Context fctx = handler.getFlowContext(context);
-                if (viewState != null) {
-                    fctx.setLocal(FACES_VIEW_STATE, viewState);
+                if (lastViewState != null) {
+                    fctx.setLocal(FACES_VIEW_STATE, lastViewState);
                 }
 
                 Application application = context.getApplication();
@@ -289,8 +309,8 @@ public class ViewInvoker implements Invoker, Serializable {
                 context.responseComplete();
             } else {
                 UIViewRoot viewRoot;
-                if (viewState != null) {
-                    context.getAttributes().put(FACES_VIEW_STATE, viewState);
+                if (lastViewState != null) {
+                    context.getAttributes().put(FACES_VIEW_STATE, lastViewState);
                     viewRoot = vh.restoreView(context, viewId);
                     context.setViewRoot(viewRoot);
                     context.setProcessingEvents(true);
@@ -320,14 +340,12 @@ public class ViewInvoker implements Invoker, Serializable {
                     viewRoot.setViewId(viewId);
                 }
                 context.setViewRoot(viewRoot);
-                context.renderResponse();
             }
 
             if ((pvc != null && pvc.isAjaxRequest())) {
                 pvc.setRenderAll(true);
             }
-
-            executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
+            context.renderResponse();
 
         } catch (FacesException | InvokerException ex) {
             throw ex;
@@ -438,15 +456,14 @@ public class ViewInvoker implements Invoker, Serializable {
                             ExternalContext ec = context.getExternalContext();
                             Application application = context.getApplication();
                             ViewHandler viewHandler = application.getViewHandler();
-                            String url = viewHandler.getRedirectURL(
-                                    context, viewId, reqparams, true);
+                            String url = viewHandler.getRedirectURL(context, viewId, reqparams, true);
                             clearViewMapIfNecessary(context.getViewRoot(), viewId);
                             updateRenderTargets(context, viewId);
                             ec.redirect(url);
-                            if (viewState != null) {
+                            if (lastViewState != null) {
                                 StateFlowHandler handler = StateFlowHandler.getInstance();
-                                Context flowContext = handler.getFlowContext(context);
-                                flowContext.setLocal(FACES_VIEW_STATE, viewState);
+                                Context fctx = handler.getFlowContext(context);
+                                fctx.setLocal(FACES_VIEW_STATE, lastViewState);
                             }
                             context.responseComplete();
                         } catch (IOException ex) {
@@ -483,7 +500,7 @@ public class ViewInvoker implements Invoker, Serializable {
                         lastViewId = viewRoot.getViewId();
                         RenderKit renderKit = context.getRenderKit();
                         ResponseStateManager rsm = renderKit.getResponseStateManager();
-                        viewState = rsm.getState(context, lastViewId);
+                        lastViewState = rsm.getState(context, lastViewId);
                     }
                 }
 
@@ -513,25 +530,38 @@ public class ViewInvoker implements Invoker, Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
         UIViewRoot viewRoot = context.getViewRoot();
 
+        Context rctx = executor.getRootContext();
+
         if (viewRoot != null) {
-            if (stateKey != null) {
+            if (lastStateKey != null) {
                 lastViewId = viewRoot.getViewId();
                 RenderKit renderKit = context.getRenderKit();
                 ResponseStateManager rsm = renderKit.getResponseStateManager();
-                viewState = rsm.getState(context, lastViewId);
-                Context storeContext = executor.getGlobalContext();
+                lastViewState = rsm.getState(context, lastViewId);
 
-                storeContext.setLocal(stateKey + "ViewState", viewState);
-                storeContext.setLocal(stateKey + "LastViewId", lastViewId);
+                rctx.setLocal(lastStateKey + "ViewState", lastViewState);
+                rctx.setLocal(lastStateKey + "ViewId", lastViewId);
             }
         }
 
-        Context ctx = executor.getRootContext();
-
-        ctx.removeLocal(EXECUTOR_CONTEXT_VIEW_PATH);
-
+//        if (prevViewState != null) {
+//            ViewHandler vh = context.getApplication().getViewHandler();
+//
+//            context.getAttributes().put(FACES_VIEW_STATE, prevViewState);
+//            viewRoot = vh.restoreView(context, prevViewId);
+//            context.setViewRoot(viewRoot);
+//            context.setProcessingEvents(true);
+//            vh.initView(context);
+//        }
+//
+//        PartialViewContext pvc = context.getPartialViewContext();
+//        if ((pvc != null && pvc.isAjaxRequest())) {
+//            pvc.setRenderAll(true);
+//        }
         StateFlowHandler handler = StateFlowHandler.getInstance();
         handler.setExecutorViewRootId(context, prevExecutorId);
+
+        rctx.removeLocal(EXECUTOR_CONTEXT_VIEW_PATH);
 
         context.renderResponse();
     }
