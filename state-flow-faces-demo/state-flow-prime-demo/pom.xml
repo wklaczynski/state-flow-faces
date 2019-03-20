@@ -4,12 +4,11 @@
     <parent>
         <artifactId>state-flow-faces-demo</artifactId>
         <groupId>org.ssoft.faces</groupId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.2-SNAPSHOT</version>
     </parent>
 
     <groupId>org.ssoft.faces.demo</groupId>
     <artifactId>state-flow-prime-demo</artifactId>
-    <version>1.1-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <name>State Flow Faces Demo (Primefaces)</name>
@@ -46,17 +45,17 @@
         <dependency>
             <groupId>org.ssoft.faces</groupId>
             <artifactId>state-flow-fases-api</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.ssoft.faces</groupId>
             <artifactId>state-flow-primefaces</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.ssoft.faces</groupId>
             <artifactId>state-flow-fases-impl</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
