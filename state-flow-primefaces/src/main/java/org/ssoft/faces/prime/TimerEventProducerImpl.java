@@ -30,7 +30,7 @@ import javax.faces.state.task.TimerEventProducer;
 import org.kohsuke.MetaInfServices;
 import org.primefaces.PrimeFaces;
 import org.primefaces.component.api.ClientBehaviorRenderingMode;
-import org.primefaces.context.RequestContext;
+import org.primefaces.context.PrimeRequestContext;
 import org.primefaces.util.AjaxRequestBuilder;
 import org.primefaces.util.ComponentTraversalUtils;
 
@@ -87,7 +87,6 @@ public class TimerEventProducerImpl extends TimerEventProducer {
 
         String sourceComponentId = (String) attrs.get(CURRENT_COMPONENT_HINT);
 
-        RequestContext requestContext = RequestContext.getCurrentInstance();
         ClientBehaviorRenderingMode renderingMode
                 = ClientBehaviorRenderingMode.OBSTRUSIVE;
 
@@ -111,13 +110,12 @@ public class TimerEventProducerImpl extends TimerEventProducer {
 
         long delay = task.getTime() - System.currentTimeMillis();
 
-        AjaxRequestBuilder builder = requestContext.getAjaxRequestBuilder();
+        AjaxRequestBuilder builder = PrimeRequestContext.getCurrentInstance().getAjaxRequestBuilder();
         String ajaxscript = builder.init()
                 .source(sourceId)
-                .form(formId)
                 .event("scxmltask")
                 .update(component, update)
-                .process(component, "@none")
+                .process(component, "@all")
                 .async(false)
                 .global(false)
                 .delay(null)

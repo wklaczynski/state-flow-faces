@@ -43,13 +43,13 @@ import javax.faces.state.scxml.invoke.InvokerException;
 import javax.faces.state.scxml.model.ModelException;
 import org.primefaces.PrimeFaces;
 import org.primefaces.component.api.ClientBehaviorRenderingMode;
-import org.primefaces.context.RequestContext;
 import org.primefaces.util.AjaxRequestBuilder;
 import org.primefaces.util.ComponentTraversalUtils;
 import org.primefaces.util.ComponentUtils;
 import org.primefaces.util.Constants;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
 import static javax.faces.state.StateFlow.FACES_CHART_VIEW_STATE;
+import org.primefaces.context.PrimeRequestContext;
 
 /**
  *
@@ -236,8 +236,8 @@ public class DialogInvoker implements Invoker, Serializable {
             String process = (String) ajax.get("update");
             String global = (String) ajax.get("global");
 
-            RequestContext requestContext = RequestContext.getCurrentInstance();
-            AjaxRequestBuilder builder = requestContext.getAjaxRequestBuilder();
+            AjaxRequestBuilder builder = PrimeRequestContext.getCurrentInstance().getAjaxRequestBuilder();
+
             ClientBehaviorRenderingMode renderingMode = ClientBehaviorRenderingMode.OBSTRUSIVE;
 
             String formId = null;
@@ -264,7 +264,7 @@ public class DialogInvoker implements Invoker, Serializable {
                     .source(sourceId)
                     .form(formId)
                     .event("scxmlhide")
-                    .update(component, update != null ? update : "@form")
+                    .update(component, update != null ? update : "@all")
                     .process(component, process != null ? process : "@none")
                     .async(false)
                     .global(global != null ? Boolean.parseBoolean(global) : true)
