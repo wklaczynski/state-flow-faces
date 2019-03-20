@@ -9,10 +9,9 @@ https://www.w3.org/TR/scxml/
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <f:metadata
     xmlns:f="http://xmlns.jcp.org/jsf/core"
-    xmlns:x="http://xmlns.apache.org/faces/scxml"
-    xmlns:fx="http://xmlns.apache.org/faces/fxscxml"
-    xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-    xmlns:d="http://xmlns.apache.org/faces/basic/demo">
+    xmlns:x="http://xmlns.ssoft.org/faces/scxml"
+    xmlns:fx="http://xmlns.ssoft.org/faces/fxscxml"
+    xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
     <x:scxml id="main" initial="start">
 
         <x:datamodel>
