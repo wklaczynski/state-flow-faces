@@ -15,7 +15,6 @@
  */
 package org.ssoft.faces.impl.state.facelets;
 
-import java.util.Map;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.view.StateManagementStrategy;
@@ -25,7 +24,6 @@ import javax.faces.view.ViewMetadata;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.ORYGINAL_SCXML_DEFAULT_SUFIX;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.ORYGINAL_SCXML_SUFIX;
 import org.ssoft.faces.impl.state.config.StateWebConfiguration;
-import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 
 /**
  *
@@ -95,16 +93,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
         return new StateManagementStrategy() {
             @Override
             public Object saveView(FacesContext context) {
-                String uuid = (String) context.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
                 Object[] rawState = (Object[]) parent.saveView(context);
-                if (uuid != null) {
-                    if (rawState != null) {
-                        Map<String, Object> state = (Map<String, Object>) rawState[1];
-                        if (state != null) {
-                            state.put(FACES_EXECUTOR_VIEW_ROOT_ID, uuid);
-                        }
-                    }
-                }
                 return rawState;
             }
 

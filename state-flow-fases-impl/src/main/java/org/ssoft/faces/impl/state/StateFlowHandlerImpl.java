@@ -425,38 +425,35 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return uuid;
         }
 
+//        if (uuid == null) {
+//            String viewId;
+//            UIViewRoot viewRoot = context.getViewRoot();
+//            if (viewRoot != null) {
+//                viewId = viewRoot.getViewId();
+//            } else {
+//                viewId = context.getExternalContext().getRequestPathInfo();
+//            }
+//
+//            ViewHandler vh = context.getApplication().getViewHandler();
+//            String renderKitId = vh.calculateRenderKitId(context);
+//            ResponseStateManager rsm = RenderKitUtils.getResponseStateManager(context, renderKitId);
+//            Object[] rawState = (Object[]) rsm.getState(context, viewId);
+//            if (rawState != null) {
+//                Map<String, Object> state = (Map<String, Object>) rawState[1];
+//                if (state != null) {
+//                    uuid = (String) state.get(FACES_EXECUTOR_VIEW_ROOT_ID);
+//                }
+//            }
+//        }
+        FlowDeque fs = getFlowDeque(context, true);
+        Context fctx = fs.getFlowContext();
         if (uuid == null) {
-            String viewId;
-            UIViewRoot viewRoot = context.getViewRoot();
-            if (viewRoot != null) {
-                viewId = viewRoot.getViewId();
-            } else {
-                viewId = context.getExternalContext().getRequestPathInfo();
-            }
-
-            ViewHandler vh = context.getApplication().getViewHandler();
-            String renderKitId = vh.calculateRenderKitId(context);
-            ResponseStateManager rsm = RenderKitUtils.getResponseStateManager(context, renderKitId);
-            Object[] rawState = (Object[]) rsm.getState(context, viewId);
-            if (rawState != null) {
-                Map<String, Object> state = (Map<String, Object>) rawState[1];
-                if (state != null) {
-                    uuid = (String) state.get(FACES_EXECUTOR_VIEW_ROOT_ID);
-                }
-            }
-        }
-
-        FlowDeque fs = getFlowDeque(context, false);
-        if (fs != null) {
-            Context fctx = fs.getFlowContext();
-            if (uuid == null) {
-                uuid = (String) fctx.get(FACES_EXECUTOR_VIEW_ROOT_ID);
-            }
-            fctx.removeLocal(FACES_EXECUTOR_VIEW_ROOT_ID);
+            uuid = (String) fctx.get(FACES_EXECUTOR_VIEW_ROOT_ID);
         }
 
         if (uuid == null) {
             uuid = UUID.randomUUID().toString();
+            fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, uuid);
         }
 
         context.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, uuid);
@@ -466,20 +463,16 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     @Override
     public void setExecutorViewRootId(FacesContext context, String executorId) {
-        FlowDeque fs = getFlowDeque(context, false);
+        FlowDeque fs = getFlowDeque(context, true);
 
         if (executorId != null) {
             context.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
-            if (fs != null) {
-                Context fctx = fs.getFlowContext();
-                fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
-            }
+            Context fctx = fs.getFlowContext();
+            fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
         } else {
             context.getAttributes().remove(FACES_EXECUTOR_VIEW_ROOT_ID);
-            if (fs != null) {
-                Context fctx = fs.getFlowContext();
-                fctx.removeLocal(FACES_EXECUTOR_VIEW_ROOT_ID);
-            }
+            Context fctx = fs.getFlowContext();
+            fctx.removeLocal(FACES_EXECUTOR_VIEW_ROOT_ID);
         }
 
     }
