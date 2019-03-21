@@ -62,6 +62,7 @@ import org.primefaces.context.PrimeRequestContext;
     ,@ResourceDependency(library = "primefaces", name = "jquery/jquery-plugins.js")
     ,@ResourceDependency(library = "primefaces", name = "core.js")
     ,@ResourceDependency(library = "primefaces", name = "components.js")
+    ,@ResourceDependency(library = "flowfaces", name = "scxml.js")
 })
 public class DialogInvoker implements Invoker, Serializable {
 
@@ -263,7 +264,7 @@ public class DialogInvoker implements Invoker, Serializable {
             String ajaxscript = builder.init()
                     .source(sourceId)
                     .event("scxmlhide")
-                    .update(component, update != null ? update : "@all")
+                    .update(component, update != null ? update : "@form")
                     .process(component, process != null ? process : "@none")
                     .async(false)
                     .global(global != null ? Boolean.parseBoolean(global) : true)
@@ -280,12 +281,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
             StringBuilder sb = new StringBuilder();
 
-            ResourceHandler resourceHandler = context.getApplication().getResourceHandler();
-            Resource resource = resourceHandler.createResource("scxml.js", "flowfaces");
-            String scpath = resource.getRequestPath();
-
-            sb.append("PrimeFaces.getScript('").append(scpath)
-                    .append("', function(){");
+            sb.append("{");
 
             sb.append("PrimeFaces.cw(\"ScxmlDialogInvoker\",\"")
                     .append(widgetVar)
@@ -326,7 +322,7 @@ public class DialogInvoker implements Invoker, Serializable {
             }
             sb.append("}});");
 
-            sb.append("});");
+            sb.append("};");
             PrimeFaces.current().executeScript(sb.toString());
             sb.setLength(0);
 

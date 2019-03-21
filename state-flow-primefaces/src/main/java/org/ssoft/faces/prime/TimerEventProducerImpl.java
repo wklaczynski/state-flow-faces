@@ -129,14 +129,9 @@ public class TimerEventProducerImpl extends TimerEventProducer {
                 .oncomplete(null)
                 .buildBehavior(renderingMode);
 
-        ResourceHandler resourceHandler = context.getApplication().getResourceHandler();
-        Resource resource = resourceHandler.createResource("scxml.js", "flowfaces");
-        String scpath = resource.getRequestPath();
-
         StringBuilder sb = new StringBuilder();
 
-        sb.append("PrimeFaces.getScript('").append(scpath)
-                .append("', function(){");
+        sb.append("{");
 
         sb.append("window.scxmltask = setTimeout(function(){");
         sb.append("clearTimeout(window.scxmltask);");
@@ -145,7 +140,7 @@ public class TimerEventProducerImpl extends TimerEventProducer {
         sb.append(String.valueOf(delay));
         sb.append(")");
 
-        sb.append("});");
+        sb.append("};");
 
         PrimeFaces.current().executeScript(sb.toString());
         sb.setLength(0);
