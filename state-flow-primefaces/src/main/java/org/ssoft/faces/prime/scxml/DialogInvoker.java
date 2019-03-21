@@ -285,8 +285,8 @@ public class DialogInvoker implements Invoker, Serializable {
             String scpath = resource.getRequestPath();
 
             sb.append("$.ajax({");
-            sb.append("type:\"GET\",")
-            sb.append("url:\"").append(scpath).append("\",")
+            sb.append("type:\"GET\",");
+            sb.append("url:\"").append(scpath).append("\",");
             sb.append("success: function(){");
 
             sb.append("PrimeFaces.cw(\"ScxmlDialogInvoker\",\"")
@@ -328,10 +328,10 @@ public class DialogInvoker implements Invoker, Serializable {
             }
             sb.append("}});");
 
-            sb.append("},")
-            sb.append("dataType:\"script\",")
-            sb.append("cache: true,")
-            sb.append("async: true,")
+            sb.append("},");
+            sb.append("dataType:\"script\",");
+            sb.append("cache: true,");
+            sb.append("async: true,");
             sb.append("});");
             PrimeFaces.current().executeScript(sb.toString());
             sb.setLength(0);
