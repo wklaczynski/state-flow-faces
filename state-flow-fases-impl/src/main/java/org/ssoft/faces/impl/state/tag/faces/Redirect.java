@@ -112,7 +112,7 @@ public class Redirect extends Action implements ParamsContainer {
         try {
             FacesContext fc = FacesContext.getCurrentInstance();
             ExternalContext ec = fc.getExternalContext();
-
+            
             Map<String, List<String>> params = new LinkedHashMap<>();
             for (int i = 0; i < paramsList.size(); i++) {
                 Param param = paramsList.get(i);

@@ -35,12 +35,16 @@ import javax.faces.state.scxml.SCXMLExpressionException;
 import javax.faces.state.scxml.env.AbstractBaseEvaluator;
 import org.ssoft.faces.impl.state.utils.Util;
 import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
+import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.SCXMLIOProcessor;
 import javax.faces.state.scxml.SCXMLSystemContext;
 import javax.faces.state.scxml.env.EffectiveContextMap;
+import javax.faces.state.scxml.invoke.Invoker;
+import javax.faces.state.scxml.invoke.InvokerException;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
 import org.ssoft.faces.impl.state.el.CompositeFunctionMapper;
 import javax.faces.state.scxml.model.SCXML;
+import org.ssoft.faces.impl.state.invokers.FacesInvokerWrapper;
 
 /**
  *
@@ -208,6 +212,39 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     protected Object cloneUnknownDataType(Object data) {
         return data;
     }
+
+    /**
+     * Create a new {@link Invoker}
+     *
+     * @param type The type of the target being invoked.
+     * @return An {@link Invoker} for the specified type, if an invoker class is
+     * registered against that type, <code>null</code> otherwise.
+     * @throws InvokerException When a suitable {@link Invoker} cannot be
+     * instantiated.
+     */
+    @Override
+    public Invoker newInvoker(final String type) throws InvokerException {
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        Map<String, Class<? extends Invoker>> customInvokers = handler.getCustomInvokers();
+        
+        Class<? extends Invoker> invokerClass = customInvokers.get(stripTrailingSlash(type));
+        if (invokerClass == null) {
+            throw new InvokerException("No Invoker registered for type \"" + stripTrailingSlash(type) + "\"");
+        }
+        try {
+            Invoker invoker = invokerClass.newInstance();
+            FacesInvokerWrapper wrapper = new FacesInvokerWrapper(invoker);
+            return wrapper;
+        } catch (InstantiationException | IllegalAccessException ie) {
+            throw new InvokerException(ie.getMessage(), ie.getCause());
+        }
+    }
+    
+    private String stripTrailingSlash(final String uri) {
+        return uri.endsWith("/") ? uri.substring(0, uri.length() - 1) : uri;
+    }
+    
+    
 
     /**
      *

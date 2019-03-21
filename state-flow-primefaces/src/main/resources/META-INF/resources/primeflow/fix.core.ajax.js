@@ -1,0 +1,8 @@
+if (!PrimeFaces.ajax) {
+
+
+
+
+
+
+}

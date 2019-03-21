@@ -18,7 +18,6 @@ package org.ssoft.faces.impl.state;
 import com.sun.faces.RIConstants;
 import com.sun.faces.application.ApplicationAssociate;
 import com.sun.faces.facelets.impl.DefaultFaceletFactory;
-import com.sun.faces.renderkit.RenderKitUtils;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -46,7 +45,6 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.FacesContextWrapper;
 import javax.faces.lifecycle.ClientWindow;
-import javax.faces.render.ResponseStateManager;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.events.OnFinishEvent;
@@ -106,6 +104,7 @@ import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
 import static javax.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 import javax.faces.state.component.UIStateChartFacetRender;
+import javax.faces.state.scxml.invoke.InvokerException;
 
 /**
  *
@@ -649,10 +648,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
         });
 
-        for (Map.Entry<String, Class<? extends Invoker>> entry : customInvokers.entrySet()) {
-            executor.registerInvokerClass(entry.getKey(), entry.getValue());
-        }
-
         Context rootCtx = executor.getRootContext();
         rootCtx.setLocal("scxml_has_parent", false);
 
@@ -680,10 +675,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             if (isLogstep()) {
                 executor.addListener(scxml, new SimpleSCXMLListener());
             }
-        }
-
-        for (Map.Entry<String, Class<? extends Invoker>> entry : customInvokers.entrySet()) {
-            executor.registerInvokerClass(entry.getKey(), entry.getValue());
         }
 
         if (parent != null) {

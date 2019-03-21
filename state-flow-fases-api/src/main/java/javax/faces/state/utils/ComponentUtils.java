@@ -20,7 +20,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import javax.faces.application.Application;
+import javax.faces.application.ResourceDependencies;
+import javax.faces.application.ResourceDependency;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIOutput;
+import javax.faces.component.UIViewRoot;
+import javax.faces.context.FacesContext;
 
 /**
  *
@@ -90,8 +96,30 @@ public class ComponentUtils {
         ArrayDeque<UIComponent> stack = (ArrayDeque<UIComponent>) contextAttributes.computeIfAbsent(keyName, (t) -> {
             return new ArrayDeque<>();
         });
-        
+
         return stack;
+    }
+
+    public static void addComponentResource(FacesContext context, String name, String library, String target) {
+        Application application = context.getApplication();
+
+        UIComponent componentResource = application.createComponent(UIOutput.COMPONENT_TYPE);
+        componentResource.setRendererType(application.getResourceHandler().getRendererTypeForResourceName(name));
+        componentResource.getAttributes().put("name", name);
+        componentResource.getAttributes().put("library", library);
+        componentResource.getAttributes().put("target", target);
+
+        context.getViewRoot().addComponentResource(context, componentResource, target);
+    }
+
+    public static void loadResorces(FacesContext context, UIViewRoot view, Object instance, String target) {
+        ResourceDependencies aresorces = instance.getClass().getAnnotation(ResourceDependencies.class);
+        if (aresorces != null) {
+            for (ResourceDependency resource : aresorces.value()) {
+                String name = resource.name();
+                addComponentResource(context, name, resource.library(), target);
+            }
+        }
     }
 
 }

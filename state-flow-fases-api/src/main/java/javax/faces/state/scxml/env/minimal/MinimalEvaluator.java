@@ -22,6 +22,8 @@ import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.Evaluator;
 import javax.faces.state.scxml.EvaluatorProvider;
 import javax.faces.state.scxml.SCXMLExpressionException;
+import javax.faces.state.scxml.invoke.Invoker;
+import javax.faces.state.scxml.invoke.InvokerException;
 import javax.faces.state.scxml.model.SCXML;
 
 
@@ -111,5 +113,10 @@ public class MinimalEvaluator implements Evaluator, Serializable {
     @Override
     public Context newContext(final Context parent) {
         return parent instanceof MinimalContext ? parent : new MinimalContext(parent);
+    }
+
+    @Override
+    public Invoker newInvoker(String type) throws InvokerException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -14,10 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
-import javax.faces.application.Resource;
 import javax.faces.application.ResourceDependencies;
 import javax.faces.application.ResourceDependency;
-import javax.faces.application.ResourceHandler;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
@@ -62,6 +60,7 @@ import static javax.faces.state.StateFlow.FACES_CHART_VIEW_STATE;
     ,@ResourceDependency(library = "primefaces", name = "jquery/jquery-plugins.js")
     ,@ResourceDependency(library = "primefaces", name = "core.js")
     ,@ResourceDependency(library = "primefaces", name = "components.js")
+    ,@ResourceDependency(library = "primeflow", name = "primescxml.js")
 })
 public class DialogInvoker implements Invoker, Serializable {
 
@@ -213,8 +212,6 @@ public class DialogInvoker implements Invoker, Serializable {
             rctx.setLocal(prevStateKey + "ViewState", prevViewState);
             rctx.setLocal(prevStateKey + "ViewId", prevViewId);
 
-            PrimeFacesFlowUtils.loadResorces(context, currentViewRoot, this, "head");
-
             String url = context.getApplication().getViewHandler().getBookmarkableURL(context, viewId, query, false);
             url = ComponentUtils.escapeEcmaScriptText(url);
 
@@ -281,12 +278,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
             StringBuilder sb = new StringBuilder();
 
-            ResourceHandler resourceHandler = context.getApplication().getResourceHandler();
-            Resource resource = resourceHandler.createResource("scxml.js", "flowfaces");
-            String scpath = resource.getRequestPath();
-
-            sb.append("PrimeFaces.getScript('").append(scpath)
-                    .append("', function(){");
+            sb.append("{");
 
             sb.append("PrimeFaces.cw(\"ScxmlDialogInvoker\",\"")
                     .append(widgetVar)
@@ -327,7 +319,7 @@ public class DialogInvoker implements Invoker, Serializable {
             }
             sb.append("}});");
 
-            sb.append("});");
+            sb.append("};");
             PrimeFaces.current().executeScript(sb.toString());
             sb.setLength(0);
 
@@ -385,6 +377,7 @@ public class DialogInvoker implements Invoker, Serializable {
             }
 
             if (event.getName().startsWith(AFTER_RENDER_VIEW)) {
+
                 UIViewRoot viewRoot = context.getViewRoot();
                 if (viewRoot != null) {
                     lastViewId = viewRoot.getViewId();

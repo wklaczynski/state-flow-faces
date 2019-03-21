@@ -102,12 +102,6 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
     private final Queue<TriggerEvent> internalEventQueue = new LinkedList<>();
 
     /**
-     * The Invoker classes map, keyed by invoke target types (specified using
-     * "type" attribute).
-     */
-    private final Map<String, Class<? extends Invoker>> invokerClasses = new HashMap<>();
-
-    /**
      * The map storing the unique invokeId for an Invoke with an active Invoker
      */
     private final Map<Invoke, String> invokeIds = new HashMap<>();
@@ -480,28 +474,6 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
     }
 
     /**
-     * Register an Invoker for this target type.
-     *
-     * @param type The target type (specified by "type" attribute of the invoke
-     * element).
-     * @param invokerClass The Invoker class.
-     */
-    protected void registerInvokerClass(final String type, final Class<? extends Invoker> invokerClass) {
-        invokerClasses.put(stripTrailingSlash(type), invokerClass);
-    }
-
-    /**
-     * Remove the Invoker registered for this target type (if there is one
-     * registered).
-     *
-     * @param type The target type (specified by "type" attribute of the invoke
-     * element).
-     */
-    protected void unregisterInvokerClass(final String type) {
-        invokerClasses.remove(stripTrailingSlash(type));
-    }
-
-    /**
      * Create a new {@link Invoker}
      *
      * @param type The type of the target being invoked.
@@ -511,15 +483,8 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
      * instantiated.
      */
     public Invoker newInvoker(final String type) throws InvokerException {
-        Class<? extends Invoker> invokerClass = invokerClasses.get(stripTrailingSlash(type));
-        if (invokerClass == null) {
-            throw new InvokerException("No Invoker registered for type \"" + stripTrailingSlash(type) + "\"");
-        }
-        try {
-            return invokerClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException ie) {
-            throw new InvokerException(ie.getMessage(), ie.getCause());
-        }
+        Invoker invoker = evaluator.newInvoker(type);
+        return invoker;
     }
 
     /**
@@ -627,7 +592,7 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
         values[2] = saveInvokersState(context);
 
         context.setLocal(SCXMLSystemContext.IOPROCESSORS_KEY, ioProcessors);
-        
+
         if (eventdispatcher instanceof StateHolder) {
             values[3] = ((StateHolder) eventdispatcher).saveState(context);
         } else {
@@ -655,13 +620,13 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
         restoreInvokersState(context, values[2]);
 
         context.setLocal(SCXMLSystemContext.IOPROCESSORS_KEY, ioProcessors);
-        
+
         if (eventdispatcher instanceof StateHolder) {
             ((StateHolder) eventdispatcher).restoreState(context, values[3]);
         } else {
             restoreObjectState(context, eventdispatcher, values[3]);
         }
-        
+
     }
 
     private Object saveInvokersState(Context context) {
@@ -709,17 +674,12 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
                 String keyId = (String) entry[2];
                 Invoker invoker = null;
                 if (entry[3] != null) {
-                    Class<Invoker> toRestoreClass;
-                    toRestoreClass = (Class<Invoker>) invokerClasses.get(invoke.getType());
-
-                    if (null != toRestoreClass) {
-                        try {
-                            invoker = toRestoreClass.newInstance();
-                        } catch (InstantiationException | IllegalAccessException e) {
-                            throw new IllegalStateException(e);
-                        }
+                    String type = invoke.getType();
+                    try {
+                        invoker = evaluator.newInvoker(type);
+                    } catch (InvokerException e) {
+                        throw new IllegalStateException(e);
                     }
-
                     invoker.setInvokeId(invokeId);
                     invoker.setParentSCXMLExecutor(scxmlExecutor);
 
