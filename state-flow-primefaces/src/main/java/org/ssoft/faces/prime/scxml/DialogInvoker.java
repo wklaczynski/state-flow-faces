@@ -264,7 +264,7 @@ public class DialogInvoker implements Invoker, Serializable {
             String ajaxscript = builder.init()
                     .source(sourceId)
                     .event("scxmlhide")
-                    .update(component, update != null ? update : "@form")
+                    .update(component, update != null ? update : "@all")
                     .process(component, process != null ? process : "@none")
                     .async(false)
                     .global(global != null ? Boolean.parseBoolean(global) : true)
