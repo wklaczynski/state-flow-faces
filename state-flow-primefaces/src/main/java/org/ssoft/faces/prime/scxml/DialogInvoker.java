@@ -261,7 +261,7 @@ public class DialogInvoker implements Invoker, Serializable {
                     .source(sourceId)
                     .form(formId)
                     .event("scxmlhide")
-                    .update(component, update != null ? update : "@form")
+                    .update(component, update != null ? update : "@all")
                     .process(component, process != null ? process : "@none")
                     .async(false)
                     .global(global != null ? Boolean.parseBoolean(global) : true)
