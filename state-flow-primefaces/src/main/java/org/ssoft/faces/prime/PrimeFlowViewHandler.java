@@ -15,6 +15,9 @@
  */
 package org.ssoft.faces.prime;
 
+import java.io.IOException;
+import javax.faces.FacesException;
+import javax.faces.application.ViewHandler;
 import javax.faces.application.ViewHandlerWrapper;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
@@ -25,11 +28,32 @@ import javax.faces.context.FacesContext;
  */
 public class PrimeFlowViewHandler extends ViewHandlerWrapper {
 
+    public PrimeFlowViewHandler(ViewHandler wrapped) {
+        super(wrapped);
+    }
+
+    @Override
+    public UIViewRoot createView(FacesContext context, String viewId) {
+        UIViewRoot viewRoot = super.createView(context, viewId);
+        //ComponentUtils.addComponentResource(context, "fix.core.ajax.js", "primeflow", "head");
+        return viewRoot;
+    }
+
     @Override
     public UIViewRoot restoreView(FacesContext context, String viewId) {
         UIViewRoot viewRoot = super.restoreView(context, viewId);
-        
+        //ComponentUtils.addComponentResource(context, "fix.core.ajax.js", "primeflow", "head");
         return viewRoot;
     }
+
+    @Override
+    public void renderView(FacesContext context, UIViewRoot viewToRender) throws IOException, FacesException {
+        //ComponentUtils.addComponentResource(context, "fix.core.ajax.js", "primeflow", "head");
+        super.renderView(context, viewToRender); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
+    
+    
     
 }

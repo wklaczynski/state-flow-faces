@@ -8,4 +8,8 @@
     
     <name>state_flow_primefaces</name>
             
+    <application>
+        <view-handler>org.ssoft.faces.prime.PrimeFlowViewHandler</view-handler>
+    </application>            
+            
 </faces-config>
