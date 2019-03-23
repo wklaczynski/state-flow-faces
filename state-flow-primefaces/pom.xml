@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ssoft.faces</groupId>
         <artifactId>state-flow-faces</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.2-SNAPSHOT</version>
     </parent>
     <artifactId>state-flow-primefaces</artifactId>
     <packaging>jar</packaging>
@@ -52,12 +52,12 @@
         <dependency>
             <groupId>org.ssoft.faces</groupId>
             <artifactId>state-flow-fases-api</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.primefaces</groupId>
             <artifactId>primefaces</artifactId>
-            <version>6.2</version>
+            <version>7.0</version>
         </dependency>
         <dependency>
             <groupId>org.kohsuke.metainf-services</groupId>

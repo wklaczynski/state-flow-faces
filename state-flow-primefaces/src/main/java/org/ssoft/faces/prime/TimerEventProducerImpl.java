@@ -15,11 +15,10 @@
  */
 package org.ssoft.faces.prime;
 
+import com.sun.xml.internal.ws.client.RequestContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.faces.application.Resource;
-import javax.faces.application.ResourceHandler;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
@@ -30,7 +29,7 @@ import javax.faces.state.task.TimerEventProducer;
 import org.kohsuke.MetaInfServices;
 import org.primefaces.PrimeFaces;
 import org.primefaces.component.api.ClientBehaviorRenderingMode;
-import org.primefaces.context.RequestContext;
+import org.primefaces.context.PrimeRequestContext;
 import org.primefaces.util.AjaxRequestBuilder;
 import org.primefaces.util.ComponentTraversalUtils;
 
@@ -87,7 +86,7 @@ public class TimerEventProducerImpl extends TimerEventProducer {
 
         String sourceComponentId = (String) attrs.get(CURRENT_COMPONENT_HINT);
 
-        RequestContext requestContext = RequestContext.getCurrentInstance();
+        PrimeRequestContext requestContext = PrimeRequestContext.getCurrentInstance();
         ClientBehaviorRenderingMode renderingMode
                 = ClientBehaviorRenderingMode.OBSTRUSIVE;
 
