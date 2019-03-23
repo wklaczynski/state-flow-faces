@@ -16,6 +16,9 @@
  */
 package javax.faces.state.scxml;
 
+import javax.faces.state.scxml.invoke.Invoker;
+import javax.faces.state.scxml.invoke.InvokerException;
+
 /**
  * Interface for a component that may be used by the SCXML engines to
  * evaluate the expressions within the SCXML document.
@@ -119,5 +122,17 @@ public interface Evaluator {
      */
     Context newContext(Context parent);
 
+    
+    /**
+     * Create a new {@link Invoker}
+     *
+     * @param type The type of the target being invoked.
+     * @return An {@link Invoker} for the specified type, if an invoker class is
+     * registered against that type, <code>null</code> otherwise.
+     * @throws InvokerException When a suitable {@link Invoker} cannot be
+     * instantiated.
+     */
+    Invoker newInvoker(final String type) throws InvokerException;
+    
 }
 

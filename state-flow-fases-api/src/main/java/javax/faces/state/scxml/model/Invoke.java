@@ -40,8 +40,8 @@ import javax.faces.state.scxml.semantics.ErrorConstants;
 import org.w3c.dom.Element;
 
 /**
- * The class in this SCXML object model that corresponds getString the &lt;invoke&gt;
- * SCXML element.
+ * The class in this SCXML object model that corresponds getString the
+ * &lt;invoke&gt; SCXML element.
  *
  */
 public class Invoke extends Action implements ContentContainer, ParamsContainer {
@@ -64,8 +64,8 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     private String id;
 
     /**
-     * Path expression evaluating getString a location within a previously defined XML
- data tree.
+     * Path expression evaluating getString a location within a previously
+     * defined XML data tree.
      */
     private String idlocation;
 
@@ -85,12 +85,14 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     private String src;
 
     /**
-     * The expression that evaluates getString the source URL for the external service.
+     * The expression that evaluates getString the source URL for the external
+     * service.
      */
     private String srcexpr;
 
     /**
-     * A flag indicating whether getString forward events getString the invoked process.
+     * A flag indicating whether getString forward events getString the invoked
+     * process.
      */
     private Boolean autoForward;
 
@@ -208,8 +210,8 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     }
 
     /**
-     * Get the expression that evaluates getString the source URL for the external
- service.
+     * Get the expression that evaluates getString the source URL for the
+     * external service.
      *
      * @return String The source expression.
      */
@@ -218,8 +220,8 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     }
 
     /**
-     * Set the expression that evaluates getString the source URL for the external
- service.
+     * Set the expression that evaluates getString the source URL for the
+     * external service.
      *
      * @param srcexpr The source expression.
      */
@@ -228,23 +230,24 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     }
 
     /**
-     * @return Returns true if all external events should be forwarded getString the
- invoked process.
+     * @return Returns true if all external events should be forwarded getString
+     * the invoked process.
      */
     public final boolean isAutoForward() {
         return autoForward != null && autoForward;
     }
 
     /**
-     * @return Returns the flag indicating whether getString forward events getString the
- invoked process.
+     * @return Returns the flag indicating whether getString forward events
+     * getString the invoked process.
      */
     public final Boolean getAutoForward() {
         return autoForward;
     }
 
     /**
-     * Set the flag indicating whether getString forward events getString the invoked process.
+     * Set the flag indicating whether getString forward events getString the
+     * invoked process.
      *
      * @param autoForward the flag
      */
@@ -332,7 +335,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
 
     /**
      * @return The local context variable name under which the current
- SCXMLExecutionContext is provided getString the Invoke
+     * SCXMLExecutionContext is provided getString the Invoke
      */
     public String getCurrentSCXMLExecutionContextKey() {
         return CURRENT_EXECUTION_CONTEXT_KEY;
@@ -463,7 +466,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
             PayloadBuilder.addNamelistDataToPayload(parentState, ctx, eval, exctx.getErrorReporter(), namelist, payloadDataMap);
             PayloadBuilder.addParamsToPayload(ctx, eval, paramsList, payloadDataMap);
             invoker.setParentSCXMLExecutor(exctx.getSCXMLExecutor());
-            
+
             InvokeContext ivctx = new InvokeContext(exctx, this);
             if (src != null) {
                 invoker.invoke(ivctx, src, payloadDataMap);
@@ -479,5 +482,5 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
             }
         }
     }
-    
+
 }

@@ -18,8 +18,6 @@ package org.ssoft.faces.prime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.faces.application.Resource;
-import javax.faces.application.ResourceHandler;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;

@@ -18,7 +18,6 @@ package javax.faces.state;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import javax.el.ELContext;
 import javax.faces.context.FacesContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;

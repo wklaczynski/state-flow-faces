@@ -440,28 +440,6 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
     }
 
     /**
-     * Register an Invoker for this target type.
-     *
-     * @param type The target type (specified by "type" attribute of the invoke
-     * element).
-     * @param invokerClass The Invoker class.
-     */
-    public void registerInvokerClass(final String type, final Class<? extends Invoker> invokerClass) {
-        exctx.registerInvokerClass(type, invokerClass);
-    }
-
-    /**
-     * Remove the Invoker registered for this target type (if there is one
-     * registered).
-     *
-     * @param type The target type (specified by "type" attribute of the invoke
-     * element).
-     */
-    public void unregisterInvokerClass(final String type) {
-        exctx.unregisterInvokerClass(type);
-    }
-
-    /**
      * Detach the current SCInstance to allow external serialization.
      * <p>
      * {@link #attachInstance(SCInstance)} can be used to re-attach a previously
