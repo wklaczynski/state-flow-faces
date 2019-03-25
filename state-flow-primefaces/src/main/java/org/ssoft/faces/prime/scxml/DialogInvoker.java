@@ -4,7 +4,6 @@
  */
 package org.ssoft.faces.prime.scxml;
 
-import org.ssoft.faces.prime.PrimeFacesFlowUtils;
 import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.Collections;
