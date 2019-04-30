@@ -4,7 +4,6 @@
  */
 package org.ssoft.faces.prime.scxml;
 
-import org.ssoft.faces.prime.PrimeFacesFlowUtils;
 import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.Collections;
@@ -39,12 +38,10 @@ import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.invoke.Invoker;
 import javax.faces.state.scxml.invoke.InvokerException;
 import javax.faces.state.scxml.model.ModelException;
-import org.primefaces.PrimeFaces;
 import org.primefaces.component.api.ClientBehaviorRenderingMode;
 import org.primefaces.context.RequestContext;
 import org.primefaces.util.AjaxRequestBuilder;
 import org.primefaces.util.ComponentTraversalUtils;
-import org.primefaces.util.ComponentUtils;
 import org.primefaces.util.Constants;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
 import static javax.faces.state.StateFlow.FACES_CHART_VIEW_STATE;
@@ -66,8 +63,7 @@ import org.primefaces.util.SharedStringBuilder;
 public class DialogInvoker implements Invoker, Serializable {
 
     private static final String SB_ESCAPE = DialogInvoker.class.getName() + "#escape";
-    
-    
+
     private final static Logger logger = Logger.getLogger(DialogInvoker.class.getName());
 
     /**
@@ -324,7 +320,8 @@ public class DialogInvoker implements Invoker, Serializable {
             sb.append("}});");
 
             sb.append("};");
-            PrimeFaces.current().executeScript(sb.toString());
+            RequestContext rc = RequestContext.getCurrentInstance();
+            rc.execute(sb.toString());
             sb.setLength(0);
 
             Context fctx = handler.getFlowContext(context);
@@ -451,7 +448,8 @@ public class DialogInvoker implements Invoker, Serializable {
         sb.append("parent.PrimeFaces.scxml.closeScxmlDialog({pfdlgcid:'")
                 .append(pfdlgcid).append("'});");
 
-        PrimeFaces.current().executeScript(sb.toString());
+        RequestContext rc = RequestContext.getCurrentInstance();
+        rc.execute(sb.toString());
         sb.setLength(0);
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
@@ -496,6 +494,5 @@ public class DialogInvoker implements Invoker, Serializable {
 
         return sb.toString();
     }
-    
-    
+
 }

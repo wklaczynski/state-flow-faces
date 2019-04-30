@@ -18,8 +18,6 @@ package org.ssoft.faces.prime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.faces.application.Resource;
-import javax.faces.application.ResourceHandler;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
@@ -28,7 +26,6 @@ import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import javax.faces.state.task.DelayedEventTask;
 import javax.faces.state.task.TimerEventProducer;
 import org.kohsuke.MetaInfServices;
-import org.primefaces.PrimeFaces;
 import org.primefaces.component.api.ClientBehaviorRenderingMode;
 import org.primefaces.context.RequestContext;
 import org.primefaces.util.AjaxRequestBuilder;
@@ -144,7 +141,8 @@ public class TimerEventProducerImpl extends TimerEventProducer {
 
         sb.append("};");
 
-        PrimeFaces.current().executeScript(sb.toString());
+        RequestContext rc = RequestContext.getCurrentInstance();
+        rc.execute(sb.toString());
         sb.setLength(0);
 
     }
