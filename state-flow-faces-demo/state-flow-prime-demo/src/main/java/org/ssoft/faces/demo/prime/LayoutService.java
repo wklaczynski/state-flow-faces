@@ -27,7 +27,7 @@ import javax.faces.state.events.OnEntryEvent;
 import javax.faces.state.events.OnExitEvent;
 import javax.faces.state.events.OnFinishEvent;
 import javax.faces.state.events.OnTransitionEvent;
-import org.primefaces.PrimeFaces;
+import org.primefaces.context.RequestContext;
 
 /**
  *
@@ -68,7 +68,8 @@ public class LayoutService {
             String redirectPath = actionURL;
             ec.redirect(redirectPath);
             fc.renderResponse();
-            if (!PrimeFaces.current().isAjaxRequest()) {
+            RequestContext rc = RequestContext.getCurrentInstance();
+            if (!rc.isAjaxRequest()) {
                 fc.responseComplete();
             }
         } catch (IOException ex) {
