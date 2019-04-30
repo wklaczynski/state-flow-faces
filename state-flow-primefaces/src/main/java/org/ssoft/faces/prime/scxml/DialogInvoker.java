@@ -48,6 +48,7 @@ import org.primefaces.util.ComponentUtils;
 import org.primefaces.util.Constants;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
 import static javax.faces.state.StateFlow.FACES_CHART_VIEW_STATE;
+import org.primefaces.util.SharedStringBuilder;
 
 /**
  *
@@ -64,6 +65,9 @@ import static javax.faces.state.StateFlow.FACES_CHART_VIEW_STATE;
 })
 public class DialogInvoker implements Invoker, Serializable {
 
+    private static final String SB_ESCAPE = DialogInvoker.class.getName() + "#escape";
+    
+    
     private final static Logger logger = Logger.getLogger(DialogInvoker.class.getName());
 
     /**
@@ -213,7 +217,7 @@ public class DialogInvoker implements Invoker, Serializable {
             rctx.setLocal(prevStateKey + "ViewId", prevViewId);
 
             String url = context.getApplication().getViewHandler().getBookmarkableURL(context, viewId, query, false);
-            url = ComponentUtils.escapeEcmaScriptText(url);
+            url = escapeEcmaScriptText(url);
 
             pfdlgcid = UUID.randomUUID().toString();
             String sourceComponentId = (String) attrs.get(CURRENT_COMPONENT_HINT);
@@ -308,7 +312,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
                     sb.append(optionName).append(":");
                     if (optionValue instanceof String) {
-                        sb.append("'").append(ComponentUtils.escapeEcmaScriptText((String) optionValue)).append("'");
+                        sb.append("'").append(escapeEcmaScriptText((String) optionValue)).append("'");
                     } else {
                         sb.append(optionValue);
                     }
@@ -462,4 +466,36 @@ public class DialogInvoker implements Invoker, Serializable {
         context.renderResponse();
     }
 
+    public static String escapeEcmaScriptText(String text) {
+        if (text == null) {
+            return null;
+        }
+
+        StringBuilder sb = SharedStringBuilder.get(SB_ESCAPE);
+
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            switch (ch) {
+                case '"':
+                    sb.append("\\\"");
+                    break;
+                case '\'':
+                    sb.append("\\'");
+                    break;
+                case '\\':
+                    sb.append("\\\\");
+                    break;
+                case '/':
+                    sb.append("\\/");
+                    break;
+                default:
+                    sb.append(ch);
+                    break;
+            }
+        }
+
+        return sb.toString();
+    }
+    
+    
 }
