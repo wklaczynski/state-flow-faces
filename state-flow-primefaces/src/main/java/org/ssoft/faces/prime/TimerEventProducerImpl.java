@@ -141,8 +141,7 @@ public class TimerEventProducerImpl extends TimerEventProducer {
 
         sb.append("};");
 
-        RequestContext rc = RequestContext.getCurrentInstance();
-        rc.execute(sb.toString());
+        requestContext.execute(requestContext.toString());
         sb.setLength(0);
 
     }
