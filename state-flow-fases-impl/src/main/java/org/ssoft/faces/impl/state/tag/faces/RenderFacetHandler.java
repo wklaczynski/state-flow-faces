@@ -93,7 +93,7 @@ public class RenderFacetHandler extends ComponentHandler {
             render.setExecutor(executor);
         }
         
-        render.pushRendererToEl(context, render);
+        render.pushExecutorToEl(context, render);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class RenderFacetHandler extends ComponentHandler {
         FacesContext context = ctx.getFacesContext();
         UIStateChartFacetRender render = (UIStateChartFacetRender) c;
         
-        render.popRendererFromEl(context);
+        render.popExecutorFromEl(context);
     }
 
 }

@@ -105,28 +105,28 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             eccashe.set(ec);
         }
 
-        Map<String, SCXMLIOProcessor> ioProcessors = (Map<String, SCXMLIOProcessor>) ctx.get(SCXMLSystemContext.IOPROCESSORS_KEY);
-        String sessionId = (String) ctx.get(SCXMLSystemContext.SESSIONID_KEY);
-        if (ioProcessors.containsKey(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX + sessionId)) {
-            SCXMLExecutor executor = (SCXMLExecutor) ioProcessors.get(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX + sessionId);
-            fc.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
-            ec.putContext(SCXMLExecutor.class, executor);
-
-            SCXML scxml = executor.getStateMachine();
-            ec.addFunctionMaper(new EvaluatorBuiltinFunctionMapper(ec, scxml));
-
-            Map<String, String> namespaces = scxml.getNamespaces();
-            String modelName = scxml.getDatamodelName();
-
-        } else {
-            fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
-        }
-
-        ctx = getEffectiveContext(ctx);
-
-        ec.putContext(Context.class, ctx);
-        ec.putContext(FacesContext.class, fc);
         try {
+            Map<String, SCXMLIOProcessor> ioProcessors = (Map<String, SCXMLIOProcessor>) ctx.get(SCXMLSystemContext.IOPROCESSORS_KEY);
+            String sessionId = (String) ctx.get(SCXMLSystemContext.SESSIONID_KEY);
+            if (ioProcessors.containsKey(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX + sessionId)) {
+                SCXMLExecutor executor = (SCXMLExecutor) ioProcessors.get(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX + sessionId);
+                fc.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
+                ec.putContext(SCXMLExecutor.class, executor);
+
+                SCXML scxml = executor.getStateMachine();
+                ec.addFunctionMaper(new EvaluatorBuiltinFunctionMapper(ec, scxml));
+
+                Map<String, String> namespaces = scxml.getNamespaces();
+                String modelName = scxml.getDatamodelName();
+
+            } else {
+                fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
+            }
+
+            ctx = getEffectiveContext(ctx);
+
+            ec.putContext(Context.class, ctx);
+            ec.putContext(FacesContext.class, fc);
             return call.call();
         } catch (NullPointerException ex) {
             throw new SCXMLExpressionException(String.format("%s error: null pointer exception", expr), ex);
@@ -136,6 +136,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             ec.putContext(Context.class, newContext(null));
             ec.reset();
             Context.setCurrentInstance(null);
+            fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
         }
     }
 
@@ -226,7 +227,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     public Invoker newInvoker(final String type) throws InvokerException {
         StateFlowHandler handler = StateFlowHandler.getInstance();
         Map<String, Class<? extends Invoker>> customInvokers = handler.getCustomInvokers();
-        
+
         Class<? extends Invoker> invokerClass = customInvokers.get(stripTrailingSlash(type));
         if (invokerClass == null) {
             throw new InvokerException("No Invoker registered for type \"" + stripTrailingSlash(type) + "\"");
@@ -239,12 +240,10 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             throw new InvokerException(ie.getMessage(), ie.getCause());
         }
     }
-    
+
     private String stripTrailingSlash(final String uri) {
         return uri.endsWith("/") ? uri.substring(0, uri.length() - 1) : uri;
     }
-    
-    
 
     /**
      *

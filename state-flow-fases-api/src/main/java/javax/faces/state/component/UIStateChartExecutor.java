@@ -99,17 +99,17 @@ public class UIStateChartExecutor extends UIPanel {
         return path;
     }
 
-//    @Override
-//    public void pushComponentToEL(FacesContext context, UIComponent component) {
-//        super.pushComponentToEL(context, component);
-//        pushExecutorToEl(context, (UIStateChartExecutor) component);
-//    }
-//
-//    @Override
-//    public void popComponentFromEL(FacesContext context) {
-//        super.popComponentFromEL(context);
-//        popExecutorFromEl(context);
-//    }
+    @Override
+    public void pushComponentToEL(FacesContext context, UIComponent component) {
+        super.pushComponentToEL(context, component);
+        pushExecutorToEl(context, (UIStateChartExecutor) component);
+    }
+
+    @Override
+    public void popComponentFromEL(FacesContext context) {
+        super.popComponentFromEL(context);
+        popExecutorFromEl(context);
+    }
 
     public void pushExecutorToEl(FacesContext context, UIStateChartExecutor component) {
         if (context == null) {

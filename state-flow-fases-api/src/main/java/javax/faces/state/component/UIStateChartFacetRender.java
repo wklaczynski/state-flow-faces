@@ -120,7 +120,7 @@ public class UIStateChartFacetRender extends UIPanel {
 //        popRendererFromEl(context);
 //    }
 
-    public void pushRendererToEl(FacesContext context, UIStateChartFacetRender component) {
+    public void pushExecutorToEl(FacesContext context, UIStateChartFacetRender component) {
         if (context == null) {
             throw new NullPointerException();
         }
@@ -137,7 +137,7 @@ public class UIStateChartFacetRender extends UIPanel {
         component._isPushedAsCurrentRefCount++;
     }
 
-    public void popRendererFromEl(FacesContext context) {
+    public void popExecutorFromEl(FacesContext context) {
         if (context == null) {
             throw new NullPointerException();
         }
@@ -154,7 +154,7 @@ public class UIStateChartFacetRender extends UIPanel {
                 topComponent != this;
                 topComponent = componentStack.peek()) {
             if (topComponent instanceof UIStateChartFacetRender) {
-                ((UIStateChartFacetRender) topComponent).popRendererFromEl(context);
+                ((UIStateChartFacetRender) topComponent).popExecutorFromEl(context);
 
             } else {
                 componentStack.pop();

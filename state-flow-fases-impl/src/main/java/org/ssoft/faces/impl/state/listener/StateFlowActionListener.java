@@ -64,13 +64,13 @@ public class StateFlowActionListener implements ActionListener {
                 }
                 render = ComponentUtils.assigned(UIStateChartFacetRender.class, source);
                 if (render != null) {
-                    render.pushRendererToEl(facesContext, render);
+                    render.pushExecutorToEl(facesContext, render);
                 }
             }
             base.processAction(event);
         } finally {
             if (render != null) {
-                render.popRendererFromEl(facesContext);
+                render.popExecutorFromEl(facesContext);
             }
             if (executor != null) {
                 executor.popExecutorFromEl(facesContext);
