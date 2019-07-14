@@ -17,8 +17,6 @@ package javax.faces.state;
 
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
-import javax.faces.state.scxml.env.EffectiveContextMap;
-import javax.faces.state.scxml.env.SimpleContext;
 
 /**
  *

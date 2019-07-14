@@ -66,7 +66,7 @@ public class DialogCDIContext implements Context, Serializable {
         T result = get(mapHelper, contextual);
 
         if (null == result) {
-            Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
+            ScopedBeanContext flowScopedBeanMap = mapHelper.getScopedBeanContextForCurrentExecutor();
             Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
 
             String passivationCapableId = ((PassivationCapable) contextual).getId();
@@ -86,7 +86,7 @@ public class DialogCDIContext implements Context, Serializable {
                     result = contextual.create(creational);
 
                     if (null != result) {
-                        flowScopedBeanMap.put(passivationCapableId, result);
+                        flowScopedBeanMap.setLocal(passivationCapableId, result);
                         creationalMap.put(passivationCapableId, creational);
                         mapHelper.updateSession();
                     }
@@ -120,7 +120,7 @@ public class DialogCDIContext implements Context, Serializable {
             throw new IllegalArgumentException("StateDialogScoped bean " + contextual.toString() + " must be PassivationCapable, but is not.");
         }
         String passivationCapableId = ((PassivationCapable) contextual).getId();
-        return (T) mapHelper.getScopedBeanMapForCurrentExecutor().get(passivationCapableId);
+        return (T) mapHelper.getScopedBeanContextForCurrentExecutor().get(passivationCapableId);
     }
 
     @Override
@@ -138,13 +138,13 @@ public class DialogCDIContext implements Context, Serializable {
     }
 
     private static Map<Object, Object> getCurrentFlowScopeAndUpdateSession(StateScopeMapHelper mapHelper) {
-        Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
+        ScopedBeanContext flowScopedBeanMap = mapHelper.getScopedBeanContextForCurrentExecutor();
         Map<Object, Object> result = null;
         if (mapHelper.isExecutorExists()) {
             result = (Map<Object, Object>) flowScopedBeanMap.get(DIALOG_SCOPE_MAP_KEY);
             if (null == result) {
                 result = new ConcurrentHashMap<>();
-                flowScopedBeanMap.put(DIALOG_SCOPE_MAP_KEY, result);
+                flowScopedBeanMap.setLocal(DIALOG_SCOPE_MAP_KEY, result);
             }
         }
         mapHelper.updateSession();
@@ -158,13 +158,13 @@ public class DialogCDIContext implements Context, Serializable {
 
         FacesContext facesContext = FacesContext.getCurrentInstance();
         StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, DIALOG_SCOPE_KEY);
-        Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
+        ScopedBeanContext flowScopedBeanMap = mapHelper.getScopedBeanContextForCurrentExecutor();
         Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
-        assert (!flowScopedBeanMap.isEmpty());
+        assert (!flowScopedBeanMap.getVars().isEmpty());
         assert (!creationalMap.isEmpty());
         BeanManager beanManager = (BeanManager) Util.getCdiBeanManager(facesContext);
 
-        for (Map.Entry<String, Object> entry : flowScopedBeanMap.entrySet()) {
+        for (Map.Entry<String, Object> entry : flowScopedBeanMap.getVars().entrySet()) {
             String passivationCapableId = entry.getKey();
             if (DIALOG_SCOPE_MAP_KEY.equals(passivationCapableId)) {
                 continue;
@@ -176,7 +176,7 @@ public class DialogCDIContext implements Context, Serializable {
             owner.destroy(bean, creational);
         }
 
-        flowScopedBeanMap.clear();
+        flowScopedBeanMap.getVars().clear();
         creationalMap.clear();
 
         mapHelper.updateSession();

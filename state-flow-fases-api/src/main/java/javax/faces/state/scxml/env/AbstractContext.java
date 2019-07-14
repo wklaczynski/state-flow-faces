@@ -107,11 +107,10 @@ public class AbstractContext implements Context, StateHolder {
             setLocal(name, value);
         }
     }
-    
 
     /**
-     * Removes a new value to an existing variable. The
-     * method searches the chain of parent Contexts for variable existence.
+     * Removes a new value to an existing variable. The method searches the
+     * chain of parent Contexts for variable existence.
      *
      * @param name The variable name
      * @see org.apache.commons.scxml2.Context#set(String, Object)
@@ -126,7 +125,6 @@ public class AbstractContext implements Context, StateHolder {
             removeLocal(name);
         }
     }
-    
 
     /**
      * Get the value of this variable; delegating to parent.

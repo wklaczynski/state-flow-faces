@@ -58,36 +58,36 @@ public class ChartCDIContext implements Context, Serializable {
     @SuppressWarnings("UnusedAssignment")
     public <T> T get(Contextual<T> contextual, CreationalContext<T> creational) {
         assertNotReleased();
-        
+
         FacesContext facesContext = FacesContext.getCurrentInstance();
         SCXMLExecutor executor = getExecutor(facesContext);
         StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, CHART_SCOPE_KEY);
-        
+
         T result = get(mapHelper, contextual);
-        
+
         if (null == result) {
-            Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
+            ScopedBeanContext flowScopedBeanMap = mapHelper.getScopedBeanContextForCurrentExecutor();
             Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
-            
+
             String passivationCapableId = ((PassivationCapable)contextual).getId();
 
             synchronized (flowScopedBeanMap) {
                 result = (T) flowScopedBeanMap.get(passivationCapableId);
                 if (null == result) {
-                    
+
                     if (null == executor) {
                         return null;
                     }
-                    
+
                     if (!executor.isRunning()) {
                         LOGGER.warning("Request to activate bean in executor, but that executor is not active.");
                     }
 
                     
                     result = contextual.create(creational);
-                    
+
                     if (null != result) {
-                        flowScopedBeanMap.put(passivationCapableId, result);
+                        flowScopedBeanMap.setLocal(passivationCapableId, result);
                         creationalMap.put(passivationCapableId, creational);
                         mapHelper.updateSession();
                     }
@@ -114,16 +114,16 @@ public class ChartCDIContext implements Context, Serializable {
 
         return result;
     }
-    
+
     private <T> T get(StateScopeMapHelper mapHelper, Contextual<T> contextual) {
         assertNotReleased();
         if (!(contextual instanceof PassivationCapable)) {
             throw new IllegalArgumentException("StateChartScoped bean " + contextual.toString() + " must be PassivationCapable, but is not.");
         }
         String passivationCapableId = ((PassivationCapable)contextual).getId();
-        return (T) mapHelper.getScopedBeanMapForCurrentExecutor().get(passivationCapableId);
+        return (T) mapHelper.getScopedBeanContextForCurrentExecutor().get(passivationCapableId);
     }
-    
+
 
     @Override
     public boolean isActive() {
@@ -138,32 +138,32 @@ public class ChartCDIContext implements Context, Serializable {
         HttpSession session = hse.getSession();
         StateScopeMapHelper.sessionDestroyed(session);
     }
-    
+
     
     private static Map<Object, Object> getCurrentFlowScopeAndUpdateSession(StateScopeMapHelper mapHelper) {
-        Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
+        ScopedBeanContext flowScopedBeanMap = mapHelper.getScopedBeanContextForCurrentExecutor();
         Map<Object, Object> result = null;
         if (mapHelper.isExecutorExists()) {
             result = (Map<Object, Object>) flowScopedBeanMap.get(CHART_SCOPE_MAP_KEY);
             if (null == result) {
                 result = new ConcurrentHashMap<>();
-                flowScopedBeanMap.put(CHART_SCOPE_MAP_KEY, result);
+                flowScopedBeanMap.setLocal(CHART_SCOPE_MAP_KEY, result);
             }
         }
         mapHelper.updateSession();
-        return result; 
+        return result;
     }
-    
+
     static void executorExited(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, CHART_SCOPE_KEY);
-        Map<String, Object> flowScopedBeanMap = mapHelper.getScopedBeanMapForCurrentExecutor();
+        ScopedBeanContext flowScopedBeanMap = mapHelper.getScopedBeanContextForCurrentExecutor();
         Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMapForCurrentExecutor();
-        assert(!flowScopedBeanMap.isEmpty());
+        assert(!flowScopedBeanMap.getVars().isEmpty());
         assert(!creationalMap.isEmpty());
         BeanManager beanManager = (BeanManager) Util.getCdiBeanManager(facesContext);
-        
-        for (Map.Entry<String, Object> entry : flowScopedBeanMap.entrySet()) {
+
+        for (Map.Entry<String, Object> entry : flowScopedBeanMap.getVars().entrySet()) {
             String passivationCapableId = entry.getKey();
             if (CHART_SCOPE_MAP_KEY.equals(passivationCapableId)) {
                 continue;
@@ -171,15 +171,15 @@ public class ChartCDIContext implements Context, Serializable {
             Contextual owner = beanManager.getPassivationCapableBean(passivationCapableId);
             Object bean = entry.getValue();
             CreationalContext creational = creationalMap.get(passivationCapableId);
-            
+
             owner.destroy(bean, creational);
         }
-        
-        flowScopedBeanMap.clear();
+
+        flowScopedBeanMap.getVars().clear();
         creationalMap.clear();
-        
+
         mapHelper.updateSession();
-        
+
         if (CdiUtil.isCdiOneOneOrLater(facesContext)) {
             Class flowCDIEventFireHelperImplClass = null;
             try {
@@ -189,7 +189,7 @@ public class ChartCDIContext implements Context, Serializable {
                     LOGGER.log(Level.SEVERE, "CDI 1.1 events not enabled", ex);
                 }
             }
-            
+
             if (null != flowCDIEventFireHelperImplClass) {
                 Set<Bean<?>> availableBeans = beanManager.getBeans(flowCDIEventFireHelperImplClass);
                 if (null != availableBeans && !availableBeans.isEmpty()) {
@@ -198,21 +198,21 @@ public class ChartCDIContext implements Context, Serializable {
                             beanManager.createCreationalContext(null);
                     StateFlowCDIEventFireHelper eventHelper = 
                             (StateFlowCDIEventFireHelper)  beanManager.getReference(bean, bean.getBeanClass(),
-                            creationalContext);
+                                    creationalContext);
                     eventHelper.fireExecutorDestroyedEvent(executor);
                 }
             }
         }
     }
-    
+
     static void executorEntered(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, CHART_SCOPE_KEY);
 
         mapHelper.createMaps();
-        
+
         getCurrentFlowScopeAndUpdateSession(mapHelper);
-        
+
         if (CdiUtil.isCdiOneOneOrLater(facesContext)) {
             Class flowCDIEventFireHelperImplClass = null;
             try {
@@ -231,13 +231,13 @@ public class ChartCDIContext implements Context, Serializable {
                             beanManager.createCreationalContext(null);
                     StateFlowCDIEventFireHelper eventHelper = 
                             (StateFlowCDIEventFireHelper)  beanManager.getReference(bean, bean.getBeanClass(),
-                            creationalContext);
+                                    creationalContext);
                     eventHelper.fireExecutorInitializedEvent(executor);
                 }
             }
         }
     }
-    
+
     
     
     
@@ -260,11 +260,7 @@ public class ChartCDIContext implements Context, Serializable {
             return null;
         }
 
-        SCXMLExecutor result = null;
-        StateChartExecuteContext ec = flowHandler.getCurrentExecuteContext(context);
-        if (ec != null) {
-            result = ec.getExecutor();
-        }        
+        SCXMLExecutor result = flowHandler.getCurrentExecutor(context);
         return result;
 
     }

@@ -81,7 +81,7 @@ public class StateScopeMapHelper {
      *
      */
     public void createMaps() {
-        getScopedBeanMapForCurrentExecutor();
+        getScopedBeanContextForCurrentExecutor();
         getScopedCreationalMapForCurrentExecutor();
     }
 
@@ -113,14 +113,14 @@ public class StateScopeMapHelper {
      *
      * @return
      */
-    public Map<String, Object> getScopedBeanMapForCurrentExecutor() {
+    public ScopedBeanContext getScopedBeanContextForCurrentExecutor() {
         if (null == beansForExecutorKey && null == creationalForExecutorKey) {
-            return Collections.emptyMap();
+            return new ScopedBeanContext();
         }
-        Map<String, Object> result;
-        result = (Map<String, Object>) sessionMap.get(beansForExecutorKey);
+        ScopedBeanContext result;
+        result = (ScopedBeanContext) sessionMap.get(beansForExecutorKey);
         if (null == result) {
-            result = new ConcurrentHashMap<>();
+            result = new ScopedBeanContext();
             sessionMap.put(beansForExecutorKey, result);
             ensureBeanMapCleanupOnSessionDestroyed(sessionMap, beansForExecutorKey);
         }
@@ -153,7 +153,7 @@ public class StateScopeMapHelper {
             return;
         }
 
-        sessionMap.put(beansForExecutorKey, getScopedBeanMapForCurrentExecutor());
+        sessionMap.put(beansForExecutorKey, getScopedBeanContextForCurrentExecutor());
         sessionMap.put(creationalForExecutorKey, getScopedCreationalMapForCurrentExecutor());
         Object obj = sessionMap.get(PER_SESSION_BEAN_MAP_LIST);
         if (null != obj) {

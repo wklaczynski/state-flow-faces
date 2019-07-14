@@ -24,7 +24,7 @@
         <navigation-handler>org.ssoft.faces.impl.state.facelets.StateFlowNavigationHandler</navigation-handler>
         <view-handler>org.ssoft.faces.impl.state.facelets.StateFlowViewHandler</view-handler>
         <action-listener>org.ssoft.faces.impl.state.listener.StateFlowActionListener</action-listener>
-
+        
         <system-event-listener>
             <system-event-listener-class>org.ssoft.faces.impl.state.listener.StateFlowDefinitionListener</system-event-listener-class>
             <system-event-class>javax.faces.event.PostAddToViewEvent</system-event-class>

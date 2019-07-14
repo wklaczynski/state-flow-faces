@@ -588,6 +588,23 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
+    public SCXMLExecutor getViewExecutor(FacesContext context) {
+        String executorId = getExecutorViewRootId(context);
+        if (executorId == null) {
+            return null;
+        }
+        
+        FlowDeque fs = getFlowDeque(context, false);
+        if (fs == null) {
+            return null;
+        }
+        Map<String, SCXMLExecutor> executors = fs.getExecutors();
+
+        SCXMLExecutor executor = executors.get(executorId);
+        return executor;
+    }
+    
+    @Override
     public boolean hasViewRoot(FacesContext context) {
         FlowDeque fs = getFlowDeque(context, false);
         if (fs == null) {

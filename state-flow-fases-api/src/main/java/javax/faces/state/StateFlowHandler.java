@@ -94,6 +94,13 @@ public abstract class StateFlowHandler {
     /**
      *
      * @param context
+     * @return
+     */
+    public abstract SCXMLExecutor getViewExecutor(FacesContext context);
+
+    /**
+     *
+     * @param context
      * @param executorId
      * @return
      */
