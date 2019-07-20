@@ -20,6 +20,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.el.ValueExpression;
 import javax.faces.state.scxml.ActionExecutionContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.Evaluator;
@@ -37,7 +38,7 @@ public class Foreach extends Action implements ActionsContainer {
      */
     private static final long serialVersionUID = 1L;
 
-    private String array;
+    private ValueExpression array;
     private String item;
     private String index;
 
@@ -70,7 +71,7 @@ public class Foreach extends Action implements ActionsContainer {
      *
      * @return
      */
-    public String getArray() {
+    public ValueExpression getArray() {
         return array;
     }
 
@@ -78,7 +79,7 @@ public class Foreach extends Action implements ActionsContainer {
      *
      * @param array
      */
-    public void setArray(final String array) {
+    public void setArray(final ValueExpression array) {
         this.array = array;
     }
 

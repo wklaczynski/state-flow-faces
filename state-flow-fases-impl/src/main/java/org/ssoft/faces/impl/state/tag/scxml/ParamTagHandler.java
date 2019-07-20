@@ -80,9 +80,9 @@ public class ParamTagHandler extends AbstractFlowTagHandler<Param> {
         Param param = new Param();
         decorate(ctx, parent, param);
 
-        param.setName(name.getValue());
-        param.setExpr(expr != null ? expr.getValue() : null);
-        param.setLocation(location != null ? location.getValue() : null);
+        param.setName(name.getValueExpression(ctx, String.class));
+        param.setExpr(expr != null ? expr.getValueExpression(ctx, Object.class): null);
+        param.setLocation(location != null ? location.getValue(): null);
         
         params.add(param);
         

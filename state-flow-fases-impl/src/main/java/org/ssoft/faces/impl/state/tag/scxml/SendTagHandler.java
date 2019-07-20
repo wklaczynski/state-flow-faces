@@ -114,14 +114,14 @@ public class SendTagHandler extends AbstractFlowTagHandler<Send> {
         if (event.isLiteral()) {
             action.setEvent(event.getValue());
         } else {
-            action.setEventexpr(event.getValue());
+            action.setEventexpr(event.getValueExpression(ctx, Object.class));
         }
 
         if (target != null) {
             if (target.isLiteral()) {
                 action.setTarget(target.getValue());
             } else {
-                action.setTargetexpr(target.getValue());
+                action.setTargetexpr(target.getValueExpression(ctx, Object.class));
             }
         }
 
@@ -129,7 +129,7 @@ public class SendTagHandler extends AbstractFlowTagHandler<Send> {
             if (type.isLiteral()) {
                 action.setType(type.getValue());
             } else {
-                action.setTypeexpr(type.getValue());
+                action.setTypeexpr(type.getValueExpression(ctx, Object.class));
             }
         }
 
@@ -145,7 +145,7 @@ public class SendTagHandler extends AbstractFlowTagHandler<Send> {
             if (delay.isLiteral()) {
                 action.setDelay(delay.getValue());
             } else {
-                action.setDelayexpr(delay.getValue());
+                action.setDelayexpr(delay.getValueExpression(ctx, Object.class));
             }
         }
 

@@ -19,6 +19,7 @@ package javax.faces.state.scxml.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+import javax.el.ValueExpression;
 import javax.faces.state.scxml.ActionExecutionContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.Evaluator;
@@ -45,7 +46,7 @@ public class If extends Action implements ActionsContainer {
     /**
      * An conditional expression which can be evaluated to true or false.
      */
-    private String cond;
+    private ValueExpression cond;
 
     /**
      * The set of executable elements (those that inheriting from
@@ -96,7 +97,7 @@ public class If extends Action implements ActionsContainer {
      *
      * @return Returns the cond.
      */
-    public final String getCond() {
+    public final ValueExpression getCond() {
         return cond;
     }
 
@@ -105,7 +106,7 @@ public class If extends Action implements ActionsContainer {
      *
      * @param cond The cond to set.
      */
-    public final void setCond(final String cond) {
+    public final void setCond(final ValueExpression cond) {
         this.cond = cond;
     }
 

@@ -16,6 +16,8 @@
  */
 package javax.faces.state.scxml.model;
 
+import javax.el.ValueExpression;
+
 /**
  * The class in this SCXML object model that corresponds to the
  * &lt;content&gt; SCXML element.
@@ -31,7 +33,7 @@ public class Content extends SCComponent implements ParsedValueContainer {
     /**
      * The param expression, may be null.
      */
-    private String expr;
+    private ValueExpression expr;
 
     /**
      * The content body, may be null.
@@ -43,7 +45,7 @@ public class Content extends SCComponent implements ParsedValueContainer {
      *
      * @return String The expression for this content.
      */
-    public final String getExpr() {
+    public final ValueExpression getExpr() {
         return expr;
     }
 
@@ -52,7 +54,7 @@ public class Content extends SCComponent implements ParsedValueContainer {
      *
      * @param expr The expression for this content.
      */
-    public final void setExpr(final String expr) {
+    public final void setExpr(final ValueExpression expr) {
         this.expr = expr;
     }
 

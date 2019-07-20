@@ -17,6 +17,7 @@
 package javax.faces.state.scxml.model;
 
 import java.util.logging.Level;
+import javax.el.ValueExpression;
 import javax.faces.state.scxml.ActionExecutionContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.Evaluator;
@@ -37,7 +38,7 @@ public class Log extends Action {
     /**
      * An expression evaluating to a string to be logged.
      */
-    private String expr;
+    private ValueExpression expr;
 
     /**
      * An expression which returns string which may be used, for example,
@@ -57,7 +58,7 @@ public class Log extends Action {
      *
      * @return Returns the expression.
      */
-    public final String getExpr() {
+    public final ValueExpression getExpr() {
         return expr;
     }
 
@@ -66,7 +67,7 @@ public class Log extends Action {
      *
      * @param expr The expr to set.
      */
-    public final void setExpr(final String expr) {
+    public final void setExpr(final ValueExpression expr) {
         this.expr = expr;
     }
 

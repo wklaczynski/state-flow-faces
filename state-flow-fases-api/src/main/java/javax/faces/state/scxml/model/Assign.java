@@ -17,6 +17,7 @@
 package javax.faces.state.scxml.model;
 
 import java.util.logging.Level;
+import javax.el.ValueExpression;
 import javax.faces.state.scxml.ActionExecutionContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.Evaluator;
@@ -48,7 +49,7 @@ public class Assign extends Action implements ParsedValueContainer {
     /**
      * Expression evaluating to the new value of the variable.
      */
-    private String expr;
+    private ValueExpression expr;
 
     /**
      * The assign element body value, or the value from external {@link #getSrc()}, may be null.
@@ -67,7 +68,7 @@ public class Assign extends Action implements ParsedValueContainer {
      *
      * @return Returns the expr.
      */
-    public String getExpr() {
+    public ValueExpression getExpr() {
         return expr;
     }
 
@@ -76,7 +77,7 @@ public class Assign extends Action implements ParsedValueContainer {
      *
      * @param expr The expr to set.
      */
-    public void setExpr(final String expr) {
+    public void setExpr(final ValueExpression expr) {
         this.expr = expr;
     }
 

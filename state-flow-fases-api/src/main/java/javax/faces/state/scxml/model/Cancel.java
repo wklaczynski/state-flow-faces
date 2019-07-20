@@ -17,6 +17,7 @@
 package javax.faces.state.scxml.model;
 
 import java.util.logging.Level;
+import javax.el.ValueExpression;
 import javax.faces.state.scxml.ActionExecutionContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.Evaluator;
@@ -50,7 +51,7 @@ public class Cancel extends Action {
     /**
      * The expression that evaluates to the ID of the send message that should be cancelled.
      */
-    private String sendidexpr;
+    private ValueExpression sendidexpr;
 
     /**
      * Get the ID of the send message that should be cancelled.
@@ -75,7 +76,7 @@ public class Cancel extends Action {
      * 
      * @return the expression that evaluates to the ID of the send message that should be cancelled.
      */
-    public String getSendidexpr() {
+    public ValueExpression getSendidexpr() {
         return sendidexpr;
     }
 
@@ -84,7 +85,7 @@ public class Cancel extends Action {
      * 
      * @param sendidexpr the expression that evaluates to the ID of the send message that should be cancelled.
      */
-    public void setSendidexpr(String sendidexpr) {
+    public void setSendidexpr(ValueExpression sendidexpr) {
         this.sendidexpr = sendidexpr;
     }
 

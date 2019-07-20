@@ -16,12 +16,16 @@
  */
 package org.ssoft.faces.impl.state.tag.faces;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
+import javax.el.ELException;
+import javax.el.ValueExpression;
+import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
@@ -70,6 +74,11 @@ public class ExecuteHandler extends ComponentHandler {
         name = this.getAttribute(NAME_ATTRIBUTE);
     }
 
+    @Override
+    public void applyNextHandler(FaceletContext ctx, UIComponent c) throws IOException, FacesException, ELException {
+        super.applyNextHandler(ctx, c);
+    }
+    
     @Override
     public void onComponentCreated(FaceletContext ctx, UIComponent c, UIComponent parent) {
         FacesContext context = ctx.getFacesContext();
@@ -298,6 +307,15 @@ public class ExecuteHandler extends ComponentHandler {
                             TagAttribute valueAttr = ctag.getAttributes().get("value");
 
                             String pname = nameAttr.getValue(ctx);
+                            ValueExpression paramValueExpression = valueAttr.getValueExpression(ctx, Object.class);
+                            if(paramValueExpression.isLiteralText()) {
+                                
+                            } else {
+                                
+                            }
+                            
+                            
+                            
                             Object pvalue = valueAttr.getValue(ctx);
                             params.put(pname, pvalue);
                         }

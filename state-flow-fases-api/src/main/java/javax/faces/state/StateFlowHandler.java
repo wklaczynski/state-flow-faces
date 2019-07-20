@@ -18,6 +18,7 @@ package javax.faces.state;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import javax.el.ELContext;
 import javax.faces.context.FacesContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
@@ -251,6 +252,13 @@ public abstract class StateFlowHandler {
      */
     public abstract SCXML getStateMachine(FacesContext context, URL url, String continerName, String id) throws ModelException;
 
+    /**
+     *
+     * @param context
+     * @return
+     */
+    public abstract ELContext getELContext(FacesContext context);
+    
     /**
      *
      * @param context

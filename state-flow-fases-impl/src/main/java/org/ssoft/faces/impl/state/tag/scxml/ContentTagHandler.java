@@ -77,7 +77,7 @@ public class ContentTagHandler extends AbstractFlowTagHandler<Content> {
         decorate(ctx, parent, data);
 
         if (expr != null) {
-            data.setExpr(expr.getValue());
+            data.setExpr(expr.getValueExpression(ctx, Object.class));
         } else if (!resolved || !isProductionMode(ctx)) {
             staticValue = getParsedBodyValue(ctx, parent);
             data.setParsedValue(staticValue);

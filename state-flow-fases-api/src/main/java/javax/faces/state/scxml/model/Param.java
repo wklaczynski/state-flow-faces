@@ -17,6 +17,7 @@
 package javax.faces.state.scxml.model;
 
 import java.io.Serializable;
+import javax.el.ValueExpression;
 
 /**
  * The class in this SCXML object model that corresponds to the
@@ -33,7 +34,7 @@ public class Param extends SCComponent implements Serializable {
     /**
      * The param name.
      */
-    private String name;
+    private ValueExpression name;
 
     /**
      * Left hand side expression evaluating to a location within
@@ -44,7 +45,7 @@ public class Param extends SCComponent implements Serializable {
     /**
      * The param expression, may be null.
      */
-    private String expr;
+    private ValueExpression expr;
 
     /**
      * Default no-args constructor
@@ -58,7 +59,7 @@ public class Param extends SCComponent implements Serializable {
      *
      * @return String The param name.
      */
-    public final String getName() {
+    public final ValueExpression getName() {
         return name;
     }
 
@@ -67,7 +68,7 @@ public class Param extends SCComponent implements Serializable {
      *
      * @param name The param name.
      */
-    public final void setName(final String name) {
+    public final void setName(final ValueExpression name) {
         this.name = name;
     }
 
@@ -94,7 +95,7 @@ public class Param extends SCComponent implements Serializable {
      *
      * @return String The expression for this param value.
      */
-    public final String getExpr() {
+    public final ValueExpression getExpr() {
         return expr;
     }
 
@@ -103,7 +104,7 @@ public class Param extends SCComponent implements Serializable {
      *
      * @param expr The expression for this param value.
      */
-    public final void setExpr(final String expr) {
+    public final void setExpr(final ValueExpression expr) {
         this.expr = expr;
     }
 }

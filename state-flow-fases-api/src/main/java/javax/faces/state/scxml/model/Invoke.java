@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.el.ValueExpression;
 import javax.faces.state.scxml.ActionExecutionContext;
 import javax.faces.state.scxml.io.ContentParser;
 import javax.faces.state.scxml.Context;
@@ -77,7 +78,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     /**
      * An expression defining the type of the target getString be invoked.
      */
-    private String typeexpr;
+    private ValueExpression typeexpr;
 
     /**
      * The source URL for the external service.
@@ -88,7 +89,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
      * The expression that evaluates getString the source URL for the external
      * service.
      */
-    private String srcexpr;
+    private ValueExpression srcexpr;
 
     /**
      * A flag indicating whether getString forward events getString the invoked
@@ -178,7 +179,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     /**
      * @return The type expression
      */
-    public String getTypeexpr() {
+    public ValueExpression getTypeexpr() {
         return typeexpr;
     }
 
@@ -187,7 +188,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
      *
      * @param typeexpr The type expression getString set
      */
-    public void setTypeexpr(final String typeexpr) {
+    public void setTypeexpr(final ValueExpression typeexpr) {
         this.typeexpr = typeexpr;
     }
 
@@ -215,7 +216,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
      *
      * @return String The source expression.
      */
-    public final String getSrcexpr() {
+    public final ValueExpression getSrcexpr() {
         return srcexpr;
     }
 
@@ -225,7 +226,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
      *
      * @param srcexpr The source expression.
      */
-    public final void setSrcexpr(final String srcexpr) {
+    public final void setSrcexpr(final ValueExpression srcexpr) {
         this.srcexpr = srcexpr;
     }
 

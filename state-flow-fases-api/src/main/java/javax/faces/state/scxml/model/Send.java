@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import javax.el.ValueExpression;
 import javax.faces.state.scxml.ActionExecutionContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.Evaluator;
@@ -87,7 +88,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
     /**
      * An expression specifying the target location of the event.
      */
-    private String targetexpr;
+    private ValueExpression targetexpr;
 
     /**
      * The type of the Event I/O Processor that the event should be dispatched
@@ -99,7 +100,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
      * An expression defining the type of the Event I/O Processor that the event
      * should be dispatched to.
      */
-    private String typeexpr;
+    private ValueExpression typeexpr;
 
     /**
      * The delay the event is dispatched after.
@@ -109,13 +110,13 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
     /**
      * An expression defining the delay the event is dispatched after.
      */
-    private String delayexpr;
+    private ValueExpression delayexpr;
 
     /**
      * The data containing information which may be used by the implementing
      * platform to configure the event processor.
      */
-    private String hints;
+    private ValueExpression hints;
 
     /**
      * The type of event being generated.
@@ -125,7 +126,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
     /**
      * An expression defining the type of event being generated.
      */
-    private String eventexpr;
+    private ValueExpression eventexpr;
 
     /**
      * The &lt;content/&gt; of this send
@@ -186,7 +187,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
     /**
      * @return The delay expression
      */
-    public String getDelayexpr() {
+    public ValueExpression getDelayexpr() {
         return delayexpr;
     }
 
@@ -195,7 +196,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
      *
      * @param delayexpr The delay expression to set
      */
-    public void setDelayexpr(final String delayexpr) {
+    public void setDelayexpr(final ValueExpression delayexpr) {
         this.delayexpr = delayexpr;
     }
 
@@ -204,7 +205,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
      *
      * @return String Returns the hints.
      */
-    public final String getHints() {
+    public final ValueExpression getHints() {
         return hints;
     }
 
@@ -213,7 +214,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
      *
      * @param hints The hints to set.
      */
-    public final void setHints(final String hints) {
+    public final void setHints(final ValueExpression hints) {
         this.hints = hints;
     }
 
@@ -256,7 +257,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
     /**
      * @return The target expression
      */
-    public String getTargetexpr() {
+    public ValueExpression getTargetexpr() {
         return targetexpr;
     }
 
@@ -265,7 +266,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
      *
      * @param targetexpr The target expression to set
      */
-    public void setTargetexpr(final String targetexpr) {
+    public void setTargetexpr(final ValueExpression targetexpr) {
         this.targetexpr = targetexpr;
     }
 
@@ -290,7 +291,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
     /**
      * @return The type expression
      */
-    public String getTypeexpr() {
+    public ValueExpression getTypeexpr() {
         return typeexpr;
     }
 
@@ -299,7 +300,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
      *
      * @param typeexpr The type expression to set
      */
-    public void setTypeexpr(final String typeexpr) {
+    public void setTypeexpr(final ValueExpression typeexpr) {
         this.typeexpr = typeexpr;
     }
 
@@ -324,7 +325,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
     /**
      * @return The event expression
      */
-    public String getEventexpr() {
+    public ValueExpression getEventexpr() {
         return eventexpr;
     }
 
@@ -333,7 +334,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
      *
      * @param eventexpr The event expression to set
      */
-    public void setEventexpr(final String eventexpr) {
+    public void setEventexpr(final ValueExpression eventexpr) {
         this.eventexpr = eventexpr;
     }
 
@@ -462,7 +463,7 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
             }
         }
         if (delayString != null) {
-            wait = parseDelay(delayString, delayexpr != null, delayexpr != null ? delayexpr : delay);
+            wait = parseDelay(delayString, delayexpr != null, delayexpr != null ? delayexpr.toString() : delay);
         }
         String eventValue = event;
         if (eventValue == null && eventexpr != null) {

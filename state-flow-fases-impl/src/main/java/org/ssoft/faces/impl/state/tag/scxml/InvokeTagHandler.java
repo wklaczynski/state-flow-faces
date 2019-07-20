@@ -79,13 +79,13 @@ public class InvokeTagHandler extends AbstractFlowTagHandler<Invoke> {
         if (type.isLiteral()) {
             target.setType(type.getValue());
         } else {
-            target.setTypeexpr(type.getValue());
+            target.setTypeexpr(type.getValueExpression(ctx, Object.class));
         }
 
         if (src.isLiteral()) {
             target.setSrc(src.getValue());
         } else {
-            target.setSrcexpr(src.getValue());
+            target.setSrcexpr(src.getValueExpression(ctx, Object.class));
         }
 
         target.setId(id != null ? id.getValue() : null);

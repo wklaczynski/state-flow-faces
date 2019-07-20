@@ -33,7 +33,7 @@ public class Else extends ElseIf {
      */
     public Else() {
         super();
-        setCond("true");
+        setCond(null);
     }
 
 }

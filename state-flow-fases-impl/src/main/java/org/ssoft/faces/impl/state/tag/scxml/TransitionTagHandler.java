@@ -137,7 +137,7 @@ public class TransitionTagHandler extends AbstractFlowTagHandler<Transition> {
         }
 
         if (cond != null) {
-            transition.setCond(cond.getValue());
+            transition.setCond(cond.getValueExpression(ctx, Boolean.class));
         }
 
         if (target != null) {

@@ -35,6 +35,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
+import javax.el.ELContext;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.FacesException;
 import javax.faces.application.ProjectStage;
@@ -104,6 +105,7 @@ import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
 import static javax.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 import javax.faces.state.component.UIStateChartFacetRender;
+import javax.faces.state.scxml.SCXMLSystemContext;
 import javax.faces.state.scxml.invoke.InvokerException;
 
 /**
@@ -593,7 +595,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         if (executorId == null) {
             return null;
         }
-        
+
         FlowDeque fs = getFlowDeque(context, false);
         if (fs == null) {
             return null;
@@ -603,7 +605,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         SCXMLExecutor executor = executors.get(executorId);
         return executor;
     }
-    
+
     @Override
     public boolean hasViewRoot(FacesContext context) {
         FlowDeque fs = getFlowDeque(context, false);
@@ -735,6 +737,21 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                         .add(executorId);
             }
 
+            SCXMLExecutor currentExecutor = getCurrentExecutor(context);
+            if (currentExecutor != null) {
+                String parentSessionId = (String) currentExecutor.getSCInstance().getSystemContext().get(SCXMLSystemContext.SESSIONID_KEY);
+                Context ctx = executor.getGlobalContext();
+                ctx.setLocal("##parent_executor_session_id", parentSessionId);
+            }
+
+            SCXMLExecutor rootExecutor = getRootExecutor(context);
+            if (rootExecutor != null) {
+                String parentSessionId = (String) rootExecutor.getSCInstance().getSystemContext().get(SCXMLSystemContext.SESSIONID_KEY);
+                Context ctx = executor.getGlobalContext();
+                ctx.setLocal("##root_executor_session_id", parentSessionId);
+            }
+            
+            
             executorEntered(executor);
 
             try {
@@ -1204,6 +1221,11 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     }
 
+    @Override
+    public ELContext getELContext(FacesContext context) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
     private static class WrappedFacesContext extends FacesContextWrapper {
 
         UIViewRoot vrot;

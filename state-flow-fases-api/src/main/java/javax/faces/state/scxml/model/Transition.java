@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
+import javax.el.ValueExpression;
 
 /**
  * The class in this SCXML object model that corresponds to the
@@ -58,7 +59,7 @@ public class Transition extends SimpleTransition implements DocumentOrder {
     /**
      * Optional guard condition.
      */
-    private String cond;
+    private ValueExpression cond;
 
     /**
      * Constructor.
@@ -91,7 +92,7 @@ public class Transition extends SimpleTransition implements DocumentOrder {
      *
      * @return Returns the cond.
      */
-    public String getCond() {
+    public ValueExpression getCond() {
         return cond;
     }
 
@@ -100,7 +101,7 @@ public class Transition extends SimpleTransition implements DocumentOrder {
      *
      * @param cond The cond to set.
      */
-    public void setCond(final String cond) {
+    public void setCond(final ValueExpression cond) {
         this.cond = cond;
     }
 

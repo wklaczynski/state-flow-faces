@@ -16,6 +16,8 @@
  */
 package javax.faces.state.scxml.model;
 
+import javax.el.ValueExpression;
+
 /**
  * The class in this SCXML object model that corresponds to the SCXML
  * &lt;data&gt; child element of the &lt;datamodel&gt; element.
@@ -42,7 +44,7 @@ public class Data extends SCComponent implements ParsedValueContainer {
     /**
      * The expression that evaluates to the value of this data instance.
      */
-    private String expr;
+    private ValueExpression expr;
 
     /**
      * The data element body value, or the value from external {@link #getSrc()}, may be null.
@@ -90,7 +92,7 @@ public class Data extends SCComponent implements ParsedValueContainer {
      *
      * @return String The expression.
      */
-    public final String getExpr() {
+    public final ValueExpression getExpr() {
         return expr;
     }
 
@@ -99,7 +101,7 @@ public class Data extends SCComponent implements ParsedValueContainer {
      *
      * @param expr The expression.
      */
-    public final void setExpr(final String expr) {
+    public final void setExpr(final ValueExpression expr) {
         this.expr = expr;
     }
 

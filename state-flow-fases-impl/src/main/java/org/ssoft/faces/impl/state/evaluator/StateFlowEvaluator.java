@@ -16,17 +16,11 @@
 package org.ssoft.faces.impl.state.evaluator;
 
 import com.sun.faces.facelets.el.ELText;
-import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import javax.el.CompositeELResolver;
-import javax.el.ELContext;
-import javax.el.ELResolver;
 import javax.el.ExpressionFactory;
-import javax.el.FunctionMapper;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
-import javax.el.VariableMapper;
 import javax.faces.context.FacesContext;
 import org.ssoft.faces.impl.state.StateFlowContext;
 import javax.faces.state.scxml.Context;
@@ -42,7 +36,6 @@ import javax.faces.state.scxml.env.EffectiveContextMap;
 import javax.faces.state.scxml.invoke.Invoker;
 import javax.faces.state.scxml.invoke.InvokerException;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
-import org.ssoft.faces.impl.state.el.CompositeFunctionMapper;
 import javax.faces.state.scxml.model.SCXML;
 import org.ssoft.faces.impl.state.invokers.FacesInvokerWrapper;
 
@@ -67,9 +60,9 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
      */
     public static final String FLOW_ISTANCE_KEY = "javax.faces.FLOW_CONTEXT_KEY".intern();
 
-    private final transient ThreadLocal<ContextWrapper> eccashe;
+    private final transient ThreadLocal<StateFlowELContext> eccashe;
 
-    private transient ContextWrapper ec;
+    private transient StateFlowELContext ec;
     private transient ExpressionFactory ef;
 
     /**
@@ -90,7 +83,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
         return false;
     }
 
-    private <V> V wrap(Context ctx, String expr, Callable<V> call) throws SCXMLExpressionException {
+    private <V, T> V wrap(Context ctx, T expr, Callable<V> call) throws SCXMLExpressionException {
         FacesContext fc = FacesContext.getCurrentInstance();
 
         Context.setCurrentInstance(ctx);
@@ -101,7 +94,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
 
         ec = eccashe.get();
         if (ec == null) {
-            ec = new ContextWrapper(fc);
+            ec = new StateFlowELContext(fc);
             eccashe.set(ec);
         }
 
@@ -129,11 +122,10 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             ec.putContext(FacesContext.class, fc);
             return call.call();
         } catch (NullPointerException ex) {
-            throw new SCXMLExpressionException(String.format("%s error: null pointer exception", expr), ex);
+            throw new SCXMLExpressionException(String.format("%s error: null pointer exception", expr.toString()), ex);
         } catch (Throwable ex) {
-            throw new SCXMLExpressionException(String.format("%s error: %s", expr, Util.getErrorMessage(ex)), ex);
+            throw new SCXMLExpressionException(String.format("%s error: %s", expr.toString(), Util.getErrorMessage(ex)), ex);
         } finally {
-            ec.putContext(Context.class, newContext(null));
             ec.reset();
             Context.setCurrentInstance(null);
             fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
@@ -172,9 +164,17 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     }
 
     @Override
-    public Boolean evalCond(Context ctx, String expr) throws SCXMLExpressionException {
+    public Object eval(Context ctx, ValueExpression expr) throws SCXMLExpressionException {
         return wrap(ctx, expr, () -> {
-            ValueExpression ve = ef.createValueExpression(ec, resolve(ctx, expr), Boolean.class);
+            ValueExpression ve = expr;
+            return ve.getValue(ec);
+        });
+    }
+
+    @Override
+    public Boolean evalCond(Context ctx, ValueExpression expr) throws SCXMLExpressionException {
+        return wrap(ctx, expr, () -> {
+            ValueExpression ve = expr;
             return (Boolean) ve.getValue(ec);
         });
     }
@@ -243,86 +243,6 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
 
     private String stripTrailingSlash(final String uri) {
         return uri.endsWith("/") ? uri.substring(0, uri.length() - 1) : uri;
-    }
-
-    /**
-     *
-     */
-    public class ContextWrapper extends ELContext implements Serializable {
-
-        private final ELContext ctx;
-        private VariableMapper varMapper;
-        private FunctionMapper fnMapper;
-        private final FunctionMapper defFnMapper;
-        private final CompositeELResolver elResolver;
-
-        private ContextWrapper(FacesContext facesContext) {
-            super();
-            this.ctx = facesContext.getELContext();
-
-            this.varMapper = ctx.getVariableMapper();
-            if (varMapper == null) {
-                this.varMapper = new EvaluatorVariableMapper();
-            }
-
-            this.defFnMapper = this.fnMapper = ctx.getFunctionMapper();
-
-            this.elResolver = new CompositeELResolver();
-            this.elResolver.add(new EvaluatorELResolver());
-            this.elResolver.add(ctx.getELResolver());
-
-        }
-
-        @Override
-        public FunctionMapper getFunctionMapper() {
-            return this.fnMapper;
-        }
-
-        /**
-         *
-         * @param functionMapper
-         */
-        public void addFunctionMaper(FunctionMapper functionMapper) {
-            this.fnMapper = new CompositeFunctionMapper(functionMapper, this.fnMapper);
-        }
-
-        @Override
-        public VariableMapper getVariableMapper() {
-            return this.varMapper;
-        }
-
-        @Override
-        public ELResolver getELResolver() {
-            return elResolver;
-        }
-
-        /**
-         *
-         */
-        public void reset() {
-            this.fnMapper = defFnMapper;
-        }
-
-    }
-
-    static class BuiltinVariableMapper extends VariableMapper implements Serializable {
-
-        private final VariableMapper mapper;
-
-        public BuiltinVariableMapper(VariableMapper mapper) {
-            super();
-            this.mapper = mapper;
-        }
-
-        @Override
-        public ValueExpression resolveVariable(String variable) {
-            return mapper.resolveVariable(variable);
-        }
-
-        @Override
-        public ValueExpression setVariable(String variable, ValueExpression expression) {
-            return mapper.setVariable(variable, expression);
-        }
     }
 
 }

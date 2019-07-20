@@ -78,7 +78,7 @@ public class CancelTagHandler extends AbstractFlowTagHandler<Cancel> {
         if (sendid.isLiteral()) {
             action.setSendid(sendid.getValue());
         } else {
-            action.setSendidexpr(sendid.getValue());
+            action.setSendidexpr(sendid.getValueExpression(ctx, Object.class));
         }
 
         addAction(ctx, parent, action);

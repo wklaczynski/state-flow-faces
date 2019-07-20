@@ -17,6 +17,7 @@
 package org.ssoft.faces.impl.state.tag.faces;
 
 import java.util.logging.Level;
+import javax.el.ValueExpression;
 import javax.faces.state.scxml.ActionExecutionContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.Evaluator;
@@ -64,14 +65,14 @@ public class SetVariable extends Action {
     /**
      * The expression that evaluates to the initial value of the variable.
      */
-    private String expr;
+    private ValueExpression expr;
 
     /**
      * Get the expression that evaluates to the initial value of the variable.
      *
      * @return String Returns the expr.
      */
-    public final String getExpr() {
+    public final ValueExpression getExpr() {
         return expr;
     }
 
@@ -80,7 +81,7 @@ public class SetVariable extends Action {
      *
      * @param expr The expr to set.
      */
-    public final void setExpr(final String expr) {
+    public final void setExpr(final ValueExpression expr) {
         this.expr = expr;
     }
 

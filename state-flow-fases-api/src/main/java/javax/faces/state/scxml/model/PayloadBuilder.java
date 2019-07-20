@@ -112,7 +112,7 @@ public class PayloadBuilder {
                     // ignore invalid param definition
                     continue;
                 }
-                addToPayload(p.getName(), evaluator.cloneData(paramValue), payload);
+                addToPayload((String)evaluator.eval(ctx, p.getName()), evaluator.cloneData(paramValue), payload);
             }
         }
     }

@@ -16,6 +16,7 @@
  */
 package javax.faces.state.scxml;
 
+import javax.el.ValueExpression;
 import javax.faces.state.scxml.invoke.Invoker;
 import javax.faces.state.scxml.invoke.InvokerException;
 
@@ -65,6 +66,17 @@ public interface Evaluator {
     throws SCXMLExpressionException;
 
     /**
+     * Evaluate an expression returning a data value
+     *
+     * @param ctx variable context
+     * @param expr expression
+     * @return the result of the evaluation
+     * @throws SCXMLExpressionException A malformed expression exception
+     */
+    Object eval(Context ctx, ValueExpression expr)
+    throws SCXMLExpressionException;
+    
+    /**
      * Evaluate a condition.
      * Manifests as "cond" attributes of &lt;transition&gt;,
      * &lt;if&gt; and &lt;elseif&gt; elements.
@@ -74,7 +86,7 @@ public interface Evaluator {
      * @return true/false
      * @throws SCXMLExpressionException A malformed expression exception
      */
-    Boolean evalCond(Context ctx, String expr)
+    Boolean evalCond(Context ctx, ValueExpression expr)
     throws SCXMLExpressionException;
 
     

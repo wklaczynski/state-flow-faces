@@ -16,6 +16,7 @@
 package org.ssoft.faces.impl.state.tag.scxml;
 
 import java.io.IOException;
+import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
@@ -83,8 +84,8 @@ public class DataTagHandler extends AbstractFlowTagHandler<Data> {
         if (isProductionMode(ctx) && staticValue != null) {
             data.setParsedValue(staticValue);
         } else if (expr != null) {
-            String value = expr.getValue(ctx);
-            data.setExpr(value);
+            ValueExpression valueExpression = expr.getValueExpression(ctx, Object.class);
+            data.setExpr(valueExpression);
         } else if (src != null && !src.isLiteral()) {
             data.setSrc(src.getValue());
         } else if (src != null && src.isLiteral()) {

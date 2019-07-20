@@ -16,6 +16,7 @@
  */
 package javax.faces.state.scxml.model;
 
+import javax.el.ValueExpression;
 import javax.faces.state.scxml.ActionExecutionContext;
 import javax.faces.state.scxml.SCXMLExpressionException;
 
@@ -34,7 +35,7 @@ public class ElseIf extends Action {
     /**
      * An conditional expression which can be evaluated to true or false.
      */
-    private String cond;
+    private ValueExpression cond;
 
     /**
      * Constructor.
@@ -48,7 +49,7 @@ public class ElseIf extends Action {
      *
      * @return Returns the cond.
      */
-    public final String getCond() {
+    public final ValueExpression getCond() {
         return cond;
     }
 
@@ -57,7 +58,7 @@ public class ElseIf extends Action {
      *
      * @param cond The cond to set.
      */
-    public final void setCond(final String cond) {
+    public final void setCond(final ValueExpression cond) {
         this.cond = cond;
     }
 

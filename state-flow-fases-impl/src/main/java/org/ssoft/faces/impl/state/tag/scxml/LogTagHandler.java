@@ -83,7 +83,7 @@ public class LogTagHandler extends AbstractFlowTagHandler<Log> {
 
         action.setLabel(label != null ? label.getValue() : null);
         
-        action.setExpr(expr != null ? expr.getValue() : null);
+        action.setExpr(expr != null ? expr.getValueExpression(ctx, Object.class): null);
         
         addAction(ctx, parent, action);
         
