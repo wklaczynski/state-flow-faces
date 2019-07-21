@@ -16,21 +16,19 @@
 package org.ssoft.faces.impl.state.executor;
 
 import java.util.Stack;
-import java.util.concurrent.Executor;
-import javax.faces.application.Resource;
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.state.StateChartExecuteContext;
 import javax.faces.state.StateFlowHandler;
-import javax.faces.state.scxml.SCXMLExecutor;
-import javax.faces.view.Location;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class ExecutorStackManager {
+public class ExecutorContextStackManager {
 
     private static final String MANAGER_KEY
-                                = ExecutorStackManager.class.getName();
+                                = ExecutorContextStackManager.class.getName();
 
     public enum StackType {
         TreeCreation,
@@ -40,19 +38,20 @@ public class ExecutorStackManager {
     private final StackHandler treeCreation = new TreeCreationStackHandler();
     private final StackHandler runtime = new RuntimeStackHandler();
 
-    private ExecutorStackManager() {
+    private ExecutorContextStackManager() {
     }
 
     /**
      * @param ctx the <code>FacesContext</code> for the current request
-     * @return the <code>ExecutorStackManager</code> for the current request
+     * @return the <code>ExecutorContextStackManager</code> for the current
+     * request
      */
-    public static ExecutorStackManager getManager(FacesContext ctx) {
+    public static ExecutorContextStackManager getManager(FacesContext ctx) {
 
-        ExecutorStackManager manager
-                             = (ExecutorStackManager) ctx.getAttributes().get(MANAGER_KEY);
+        ExecutorContextStackManager manager
+                                    = (ExecutorContextStackManager) ctx.getAttributes().get(MANAGER_KEY);
         if (manager == null) {
-            manager = new ExecutorStackManager();
+            manager = new ExecutorContextStackManager();
             ctx.getAttributes().put(MANAGER_KEY, manager);
         }
 
@@ -65,12 +64,12 @@ public class ExecutorStackManager {
      * Pushes the specified executor to the <code>Evaluation</code> stack.
      * </p>
      *
-     * @param compositeComponent the executor to push
+     * @param executeContext the executor to push
      * @return <code>true</code> if the executor was pushed, otherwise returns
      * <code>false</code>
      */
-    public boolean push(SCXMLExecutor compositeComponent) {
-        return getStackHandler(StackType.Evaluation).push(compositeComponent);
+    public boolean push(StateChartExecuteContext executeContext) {
+        return getStackHandler(StackType.TreeCreation).push(executeContext);
     }
 
     /**
@@ -79,13 +78,13 @@ public class ExecutorStackManager {
      * stack.
      * </p>
      *
-     * @param executor the executor to push
+     * @param executeContext the executor to push
      * @param stackType the stack to push to the executor to
      * @return <code>true</code> if the executor was pushed, otherwise returns
      * <code>false</code>
      */
-    public boolean push(SCXMLExecutor executor, StackType stackType) {
-        return getStackHandler(stackType).push(executor);
+    public boolean push(StateChartExecuteContext executeContext, StackType stackType) {
+        return getStackHandler(stackType).push(executeContext);
     }
 
     /**
@@ -98,7 +97,7 @@ public class ExecutorStackManager {
      * <code>false</code>
      */
     public boolean push() {
-        return getStackHandler(StackType.Evaluation).push();
+        return getStackHandler(StackType.TreeCreation).push();
     }
 
     /**
@@ -132,15 +131,15 @@ public class ExecutorStackManager {
      * </p>
      */
     public void pop() {
-        getStackHandler(StackType.Evaluation).pop();
+        getStackHandler(StackType.TreeCreation).pop();
     }
 
     /**
      * @return the top-level executor from the <code>Evaluation</code> stack
      * without removing the element
      */
-    public SCXMLExecutor peek() {
-        return getStackHandler(StackType.Evaluation).peek();
+    public StateChartExecuteContext peek() {
+        return getStackHandler(StackType.TreeCreation).peek();
     }
 
     /**
@@ -149,45 +148,20 @@ public class ExecutorStackManager {
      * @return the top-level executor from the specified stack without removing
      * the element
      */
-    public SCXMLExecutor peek(StackType stackType) {
+    public StateChartExecuteContext peek(StackType stackType) {
         return getStackHandler(stackType).peek();
     }
 
-    public SCXMLExecutor getParentExecutor(StackType stackType,
+    public StateChartExecuteContext getParentExecutor(StackType stackType,
             FacesContext ctx,
-            SCXMLExecutor forComponent) {
-        return getStackHandler(stackType).getParentExecutor(ctx, forComponent);
+            StateChartExecuteContext forExecutor) {
+        return getStackHandler(stackType).getParentExecuteContext(ctx, forExecutor);
     }
 
-    public SCXMLExecutor findExecutorUsingLocation(FacesContext ctx, Location location) {
-
-        StackHandler sh = getStackHandler(StackType.TreeCreation);
-        Stack<SCXMLExecutor> s = sh.getStack(false);
-        if (s != null) {
-            String path = location.getPath();
-            for (int i = s.size(); i > 0; i--) {
-//                SCXMLExecutor cc = s.get(i - 1);
-//                Resource r = (Resource) cc.getAttributes().get(Resource.COMPONENT_RESOURCE_KEY);
-//                if (path.endsWith('/' + r.getResourceName()) && path.contains(r.getLibraryName())) {
-//                    return cc;
-//                }
-            }
-        } else {
-            // runtime eval
-            String path = location.getPath();
-            StateFlowHandler handler = StateFlowHandler.getInstance();
-            SCXMLExecutor ce = handler.getCurrentExecutor(ctx);
-//            while (ce != null) {
-//                Resource r = (Resource) cc.getAttributes().get(Resource.COMPONENT_RESOURCE_KEY);
-//                if (path.endsWith('/' + r.getResourceName()) && path.contains(r.getLibraryName())) {
-//                    return ce;
-//                }
-//                cc = UIComponent.getCompositeComponentParent(cc);
-//            }
-        }
-
+    public StateChartExecuteContext findExecuteContextByComponent(FacesContext ctx,
+            UIComponent component) {
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        return handler.getCurrentExecutor(ctx);
+        return handler.getExecuteContextByComponent(ctx, component);
     }
 
     private StackHandler getStackHandler(StackType type) {
@@ -207,25 +181,26 @@ public class ExecutorStackManager {
 
     private interface StackHandler {
 
-        boolean push(SCXMLExecutor executor);
+        boolean push(StateChartExecuteContext executeContext);
 
         boolean push();
 
         void pop();
 
-        SCXMLExecutor peek();
+        StateChartExecuteContext peek();
 
-        SCXMLExecutor getParentExecutor(FacesContext ctx, SCXMLExecutor forExecutor);
+        StateChartExecuteContext getParentExecuteContext(FacesContext ctx,
+                StateChartExecuteContext forExecutor);
 
         void delete();
 
-        Stack<SCXMLExecutor> getStack(boolean create);
+        Stack<StateChartExecuteContext> getStack(boolean create);
 
     }
 
     private abstract class BaseStackHandler implements StackHandler {
 
-        protected Stack<SCXMLExecutor> stack;
+        protected Stack<StateChartExecuteContext> stack;
 
         @Override
         public void delete() {
@@ -235,7 +210,7 @@ public class ExecutorStackManager {
         }
 
         @Override
-        public Stack<SCXMLExecutor> getStack(boolean create) {
+        public Stack<StateChartExecuteContext> getStack(boolean create) {
 
             if (stack == null && create) {
                 stack = new Stack<>();
@@ -245,7 +220,7 @@ public class ExecutorStackManager {
         }
 
         @Override
-        public SCXMLExecutor peek() {
+        public StateChartExecuteContext peek() {
 
             if (stack != null && !stack.isEmpty()) {
                 return stack.peek();
@@ -286,27 +261,27 @@ public class ExecutorStackManager {
         }
 
         @Override
-        public boolean push(SCXMLExecutor executor) {
+        public boolean push(StateChartExecuteContext executeContext) {
 
-            Stack<SCXMLExecutor> tstack = ExecutorStackManager.this.treeCreation.getStack(false);
+            Stack<StateChartExecuteContext> tstack = ExecutorContextStackManager.this.treeCreation.getStack(false);
             @SuppressWarnings("LocalVariableHidesMemberVariable")
-            Stack<SCXMLExecutor> stack = getStack(false);
-            SCXMLExecutor cse;
+            Stack<StateChartExecuteContext> stack = getStack(false);
+            StateChartExecuteContext cse;
             if (tstack != null) {
-                cse = executor;
+                cse = executeContext;
             } else {
                 stack = getStack(false);
 
-                if (executor == null) {
+                if (executeContext == null) {
                     if (stack != null && !stack.isEmpty()) {
-                        cse = getExecutorParent(stack.peek());
+                        cse = getExecuteContextParent(stack.peek());
                     } else {
-                        StateFlowHandler instance = StateFlowHandler.getInstance();
-                        cse = getExecutorParent((instance
-                                .getCurrentExecutor(FacesContext.getCurrentInstance())));
+                        StateFlowHandler handler = StateFlowHandler.getInstance();
+                        cse = getExecuteContextParent((handler
+                                .getCurrentExecuteContext(FacesContext.getCurrentInstance())));
                     }
                 } else {
-                    cse = executor;
+                    cse = executeContext;
                 }
             }
 
@@ -322,11 +297,11 @@ public class ExecutorStackManager {
         }
 
         @Override
-        public SCXMLExecutor getParentExecutor(FacesContext ctx, SCXMLExecutor forExecutor) {
-            return getExecutorParent(forExecutor);
+        public StateChartExecuteContext getParentExecuteContext(FacesContext ctx, StateChartExecuteContext forExecuteContext) {
+            return getExecuteContextParent(forExecuteContext);
         }
 
-        private SCXMLExecutor getExecutorParent(SCXMLExecutor comp) {
+        private StateChartExecuteContext getExecuteContextParent(StateChartExecuteContext comp) {
             return null;
         }
 
@@ -355,11 +330,11 @@ public class ExecutorStackManager {
         }
 
         @Override
-        public boolean push(SCXMLExecutor executor) {
+        public boolean push(StateChartExecuteContext executeContext) {
 
-            if (executor != null) {
-                Stack<SCXMLExecutor> s = getStack(true);
-                s.push(executor);
+            if (executeContext != null) {
+                Stack<StateChartExecuteContext> s = getStack(true);
+                s.push(executeContext);
                 return true;
             }
             return false;
@@ -367,13 +342,13 @@ public class ExecutorStackManager {
         }
 
         @Override
-        public SCXMLExecutor getParentExecutor(FacesContext ctx, SCXMLExecutor forExecutor) {
+        public StateChartExecuteContext getParentExecuteContext(FacesContext ctx, StateChartExecuteContext forExecuteContext) {
 
-            Stack<SCXMLExecutor> s = getStack(false);
+            Stack<StateChartExecuteContext> s = getStack(false);
             if (s == null) {
                 return null;
             } else {
-                int idx = s.indexOf(forExecutor);
+                int idx = s.indexOf(forExecuteContext);
                 if (idx == 0) {
                     return null;
                 }

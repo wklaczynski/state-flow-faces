@@ -19,6 +19,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import javax.el.ELContext;
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
@@ -169,6 +170,14 @@ public abstract class StateFlowHandler {
     /**
      *
      * @param context
+     * @param component
+     * @return
+     */
+    public abstract StateChartExecuteContext getExecuteContextByComponent(FacesContext context, UIComponent component);
+
+    /**
+     *
+     * @param context
      * @return
      */
     public abstract SCXMLExecutor getCurrentExecutor(FacesContext context);
@@ -258,7 +267,7 @@ public abstract class StateFlowHandler {
      * @return
      */
     public abstract ELContext getELContext(FacesContext context);
-    
+
     /**
      *
      * @param context

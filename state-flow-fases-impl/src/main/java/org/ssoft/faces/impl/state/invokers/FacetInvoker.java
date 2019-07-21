@@ -348,11 +348,6 @@ public class FacetInvoker implements Invoker, Serializable {
         }
     }
 
-    public static String getRenderFacetId(FacesContext context, UIViewRoot viewRoot, UIStateChartExecutor controller, String source) throws InvokerException {
-        String result = null;
-        return result;
-    }
-
     private void clearViewMapIfNecessary(UIViewRoot root, String newId) {
         if (root != null && !root.getViewId().equals(newId)) {
             Map<String, Object> viewMap = root.getViewMap(false);

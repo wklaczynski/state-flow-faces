@@ -149,10 +149,10 @@
 
     <cc:implementation>
         <fx:execute name="default">
+            <f:param name="path" value="#{cc.attrs.path}"/>
+            <f:param name="caption" value="#{cc.attrs.caption}"/>
 
             <fx:renderFacet>
-                <f:param name="path" value="#{cc.attrs.path}"/>
-                <f:param name="caption" value="#{cc.attrs.caption}"/>
 
                 <f:facet name="facet1">
                     <h:panelGrid columns="1">

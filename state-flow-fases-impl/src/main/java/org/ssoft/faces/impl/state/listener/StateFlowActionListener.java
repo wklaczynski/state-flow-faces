@@ -22,10 +22,12 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.state.StateChartExecuteContext;
 import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.component.UIStateChartFacetRender;
 import javax.faces.state.utils.ComponentUtils;
+import org.ssoft.faces.impl.state.executor.ExecutorContextStackManager;
 
 /**
  *
@@ -46,34 +48,27 @@ public class StateFlowActionListener implements ActionListener {
     @Override
     @SuppressWarnings("FinallyDiscardsException")
     public void processAction(ActionEvent event) throws AbortProcessingException {
+        boolean pushed = false;
         UIComponent source = event.getComponent();
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        UIViewRoot viewRoot = facesContext.getViewRoot();
-        UIStateChartFacetRender render = null;
-        UIStateChartExecutor executor = null;
+
+        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(facesContext);
+
         try {
             String sorceId = source.getClientId(facesContext);
 
             Map<Object, Object> attrs = facesContext.getAttributes();
             attrs.put(CURRENT_COMPONENT_HINT, sorceId);
 
-            if (viewRoot != null) {
-                executor = ComponentUtils.assigned(UIStateChartExecutor.class, source);
-                if (executor != null) {
-                    executor.pushExecutorToEl(facesContext, executor);
-                }
-                render = ComponentUtils.assigned(UIStateChartFacetRender.class, source);
-                if (render != null) {
-                    render.pushExecutorToEl(facesContext, render);
-                }
+            StateChartExecuteContext executeContext = manager.findExecuteContextByComponent(facesContext, source);
+            if (executeContext != null) {
+                pushed = manager.push(executeContext);
             }
+
             base.processAction(event);
         } finally {
-            if (render != null) {
-                render.popExecutorFromEl(facesContext);
-            }
-            if (executor != null) {
-                executor.popExecutorFromEl(facesContext);
+            if(pushed) {
+                manager.pop();
             }
             facesContext.getAttributes().remove(CURRENT_COMPONENT_HINT);
         }

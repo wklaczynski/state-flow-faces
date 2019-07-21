@@ -30,6 +30,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
+import javax.faces.state.StateChartExecuteContext;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.CompositeFaceletHandler;
@@ -54,6 +55,8 @@ import static javax.faces.state.StateFlow.EXECUTOR_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
+import javax.faces.state.component.ExecutorController;
+import org.ssoft.faces.impl.state.executor.ExecutorContextStackManager;
 import org.ssoft.faces.impl.state.log.FlowLogger;
 
 /**
@@ -78,7 +81,7 @@ public class ExecuteHandler extends ComponentHandler {
     public void applyNextHandler(FaceletContext ctx, UIComponent c) throws IOException, FacesException, ELException {
         super.applyNextHandler(ctx, c);
     }
-    
+
     @Override
     public void onComponentCreated(FaceletContext ctx, UIComponent c, UIComponent parent) {
         FacesContext context = ctx.getFacesContext();
@@ -87,79 +90,51 @@ public class ExecuteHandler extends ComponentHandler {
         UIViewRoot viewRoot = context.getViewRoot();
         String viewId = viewRoot.getViewId();
 
-        String scxmlName = name.getValue(ctx);
+        ValueExpression ve = name.getValueExpression(ctx, String.class);
+        String scxmlName = (String) ve.getValue(ctx);
+
+        Map<String, Object> ccattrs = null;
+        UIComponent cc = null;
+
+        if (null != parent && null != (cc = parent.getParent()) && UIComponent.isCompositeComponent(cc)) {
+            ccattrs = cc.getAttributes();
+        }
+
+        UIStateChartExecutor component = (UIStateChartExecutor) c;
+
         String rootId = handler.getExecutorViewRootId(context);
 
-        UIStateChartExecutor controller = (UIStateChartExecutor) c;
-
-        UIComponent compositeParent = UIComponent.getCurrentCompositeComponent(ctx.getFacesContext());
-        if (compositeParent != null) {
-
-            URL url = getCompositeURL(ctx);
-            if (url == null) {
-                throw new TagException(this.tag,
-                        "Unable to localize composite url '"
-                        + scxmlName
-                        + "' in parent composite component with id '"
-                        + compositeParent.getClientId(ctx.getFacesContext())
-                        + '\'');
-            }
-            String executorName = "controller[" + tag + "]" + viewId + "!" + url.getPath() + "#" + scxmlName;
-            String executorId = rootId + ":" + UUID.nameUUIDFromBytes(executorName.getBytes()).toString();
-
-            SCXMLExecutor currentExecutor = controller.getExecutor();
-            if (currentExecutor != null && !currentExecutor.getId().equals(executorId)) {
-                throw new TagException(this.tag, "Render state component can not multiple start in the same composite component.");
-            }
-
-            String uuid = UUID.nameUUIDFromBytes(url.getPath().getBytes()).toString();
-            String stateContinerName = STATE_CHART_FACET_NAME + "_" + uuid;
-
-            execute(ctx, controller, executorId, stateContinerName, url);
-        } else {
-            String executorName = "controller[" + tag + "]" + viewId + "#" + scxmlName;
-            String executorId = rootId + ":" + UUID.nameUUIDFromBytes(executorName.getBytes()).toString();
-
-            SCXMLExecutor currentExecutor = controller.getExecutor();
-            if (currentExecutor != null && !currentExecutor.getId().equals(executorId)) {
-                throw new TagException(this.tag, "Render state component can not multiple start in the same composite component.");
-            }
-
-            String stateContinerName = STATE_CHART_FACET_NAME;
-
-            execute(ctx, controller, executorId, stateContinerName, rootId);
+        URL url = getCompositeURL(ctx);
+        if (url == null) {
+            throw new TagException(this.tag,
+                    "Unable to localize composite url '"
+                    + scxmlName
+                    + "' in parent composite component with id '"
+                    + parent.getClientId(ctx.getFacesContext())
+                    + '\'');
         }
-        
-        controller.pushExecutorToEl(context, controller);
-    }
 
-    @Override
-    public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
-        FacesContext context = ctx.getFacesContext();
-        UIStateChartExecutor controller = (UIStateChartExecutor) c;
+        String executorName = "controller[" + tag + "]" + viewId + "!" + url.getPath() + "#" + scxmlName;
+        String executorId = rootId + ":" + UUID.nameUUIDFromBytes(executorName.getBytes()).toString();
 
-        controller.popExecutorFromEl(context);
-    }
-
-    public void execute(FaceletContext ctx, UIStateChartExecutor controller, String executorId, String continerName, Object continerSource) {
-        FacesContext context = ctx.getFacesContext();
-        StateFlowHandler handler = StateFlowHandler.getInstance();
-
-        String scxmlName = name.getValue(ctx);
-
-        String viewId = context.getViewRoot().getViewId();
+        SCXMLExecutor currentExecutor = component.getExecutor();
+        if (currentExecutor != null && !currentExecutor.getId().equals(executorId)) {
+            throw new TagException(this.tag, "Render state component can not multiple start in the same composite component.");
+        }
 
         SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
         if (executor == null) {
+            String uuid = UUID.nameUUIDFromBytes(url.getPath().getBytes()).toString();
+            String continerName = STATE_CHART_FACET_NAME + "_" + uuid;
 
             try {
-                SCXML stateMachine = findStateMachine(ctx, continerName, continerSource);
+                SCXML stateMachine = findStateMachine(ctx, continerName, scxmlName, url);
                 executor = handler.createRootExecutor(executorId, context, stateMachine);
                 executor.getSCInstance().getSystemContext();
                 Context sctx = executor.getRootContext();
                 sctx.setLocal(FACES_CHART_CONTROLLER_TYPE, EXECUTOR_CONTROLLER_TYPE);
                 sctx.setLocal(FACES_CHART_CONTINER_NAME, continerName);
-                sctx.setLocal(FACES_CHART_CONTINER_SOURCE, continerSource);
+                sctx.setLocal(FACES_CHART_CONTINER_SOURCE, url);
 
                 sctx.setLocal(FACES_CHART_EXECUTOR_VIEW_ID, viewId);
 
@@ -173,7 +148,16 @@ public class ExecuteHandler extends ComponentHandler {
 
         }
 
-        controller.setExecutor(executor);
+        component.setExecutor(executor);
+        if (ccattrs != null) {
+            ExecutorController controller
+                                        = (ExecutorController) ccattrs.get(ExecutorController.EXECUTOR_CONTROLLER_KEY);
+            if (controller == null) {
+                controller = new ExecutorController();
+                ccattrs.put(ExecutorController.EXECUTOR_CONTROLLER_KEY, controller);
+            }
+            controller.setExecutor(executor);
+        }
 
         if (!executor.isRunning()) {
             LOGGER.warning(String.format(
@@ -197,7 +181,16 @@ public class ExecuteHandler extends ComponentHandler {
             handler.writeState(context);
         }
 
-        String path = viewId + "!" + executorId;
+        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(context);
+        StateChartExecuteContext executeContext = manager.findExecuteContextByComponent(context, component);
+        manager.push(executeContext);
+    }
+
+    @Override
+    public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
+        FacesContext context = ctx.getFacesContext();
+        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(context);
+        manager.pop();
     }
 
     public static URL getCompositeURL(FaceletContext ctx) {
@@ -227,11 +220,9 @@ public class ExecuteHandler extends ComponentHandler {
         return url;
     }
 
-    public SCXML findStateMachine(FaceletContext ctx, String continerName, Object continerSource) {
+    public SCXML findStateMachine(FaceletContext ctx, String continerName, String scxmlId, Object continerSource) {
         FacesContext context = ctx.getFacesContext();
         StateFlowHandler handler = StateFlowHandler.getInstance();
-
-        String scxmlId = name.getValue(ctx);
 
         UIComponent compositeParent = UIComponent.getCurrentCompositeComponent(context);
         if (compositeParent != null) {
@@ -308,14 +299,12 @@ public class ExecuteHandler extends ComponentHandler {
 
                             String pname = nameAttr.getValue(ctx);
                             ValueExpression paramValueExpression = valueAttr.getValueExpression(ctx, Object.class);
-                            if(paramValueExpression.isLiteralText()) {
-                                
+                            if (paramValueExpression.isLiteralText()) {
+
                             } else {
-                                
+
                             }
-                            
-                            
-                            
+
                             Object pvalue = valueAttr.getValue(ctx);
                             params.put(pname, pvalue);
                         }

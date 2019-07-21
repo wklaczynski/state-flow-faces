@@ -54,6 +54,7 @@
     <factory>
         <view-declaration-language-factory>org.ssoft.faces.impl.state.facelets.StateFlowViewDeclarationLanguageFactory</view-declaration-language-factory>
         <partial-view-context-factory>org.ssoft.faces.impl.state.facelets.StateFlowPartialViewContextFactory</partial-view-context-factory>
+        <application-factory>org.ssoft.faces.impl.state.facelets.StateFlowApplicationFactoryImpl</application-factory> 
     </factory>
 
     <component>

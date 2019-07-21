@@ -50,7 +50,7 @@ limitations under the License.
         <description><![CDATA[The <renderState> element is redirect to faces action or url.]]></description>
         <component>
             <component-type>javax.faces.state.UIStateChartExecutor</component-type>
-            <handler-class>org.ssoft.faces.impl.state.tag.faces.ExecuteHandler</handler-class>
+        <handler-class>org.ssoft.faces.impl.state.tag.faces.ExecuteHandler</handler-class>
         </component>
         <attribute>
             <description><![CDATA[Name of the defined scxml proces in metadada composite component or view.]]></description>

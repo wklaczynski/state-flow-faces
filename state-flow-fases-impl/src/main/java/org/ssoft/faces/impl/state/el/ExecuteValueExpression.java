@@ -17,10 +17,11 @@ package org.ssoft.faces.impl.state.el;
 
 import javax.el.ELContext;
 import javax.el.ValueExpression;
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.state.scxml.SCXMLExecutor;
+import javax.faces.state.StateChartExecuteContext;
 import javax.faces.view.Location;
-import org.ssoft.faces.impl.state.executor.ExecutorStackManager;
+import org.ssoft.faces.impl.state.executor.ExecutorContextStackManager;
 
 /**
  *
@@ -28,20 +29,27 @@ import org.ssoft.faces.impl.state.executor.ExecutorStackManager;
  */
 public final class ExecuteValueExpression extends ValueExpression {
 
-    private ValueExpression originalVE;
-    private Location location;
+    private final ValueExpression originalVE;
+    private final Location location;
+    private final UIComponent component;
 
-    public ExecuteValueExpression() {
+    public ExecuteValueExpression(ValueExpression originalVE) {
+        this.originalVE = originalVE;
+        this.location = null;
+
+        FacesContext ctx = FacesContext.getCurrentInstance();
+        component = UIComponent.getCurrentComponent(ctx);
     }
 
     public ExecuteValueExpression(Location location, ValueExpression originalVE) {
-
         this.originalVE = originalVE;
         this.location = location;
 
+        FacesContext ctx = FacesContext.getCurrentInstance();
+        component = UIComponent.getCurrentComponent(ctx);
     }
-    
-  @Override
+
+    @Override
     public Object getValue(ELContext elContext) {
 
         FacesContext ctx = (FacesContext) elContext.getContext(FacesContext.class);
@@ -60,7 +68,7 @@ public final class ExecuteValueExpression extends ValueExpression {
     public void setValue(ELContext elContext, Object o) {
 
         FacesContext ctx = (FacesContext) elContext.getContext(FacesContext.class);
-         boolean pushed = pushExecutor(ctx);
+        boolean pushed = pushExecutor(ctx);
         try {
             originalVE.setValue(elContext, o);
         } finally {
@@ -116,7 +124,6 @@ public final class ExecuteValueExpression extends ValueExpression {
 
     }
 
-
     @Override
     public String getExpressionString() {
         return originalVE.getExpressionString();
@@ -143,7 +150,6 @@ public final class ExecuteValueExpression extends ValueExpression {
         return originalVE.toString();
     }
 
-
     /**
      * @return the {@link Location} of this <code>ValueExpression</code>
      */
@@ -151,22 +157,18 @@ public final class ExecuteValueExpression extends ValueExpression {
         return location;
     }
 
-
     private boolean pushExecutor(FacesContext ctx) {
-
-        ExecutorStackManager manager = ExecutorStackManager.getManager(ctx);
-        SCXMLExecutor cc = manager.findExecutorUsingLocation(ctx, location);
-        return manager.push(cc);
-
+        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(ctx);
+        StateChartExecuteContext executeContext = manager.findExecuteContextByComponent(ctx, component);
+        if(executeContext != null) {
+            return manager.push(executeContext);
+        }
+        return false;
     }
 
-
     private void popExecutor(FacesContext ctx) {
-
-        ExecutorStackManager manager = ExecutorStackManager.getManager(ctx);
+        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(ctx);
         manager.pop();
-
-    }    
-    
+    }
 
 }

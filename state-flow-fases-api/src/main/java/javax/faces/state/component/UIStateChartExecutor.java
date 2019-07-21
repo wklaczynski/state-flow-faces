@@ -77,7 +77,6 @@ public class UIStateChartExecutor extends UIPanel {
         this._executor = executor;
     }
 
-
     public String getName() {
         return (java.lang.String) getStateHelper().eval(PropertyKeys.name, null);
     }
@@ -99,70 +98,58 @@ public class UIStateChartExecutor extends UIPanel {
         return path;
     }
 
-    @Override
-    public void pushComponentToEL(FacesContext context, UIComponent component) {
-        super.pushComponentToEL(context, component);
-        pushExecutorToEl(context, (UIStateChartExecutor) component);
-    }
-
-    @Override
-    public void popComponentFromEL(FacesContext context) {
-        super.popComponentFromEL(context);
-        popExecutorFromEl(context);
-    }
-
-    public void pushExecutorToEl(FacesContext context, UIStateChartExecutor component) {
-        if (context == null) {
-            throw new NullPointerException();
-        }
-        
-        if (null == component) {
-            component = this;
-        }
-
-        Map<Object, Object> contextAttributes = context.getAttributes();
-        ArrayDeque<UIComponent> componentStack = getComponentStack(_CURRENT_EXECUTOR_STACK_KEY,
-                contextAttributes);
-
-        componentStack.push(component);
-        component._isPushedAsCurrentRefCount++;
-    }
-
-    public void popExecutorFromEl(FacesContext context) {
-        if (context == null) {
-            throw new NullPointerException();
-        }
-
-        if (_isPushedAsCurrentRefCount < 1) {
-            return;
-        }
-
-        Map<Object, Object> contextAttributes = context.getAttributes();
-        ArrayDeque<UIComponent> componentStack = getComponentStack(_CURRENT_EXECUTOR_STACK_KEY,
-                contextAttributes);
-
-        for (UIComponent topComponent = componentStack.peek();
-                topComponent != this;
-                topComponent = componentStack.peek()) {
-            if (topComponent instanceof UIStateChartFacetRender) {
-                ((UIStateChartExecutor) topComponent).popExecutorFromEl(context);
-
-            } else {
-                componentStack.pop();
-            }
-        }
-
-        componentStack.pop();
-        _isPushedAsCurrentRefCount--;
-
-    }
-
-    public static UIStateChartExecutor getCurrentExecutor(FacesContext context) {
-        Map<Object, Object> contextAttributes = context.getAttributes();
-        ArrayDeque<UIComponent> componentStack = getComponentStack(_CURRENT_EXECUTOR_STACK_KEY,
-                contextAttributes);
-
-        return (UIStateChartExecutor) componentStack.peek();
-    }
+//    public void pushExecutorToEl(FacesContext context, UIStateChartExecutor component) {
+//        if (context == null) {
+//            throw new NullPointerException();
+//        }
+//
+//        if (null == component) {
+//            component = this;
+//        }
+//
+//        Map<Object, Object> contextAttributes = context.getAttributes();
+//        ArrayDeque<UIComponent> componentStack = getComponentStack(_CURRENT_EXECUTOR_STACK_KEY,
+//                contextAttributes);
+//
+//        componentStack.push(component);
+//        component._isPushedAsCurrentRefCount++;
+//    }
+//
+//    public void popExecutorFromEl(FacesContext context) {
+//        if (context == null) {
+//            throw new NullPointerException();
+//        }
+//
+//        if (_isPushedAsCurrentRefCount < 1) {
+//            return;
+//        }
+//
+//        Map<Object, Object> contextAttributes = context.getAttributes();
+//        ArrayDeque<UIComponent> componentStack = getComponentStack(_CURRENT_EXECUTOR_STACK_KEY,
+//                contextAttributes);
+//
+//        for (UIComponent topComponent = componentStack.peek();
+//                topComponent != this;
+//                topComponent = componentStack.peek()) {
+//            if (topComponent instanceof UIStateChartFacetRender) {
+//                ((UIStateChartExecutor) topComponent).popExecutorFromEl(context);
+//
+//            } else {
+//                componentStack.pop();
+//            }
+//        }
+//
+//        componentStack.pop();
+//        _isPushedAsCurrentRefCount--;
+//
+//    }
+//
+//    public static UIStateChartExecutor getCurrentExecutor(FacesContext context) {
+//        Map<Object, Object> contextAttributes = context.getAttributes();
+//        ArrayDeque<UIComponent> componentStack = getComponentStack(_CURRENT_EXECUTOR_STACK_KEY,
+//                contextAttributes);
+//
+//        return (UIStateChartExecutor) componentStack.peek();
+//    }
 
 }

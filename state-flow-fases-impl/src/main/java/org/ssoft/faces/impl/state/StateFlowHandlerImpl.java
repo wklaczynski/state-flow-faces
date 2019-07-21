@@ -94,7 +94,6 @@ import static javax.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static javax.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static javax.faces.state.StateFlow.PORTLET_EVENT_PREFIX;
-import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.task.TimerEventProducer;
 import javax.faces.state.scxml.ParentSCXMLIOProcessor;
@@ -106,7 +105,9 @@ import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
 import static javax.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 import javax.faces.state.component.UIStateChartFacetRender;
 import javax.faces.state.scxml.SCXMLSystemContext;
-import javax.faces.state.scxml.invoke.InvokerException;
+import javax.faces.state.component.ExecutorController;
+import javax.faces.state.component.UIStateChartExecutor;
+import org.ssoft.faces.impl.state.executor.ExecutorContextStackManager;
 
 /**
  *
@@ -485,6 +486,26 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     @Override
     public StateChartExecuteContext getCurrentExecuteContext(FacesContext context) {
+
+        SCXMLExecutor executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);
+        if (executor != null) {
+            Context ctx = executor.getRootContext();
+            StateChartExecuteContext viewContext = new StateChartExecuteContext(null, executor, ctx);
+            return viewContext;
+        }
+
+        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(context);
+        StateChartExecuteContext executeContext = manager.peek();
+        if (executeContext != null) {
+            return executeContext;
+        }
+
+        UIComponent current = UIComponent.getCurrentComponent(context);
+        return getExecuteContextByComponent(context, current);
+    }
+
+    @Override
+    public StateChartExecuteContext getExecuteContextByComponent(FacesContext context, UIComponent component) {
         UIViewRoot viewRoot = context.getViewRoot();
         StateChartExecuteContext viewContext = null;
         String executorId = null;
@@ -494,37 +515,32 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
             if (viewRoot != null) {
 
-                executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);
-                if (executor != null) {
-                    Context ctx = executor.getRootContext();
-                    viewContext = new StateChartExecuteContext(null, executor, ctx);
-                    return viewContext;
-                }
-
                 String path = viewRoot.getViewId();
+                UIComponent currentComponent = component;
 
-                UIComponent currentComponent = UIComponent.getCurrentComponent(context);
-                UIStateChartFacetRender render = UIStateChartFacetRender.getCurrentRenderer(context);
-                if (render == null) {
-                    if (currentComponent != null) {
-                        render = ComponentUtils.closest(UIStateChartFacetRender.class, currentComponent);
-                    }
-                }
-
-                if (render != null) {
-                    path = render.getInvokePath(context);
-                    executor = render.getExecutor();
-                    executorId = executor.getId();
-                } else {
-                    UIStateChartExecutor controller = UIStateChartExecutor.getCurrentExecutor(context);
-                    if (controller == null) {
-                        if (currentComponent != null) {
-                            controller = ComponentUtils.closest(UIStateChartExecutor.class, currentComponent);
-                        }
-                    }
-                    if (controller != null) {
-                        executor = controller.getExecutor();
+                if (currentComponent != null) {
+                    UIStateChartFacetRender render = ComponentUtils.assigned(UIStateChartFacetRender.class, currentComponent);
+                    if (render != null) {
+                        path = render.getInvokePath(context);
+                        executor = render.getExecutor();
                         executorId = executor.getId();
+                    } else {
+                        UIStateChartExecutor execute = ComponentUtils.assigned(UIStateChartExecutor.class, currentComponent);
+
+                        if (execute != null) {
+                            executor = execute.getExecutor();
+                            executorId = executor.getId();
+                        } else {
+                            UIComponent compositeCurrent = ComponentUtils.findExecuteCompositeComponent(context, currentComponent);
+                            if (compositeCurrent != null) {
+                                ExecutorController controller
+                                                            = (ExecutorController) compositeCurrent.getAttributes().get(ExecutorController.EXECUTOR_CONTROLLER_KEY);
+                                if (controller != null) {
+                                    executor = controller.getExecutor();
+                                    executorId = executor.getId();
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -750,8 +766,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 Context ctx = executor.getGlobalContext();
                 ctx.setLocal("##root_executor_session_id", parentSessionId);
             }
-            
-            
+
             executorEntered(executor);
 
             try {
@@ -1225,7 +1240,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     public ELContext getELContext(FacesContext context) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     private static class WrappedFacesContext extends FacesContextWrapper {
 
         UIViewRoot vrot;

@@ -19,16 +19,19 @@ package org.ssoft.faces.impl.state.tag.faces;
 import java.util.logging.Logger;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.state.StateChartExecuteContext;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagException;
-import javax.faces.state.utils.ComponentUtils;
 import javax.faces.state.StateFlowHandler;
-import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.component.UIStateChartFacetRender;
 import javax.faces.state.scxml.SCXMLExecutor;
+import javax.faces.state.utils.ComponentUtils;
+import javax.faces.state.component.ExecutorController;
+import javax.faces.state.scxml.Context;
+import org.ssoft.faces.impl.state.executor.ExecutorContextStackManager;
 import org.ssoft.faces.impl.state.log.FlowLogger;
 
 /**
@@ -55,13 +58,18 @@ public class RenderFacetHandler extends ComponentHandler {
         StateFlowHandler handler = StateFlowHandler.getInstance();
         UIStateChartFacetRender render = (UIStateChartFacetRender) c;
 
-        UIStateChartExecutor controller = UIStateChartExecutor.getCurrentExecutor(context);
-        if (controller == null) {
-            controller = ComponentUtils.assigned(UIStateChartExecutor.class, parent);
-        }
+        UIComponent cc = ComponentUtils.findCompositeComponentUsingLocation(context, tag.getLocation());
 
-        if (controller != null) {
-            SCXMLExecutor executor = controller.getExecutor();
+        SCXMLExecutor executor;
+        if (cc != null) {
+            ExecutorController controller = (ExecutorController) cc.getAttributes().get(ExecutorController.EXECUTOR_CONTROLLER_KEY);
+            if (controller == null) {
+                throw new TagException(this.tag,
+                        "Unable to render facet execute component, controller "
+                        + "executor can not be defined in the composite component.");
+            }
+
+            executor = controller.getExecutor();
 
             if (executor == null) {
                 throw new TagException(this.tag,
@@ -77,7 +85,7 @@ public class RenderFacetHandler extends ComponentHandler {
 
             render.setExecutor(executor);
         } else {
-            SCXMLExecutor executor = handler.getRootExecutor(context);
+            executor = handler.getRootExecutor(context);
             if (executor == null) {
                 throw new TagException(this.tag,
                         "Unable to render facet execute component, "
@@ -92,16 +100,17 @@ public class RenderFacetHandler extends ComponentHandler {
 
             render.setExecutor(executor);
         }
-        
-        render.pushExecutorToEl(context, render);
+
+        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(context);
+        StateChartExecuteContext executeContext = manager.findExecuteContextByComponent(context, render);
+        manager.push(executeContext);
     }
 
     @Override
     public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
         FacesContext context = ctx.getFacesContext();
-        UIStateChartFacetRender render = (UIStateChartFacetRender) c;
-        
-        render.popExecutorFromEl(context);
+        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(context);
+        manager.pop();
     }
 
 }

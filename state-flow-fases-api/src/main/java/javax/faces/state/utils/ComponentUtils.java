@@ -15,18 +15,21 @@
  */
 package javax.faces.state.utils;
 
+import javax.faces.state.component.ExecutorController;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import javax.faces.application.Application;
+import javax.faces.application.Resource;
 import javax.faces.application.ResourceDependencies;
 import javax.faces.application.ResourceDependency;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIOutput;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.faces.view.Location;
 
 /**
  *
@@ -122,4 +125,45 @@ public class ComponentUtils {
         }
     }
 
+    public static UIComponent findCompositeComponentUsingLocation(FacesContext ctx, Location location) {
+
+        String path = location.getPath();
+        UIComponent cc = UIComponent.getCurrentCompositeComponent(ctx);
+        while (cc != null) {
+            Resource r = (Resource) cc.getAttributes().get(Resource.COMPONENT_RESOURCE_KEY);
+            if (path.endsWith('/' + r.getResourceName()) && path.contains(r.getLibraryName())) {
+                return cc;
+            }
+            cc = UIComponent.getCompositeComponentParent(cc);
+        }
+        return UIComponent.getCurrentCompositeComponent(ctx);
+    }
+
+    public static UIComponent findExecuteCompositeComponent(FacesContext ctx, UIComponent cc) {
+
+        if(!UIComponent.isCompositeComponent(cc)) {
+            cc = UIComponent.getCompositeComponentParent(cc);
+        }
+        
+        while (cc != null) {
+            if (cc.getAttributes().containsKey(ExecutorController.EXECUTOR_CONTROLLER_KEY)) {
+                return cc;
+            }
+            cc = UIComponent.getCompositeComponentParent(cc);
+        }
+        return null;
+    }
+    
+    public static UIComponent findExecuteCompositeComponent(FacesContext ctx) {
+
+        UIComponent cc = UIComponent.getCurrentCompositeComponent(ctx);
+        while (cc != null) {
+            if (cc.getAttributes().containsKey(ExecutorController.EXECUTOR_CONTROLLER_KEY)) {
+                return cc;
+            }
+            cc = UIComponent.getCompositeComponentParent(cc);
+        }
+        return null;
+    }
+    
 }
