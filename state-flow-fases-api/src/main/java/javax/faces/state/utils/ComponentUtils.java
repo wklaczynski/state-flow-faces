@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package javax.faces.state.component;
+package javax.faces.state.utils;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

@@ -87,7 +87,7 @@ import static org.ssoft.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL
 import org.ssoft.faces.impl.state.invokers.FacetInvoker;
 import org.ssoft.faces.impl.state.tag.faces.MethodCall;
 import org.ssoft.faces.impl.state.tag.faces.Redirect;
-import javax.faces.state.component.ComponentUtils;
+import javax.faces.state.utils.ComponentUtils;
 import static org.ssoft.faces.impl.state.utils.Util.toViewId;
 import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.StateFlow;

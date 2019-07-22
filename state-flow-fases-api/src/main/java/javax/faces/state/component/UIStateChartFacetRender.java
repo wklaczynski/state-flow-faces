@@ -15,6 +15,7 @@
  */
 package javax.faces.state.component;
 
+import javax.faces.state.utils.ComponentUtils;
 import java.io.IOException;
 import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
@@ -103,71 +104,6 @@ public class UIStateChartFacetRender extends UIPanel {
         }
         super.encodeEnd(context);
     }
-
-//    @Override
-//    public void pushComponentToEL(FacesContext context, UIComponent component) {
-//        super.pushComponentToEL(context, component);
-//        pushRendererToEl(context, (UIStateChartFacetRender) component);
-//    }
-//
-//    @Override
-//    public void popComponentFromEL(FacesContext context) {
-//        super.popComponentFromEL(context);
-//        popRendererFromEl(context);
-//    }
-//    public void pushExecutorToEl(FacesContext context, UIStateChartFacetRender component) {
-//        if (context == null) {
-//            throw new NullPointerException();
-//        }
-//
-//        if (null == component) {
-//            component = this;
-//        }
-//
-//        Map<Object, Object> contextAttributes = context.getAttributes();
-//        ArrayDeque<UIComponent> componentStack = getComponentStack(_CURRENT_RENDERER_STACK_KEY,
-//                contextAttributes);
-//
-//        componentStack.push(component);
-//        component._isPushedAsCurrentRefCount++;
-//    }
-//
-//    public void popExecutorFromEl(FacesContext context) {
-//        if (context == null) {
-//            throw new NullPointerException();
-//        }
-//
-//        if (_isPushedAsCurrentRefCount < 1) {
-//            return;
-//        }
-//
-//        Map<Object, Object> contextAttributes = context.getAttributes();
-//        ArrayDeque<UIComponent> componentStack = getComponentStack(_CURRENT_RENDERER_STACK_KEY,
-//                contextAttributes);
-//
-//        for (UIComponent topComponent = componentStack.peek();
-//                topComponent != this;
-//                topComponent = componentStack.peek()) {
-//            if (topComponent instanceof UIStateChartFacetRender) {
-//                ((UIStateChartFacetRender) topComponent).popExecutorFromEl(context);
-//
-//            } else {
-//                componentStack.pop();
-//            }
-//        }
-//
-//        componentStack.pop();
-//        _isPushedAsCurrentRefCount--;
-//
-//    }
-//
-//    public static UIStateChartFacetRender getCurrentRenderer(FacesContext context) {
-//        Map<Object, Object> contextAttributes = context.getAttributes();
-//        ArrayDeque<UIComponent> componentStack = getComponentStack(_CURRENT_RENDERER_STACK_KEY,
-//                contextAttributes);
-//
-//        return (UIStateChartFacetRender) componentStack.peek();
-//    }
 
     private UIComponent getCurentEncodeFacet(FacesContext context) {
         UIComponent facet = null;

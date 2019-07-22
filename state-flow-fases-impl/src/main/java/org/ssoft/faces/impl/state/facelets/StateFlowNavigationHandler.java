@@ -33,7 +33,7 @@ import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.component.UIStateChartFacetRender;
 import javax.faces.state.scxml.model.ModelException;
-import javax.faces.state.component.ComponentUtils;
+import javax.faces.state.utils.ComponentUtils;
 
 /**
  *

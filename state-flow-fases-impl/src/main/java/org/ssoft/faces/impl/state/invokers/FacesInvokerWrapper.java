@@ -22,7 +22,7 @@ import javax.faces.state.scxml.InvokeContext;
 import javax.faces.state.scxml.InvokerWrapper;
 import javax.faces.state.scxml.invoke.Invoker;
 import javax.faces.state.scxml.invoke.InvokerException;
-import javax.faces.state.component.ComponentUtils;
+import javax.faces.state.utils.ComponentUtils;
 
 /**
  *

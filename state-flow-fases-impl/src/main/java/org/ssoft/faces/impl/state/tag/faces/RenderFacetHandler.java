@@ -29,7 +29,7 @@ import javax.faces.view.facelets.TagException;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.component.UIStateChartFacetRender;
 import javax.faces.state.scxml.SCXMLExecutor;
-import javax.faces.state.component.ComponentUtils;
+import javax.faces.state.utils.ComponentUtils;
 import javax.faces.state.execute.ExecutorController;
 import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
 import org.ssoft.faces.impl.state.log.FlowLogger;

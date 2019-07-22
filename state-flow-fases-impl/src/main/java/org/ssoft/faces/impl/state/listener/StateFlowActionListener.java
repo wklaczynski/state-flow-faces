@@ -26,7 +26,7 @@ import javax.faces.state.execute.ExecuteContext;
 import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.component.UIStateChartFacetRender;
-import javax.faces.state.component.ComponentUtils;
+import javax.faces.state.utils.ComponentUtils;
 import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
 
 /**
