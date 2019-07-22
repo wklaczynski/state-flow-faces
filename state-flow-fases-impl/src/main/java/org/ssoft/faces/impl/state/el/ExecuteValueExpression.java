@@ -158,6 +158,10 @@ public final class ExecuteValueExpression extends ValueExpression {
     }
 
     private boolean pushExecutor(FacesContext ctx) {
+        if(component == null) {
+            return false;
+        }
+        
         ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(ctx);
         StateChartExecuteContext executeContext = manager.findExecuteContextByComponent(ctx, component);
         if(executeContext != null) {
