@@ -69,6 +69,40 @@ public class ComponentUtils {
         return null;
     }
 
+    public static <T> T lokated(Class<T> type, UIComponent base) {
+        if (type.isAssignableFrom(base.getClass())) {
+            return (T) base;
+        }
+        FacesContext ctx = FacesContext.getCurrentInstance();
+
+        String path = null;
+        Location location = (Location) base.getAttributes().get(UIComponent.VIEW_LOCATION_KEY);
+        if (location != null) {
+            path = location.getPath();
+        }
+
+        UIComponent parent = base.getParent();
+
+        while (parent != null) {
+            if (type.isAssignableFrom(parent.getClass())) {
+                if (location == null) {
+                    return (T) parent;
+                }
+                UIComponent cc = findLocatedParentCompositeComponent(ctx, parent);
+                if (cc == null) {
+                    return (T) parent;
+                }
+                Resource r = (Resource) cc.getAttributes().get(Resource.COMPONENT_RESOURCE_KEY);
+                if (path == null || r == null || path.endsWith('/' + r.getResourceName()) && path.contains(r.getLibraryName())) {
+                    return (T) parent;
+                }
+            }
+            parent = parent.getParent();
+        }
+
+        return null;
+    }
+
     public static <T> ArrayList<T> children(Class<T> type, UIComponent base) {
 
         ArrayList<T> result = new ArrayList<>();
@@ -139,12 +173,33 @@ public class ComponentUtils {
         return UIComponent.getCurrentCompositeComponent(ctx);
     }
 
-    public static UIComponent findExecuteCompositeComponent(FacesContext ctx, UIComponent cc) {
-
-        if(!UIComponent.isCompositeComponent(cc)) {
-            cc = UIComponent.getCompositeComponentParent(cc);
+    public static UIComponent findLocatedParentCompositeComponent(FacesContext ctx, UIComponent component) {
+        if (component == null) {
+            component = UIComponent.getCurrentComponent(ctx);
+        }
+        Location location = (Location) component.getAttributes().get(UIComponent.VIEW_LOCATION_KEY);
+        if (location == null) {
+            return UIComponent.getCompositeComponentParent(component);
         }
         
+        String path = location.getPath();
+        UIComponent cc = UIComponent.getCompositeComponentParent(component);
+        while (cc != null) {
+            Resource r = (Resource) cc.getAttributes().get(Resource.COMPONENT_RESOURCE_KEY);
+            if (path.endsWith('/' + r.getResourceName()) && path.contains(r.getLibraryName())) {
+                return cc;
+            }
+            cc = UIComponent.getCompositeComponentParent(cc);
+        }
+        return null;
+    }
+
+    public static UIComponent findExecuteCompositeComponent(FacesContext ctx, UIComponent cc) {
+
+        if (!UIComponent.isCompositeComponent(cc)) {
+            cc = UIComponent.getCompositeComponentParent(cc);
+        }
+
         while (cc != null) {
             if (cc.getAttributes().containsKey(StateFlow.EXECUTOR_CONTROLLER_KEY)) {
                 return cc;
@@ -153,7 +208,7 @@ public class ComponentUtils {
         }
         return null;
     }
-    
+
     public static UIComponent findExecuteCompositeComponent(FacesContext ctx) {
 
         UIComponent cc = UIComponent.getCurrentCompositeComponent(ctx);
@@ -165,5 +220,5 @@ public class ComponentUtils {
         }
         return null;
     }
-    
+
 }

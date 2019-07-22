@@ -521,14 +521,14 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
                 if (currentComponent != null) {
                     UIStateChartFacetRender render = ComponentUtils
-                            .assigned(UIStateChartFacetRender.class, currentComponent);
+                            .lokated(UIStateChartFacetRender.class, currentComponent);
                     if (render != null) {
                         path = render.getInvokePath(context);
                         executor = render.getExecutor();
                         executorId = executor.getId();
                     } else {
                         UIStateChartExecutor execute = ComponentUtils
-                                .assigned(UIStateChartExecutor.class, currentComponent);
+                                .lokated(UIStateChartExecutor.class, currentComponent);
 
                         if (execute != null) {
                             executor = execute.getExecutor();
