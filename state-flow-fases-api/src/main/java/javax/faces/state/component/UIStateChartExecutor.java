@@ -15,13 +15,9 @@
  */
 package javax.faces.state.component;
 
-import java.util.ArrayDeque;
-import java.util.Map;
-import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
 import javax.faces.context.FacesContext;
 import javax.faces.state.scxml.SCXMLExecutor;
-import static javax.faces.state.component.ComponentUtils.getComponentStack;
 
 /**
  *
