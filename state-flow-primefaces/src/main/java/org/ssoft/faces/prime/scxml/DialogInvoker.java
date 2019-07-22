@@ -27,7 +27,7 @@ import static javax.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import static javax.faces.state.StateFlow.VIEW_EVENT_PREFIX;
 import javax.faces.state.StateFlowHandler;
-import javax.faces.state.StateChartExecuteContext;
+import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.annotation.StateChartInvoker;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.EventBuilder;
@@ -364,7 +364,7 @@ public class DialogInvoker implements Invoker, Serializable {
                 UIViewRoot viewRoot = context.getViewRoot();
                 if (viewRoot != null) {
                     try {
-                        StateChartExecuteContext viewContext = new StateChartExecuteContext(
+                        ExecuteContext viewContext = new ExecuteContext(
                                 invokeId, executor, ictx.getContext());
 
                         handler.initViewContext(context, viewId, viewContext);

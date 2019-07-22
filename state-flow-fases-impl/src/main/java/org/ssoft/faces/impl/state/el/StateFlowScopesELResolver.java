@@ -23,7 +23,7 @@ import javax.el.*;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PostConstructCustomScopeEvent;
 import javax.faces.event.ScopeContext;
-import javax.faces.state.StateChartExecuteContext;
+import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
@@ -338,7 +338,7 @@ public class StateFlowScopesELResolver extends ELResolver {
         
         FacesContext fc = FacesContext.getCurrentInstance();
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        StateChartExecuteContext ec = handler.getCurrentExecuteContext(fc);
+        ExecuteContext ec = handler.getCurrentExecuteContext(fc);
         
         if (ec != null) {
             Context ctx = ec.getExecutor().getRootContext();
@@ -357,7 +357,7 @@ public class StateFlowScopesELResolver extends ELResolver {
         
         FacesContext fc = FacesContext.getCurrentInstance();
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        StateChartExecuteContext ec = handler.getCurrentExecuteContext(fc);
+        ExecuteContext ec = handler.getCurrentExecuteContext(fc);
         
         if (ec != null) {
             Context ctx = ec.getExecutor().getGlobalContext();
@@ -376,7 +376,7 @@ public class StateFlowScopesELResolver extends ELResolver {
         
         FacesContext fc = FacesContext.getCurrentInstance();
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        StateChartExecuteContext ec = handler.getCurrentExecuteContext(fc);
+        ExecuteContext ec = handler.getCurrentExecuteContext(fc);
         
         if (ec != null) {
             SCXMLExecutor executor = ec.getExecutor();
@@ -390,7 +390,7 @@ public class StateFlowScopesELResolver extends ELResolver {
         
         FacesContext fc = FacesContext.getCurrentInstance();
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        StateChartExecuteContext ec = handler.getCurrentExecuteContext(fc);
+        ExecuteContext ec = handler.getCurrentExecuteContext(fc);
         
         if (ec != null) {
             SCXMLExecutor executor = ec.getExecutor();
@@ -404,7 +404,7 @@ public class StateFlowScopesELResolver extends ELResolver {
 
         FacesContext fc = FacesContext.getCurrentInstance();
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        StateChartExecuteContext executeContext = handler.getCurrentExecuteContext(fc);
+        ExecuteContext executeContext = handler.getCurrentExecuteContext(fc);
         
         if (executeContext != null) {
             Context ctx = executeContext.getContext();

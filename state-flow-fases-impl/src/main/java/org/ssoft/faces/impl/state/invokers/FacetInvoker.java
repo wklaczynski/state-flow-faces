@@ -45,10 +45,9 @@ import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.invoke.Invoker;
 import javax.faces.state.scxml.invoke.InvokerException;
 import javax.faces.state.StateFlowHandler;
-import javax.faces.state.StateChartExecuteContext;
+import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.scxml.InvokeContext;
-import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.model.ModelException;
 import static javax.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
@@ -243,7 +242,7 @@ public class FacetInvoker implements Invoker, Serializable {
                 String currentViewId = currentViewRoot.getViewId();
                 if (currentViewId.equals(viewId)) {
 
-                    StateChartExecuteContext viewContext = new StateChartExecuteContext(
+                    ExecuteContext viewContext = new ExecuteContext(
                             invokeId, executor, ictx.getContext());
 
                     return;
@@ -294,7 +293,7 @@ public class FacetInvoker implements Invoker, Serializable {
                 context.renderResponse();
             }
 
-            StateChartExecuteContext viewContext = new StateChartExecuteContext(
+            ExecuteContext viewContext = new ExecuteContext(
                     invokeId, executor, ictx.getContext());
 
             if ((pvc != null && pvc.isAjaxRequest())) {
@@ -403,7 +402,7 @@ public class FacetInvoker implements Invoker, Serializable {
                 if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
                     if (viewRoot != null) {
                         try {
-                            StateChartExecuteContext viewContext = new StateChartExecuteContext(
+                            ExecuteContext viewContext = new ExecuteContext(
                                     invokeId, executor, ictx.getContext());
 
                             StateFlowHandler handler = StateFlowHandler.getInstance();

@@ -15,6 +15,7 @@
  */
 package javax.faces.state;
 
+import javax.faces.state.execute.ExecuteContext;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -158,14 +159,14 @@ public abstract class StateFlowHandler {
      * @param viewId
      * @param viewContext
      */
-    public abstract void initViewContext(FacesContext context, String viewId, StateChartExecuteContext viewContext);
+    public abstract void initViewContext(FacesContext context, String viewId, ExecuteContext viewContext);
 
     /**
      *
      * @param context
      * @return
      */
-    public abstract StateChartExecuteContext getCurrentExecuteContext(FacesContext context);
+    public abstract ExecuteContext getCurrentExecuteContext(FacesContext context);
 
     /**
      *
@@ -173,7 +174,7 @@ public abstract class StateFlowHandler {
      * @param component
      * @return
      */
-    public abstract StateChartExecuteContext getExecuteContextByComponent(FacesContext context, UIComponent component);
+    public abstract ExecuteContext getExecuteContextByComponent(FacesContext context, UIComponent component);
 
     /**
      *

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package javax.faces.state;
+package javax.faces.state.execute;
 
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
@@ -22,7 +22,7 @@ import javax.faces.state.scxml.SCXMLExecutor;
  *
  * @author Waldemar Kłaczyński
  */
-public class StateChartExecuteContext {
+public class ExecuteContext {
 
     /**
      * invokeId ID.
@@ -45,7 +45,7 @@ public class StateChartExecuteContext {
      * @param executor
      * @param context
      */
-    public StateChartExecuteContext(String invokeId, SCXMLExecutor executor, Context context) {
+    public ExecuteContext(String invokeId, SCXMLExecutor executor, Context context) {
         this.invokeId = invokeId;
         this.executor = executor;
         this.context = context;

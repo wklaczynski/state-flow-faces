@@ -56,7 +56,7 @@ import static javax.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static javax.faces.state.StateFlow.BEFORE_APPLY_REQUEST_VALUES;
 import static javax.faces.state.StateFlow.VIEW_EVENT_PREFIX;
 import javax.faces.state.StateFlowHandler;
-import javax.faces.state.StateChartExecuteContext;
+import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.scxml.InvokeContext;
 import javax.faces.state.scxml.model.ModelException;
@@ -479,7 +479,7 @@ public class ViewInvoker implements Invoker, Serializable {
                 if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
                     if (viewRoot != null) {
                         try {
-                            StateChartExecuteContext viewContext = new StateChartExecuteContext(
+                            ExecuteContext viewContext = new ExecuteContext(
                                     invokeId, executor, ictx.getContext());
 
                             StateFlowHandler handler = StateFlowHandler.getInstance();

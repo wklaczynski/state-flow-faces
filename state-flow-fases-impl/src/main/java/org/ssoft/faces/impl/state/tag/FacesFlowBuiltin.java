@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
 import org.ssoft.faces.impl.state.log.FlowLogger;
-import javax.faces.state.StateChartExecuteContext;
+import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.StateFlowHandler;
 
 /**
@@ -49,7 +49,7 @@ public class FacesFlowBuiltin implements Serializable {
         boolean result = false;
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        StateChartExecuteContext ec = handler.getCurrentExecuteContext(fc);
+        ExecuteContext ec = handler.getCurrentExecuteContext(fc);
         if (ec != null) {
             result = ec.getExecutor().getStatus().isInState(state);
         }

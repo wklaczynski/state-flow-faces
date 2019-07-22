@@ -30,7 +30,8 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
-import javax.faces.state.StateChartExecuteContext;
+import javax.faces.state.execute.ExecuteContext;
+import javax.faces.state.StateFlow;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.CompositeFaceletHandler;
@@ -55,8 +56,8 @@ import static javax.faces.state.StateFlow.EXECUTOR_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
-import javax.faces.state.component.ExecutorController;
-import org.ssoft.faces.impl.state.executor.ExecutorContextStackManager;
+import javax.faces.state.execute.ExecutorController;
+import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
 import org.ssoft.faces.impl.state.log.FlowLogger;
 
 /**
@@ -150,11 +151,12 @@ public class ExecuteHandler extends ComponentHandler {
 
         component.setExecutor(executor);
         if (ccattrs != null) {
-            ExecutorController controller
-                                        = (ExecutorController) ccattrs.get(ExecutorController.EXECUTOR_CONTROLLER_KEY);
+            ExecutorController controller = (ExecutorController) ccattrs
+                    .get(StateFlow.EXECUTOR_CONTROLLER_KEY);
+            
             if (controller == null) {
                 controller = new ExecutorController();
-                ccattrs.put(ExecutorController.EXECUTOR_CONTROLLER_KEY, controller);
+                ccattrs.put(StateFlow.EXECUTOR_CONTROLLER_KEY, controller);
             }
             controller.setExecutor(executor);
         }
@@ -182,7 +184,7 @@ public class ExecuteHandler extends ComponentHandler {
         }
 
         ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(context);
-        StateChartExecuteContext executeContext = manager.findExecuteContextByComponent(context, component);
+        ExecuteContext executeContext = manager.findExecuteContextByComponent(context, component);
         manager.push(executeContext);
     }
 

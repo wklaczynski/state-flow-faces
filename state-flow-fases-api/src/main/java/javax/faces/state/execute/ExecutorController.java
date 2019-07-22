@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package javax.faces.state.component;
+package javax.faces.state.execute;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -30,7 +30,6 @@ import javax.faces.state.scxml.SCXMLExecutor;
  */
 public class ExecutorController implements Externalizable {
 
-    public static final String EXECUTOR_CONTROLLER_KEY = "javax.faces.component.EXECUTOR_CONTROLLER_KEY";
     private static final String _CURRENT_EXECUTOR_STACK_KEY
                                 = "javax.faces.state.controller.CURRENT_EXECUTOR_STACK_KEY";
 

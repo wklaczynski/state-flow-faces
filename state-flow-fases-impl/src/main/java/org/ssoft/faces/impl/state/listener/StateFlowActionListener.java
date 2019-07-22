@@ -22,12 +22,12 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-import javax.faces.state.StateChartExecuteContext;
+import javax.faces.state.execute.ExecuteContext;
 import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.component.UIStateChartFacetRender;
-import javax.faces.state.utils.ComponentUtils;
-import org.ssoft.faces.impl.state.executor.ExecutorContextStackManager;
+import javax.faces.state.component.ComponentUtils;
+import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
 
 /**
  *
@@ -60,7 +60,7 @@ public class StateFlowActionListener implements ActionListener {
             Map<Object, Object> attrs = facesContext.getAttributes();
             attrs.put(CURRENT_COMPONENT_HINT, sorceId);
 
-            StateChartExecuteContext executeContext = manager.findExecuteContextByComponent(facesContext, source);
+            ExecuteContext executeContext = manager.findExecuteContextByComponent(facesContext, source);
             if (executeContext != null) {
                 pushed = manager.push(executeContext);
             }

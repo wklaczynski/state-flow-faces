@@ -19,9 +19,9 @@ import javax.el.ELContext;
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.state.StateChartExecuteContext;
+import javax.faces.state.execute.ExecuteContext;
 import javax.faces.view.Location;
-import org.ssoft.faces.impl.state.executor.ExecutorContextStackManager;
+import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
 
 /**
  *
@@ -163,7 +163,7 @@ public final class ExecuteValueExpression extends ValueExpression {
         }
         
         ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(ctx);
-        StateChartExecuteContext executeContext = manager.findExecuteContextByComponent(ctx, component);
+        ExecuteContext executeContext = manager.findExecuteContextByComponent(ctx, component);
         if(executeContext != null) {
             return manager.push(executeContext);
         }

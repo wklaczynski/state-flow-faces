@@ -19,7 +19,8 @@ package org.ssoft.faces.impl.state.tag.faces;
 import java.util.logging.Logger;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.state.StateChartExecuteContext;
+import javax.faces.state.execute.ExecuteContext;
+import javax.faces.state.StateFlow;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.FaceletContext;
@@ -28,10 +29,9 @@ import javax.faces.view.facelets.TagException;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.component.UIStateChartFacetRender;
 import javax.faces.state.scxml.SCXMLExecutor;
-import javax.faces.state.utils.ComponentUtils;
-import javax.faces.state.component.ExecutorController;
-import javax.faces.state.scxml.Context;
-import org.ssoft.faces.impl.state.executor.ExecutorContextStackManager;
+import javax.faces.state.component.ComponentUtils;
+import javax.faces.state.execute.ExecutorController;
+import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
 import org.ssoft.faces.impl.state.log.FlowLogger;
 
 /**
@@ -62,7 +62,9 @@ public class RenderFacetHandler extends ComponentHandler {
 
         SCXMLExecutor executor;
         if (cc != null) {
-            ExecutorController controller = (ExecutorController) cc.getAttributes().get(ExecutorController.EXECUTOR_CONTROLLER_KEY);
+            ExecutorController controller = (ExecutorController) cc
+                    .getAttributes().get(StateFlow.EXECUTOR_CONTROLLER_KEY);
+            
             if (controller == null) {
                 throw new TagException(this.tag,
                         "Unable to render facet execute component, controller "
@@ -102,7 +104,7 @@ public class RenderFacetHandler extends ComponentHandler {
         }
 
         ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(context);
-        StateChartExecuteContext executeContext = manager.findExecuteContextByComponent(context, render);
+        ExecuteContext executeContext = manager.findExecuteContextByComponent(context, render);
         manager.push(executeContext);
     }
 

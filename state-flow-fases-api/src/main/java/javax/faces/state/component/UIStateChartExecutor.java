@@ -21,7 +21,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
 import javax.faces.context.FacesContext;
 import javax.faces.state.scxml.SCXMLExecutor;
-import static javax.faces.state.utils.ComponentUtils.getComponentStack;
+import static javax.faces.state.component.ComponentUtils.getComponentStack;
 
 /**
  *

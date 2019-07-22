@@ -16,8 +16,6 @@
 package javax.faces.state.component;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Map;
 import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
@@ -27,8 +25,6 @@ import javax.faces.view.Location;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
 import static javax.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
-import javax.faces.state.utils.ComponentUtils;
-import static javax.faces.state.utils.ComponentUtils.getComponentStack;
 
 /**
  *

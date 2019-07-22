@@ -107,6 +107,11 @@ public class StateFlow {
     /**
      *
      */
+    public static final String EXECUTOR_CONTROLLER_KEY = "javax.faces.component.EXECUTOR_CONTROLLER_KEY";
+    
+    /**
+     *
+     */
     public static final Name RENDER_EXECUTOR_FACET = new NameResolver(
             "state.flow.faces:", ":RENDER_EXECUTOR_FACET");
 

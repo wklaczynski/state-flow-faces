@@ -27,10 +27,10 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.event.ComponentSystemEventListener;
 import javax.faces.event.PostAddToViewEvent;
-import javax.faces.state.StateChartExecuteContext;
+import javax.faces.state.execute.ExecuteContext;
 import javax.faces.validator.ValidatorException;
 import javax.faces.view.Location;
-import org.ssoft.faces.impl.state.executor.ExecutorContextStackManager;
+import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
 
 /**
  *
@@ -121,7 +121,7 @@ public class ExecuteMethodExpression extends MethodExpression {
         }
         
         ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(ctx);
-        StateChartExecuteContext executeContext = manager.findExecuteContextByComponent(ctx, component);
+        ExecuteContext executeContext = manager.findExecuteContextByComponent(ctx, component);
         if(executeContext != null) {
             return manager.push(executeContext);
         }

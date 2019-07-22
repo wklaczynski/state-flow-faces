@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ssoft.faces.impl.state.executor;
+package org.ssoft.faces.impl.state.execute;
 
 import java.util.Stack;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.state.StateChartExecuteContext;
+import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.StateFlowHandler;
 
 /**
@@ -68,7 +68,7 @@ public class ExecutorContextStackManager {
      * @return <code>true</code> if the executor was pushed, otherwise returns
      * <code>false</code>
      */
-    public boolean push(StateChartExecuteContext executeContext) {
+    public boolean push(ExecuteContext executeContext) {
         return getStackHandler(StackType.TreeCreation).push(executeContext);
     }
 
@@ -83,7 +83,7 @@ public class ExecutorContextStackManager {
      * @return <code>true</code> if the executor was pushed, otherwise returns
      * <code>false</code>
      */
-    public boolean push(StateChartExecuteContext executeContext, StackType stackType) {
+    public boolean push(ExecuteContext executeContext, StackType stackType) {
         return getStackHandler(stackType).push(executeContext);
     }
 
@@ -138,7 +138,7 @@ public class ExecutorContextStackManager {
      * @return the top-level executor from the <code>Evaluation</code> stack
      * without removing the element
      */
-    public StateChartExecuteContext peek() {
+    public ExecuteContext peek() {
         return getStackHandler(StackType.TreeCreation).peek();
     }
 
@@ -148,17 +148,17 @@ public class ExecutorContextStackManager {
      * @return the top-level executor from the specified stack without removing
      * the element
      */
-    public StateChartExecuteContext peek(StackType stackType) {
+    public ExecuteContext peek(StackType stackType) {
         return getStackHandler(stackType).peek();
     }
 
-    public StateChartExecuteContext getParentExecutor(StackType stackType,
+    public ExecuteContext getParentExecutor(StackType stackType,
             FacesContext ctx,
-            StateChartExecuteContext forExecutor) {
+            ExecuteContext forExecutor) {
         return getStackHandler(stackType).getParentExecuteContext(ctx, forExecutor);
     }
 
-    public StateChartExecuteContext findExecuteContextByComponent(FacesContext ctx,
+    public ExecuteContext findExecuteContextByComponent(FacesContext ctx,
             UIComponent component) {
         StateFlowHandler handler = StateFlowHandler.getInstance();
         return handler.getExecuteContextByComponent(ctx, component);
@@ -181,26 +181,26 @@ public class ExecutorContextStackManager {
 
     private interface StackHandler {
 
-        boolean push(StateChartExecuteContext executeContext);
+        boolean push(ExecuteContext executeContext);
 
         boolean push();
 
         void pop();
 
-        StateChartExecuteContext peek();
+        ExecuteContext peek();
 
-        StateChartExecuteContext getParentExecuteContext(FacesContext ctx,
-                StateChartExecuteContext forExecutor);
+        ExecuteContext getParentExecuteContext(FacesContext ctx,
+                ExecuteContext forExecutor);
 
         void delete();
 
-        Stack<StateChartExecuteContext> getStack(boolean create);
+        Stack<ExecuteContext> getStack(boolean create);
 
     }
 
     private abstract class BaseStackHandler implements StackHandler {
 
-        protected Stack<StateChartExecuteContext> stack;
+        protected Stack<ExecuteContext> stack;
 
         @Override
         public void delete() {
@@ -210,7 +210,7 @@ public class ExecutorContextStackManager {
         }
 
         @Override
-        public Stack<StateChartExecuteContext> getStack(boolean create) {
+        public Stack<ExecuteContext> getStack(boolean create) {
 
             if (stack == null && create) {
                 stack = new Stack<>();
@@ -220,7 +220,7 @@ public class ExecutorContextStackManager {
         }
 
         @Override
-        public StateChartExecuteContext peek() {
+        public ExecuteContext peek() {
 
             if (stack != null && !stack.isEmpty()) {
                 return stack.peek();
@@ -261,12 +261,12 @@ public class ExecutorContextStackManager {
         }
 
         @Override
-        public boolean push(StateChartExecuteContext executeContext) {
+        public boolean push(ExecuteContext executeContext) {
 
-            Stack<StateChartExecuteContext> tstack = ExecutorContextStackManager.this.treeCreation.getStack(false);
+            Stack<ExecuteContext> tstack = ExecutorContextStackManager.this.treeCreation.getStack(false);
             @SuppressWarnings("LocalVariableHidesMemberVariable")
-            Stack<StateChartExecuteContext> stack = getStack(false);
-            StateChartExecuteContext cse;
+            Stack<ExecuteContext> stack = getStack(false);
+            ExecuteContext cse;
             if (tstack != null) {
                 cse = executeContext;
             } else {
@@ -297,11 +297,11 @@ public class ExecutorContextStackManager {
         }
 
         @Override
-        public StateChartExecuteContext getParentExecuteContext(FacesContext ctx, StateChartExecuteContext forExecuteContext) {
+        public ExecuteContext getParentExecuteContext(FacesContext ctx, ExecuteContext forExecuteContext) {
             return getExecuteContextParent(forExecuteContext);
         }
 
-        private StateChartExecuteContext getExecuteContextParent(StateChartExecuteContext comp) {
+        private ExecuteContext getExecuteContextParent(ExecuteContext comp) {
             return null;
         }
 
@@ -330,10 +330,10 @@ public class ExecutorContextStackManager {
         }
 
         @Override
-        public boolean push(StateChartExecuteContext executeContext) {
+        public boolean push(ExecuteContext executeContext) {
 
             if (executeContext != null) {
-                Stack<StateChartExecuteContext> s = getStack(true);
+                Stack<ExecuteContext> s = getStack(true);
                 s.push(executeContext);
                 return true;
             }
@@ -342,9 +342,9 @@ public class ExecutorContextStackManager {
         }
 
         @Override
-        public StateChartExecuteContext getParentExecuteContext(FacesContext ctx, StateChartExecuteContext forExecuteContext) {
+        public ExecuteContext getParentExecuteContext(FacesContext ctx, ExecuteContext forExecuteContext) {
 
-            Stack<StateChartExecuteContext> s = getStack(false);
+            Stack<ExecuteContext> s = getStack(false);
             if (s == null) {
                 return null;
             } else {

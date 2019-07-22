@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package javax.faces.state.utils;
+package javax.faces.state.component;
 
-import javax.faces.state.component.ExecutorController;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,6 +28,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIOutput;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.faces.state.StateFlow;
 import javax.faces.view.Location;
 
 /**
@@ -146,7 +146,7 @@ public class ComponentUtils {
         }
         
         while (cc != null) {
-            if (cc.getAttributes().containsKey(ExecutorController.EXECUTOR_CONTROLLER_KEY)) {
+            if (cc.getAttributes().containsKey(StateFlow.EXECUTOR_CONTROLLER_KEY)) {
                 return cc;
             }
             cc = UIComponent.getCompositeComponentParent(cc);
@@ -158,7 +158,7 @@ public class ComponentUtils {
 
         UIComponent cc = UIComponent.getCurrentCompositeComponent(ctx);
         while (cc != null) {
-            if (cc.getAttributes().containsKey(ExecutorController.EXECUTOR_CONTROLLER_KEY)) {
+            if (cc.getAttributes().containsKey(StateFlow.EXECUTOR_CONTROLLER_KEY)) {
                 return cc;
             }
             cc = UIComponent.getCompositeComponentParent(cc);
