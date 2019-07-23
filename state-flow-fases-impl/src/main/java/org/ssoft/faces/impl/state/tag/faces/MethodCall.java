@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.ssoft.faces.impl.state.utils.Util;
+import javax.el.MethodExpression;
 import javax.faces.state.scxml.ActionExecutionContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.Evaluator;
@@ -35,6 +35,7 @@ import javax.faces.state.scxml.model.CustomActionWrapper;
 import javax.faces.state.scxml.model.ModelException;
 import javax.faces.state.scxml.model.Param;
 import javax.faces.state.scxml.model.ParamsContainer;
+import javax.faces.state.scxml.model.Var;
 
 /**
  * The class in this SCXML object model that corresponds to the
@@ -58,8 +59,8 @@ import javax.faces.state.scxml.model.ParamsContainer;
 public class MethodCall extends Action implements ParamsContainer {
 
     private static final Map<String, String> classmap = new ConcurrentHashMap<>();
-    
-    static{
+
+    static {
         classmap.put("string", String.class.getName());
         classmap.put("boolean", Boolean.class.getName());
         classmap.put("int", Integer.class.getName());
@@ -70,6 +71,7 @@ public class MethodCall extends Action implements ParamsContainer {
         classmap.put("date", Date.class.getName());
     }
     
+    
     /**
      * Serial version UID.
      */
@@ -78,7 +80,7 @@ public class MethodCall extends Action implements ParamsContainer {
     /**
      * The expression that evaluates to the initial value of the variable.
      */
-    private String expr;
+    private MethodExpression expr;
 
     /**
      * The List of the params getString be sent
@@ -90,7 +92,7 @@ public class MethodCall extends Action implements ParamsContainer {
      *
      * @return String Returns the expr.
      */
-    public final String getExpr() {
+    public MethodExpression getExpr() {
         return expr;
     }
 
@@ -99,7 +101,7 @@ public class MethodCall extends Action implements ParamsContainer {
      *
      * @param expr The expr to set.
      */
-    public final void setExpr(final String expr) {
+    public final void setExpr(final MethodExpression expr) {
         this.expr = expr;
     }
 
@@ -120,21 +122,14 @@ public class MethodCall extends Action implements ParamsContainer {
     public void execute(ActionExecutionContext exctx) throws ModelException, SCXMLExpressionException {
         Context ctx = exctx.getContext(getParentEnterableState());
         Evaluator eval = exctx.getEvaluator();
-        ClassLoader loader = Util.getCurrentLoader(this);
         try {
-            Class[] classes = new Class[paramsList.size()];
             Object[] objects = new Object[paramsList.size()];
             for (int i = 0; i < paramsList.size(); i++) {
                 Param param = paramsList.get(i);
-                String location = param.getLocation();
-                if(classmap.containsKey(location)) {
-                    location = classmap.get(location);
-                }
-                classes[i] = loader.loadClass(location);
                 objects[i] = eval.eval(ctx, param.getExpr());
             }
 
-            eval.evalMethod(ctx, expr, classes, objects);
+            eval.evalMethod(ctx, expr, objects);
         } catch (SCXMLExpressionException ex) {
             throw ex;
         } catch (Throwable ex) {

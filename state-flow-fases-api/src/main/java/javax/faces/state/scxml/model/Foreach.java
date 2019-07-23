@@ -39,7 +39,7 @@ public class Foreach extends Action implements ActionsContainer {
     private static final long serialVersionUID = 1L;
 
     private ValueExpression array;
-    private String item;
+    private ValueExpression item;
     private String index;
 
     /**
@@ -87,7 +87,7 @@ public class Foreach extends Action implements ActionsContainer {
      *
      * @return
      */
-    public String getItem() {
+    public ValueExpression getItem() {
         return item;
     }
 
@@ -95,7 +95,7 @@ public class Foreach extends Action implements ActionsContainer {
      *
      * @param item
      */
-    public void setItem(final String item) {
+    public void setItem(final ValueExpression item) {
         this.item = item;
     }
 

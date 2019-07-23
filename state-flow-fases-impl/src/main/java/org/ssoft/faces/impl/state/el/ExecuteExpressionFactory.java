@@ -34,7 +34,6 @@ public class ExecuteExpressionFactory extends ExpressionFactory {
 
     @Override
     public ValueExpression createValueExpression(ELContext context, String expression, Class<?> expectedType) {
-        
         return new ExecuteValueExpression(wrapped.createValueExpression(context, expression, expectedType));
     }
 

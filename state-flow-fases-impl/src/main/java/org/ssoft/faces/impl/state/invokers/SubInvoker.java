@@ -22,7 +22,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 import javax.faces.FacesException;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.task.FacesProcessHolder;
 import javax.faces.state.scxml.Context;
@@ -47,6 +50,8 @@ import static javax.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.DEFAULT_STATE_MACHINE_NAME;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
+import javax.faces.state.component.UIStateChartExecutor;
+import javax.faces.state.utils.ComponentUtils;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -156,16 +161,23 @@ public class SubInvoker implements Invoker, StateHolder {
 
             }
 
-            scxml = findStateMachine(fc, scxmlId, continerName, continerSource);
+            UIComponent executeComponent = findExecuteComponent(fc);
+            executeComponent.pushComponentToEL(fc, executeComponent);
+            try {
+                scxml = findStateMachine(fc, scxmlId, continerName, continerSource);
 
-            if (scxml == null) {
-                throw new InvokerException(String.format(
-                        "invoked scxml id='%s' not found in %s", scxmlId, viewId));
+                if (scxml == null) {
+                    throw new InvokerException(String.format(
+                            "invoked scxml id='%s' not found in %s", scxmlId, viewId));
+                }
+
+                String childId = UUID.randomUUID().toString();
+
+                executor = handler.createChildExecutor(childId, fc, parentSCXMLExecutor, invokeId, scxml);
+            } finally {
+                executeComponent.popComponentFromEL(fc);
             }
 
-            String childId = UUID.randomUUID().toString();
-
-            executor = handler.createChildExecutor(childId, fc, parentSCXMLExecutor, invokeId, scxml);
             Context cctx = executor.getRootContext();
             cctx.setLocal(FACES_CHART_CONTROLLER_TYPE, controllerType);
             cctx.setLocal(FACES_CHART_CONTINER_NAME, continerName);
@@ -184,6 +196,21 @@ public class SubInvoker implements Invoker, StateHolder {
         } catch (Throwable ex) {
             throw new InvokerException(ex.getMessage(), ex);
         }
+    }
+
+    public UIComponent findExecuteComponent(FacesContext context) {
+        UIViewRoot viewRoot = context.getViewRoot();
+        String sorceId = (String) context.getAttributes().get(CURRENT_COMPONENT_HINT);
+        if (sorceId != null) {
+            UIComponent source = viewRoot.findComponent(sorceId);
+            if (source != null) {
+                UIStateChartExecutor ec = ComponentUtils.lokated(UIStateChartExecutor.class, source);
+                if (ec != null) {
+                    return ec;
+                }
+            }
+        }
+        return viewRoot;
     }
 
     public SCXML findStateMachine(FacesContext context, String scxmlId, String continerName, Object continerSource) throws IOException {

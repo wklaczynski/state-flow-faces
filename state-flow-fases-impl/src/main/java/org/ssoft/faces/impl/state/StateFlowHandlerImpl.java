@@ -72,7 +72,6 @@ import org.ssoft.faces.impl.state.config.StateWebConfiguration;
 import org.ssoft.faces.impl.state.invokers.SubInvoker;
 import org.ssoft.faces.impl.state.invokers.ViewInvoker;
 import org.ssoft.faces.impl.state.tag.faces.SetVariable;
-import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static javax.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
 import javax.faces.state.annotation.StateChartInvoker;
 import javax.faces.state.annotation.StateChartAction;
@@ -93,6 +92,7 @@ import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.StateFlow;
 import static javax.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static javax.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
+import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static javax.faces.state.StateFlow.PORTLET_EVENT_PREFIX;
 import javax.faces.state.scxml.EventBuilder;
@@ -488,12 +488,12 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     @Override
     public ExecuteContext getCurrentExecuteContext(FacesContext context) {
 
-        SCXMLExecutor executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);
-        if (executor != null) {
-            Context ctx = executor.getRootContext();
-            ExecuteContext viewContext = new ExecuteContext(null, executor, ctx);
-            return viewContext;
-        }
+//        SCXMLExecutor executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);
+//        if (executor != null) {
+//            Context ctx = executor.getRootContext();
+//            ExecuteContext viewContext = new ExecuteContext(null, executor, ctx);
+//            return viewContext;
+//        }
 
         ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(context);
         ExecuteContext executeContext = manager.peek();
@@ -574,13 +574,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     @Override
     public SCXMLExecutor getCurrentExecutor(FacesContext context) {
-
-        SCXMLExecutor executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);
-        if (executor == null) {
-            ExecuteContext viewContext = getCurrentExecuteContext(context);
-            if (viewContext != null) {
-                executor = viewContext.getExecutor();
-            }
+        SCXMLExecutor executor = null;
+        ExecuteContext viewContext = getCurrentExecuteContext(context);
+        if (viewContext != null) {
+            executor = viewContext.getExecutor();
         }
 
         return executor;
@@ -1099,7 +1096,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     SCXML stateMachine = executor.getStateMachine();
 
                     Context context = new SimpleContext();
-                    Context.setCurrentInstance(context);
 
                     values[0] = executor.getId();
                     values[1] = stateMachine.getMetadata().get("faces-viewid");
@@ -1165,7 +1161,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                         }
 
                         Context context = new SimpleContext();
-                        Context.setCurrentInstance(context);
 
                         restoreContext(context, flowContext, values[3]);
                         executor.restoreState(context, values[4]);

@@ -19,8 +19,9 @@ import javax.el.ELContext;
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import static javax.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
+import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import javax.faces.state.execute.ExecuteContext;
-import javax.faces.view.Location;
 import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
 
 /**
@@ -30,23 +31,17 @@ import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
 public final class ExecuteValueExpression extends ValueExpression {
 
     private final ValueExpression originalVE;
-    private final Location location;
     private final UIComponent component;
 
     public ExecuteValueExpression(ValueExpression originalVE) {
         this.originalVE = originalVE;
-        this.location = null;
 
         FacesContext ctx = FacesContext.getCurrentInstance();
-        component = UIComponent.getCurrentComponent(ctx);
-    }
-
-    public ExecuteValueExpression(Location location, ValueExpression originalVE) {
-        this.originalVE = originalVE;
-        this.location = location;
-
-        FacesContext ctx = FacesContext.getCurrentInstance();
-        component = UIComponent.getCurrentComponent(ctx);
+        if (!ctx.getAttributes().containsKey(CURRENT_EXECUTOR_HINT) && !ctx.getAttributes().containsKey(BUILD_STATE_MACHINE_HINT)) {
+            component = UIComponent.getCurrentComponent(ctx);
+        } else {
+            component = null;
+        }
     }
 
     @Override
@@ -150,21 +145,14 @@ public final class ExecuteValueExpression extends ValueExpression {
         return originalVE.toString();
     }
 
-    /**
-     * @return the {@link Location} of this <code>ValueExpression</code>
-     */
-    public Location getLocation() {
-        return location;
-    }
-
     private boolean pushExecutor(FacesContext ctx) {
-        if(component == null) {
+        if (component == null) {
             return false;
         }
-        
+
         ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(ctx);
         ExecuteContext executeContext = manager.findExecuteContextByComponent(ctx, component);
-        if(executeContext != null) {
+        if (executeContext != null) {
             return manager.push(executeContext);
         }
         return false;

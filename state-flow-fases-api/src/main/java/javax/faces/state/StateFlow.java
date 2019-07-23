@@ -156,7 +156,7 @@ public class StateFlow {
     /**
      *
      */
-    private static final String FACES_CHART_EXECUTOR_STACK_KEY = "javax.faces.flow.CURRENT_EXECUTOR_STACK_KEY";
+    public static final String EXECUTE_STATE_MACHINE_HINT = "javax.faces.flow.EXECUTE_STATE_MACHINE_HINT";
 
     /**
      *

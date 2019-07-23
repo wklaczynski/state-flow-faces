@@ -68,7 +68,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
      * Path expression evaluating getString a location within a previously
      * defined XML data tree.
      */
-    private String idlocation;
+    private ValueExpression idlocation;
 
     /**
      * The type of target getString be invoked.
@@ -145,7 +145,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
     /**
      * @return the idlocation
      */
-    public String getIdlocation() {
+    public ValueExpression getIdlocation() {
         return idlocation;
     }
 
@@ -154,7 +154,7 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
      *
      * @param idlocation The idlocation expression
      */
-    public void setIdlocation(final String idlocation) {
+    public void setIdlocation(final ValueExpression idlocation) {
         this.idlocation = idlocation;
     }
 

@@ -128,6 +128,7 @@ public class ExecuteHandler extends ComponentHandler {
             String uuid = UUID.nameUUIDFromBytes(url.getPath().getBytes()).toString();
             String continerName = STATE_CHART_FACET_NAME + "_" + uuid;
 
+//            component.pushComponentToEL(context, component);
             try {
                 SCXML stateMachine = findStateMachine(ctx, continerName, scxmlName, url);
                 executor = handler.createRootExecutor(executorId, context, stateMachine);
@@ -141,10 +142,12 @@ public class ExecuteHandler extends ComponentHandler {
 
             } catch (ModelException ex) {
                 throw new TagException(tag, ex);
+            }finally {
+//                component.popComponentFromEL(context);
             }
 
             Map<String, Object> params = getParamsMap(ctx);
-
+            component.setExecutor(executor);
             handler.execute(context, executor, params);
 
         }
@@ -153,7 +156,7 @@ public class ExecuteHandler extends ComponentHandler {
         if (ccattrs != null) {
             ExecutorController controller = (ExecutorController) ccattrs
                     .get(StateFlow.EXECUTOR_CONTROLLER_KEY);
-            
+
             if (controller == null) {
                 controller = new ExecutorController();
                 ccattrs.put(StateFlow.EXECUTOR_CONTROLLER_KEY, controller);

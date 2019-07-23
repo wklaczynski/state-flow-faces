@@ -78,7 +78,7 @@ public class ActionHandler  extends MetaTagHandler {
     
     
     @Override
-    protected MetaRuleset createMetaRuleset(Class type) {
+    public MetaRuleset createMetaRuleset(Class type) {
         return getTagHandlerDelegate().createMetaRuleset(type);
     }
 

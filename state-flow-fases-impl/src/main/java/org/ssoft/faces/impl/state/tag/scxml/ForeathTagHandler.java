@@ -88,7 +88,7 @@ public class ForeathTagHandler extends AbstractFlowTagHandler<Foreach> {
         decorate(ctx, parent, action);
 
         action.setArray(array.getValueExpression(ctx, Object.class));
-        action.setItem(item.getValue());
+        action.setItem(item.getValueExpression(ctx, Object.class));
         action.setIndex(index != null ? index.getValue() : null);
         
         addAction(ctx, parent, action);

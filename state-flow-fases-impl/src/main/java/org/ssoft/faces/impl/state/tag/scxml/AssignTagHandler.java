@@ -81,7 +81,7 @@ public class AssignTagHandler extends AbstractFlowTagHandler<Assign> {
         Assign action = new Assign();
         decorate(ctx, parent, action);
 
-        action.setLocation(location.getValue());
+        action.setLocation(location.getValueExpression(ctx, Object.class));
         action.setExpr(expr != null ? expr.getValueExpression(ctx, Object.class): null);
 
         addAction(ctx, parent, action);

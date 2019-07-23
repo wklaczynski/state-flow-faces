@@ -61,7 +61,6 @@ public class ScopedBeanContext extends AbstractContext implements Serializable {
         Object states[] = new Object[2];
 
         Context context = new SimpleContext();
-        Context.setCurrentInstance(context);
         states[0] = saveState(context);
 
         out.writeObject(states);
@@ -69,7 +68,6 @@ public class ScopedBeanContext extends AbstractContext implements Serializable {
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         Context context = new SimpleContext();
-        Context.setCurrentInstance(context);
 
         Object state = in.readObject();
         if (state != null) {

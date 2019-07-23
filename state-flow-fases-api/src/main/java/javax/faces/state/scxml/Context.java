@@ -17,9 +17,6 @@
 package javax.faces.state.scxml;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.faces.context.FacesContext;
-import javax.faces.state.scxml.env.SimpleContext;
 
 /**
  * A Context or &quot;scope&quot; for storing variables; usually tied to a SCXML
@@ -115,59 +112,5 @@ public interface Context {
      * @return The SCXMLSystemContext in a chained Context environment
      */
     SCXMLSystemContext getSystemContext();
-
-    /**
-     *
-     */
-    static ConcurrentHashMap threadInitContext = new ConcurrentHashMap(2);
-
-    /**
-     * <p>
-     * The <code>ThreadLocal</code> variable used to record the {@link Context}
-     * instance for each processing thread.</p>
-     */
-    static ThreadLocal<Context> instance = new ThreadLocal<Context>() {
-        @Override
-        protected Context initialValue() {
-            return (null);
-        }
-    };
-
-    /**
-     * Return the Context instance
-     *
-     * @return current Context
-     */
-    public static Context getCurrentInstance() {
-        Context context = instance.get();
-
-        if (null == context) {
-            context = (Context) threadInitContext.get(Thread.currentThread());
-        }
-        if (null == context) {
-            context = new SimpleContext();
-        }
-        return context;
-    }
-
-    /**
-     * <p>
-     * Set the {@link FacesContext} instance for the request that is being
-     * processed by the current thread.</p>
-     *
-     * @param context The {@link Context} instance for the current thread,
-     * or <code>null</code> if this thread no longer has a
-     * <code>Context</code> instance.
-     *
-     */
-    public static void setCurrentInstance(Context context) {
-
-        if (context == null) {
-            instance.remove();
-        } else {
-            instance.set(context);
-        }
-
-    }
 
 }

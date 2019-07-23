@@ -22,14 +22,15 @@ import javax.el.ExpressionFactory;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
 import javax.faces.context.FacesContext;
+import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import org.ssoft.faces.impl.state.StateFlowContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.SCXMLExpressionException;
 import javax.faces.state.scxml.env.AbstractBaseEvaluator;
 import org.ssoft.faces.impl.state.utils.Util;
-import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import javax.faces.state.StateFlowHandler;
+import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.scxml.SCXMLIOProcessor;
 import javax.faces.state.scxml.SCXMLSystemContext;
 import javax.faces.state.scxml.env.EffectiveContextMap;
@@ -37,6 +38,7 @@ import javax.faces.state.scxml.invoke.Invoker;
 import javax.faces.state.scxml.invoke.InvokerException;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
 import javax.faces.state.scxml.model.SCXML;
+import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
 import org.ssoft.faces.impl.state.invokers.FacesInvokerWrapper;
 
 /**
@@ -86,8 +88,6 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     private <V, T> V wrap(Context ctx, T expr, Callable<V> call) throws SCXMLExpressionException {
         FacesContext fc = FacesContext.getCurrentInstance();
 
-        Context.setCurrentInstance(ctx);
-
         if (ef == null) {
             ef = fc.getApplication().getExpressionFactory();
         }
@@ -98,6 +98,9 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             eccashe.set(ec);
         }
 
+        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(fc);
+        boolean pushed = false;
+
         try {
             Map<String, SCXMLIOProcessor> ioProcessors = (Map<String, SCXMLIOProcessor>) ctx.get(SCXMLSystemContext.IOPROCESSORS_KEY);
             String sessionId = (String) ctx.get(SCXMLSystemContext.SESSIONID_KEY);
@@ -106,14 +109,12 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
                 fc.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
                 ec.putContext(SCXMLExecutor.class, executor);
 
+                ExecuteContext viewContext = new ExecuteContext(null, executor, ctx);
+                pushed = manager.push(viewContext);
+
+                ec.putContext(SCXMLExecutor.class, executor);
                 SCXML scxml = executor.getStateMachine();
                 ec.addFunctionMaper(new EvaluatorBuiltinFunctionMapper(ec, scxml));
-
-                Map<String, String> namespaces = scxml.getNamespaces();
-                String modelName = scxml.getDatamodelName();
-
-            } else {
-                fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
             }
 
             ctx = getEffectiveContext(ctx);
@@ -127,8 +128,10 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             throw new SCXMLExpressionException(String.format("%s error: %s", expr.toString(), Util.getErrorMessage(ex)), ex);
         } finally {
             ec.reset();
-            Context.setCurrentInstance(null);
             fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
+            if (pushed) {
+                manager.pop();
+            }
         }
     }
 
@@ -137,18 +140,12 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     }
 
     @Override
-    public void evalAssign(Context ctx, String location, Object data) throws SCXMLExpressionException {
+    public void evalAssign(Context ctx, ValueExpression location, Object data) throws SCXMLExpressionException {
         wrap(ctx, location, () -> {
-            if (ELText.isLiteral(location)) {
-                ctx.set(location, data);
+            if (data == null) {
+                location.setValue(ec, data);
             } else {
-                if (data == null) {
-                    ValueExpression ve = ef.createValueExpression(ec, location, Object.class);
-                    ve.setValue(ec, null);
-                } else {
-                    ValueExpression ve = ef.createValueExpression(ec, location, data.getClass());
-                    ve.setValue(ec, data);
-                }
+                location.setValue(ec, data);
             }
             return null;
         });
@@ -180,9 +177,9 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     }
 
     @Override
-    public Object evalMethod(Context ctx, String expr, Class[] pclass, Object[] param) throws SCXMLExpressionException {
+    public Object evalMethod(Context ctx, MethodExpression expr, Object[] param) throws SCXMLExpressionException {
         return wrap(ctx, expr, () -> {
-            MethodExpression me = ef.createMethodExpression(ec, resolve(ctx, expr), Object.class, pclass);
+            MethodExpression me = expr;
             return me.invoke(ec, param);
         });
     }

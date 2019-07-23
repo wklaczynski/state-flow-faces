@@ -96,10 +96,6 @@ public class StateFlowPhaseListener implements PhaseListener {
                 } catch (ModelException ex) {
                     throw new FacesException(ex);
                 }
-
-                Context.setCurrentInstance(
-                        (Context) facesContext.getELContext().getContext(Context.class));
-
             }
 
             ArrayList<String> clientIds = getControllerClientIds(facesContext);
@@ -189,7 +185,7 @@ public class StateFlowPhaseListener implements PhaseListener {
                         if (target instanceof UIStateChartExecutor) {
                             UIStateChartExecutor controller = (UIStateChartExecutor) target;
                             String controllerId = controller.getClientId(facesContext);
-                            
+
                             EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
                                     .sendId(viewRoot.getViewId());
 
@@ -345,6 +341,7 @@ public class StateFlowPhaseListener implements PhaseListener {
             scxmlId = DEFAULT_STATE_MACHINE_NAME;
         }
 
+        viewRoot.pushComponentToEL(context, viewRoot);
         try {
             SCXML scxml = flowHandler.findStateMachine(context, scxmlId);
             if (scxml != null) {
@@ -352,6 +349,8 @@ public class StateFlowPhaseListener implements PhaseListener {
             }
         } catch (ModelException ex) {
             throw new FacesException(ex);
+        } finally {
+            viewRoot.popComponentFromEL(context);
         }
 
     }

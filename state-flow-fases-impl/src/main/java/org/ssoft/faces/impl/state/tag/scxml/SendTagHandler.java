@@ -138,7 +138,7 @@ public class SendTagHandler extends AbstractFlowTagHandler<Send> {
         }
 
         if (idlocation != null) {
-            action.setIdlocation(idlocation.getValue());
+            action.setIdlocation(idlocation.getValueExpression(ctx, Object.class));
         }
 
         if (delay != null) {

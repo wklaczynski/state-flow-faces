@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.el.ValueExpression;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.Evaluator;
 import javax.faces.state.scxml.SCXMLExpressionException;
@@ -39,25 +40,6 @@ public abstract class AbstractBaseEvaluator implements Evaluator, Serializable {
      * Unique context variable name used for temporary reference to assign data (thus must be a valid variable name)
      */
     private static final String ASSIGN_VARIABLE_NAME = "a"+ UUID.randomUUID().toString().replace('-','x');
-
-    /**
-     * @see Evaluator#evalAssign(Context, String, Object)
-     */
-    @Override
-    public void evalAssign(final Context ctx, final String location, final Object data) throws SCXMLExpressionException {
-        String sb = location + "=" + ASSIGN_VARIABLE_NAME;
-        try {
-            ctx.getVars().put(ASSIGN_VARIABLE_NAME, data);
-            eval(ctx, sb);
-        } catch (SCXMLExpressionException e) {
-            if (e.getCause() != null && e.getCause() != null && e.getCause().getMessage() != null) {
-                throw new SCXMLExpressionException("Error evaluating assign to location=\"" + location + "\": " + e.getCause().getMessage());
-            }
-            throw e;
-        } finally {
-            ctx.getVars().remove(ASSIGN_VARIABLE_NAME);
-        }
-    }
 
     @Override
     public Object cloneData(final Object data) {

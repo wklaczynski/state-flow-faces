@@ -109,7 +109,7 @@ public class CustomActionHandlerDelegateImpl extends TagHandlerDelegate {
         try {
             clazz = cl.loadClass(className);
             actionObject = clazz.newInstance();
-            ruleset = createMetaRuleset(clazz);
+            ruleset = owner.createMetaRuleset(clazz);
 
         } catch (ClassNotFoundException cnfe) {
             throw new TagException(owner.getTag(), "cannot find custom action class:" + className, cnfe);

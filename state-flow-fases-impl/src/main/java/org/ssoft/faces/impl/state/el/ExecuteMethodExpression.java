@@ -15,21 +15,16 @@
  */
 package org.ssoft.faces.impl.state.el;
 
-import com.sun.faces.util.FacesLogger;
-import java.util.logging.Logger;
 import javax.el.ELContext;
 import javax.el.ELException;
 import javax.el.MethodExpression;
 import javax.el.MethodInfo;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ComponentSystemEvent;
-import javax.faces.event.ComponentSystemEventListener;
-import javax.faces.event.PostAddToViewEvent;
+import static javax.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
+import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import javax.faces.state.execute.ExecuteContext;
 import javax.faces.validator.ValidatorException;
-import javax.faces.view.Location;
 import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
 
 /**
@@ -38,32 +33,19 @@ import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
  */
 public class ExecuteMethodExpression extends MethodExpression {
 
-    private static final long serialVersionUID = -6281398928485392830L;
-    
-    // Log instance for this class
-    private static final Logger LOGGER = FacesLogger.FACELETS_EL.getLogger();
-
     private final MethodExpression delegate;
-    private final Location location;
     private final UIComponent component;
-    private String ccClientId;
 
 
     public ExecuteMethodExpression(MethodExpression delegate) {
         this.delegate = delegate;
-        this.location = null;
         FacesContext ctx = FacesContext.getCurrentInstance();
-        component = UIComponent.getCurrentComponent(ctx);
+        if (!ctx.getAttributes().containsKey(CURRENT_EXECUTOR_HINT) && !ctx.getAttributes().containsKey(BUILD_STATE_MACHINE_HINT)) {
+            component = UIComponent.getCurrentComponent(ctx);
+        } else {
+            component = null;
+        }
     }
-
-
-    public ExecuteMethodExpression(Location location, MethodExpression delegate) {
-        this.delegate = delegate;
-        this.location = location;
-        FacesContext ctx = FacesContext.getCurrentInstance();
-        component = UIComponent.getCurrentComponent(ctx);
-    }
-
 
     @Override
     public MethodInfo getMethodInfo(ELContext elContext) {
@@ -132,24 +114,6 @@ public class ExecuteMethodExpression extends MethodExpression {
     private void popExecutor(FacesContext ctx) {
         ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(ctx);
         manager.pop();
-    }
-
-    private class SetClientIdListener implements ComponentSystemEventListener {
-
-        private ExecuteMethodExpression ccME;
-        
-        public SetClientIdListener() {
-        }
-        
-        public SetClientIdListener(ExecuteMethodExpression ccME) {
-            this.ccME = ccME;
-        }
-
-        @Override
-        public void processEvent(ComponentSystemEvent event) throws AbortProcessingException {
-            ccME.ccClientId = event.getComponent().getClientId();
-            event.getComponent().unsubscribeFromEvent(PostAddToViewEvent.class, this);
-        }
     }
 
 }

@@ -15,7 +15,6 @@
  */
 package org.ssoft.faces.impl.state.tag;
 
-import org.ssoft.faces.impl.state.tag.CustomActionHandlerDelegateImpl;
 import javax.faces.view.facelets.TagHandlerDelegate;
 import javax.faces.state.tag.ActionHandler;
 import javax.faces.state.tag.TagHandlerDelegateFactory;

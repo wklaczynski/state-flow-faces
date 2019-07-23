@@ -17,8 +17,8 @@
 package javax.faces.state.scxml.env.minimal;
 
 import java.io.Serializable;
+import javax.el.MethodExpression;
 import javax.el.ValueExpression;
-import javax.faces.state.scxml.Builtin;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.Evaluator;
 import javax.faces.state.scxml.EvaluatorProvider;
@@ -102,12 +102,12 @@ public class MinimalEvaluator implements Evaluator, Serializable {
     }
 
     @Override
-    public Object evalMethod(Context ctx, String expr, Class[] pclass, Object[] param) throws SCXMLExpressionException {
+    public Object evalMethod(Context ctx, MethodExpression expr, Object[] param) throws SCXMLExpressionException {
         return null;
     }
 
     @Override
-    public void evalAssign(final Context ctx, final String location, final Object data) throws SCXMLExpressionException {
+    public void evalAssign(final Context ctx, final ValueExpression location, final Object data) throws SCXMLExpressionException {
         throw new UnsupportedOperationException("Assign expressions are not supported by the \"null\" datamodel");
     }
 

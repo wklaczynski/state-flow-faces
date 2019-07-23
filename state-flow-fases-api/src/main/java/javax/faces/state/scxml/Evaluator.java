@@ -16,6 +16,7 @@
  */
 package javax.faces.state.scxml;
 
+import javax.el.MethodExpression;
 import javax.el.ValueExpression;
 import javax.faces.state.scxml.invoke.Invoker;
 import javax.faces.state.scxml.invoke.InvokerException;
@@ -95,12 +96,11 @@ public interface Evaluator {
      *
      * @param ctx variable context
      * @param expr expression
-     * @param pclass method params class
      * @param param method params
      * @return the result of the evaluation
      * @throws SCXMLExpressionException A malformed expression exception
      */
-    Object evalMethod(Context ctx, String expr, Class[] pclass, Object[] param)
+    Object evalMethod(Context ctx, MethodExpression expr, Object[] param)
             throws SCXMLExpressionException;
     
     /**
@@ -111,7 +111,7 @@ public interface Evaluator {
      * @param data the data to assign.
      * @throws SCXMLExpressionException A malformed expression exception
      */
-    void evalAssign(Context ctx, String location, Object data)
+    void evalAssign(Context ctx, ValueExpression location, Object data)
             throws SCXMLExpressionException;
 
     /**

@@ -24,7 +24,7 @@ limitations under the License.
     <tag>
         <tag-name>call</tag-name>
         <description><![CDATA[The <call> element is call to expression method.]]></description>
-        <handler-class>javax.faces.state.tag.ActionHandler</handler-class>
+        <handler-class>org.ssoft.faces.impl.state.tag.faces.MethodCallHandler</handler-class>
         <attribute>
             <description><![CDATA[An expression returning the value to be assigned. See 5.9.3 Legal Data Values and Value Expressions for details.]]></description>
             <name>expr</name>

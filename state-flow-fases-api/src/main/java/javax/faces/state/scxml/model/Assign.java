@@ -39,7 +39,7 @@ public class Assign extends Action implements ParsedValueContainer {
      * Left hand side expression evaluating to a location within
      * a previously defined XML data tree.
      */
-    private String location;
+    private ValueExpression location;
 
     /**
      * The source location where the new source data for this location exists.
@@ -86,7 +86,7 @@ public class Assign extends Action implements ParsedValueContainer {
      *
      * @return Returns the location.
      */
-    public String getLocation() {
+    public ValueExpression getLocation() {
         return location;
     }
 
@@ -95,7 +95,7 @@ public class Assign extends Action implements ParsedValueContainer {
      *
      * @param location The location.
      */
-    public void setLocation(final String location) {
+    public void setLocation(final ValueExpression location) {
         this.location = location;
     }
 
