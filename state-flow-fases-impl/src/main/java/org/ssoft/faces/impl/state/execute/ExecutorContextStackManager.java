@@ -17,6 +17,7 @@ package org.ssoft.faces.impl.state.execute;
 
 import java.util.Stack;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.StateFlowHandler;
@@ -164,6 +165,24 @@ public class ExecutorContextStackManager {
         return handler.getExecuteContextByComponent(ctx, component);
     }
 
+    public ExecuteContext findExecuteContextByComponentId(FacesContext ctx,
+            String id) {
+        
+
+        UIViewRoot viewRoot = ctx.getViewRoot();
+        if(viewRoot == null) {
+            return null;
+        }
+        UIComponent component = viewRoot.findComponent(id);
+        if(component == null) {
+            return null;
+        }
+        
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        return handler.getExecuteContextByComponent(ctx, component);
+    }
+    
+    
     private StackHandler getStackHandler(StackType type) {
 
         StackHandler handler = null;

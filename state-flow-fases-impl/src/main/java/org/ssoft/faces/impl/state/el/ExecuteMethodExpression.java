@@ -21,10 +21,15 @@ import javax.el.MethodExpression;
 import javax.el.MethodInfo;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.event.AbortProcessingException;
+import javax.faces.event.ComponentSystemEvent;
+import javax.faces.event.ComponentSystemEventListener;
+import javax.faces.event.PostAddToViewEvent;
 import static javax.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import javax.faces.state.execute.ExecuteContext;
 import javax.faces.validator.ValidatorException;
+import javax.faces.view.facelets.ComponentHandler;
 import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
 
 /**
@@ -34,16 +39,20 @@ import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
 public class ExecuteMethodExpression extends MethodExpression {
 
     private final MethodExpression delegate;
-    private final UIComponent component;
-
+    private String clientId;
 
     public ExecuteMethodExpression(MethodExpression delegate) {
         this.delegate = delegate;
         FacesContext ctx = FacesContext.getCurrentInstance();
         if (!ctx.getAttributes().containsKey(CURRENT_EXECUTOR_HINT) && !ctx.getAttributes().containsKey(BUILD_STATE_MACHINE_HINT)) {
-            component = UIComponent.getCurrentComponent(ctx);
-        } else {
-            component = null;
+            UIComponent component = UIComponent.getCurrentComponent(ctx);
+            if (component != null) {
+                if (ComponentHandler.isNew(component)) {
+                    component.subscribeToEvent(PostAddToViewEvent.class, new SetClientIdListener(this));
+                } else {
+                    clientId = component.getClientId(ctx);
+                }
+            }
         }
     }
 
@@ -72,12 +81,10 @@ public class ExecuteMethodExpression extends MethodExpression {
         }
     }
 
-
     @Override
     public String getExpressionString() {
         return delegate.getExpressionString();
     }
-
 
     @SuppressWarnings({"EqualsWhichDoesntCheckParameterClass"})
     @Override
@@ -85,12 +92,10 @@ public class ExecuteMethodExpression extends MethodExpression {
         return delegate.equals(o);
     }
 
-
     @Override
     public int hashCode() {
         return delegate.hashCode();
     }
-
 
     @Override
     public boolean isLiteralText() {
@@ -98,22 +103,39 @@ public class ExecuteMethodExpression extends MethodExpression {
     }
 
     private boolean pushExecutor(FacesContext ctx) {
-        if(component == null) {
+        if (clientId == null) {
             return false;
         }
-        
+
         ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(ctx);
-        ExecuteContext executeContext = manager.findExecuteContextByComponent(ctx, component);
-        if(executeContext != null) {
+        ExecuteContext executeContext = manager.findExecuteContextByComponentId(ctx, clientId);
+        if (executeContext != null) {
             return manager.push(executeContext);
         }
         return false;
     }
 
-
     private void popExecutor(FacesContext ctx) {
         ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(ctx);
         manager.pop();
+    }
+
+    private class SetClientIdListener implements ComponentSystemEventListener {
+
+        private ExecuteMethodExpression ex;
+
+        public SetClientIdListener() {
+        }
+
+        public SetClientIdListener(ExecuteMethodExpression ex) {
+            this.ex = ex;
+        }
+
+        @Override
+        public void processEvent(ComponentSystemEvent event) throws AbortProcessingException {
+            ex.clientId = event.getComponent().getClientId();
+            event.getComponent().unsubscribeFromEvent(PostAddToViewEvent.class, this);
+        }
     }
 
 }
