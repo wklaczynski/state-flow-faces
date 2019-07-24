@@ -15,6 +15,7 @@
  */
 package org.ssoft.faces.impl.state.el;
 
+import java.io.Serializable;
 import javax.el.ELContext;
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
@@ -27,7 +28,7 @@ import static javax.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import javax.faces.state.execute.ExecuteContext;
 import javax.faces.view.facelets.ComponentHandler;
-import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
+import javax.faces.state.execute.ExecuteContextManager;
 
 /**
  *
@@ -36,7 +37,7 @@ import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
 public final class ExecuteValueExpression extends ValueExpression {
 
     private final ValueExpression originalVE;
-    private String clientId;
+    private String executePath;
 
     public ExecuteValueExpression(ValueExpression originalVE) {
         this.originalVE = originalVE;
@@ -47,12 +48,21 @@ public final class ExecuteValueExpression extends ValueExpression {
                 if (ComponentHandler.isNew(component)) {
                     component.subscribeToEvent(PostAddToViewEvent.class, new SetClientIdListener(this));
                 } else {
-                    clientId = component.getClientId(ctx);
+                    resolveExecutePath(ctx, component);
                 }
             }
         }
     }
 
+    private void resolveExecutePath(FacesContext ctx, UIComponent component) {
+        ExecuteContextManager manager = ExecuteContextManager.getManager(ctx);
+        ExecuteContext executeContext = manager.findExecuteContextByComponent(ctx, component);
+        if (executeContext != null) {
+            executePath = executeContext.getPath();
+        }
+
+    }
+    
     @Override
     public Object getValue(ELContext elContext) {
 
@@ -155,12 +165,12 @@ public final class ExecuteValueExpression extends ValueExpression {
     }
 
     private boolean pushExecutor(FacesContext ctx) {
-        if (clientId == null) {
+        if (executePath == null) {
             return false;
         }
         
-        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(ctx);
-        ExecuteContext executeContext = manager.findExecuteContextByComponentId(ctx, clientId);
+        ExecuteContextManager manager = ExecuteContextManager.getManager(ctx);
+        ExecuteContext executeContext = manager.findExecuteContextByPath(ctx, executePath);
         if (executeContext != null) {
             return manager.push(executeContext);
         }
@@ -168,11 +178,11 @@ public final class ExecuteValueExpression extends ValueExpression {
     }
 
     private void popExecutor(FacesContext ctx) {
-        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(ctx);
+        ExecuteContextManager manager = ExecuteContextManager.getManager(ctx);
         manager.pop();
     }
 
-    private class SetClientIdListener implements ComponentSystemEventListener {
+    private class SetClientIdListener implements ComponentSystemEventListener, Serializable {
 
         private ExecuteValueExpression ex;
 
@@ -185,8 +195,8 @@ public final class ExecuteValueExpression extends ValueExpression {
 
         @Override
         public void processEvent(ComponentSystemEvent event) throws AbortProcessingException {
-            ex.clientId = event.getComponent().getClientId();
-            event.getComponent().unsubscribeFromEvent(PostAddToViewEvent.class, this);
+            FacesContext ctx = event.getFacesContext();
+            resolveExecutePath(ctx, event.getComponent());
         }
     }
     

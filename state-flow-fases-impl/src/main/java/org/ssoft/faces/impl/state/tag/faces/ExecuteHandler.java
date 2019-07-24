@@ -57,7 +57,7 @@ import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
 import javax.faces.state.execute.ExecutorController;
-import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
+import javax.faces.state.execute.ExecuteContextManager;
 import org.ssoft.faces.impl.state.log.FlowLogger;
 
 /**
@@ -142,7 +142,7 @@ public class ExecuteHandler extends ComponentHandler {
 
             } catch (ModelException ex) {
                 throw new TagException(tag, ex);
-            }finally {
+            } finally {
 //                component.popComponentFromEL(context);
             }
 
@@ -186,15 +186,20 @@ public class ExecuteHandler extends ComponentHandler {
             handler.writeState(context);
         }
 
-        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(context);
-        ExecuteContext executeContext = manager.findExecuteContextByComponent(context, component);
+        ExecuteContextManager manager = ExecuteContextManager.getManager(context);
+        String executePath = component.getExecutePath(context);
+        Context ectx = executor.getRootContext();
+        ExecuteContext executeContext = new ExecuteContext(
+                executePath, executor, ectx);
+        
+        manager.initExecuteContext(context, executePath, executeContext);
         manager.push(executeContext);
     }
 
     @Override
     public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
         FacesContext context = ctx.getFacesContext();
-        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(context);
+        ExecuteContextManager manager = ExecuteContextManager.getManager(context);
         manager.pop();
     }
 

@@ -125,8 +125,8 @@ public class StateFlow {
     /**
      *
      */
-    public static final Name VIEW_INVOKE_CONTEXT = new NameResolver(
-            "state.flow.faces:", ":ViewState");
+    public static final Name EXECUTE_CONTEXT_STATE = new NameResolver(
+            "state.flow.faces:", ":ExecuteContextState");
 
     /**
      *

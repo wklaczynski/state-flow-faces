@@ -24,6 +24,8 @@ import javax.faces.state.scxml.SCXMLExecutor;
  */
 public class ExecuteContext {
 
+    private final String path;
+
     /**
      * invokeId ID.
      */
@@ -41,14 +43,33 @@ public class ExecuteContext {
 
     /**
      *
+     * @param path
      * @param invokeId
      * @param executor
      * @param context
      */
-    public ExecuteContext(String invokeId, SCXMLExecutor executor, Context context) {
+    public ExecuteContext(String path, String invokeId, SCXMLExecutor executor, Context context) {
+        this.path = path;
         this.invokeId = invokeId;
         this.executor = executor;
         this.context = context;
+    }
+
+    /**
+     *
+     * @param path
+     * @param executor
+     * @param context
+     */
+    public ExecuteContext(String path, SCXMLExecutor executor, Context context) {
+        this.path = path;
+        this.invokeId = null;
+        this.executor = executor;
+        this.context = context;
+    }
+
+    public String getPath() {
+        return path;
     }
 
     /**

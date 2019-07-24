@@ -26,6 +26,7 @@ import javax.faces.state.scxml.SCXMLExecutor;
 public class UIStateChartExecutor extends UIPanel {
 
     private transient SCXMLExecutor _executor;
+    private transient String _path;
 
     /**
      *
@@ -84,6 +85,14 @@ public class UIStateChartExecutor extends UIPanel {
         getStateHelper().put(PropertyKeys.required, _required);
     }
 
+    public String getExecutePath(FacesContext context) {
+        if (_path == null && _executor != null) {
+            _path = _executor.getId();
+        }
+        return _path;
+    }
+    
+    
     public String getPath(FacesContext context) {
         String path = context.getViewRoot().getViewId() + "!" + getName();
         return path;

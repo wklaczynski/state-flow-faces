@@ -92,7 +92,6 @@ import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.StateFlow;
 import static javax.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static javax.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
-import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static javax.faces.state.StateFlow.PORTLET_EVENT_PREFIX;
 import javax.faces.state.scxml.EventBuilder;
@@ -103,12 +102,12 @@ import static javax.faces.state.scxml.io.StateHolderSaver.restoreContext;
 import static javax.faces.state.scxml.io.StateHolderSaver.saveContext;
 import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
-import static javax.faces.state.StateFlow.VIEW_INVOKE_CONTEXT;
 import javax.faces.state.component.UIStateChartFacetRender;
 import javax.faces.state.scxml.SCXMLSystemContext;
 import javax.faces.state.execute.ExecutorController;
 import javax.faces.state.component.UIStateChartExecutor;
-import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
+import javax.faces.state.execute.ExecuteContextManager;
+import static javax.faces.state.StateFlow.EXECUTE_CONTEXT_STATE;
 
 /**
  *
@@ -481,103 +480,12 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public void initViewContext(FacesContext context, String viewId, ExecuteContext viewContext) {
-        context.getAttributes().put(VIEW_INVOKE_CONTEXT.get(viewId), viewContext);
-    }
-
-    @Override
-    public ExecuteContext getCurrentExecuteContext(FacesContext context) {
-
-//        SCXMLExecutor executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);
-//        if (executor != null) {
-//            Context ctx = executor.getRootContext();
-//            ExecuteContext viewContext = new ExecuteContext(null, executor, ctx);
-//            return viewContext;
-//        }
-
-        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(context);
-        ExecuteContext executeContext = manager.peek();
-        if (executeContext != null) {
-            return executeContext;
-        }
-
-        UIComponent current = UIComponent.getCurrentComponent(context);
-        return getExecuteContextByComponent(context, current);
-    }
-
-    @Override
-    public ExecuteContext getExecuteContextByComponent(FacesContext context, UIComponent component) {
-        UIViewRoot viewRoot = context.getViewRoot();
-        ExecuteContext viewContext = null;
-        String executorId = null;
-        SCXMLExecutor executor = null;
-
-        if (isActive(context)) {
-
-            if (viewRoot != null) {
-
-                String path = viewRoot.getViewId();
-                UIComponent currentComponent = component;
-
-                if (currentComponent != null) {
-                    UIStateChartFacetRender render = ComponentUtils
-                            .lokated(UIStateChartFacetRender.class, currentComponent);
-                    if (render != null) {
-                        path = render.getInvokePath(context);
-                        executor = render.getExecutor();
-                        executorId = executor.getId();
-                    } else {
-                        UIStateChartExecutor execute = ComponentUtils
-                                .lokated(UIStateChartExecutor.class, currentComponent);
-
-                        if (execute != null) {
-                            executor = execute.getExecutor();
-                            executorId = executor.getId();
-                        } else {
-                            UIComponent compositeCurrent = ComponentUtils
-                                    .findExecuteCompositeComponent(context, currentComponent);
-                            if (compositeCurrent != null) {
-                                ExecutorController controller = (ExecutorController) compositeCurrent
-                                        .getAttributes().get(StateFlow.EXECUTOR_CONTROLLER_KEY);
-                                if (controller != null) {
-                                    executor = controller.getExecutor();
-                                    executorId = executor.getId();
-                                }
-                            }
-                        }
-                    }
-                }
-
-                viewContext = (ExecuteContext) context.getAttributes()
-                        .get(VIEW_INVOKE_CONTEXT.get(path));
-
-            }
-
-            if (viewContext == null) {
-                if (executorId == null) {
-                    executorId = getExecutorViewRootId(context);
-                }
-
-                if (executor == null) {
-                    executor = getRootExecutor(context, executorId);
-                }
-
-                if (executor != null) {
-                    Context ctx = executor.getRootContext();
-                    viewContext = new ExecuteContext(null, executor, ctx);
-                }
-            }
-        }
-
-        return viewContext;
-    }
-
-    @Override
     public SCXMLExecutor getCurrentExecutor(FacesContext context) {
         SCXMLExecutor executor = null;
-        ExecuteContext viewContext = getCurrentExecuteContext(context);
-        if (viewContext != null) {
-            executor = viewContext.getExecutor();
+        ExecuteContextManager manager = ExecuteContextManager.getManager(context);
+        ExecuteContext executeContext = manager.getCurrentExecuteContext(context);
+        if (executeContext != null) {
+            executor = executeContext.getExecutor();
         }
 
         return executor;

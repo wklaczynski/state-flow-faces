@@ -156,29 +156,6 @@ public abstract class StateFlowHandler {
     /**
      *
      * @param context
-     * @param viewId
-     * @param viewContext
-     */
-    public abstract void initViewContext(FacesContext context, String viewId, ExecuteContext viewContext);
-
-    /**
-     *
-     * @param context
-     * @return
-     */
-    public abstract ExecuteContext getCurrentExecuteContext(FacesContext context);
-
-    /**
-     *
-     * @param context
-     * @param component
-     * @return
-     */
-    public abstract ExecuteContext getExecuteContextByComponent(FacesContext context, UIComponent component);
-
-    /**
-     *
-     * @param context
      * @return
      */
     public abstract SCXMLExecutor getCurrentExecutor(FacesContext context);

@@ -89,7 +89,7 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
                         if (source != null) {
                             UIStateChartFacetRender render = ComponentUtils.assigned(UIStateChartFacetRender.class, source);
                             if (render != null) {
-                                sendId = render.getInvokePath(facesContext);
+                                sendId = render.getExecutePath(facesContext);
                             }
                         }
                     }

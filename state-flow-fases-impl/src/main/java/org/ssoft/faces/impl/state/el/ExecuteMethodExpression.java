@@ -15,6 +15,7 @@
  */
 package org.ssoft.faces.impl.state.el;
 
+import java.io.Serializable;
 import javax.el.ELContext;
 import javax.el.ELException;
 import javax.el.MethodExpression;
@@ -30,7 +31,7 @@ import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import javax.faces.state.execute.ExecuteContext;
 import javax.faces.validator.ValidatorException;
 import javax.faces.view.facelets.ComponentHandler;
-import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
+import javax.faces.state.execute.ExecuteContextManager;
 
 /**
  *
@@ -39,7 +40,7 @@ import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
 public class ExecuteMethodExpression extends MethodExpression {
 
     private final MethodExpression delegate;
-    private String clientId;
+    private String executePath;
 
     public ExecuteMethodExpression(MethodExpression delegate) {
         this.delegate = delegate;
@@ -50,10 +51,19 @@ public class ExecuteMethodExpression extends MethodExpression {
                 if (ComponentHandler.isNew(component)) {
                     component.subscribeToEvent(PostAddToViewEvent.class, new SetClientIdListener(this));
                 } else {
-                    clientId = component.getClientId(ctx);
+                    resolveExecutePath(ctx, component);
                 }
             }
         }
+    }
+
+    private void resolveExecutePath(FacesContext ctx, UIComponent component) {
+        ExecuteContextManager manager = ExecuteContextManager.getManager(ctx);
+        ExecuteContext executeContext = manager.findExecuteContextByComponent(ctx, component);
+        if (executeContext != null) {
+            executePath = executeContext.getPath();
+        }
+
     }
 
     @Override
@@ -103,12 +113,12 @@ public class ExecuteMethodExpression extends MethodExpression {
     }
 
     private boolean pushExecutor(FacesContext ctx) {
-        if (clientId == null) {
+        if (executePath == null) {
             return false;
         }
 
-        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(ctx);
-        ExecuteContext executeContext = manager.findExecuteContextByComponentId(ctx, clientId);
+        ExecuteContextManager manager = ExecuteContextManager.getManager(ctx);
+        ExecuteContext executeContext = manager.findExecuteContextByPath(ctx, executePath);
         if (executeContext != null) {
             return manager.push(executeContext);
         }
@@ -116,11 +126,11 @@ public class ExecuteMethodExpression extends MethodExpression {
     }
 
     private void popExecutor(FacesContext ctx) {
-        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(ctx);
+        ExecuteContextManager manager = ExecuteContextManager.getManager(ctx);
         manager.pop();
     }
 
-    private class SetClientIdListener implements ComponentSystemEventListener {
+    private class SetClientIdListener implements ComponentSystemEventListener, Serializable {
 
         private ExecuteMethodExpression ex;
 
@@ -133,8 +143,8 @@ public class ExecuteMethodExpression extends MethodExpression {
 
         @Override
         public void processEvent(ComponentSystemEvent event) throws AbortProcessingException {
-            ex.clientId = event.getComponent().getClientId();
-            event.getComponent().unsubscribeFromEvent(PostAddToViewEvent.class, this);
+            FacesContext ctx = event.getFacesContext();
+            resolveExecutePath(ctx, event.getComponent());
         }
     }
 

@@ -61,6 +61,7 @@ import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.scxml.InvokeContext;
 import javax.faces.state.scxml.model.ModelException;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
+import javax.faces.state.execute.ExecuteContextManager;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -89,6 +90,7 @@ public class ViewInvoker implements Invoker, Serializable {
     private boolean cancelled;
 
     private String viewId;
+    private String path;
     private boolean resolved;
     private Map<String, Object> vieparams;
     private Map<String, List<String>> reqparams;
@@ -101,6 +103,7 @@ public class ViewInvoker implements Invoker, Serializable {
 
     private String prevStateKey;
     private String prevViewId;
+    private String prevcId;
     private Object prevViewState;
 
     /**
@@ -260,6 +263,7 @@ public class ViewInvoker implements Invoker, Serializable {
                 lastViewState = null;
             }
 
+            path = executor.getRootId() + ":" + viewId;
             handler.setExecutorViewRootId(context, executor.getRootId());
             executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
 
@@ -277,6 +281,11 @@ public class ViewInvoker implements Invoker, Serializable {
 
             prevStateKey = "__@@Invoke:prev:" + invokeId + ":";
             prevViewId = currentViewRoot.getViewId();
+
+            UIComponent cc = UIComponent.getCurrentComponent(context);
+            if (cc != null) {
+                prevcId = cc.getClientId();
+            }
 
             RenderKit renderKit = context.getRenderKit();
             ResponseStateManager rsm = renderKit.getResponseStateManager();
@@ -480,10 +489,10 @@ public class ViewInvoker implements Invoker, Serializable {
                     if (viewRoot != null) {
                         try {
                             ExecuteContext viewContext = new ExecuteContext(
-                                    invokeId, executor, ictx.getContext());
+                                    path, invokeId, executor, ictx.getContext());
 
-                            StateFlowHandler handler = StateFlowHandler.getInstance();
-                            handler.initViewContext(context, viewId, viewContext);
+                            ExecuteContextManager manager = ExecuteContextManager.getManager(context);
+                            manager.initExecuteContext(context, path, viewContext);
                         } catch (ModelException ex) {
                             throw new InvokerException(ex);
                         }
@@ -544,20 +553,35 @@ public class ViewInvoker implements Invoker, Serializable {
             }
         }
 
-//        if (prevViewState != null) {
-//            ViewHandler vh = context.getApplication().getViewHandler();
-//
-//            context.getAttributes().put(FACES_VIEW_STATE, prevViewState);
-//            viewRoot = vh.restoreView(context, prevViewId);
-//            context.setViewRoot(viewRoot);
-//            context.setProcessingEvents(true);
-//            vh.initView(context);
-//        }
+        if (prevViewState != null) {
+            ViewHandler vh = context.getApplication().getViewHandler();
 
-//        PartialViewContext pvc = context.getPartialViewContext();
-//        if ((pvc != null && pvc.isAjaxRequest())) {
-//            pvc.setRenderAll(true);
-//        }
+            context.getAttributes().put(FACES_VIEW_STATE, prevViewState);
+            viewRoot = vh.restoreView(context, prevViewId);
+            context.setViewRoot(viewRoot);
+            context.setProcessingEvents(true);
+            vh.initView(context);
+            context.setViewRoot(viewRoot);
+            context.renderResponse();
+
+            if (prevcId != null) {
+                UIComponent cc = viewRoot.findComponent(prevcId);
+                if (cc != null) {
+                    cc.pushComponentToEL(context, cc);
+                    cc = UIComponent.getCompositeComponentParent(cc);
+                    if (cc != null) {
+                        cc.pushComponentToEL(context, cc);
+                    }
+
+                }
+            }
+        }
+
+        PartialViewContext pvc = context.getPartialViewContext();
+        if ((pvc != null && pvc.isAjaxRequest())) {
+            pvc.setRenderAll(true);
+        }
+
         StateFlowHandler handler = StateFlowHandler.getInstance();
         handler.setExecutorViewRootId(context, prevExecutorId);
 

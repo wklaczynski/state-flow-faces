@@ -38,7 +38,7 @@ import javax.faces.state.scxml.invoke.Invoker;
 import javax.faces.state.scxml.invoke.InvokerException;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
 import javax.faces.state.scxml.model.SCXML;
-import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
+import javax.faces.state.execute.ExecuteContextManager;
 import org.ssoft.faces.impl.state.invokers.FacesInvokerWrapper;
 
 /**
@@ -98,7 +98,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             eccashe.set(ec);
         }
 
-        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(fc);
+        ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
         boolean pushed = false;
 
         try {

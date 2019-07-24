@@ -54,6 +54,7 @@ import static javax.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_PATH;
 import static javax.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
+import javax.faces.state.execute.ExecuteContextManager;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -233,8 +234,7 @@ public class FacetInvoker implements Invoker, Serializable {
                         slot, viewId));
             }
             ctx.setLocal(EXECUTOR_CONTEXT_PATH.get(slot), path);
-            
-            
+
             setRenderFacet(context, source);
 
             UIViewRoot currentViewRoot = context.getViewRoot();
@@ -403,10 +403,10 @@ public class FacetInvoker implements Invoker, Serializable {
                     if (viewRoot != null) {
                         try {
                             ExecuteContext viewContext = new ExecuteContext(
-                                    invokeId, executor, ictx.getContext());
+                                    path, invokeId, executor, ictx.getContext());
 
-                            StateFlowHandler handler = StateFlowHandler.getInstance();
-                            handler.initViewContext(context, path, viewContext);
+                            ExecuteContextManager manager = ExecuteContextManager.getManager(context);
+                            manager.initExecuteContext(context, path, viewContext);
                         } catch (ModelException ex) {
                             throw new InvokerException(ex);
                         }
@@ -435,8 +435,7 @@ public class FacetInvoker implements Invoker, Serializable {
                     evb.sendId(invokeId);
                     executor.addEvent(evb.build());
                 }
-                
-                
+
             }
 
             if (path.equals(event.getSendId())) {

@@ -23,7 +23,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.state.execute.ExecuteContext;
 import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
-import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
+import javax.faces.state.execute.ExecuteContextManager;
 
 /**
  *
@@ -48,7 +48,7 @@ public class StateFlowActionListener implements ActionListener {
         UIComponent source = event.getComponent();
         FacesContext facesContext = FacesContext.getCurrentInstance();
 
-        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(facesContext);
+        ExecuteContextManager manager = ExecuteContextManager.getManager(facesContext);
 
         try {
             String sorceId = source.getClientId(facesContext);

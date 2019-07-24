@@ -63,6 +63,8 @@ import static javax.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import static javax.faces.state.StateFlow.DEFAULT_STATE_MACHINE_NAME;
+import javax.faces.state.execute.ExecuteContext;
+import javax.faces.state.execute.ExecuteContextManager;
 
 /**
  *
@@ -393,6 +395,15 @@ public class StateFlowPhaseListener implements PhaseListener {
 
             handler.execute(context, executor, params);
             UIViewRoot result = context.getViewRoot();
+
+            ExecuteContextManager manager = ExecuteContextManager.getManager(context);
+            String executePath = executorId;
+            Context ectx = executor.getRootContext();
+            ExecuteContext executeContext = new ExecuteContext(
+                    executePath, executor, ectx);
+
+            manager.initExecuteContext(context, executePath, executeContext);
+            manager.push(executeContext);
 
             if (null != currentViewRoot) {
                 Map<String, Object> currentViewMap = currentViewRoot.getViewMap(false);

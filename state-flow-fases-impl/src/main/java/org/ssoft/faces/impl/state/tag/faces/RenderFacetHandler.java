@@ -31,7 +31,8 @@ import javax.faces.state.component.UIStateChartFacetRender;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.utils.ComponentUtils;
 import javax.faces.state.execute.ExecutorController;
-import org.ssoft.faces.impl.state.execute.ExecutorContextStackManager;
+import javax.faces.state.execute.ExecuteContextManager;
+import javax.faces.state.scxml.Context;
 import org.ssoft.faces.impl.state.log.FlowLogger;
 
 /**
@@ -103,15 +104,20 @@ public class RenderFacetHandler extends ComponentHandler {
             render.setExecutor(executor);
         }
 
-        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(context);
-        ExecuteContext executeContext = manager.findExecuteContextByComponent(context, render);
+        ExecuteContextManager manager = ExecuteContextManager.getManager(context);
+        String executePath = render.getExecutePath(context);
+        Context ectx = executor.getRootContext();
+        ExecuteContext executeContext = new ExecuteContext(
+                executePath, executor, ectx);
+        
+        manager.initExecuteContext(context, executePath, executeContext);
         manager.push(executeContext);
     }
 
     @Override
     public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
         FacesContext context = ctx.getFacesContext();
-        ExecutorContextStackManager manager = ExecutorContextStackManager.getManager(context);
+        ExecuteContextManager manager = ExecuteContextManager.getManager(context);
         manager.pop();
     }
 

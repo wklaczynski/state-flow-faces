@@ -33,13 +33,8 @@ import static javax.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
  */
 public class UIStateChartFacetRender extends UIPanel {
 
-    private static final String _CURRENT_RENDERER_STACK_KEY
-                                = "javax.faces.state.component.CURRENT_RENDERER_STACK_KEY";
-
     private transient SCXMLExecutor _executor;
     private transient String _path;
-
-    private int _isPushedAsCurrentRefCount = 0;
 
     /**
      *
@@ -81,7 +76,7 @@ public class UIStateChartFacetRender extends UIPanel {
         this._executor = executor;
     }
 
-    public String getInvokePath(FacesContext context) {
+    public String getExecutePath(FacesContext context) {
         if (_path == null && _executor != null) {
             _path = _executor.getId() + ":" + getSlot();
         }

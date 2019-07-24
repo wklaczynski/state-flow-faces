@@ -19,8 +19,6 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.ArrayDeque;
-import java.util.Map;
 import javax.faces.context.FacesContext;
 import javax.faces.state.scxml.SCXMLExecutor;
 
@@ -30,12 +28,8 @@ import javax.faces.state.scxml.SCXMLExecutor;
  */
 public class ExecutorController implements Externalizable {
 
-    private static final String _CURRENT_EXECUTOR_STACK_KEY
-                                = "javax.faces.state.controller.CURRENT_EXECUTOR_STACK_KEY";
-
-    private int _isPushedAsCurrentRefCount = 0;
-
     private transient SCXMLExecutor _executor;
+    private transient String _path;
 
     public SCXMLExecutor getExecutor() {
         return _executor;
@@ -47,75 +41,20 @@ public class ExecutorController implements Externalizable {
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        out.write(_isPushedAsCurrentRefCount);
+        out.writeUTF(_path);
 
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        _isPushedAsCurrentRefCount = in.readInt();
+        _path = in.readUTF();
     }
 
-    public void pushControllerToEl(FacesContext context, ExecutorController controller) {
-        if (context == null) {
-            throw new NullPointerException();
+    public String getExecutePath(FacesContext context) {
+        if (_path == null && _executor != null) {
+            _path = _executor.getId();
         }
-
-        if (null == controller) {
-            controller = this;
-        }
-
-        Map<Object, Object> contextAttributes = context.getAttributes();
-        ArrayDeque<ExecutorController> controllerStack = getControllerStack(_CURRENT_EXECUTOR_STACK_KEY,
-                contextAttributes);
-
-        controllerStack.push(controller);
-        controller._isPushedAsCurrentRefCount++;
-    }
-
-    public void popControllerFromEl(FacesContext context) {
-        if (context == null) {
-            throw new NullPointerException();
-        }
-
-        if (_isPushedAsCurrentRefCount < 1) {
-            return;
-        }
-
-        Map<Object, Object> contextAttributes = context.getAttributes();
-        ArrayDeque<ExecutorController> controllerStack = getControllerStack(_CURRENT_EXECUTOR_STACK_KEY,
-                contextAttributes);
-
-        for (ExecutorController topController = controllerStack.peek();
-                topController != this;
-                topController = controllerStack.peek()) {
-            if (topController instanceof ExecutorController) {
-                ((ExecutorController) topController).popControllerFromEl(context);
-
-            } else {
-                controllerStack.pop();
-            }
-        }
-
-        controllerStack.pop();
-        _isPushedAsCurrentRefCount--;
-
-    }
-
-    public static ExecutorController getControllerStack(FacesContext context) {
-        Map<Object, Object> contextAttributes = context.getAttributes();
-        ArrayDeque<ExecutorController> controllerStack = getControllerStack(_CURRENT_EXECUTOR_STACK_KEY,
-                contextAttributes);
-
-        return (ExecutorController) controllerStack.peek();
-    }
-
-    public static ArrayDeque<ExecutorController> getControllerStack(String keyName, Map<Object, Object> contextAttributes) {
-        ArrayDeque<ExecutorController> stack = (ArrayDeque<ExecutorController>) contextAttributes.computeIfAbsent(keyName, (t) -> {
-            return new ArrayDeque<>();
-        });
-
-        return stack;
+        return _path;
     }
 
 }
