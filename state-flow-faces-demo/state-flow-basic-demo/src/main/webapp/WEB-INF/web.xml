@@ -33,8 +33,8 @@
         <param-value>flow</param-value>
     </context-param>
 
-    <!--If this parametr set "true", then view invoker default send redirect 
-    when is not defined in invoke params "@view.param.redirect". Default is "false"-->
+    <!--If this parametr set "true", then execute conversattion use window id 
+    Default is "false"-->
     <context-param>
         <param-name>org.apache.faces.DEFAULT_VIEW_REDIRECT</param-name>
         <param-value>true</param-value>
@@ -43,16 +43,23 @@
     <!--If this parametr set "true", then view invoker default send redirect 
     when is ajax request and view has be changed. Default is "false"-->
     <context-param>
+        <param-name>org.apache.faces.USE_WINDOW_MODE</param-name>
+        <param-value>true</param-value>
+    </context-param>
+
+
+    <!--If this parametr set "true", then view invoker default send redirect 
+    when is ajax request and view has be changed. Default is "true"-->
+    <context-param>
         <param-name>org.apache.faces.DEFAULT_AJAX_REDIRECT</param-name>
         <param-value>false</param-value>
     </context-param>
 
-    <!--If this parametr set "true", then view invoker default send redirect
-    with flash when 
-    when is redirect view invoke request and view has be changed. Default is "false"-->
+    <!--If this parametr set "true", then view invoker default send redirect with flash
+    when is redirect view invoke request and view has be changed. Default is "true"-->
     <context-param>
         <param-name>org.apache.faces.DEFAULT_USE_FLASH_IN_REDIRECT</param-name>
-        <param-value>false</param-value>
+        <param-value>true</param-value>
     </context-param>
             
     <!--Used for test only, alweys disable in production stage-->

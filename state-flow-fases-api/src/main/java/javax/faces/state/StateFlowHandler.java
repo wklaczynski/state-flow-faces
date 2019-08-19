@@ -115,13 +115,6 @@ public abstract class StateFlowHandler {
      */
     public abstract boolean hasViewRoot(FacesContext context);
 
-//    /**
-//     *
-//     * @param context
-//     * @return
-//     */
-//    public abstract boolean isActive(FacesContext context);
-
     /**
      *
      * @param id

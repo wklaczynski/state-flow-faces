@@ -23,6 +23,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.PartialResponseWriter;
 import javax.faces.context.PartialViewContext;
 import javax.faces.context.PartialViewContextWrapper;
+import javax.faces.event.PhaseId;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.STATE_FLOW_DISPATCH_TASK;
 import javax.faces.state.task.DelayedEventTask;
 
@@ -61,6 +62,11 @@ public final class StateFlowPartialViewContext extends PartialViewContextWrapper
         }
 
         return writer;
+    }
+
+    @Override
+    public void processPartial(PhaseId phaseId) {
+        super.processPartial(phaseId);
     }
 
     /**

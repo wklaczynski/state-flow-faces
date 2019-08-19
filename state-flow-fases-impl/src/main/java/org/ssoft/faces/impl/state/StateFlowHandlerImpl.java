@@ -408,7 +408,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     @Override
     public Context getFlowContext(FacesContext context, String executorId) {
-        FlowDeque fs = getFlowDeque(context, false);
+        FlowDeque fs = getFlowDeque(context, executorId, false);
         if (fs == null) {
             return null;
         }
@@ -426,80 +426,13 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
         }
 
-        if (uuid != null) {
-            uuid = (String) context.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
-        }
-
-//        if (uuid == null) {
-//            String viewId;
-//            UIViewRoot viewRoot = context.getViewRoot();
-//            if (viewRoot != null) {
-//                uuid = (String) viewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
-//                viewId = viewRoot.getViewId();
-//            } else {
-//                viewId = context.getExternalContext().getRequestPathInfo();
-//            }
-//
-//            ViewHandler vh = context.getApplication().getViewHandler();
-//            String renderKitId = vh.calculateRenderKitId(context);
-//            ResponseStateManager rsm = RenderKitUtils.getResponseStateManager(context, renderKitId);
-//            Object[] rawState = (Object[]) rsm.getState(context, viewId);
-//            if (rawState != null) {
-//                Map<String, Object> state = (Map<String, Object>) rawState[1];
-//                if (state != null) {
-//                    uuid = (String) state.get(FACES_EXECUTOR_VIEW_ROOT_ID);
-//                }
-//            }
-//        }
-//
-//        FlowDeque fs = getFlowDeque(context, true);
-//        Context fctx = fs.getFlowContext();
-//
-//        if (uuid == null) {
-//            uuid = (String) fctx.get(FACES_EXECUTOR_VIEW_ROOT_ID);
-//        }
         if (uuid == null) {
-            uuid = UUID.randomUUID().toString();
-            //fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, uuid);
+            uuid = (String) context.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
         }
 
         context.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, uuid);
 
         return uuid;
-    }
-
-//    @Override
-    public void setExecutorViewRootId(FacesContext context, String executorId) {
-        FlowDeque fs = getFlowDeque(context, true);
-
-        if (executorId != null) {
-            SCXMLExecutor prevViewExecutor = getViewExecutor(context);
-
-            context.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
-//            Context fctx = fs.getFlowContext();
-//            fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
-
-            UIViewRoot viewRoot = context.getViewRoot();
-            SCXMLExecutor newViewExecutor = getRootExecutor(context, executorId);
-
-            if (newViewExecutor != null && viewRoot != null) {
-                if (prevViewExecutor == null || !prevViewExecutor.getId().equals(executorId)) {
-                    EventBuilder eb = new EventBuilder(AFTER_CHANGE_VIEW_EXECUTOR, TriggerEvent.CALL_EVENT)
-                            .sendId(viewRoot.getViewId());
-                    try {
-                        newViewExecutor.triggerEvent(eb.build());
-                    } catch (ModelException ex) {
-                        throw new FacesException(ex);
-                    }
-                }
-            }
-
-        } else {
-            context.getAttributes().remove(FACES_EXECUTOR_VIEW_ROOT_ID);
-            Context fctx = fs.getFlowContext();
-            fctx.removeLocal(FACES_EXECUTOR_VIEW_ROOT_ID);
-        }
-
     }
 
     @Override
@@ -828,6 +761,11 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     private FlowDeque getFlowDeque(FacesContext context, boolean create) {
+        String executorId = getExecutorViewRootId(context);
+        return getFlowDeque(context, executorId, create);
+    }
+
+    private FlowDeque getFlowDeque(FacesContext context, String executorId, boolean create) {
 
         FlowDeque result = (FlowDeque) context.getAttributes()
                 .get(STATE_FLOW_STACK);
@@ -853,26 +791,47 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return null;
         }
 
-        ClientWindow clientWindow = ec.getClientWindow();
-        if (clientWindow == null) {
-            if (create) {
-                throw new IllegalStateException("Client Window mode not found");
+        String flowKey = null;
+
+        if (StateFlowParams.isUseWindowMode()) {
+            ClientWindow clientWindow = ec.getClientWindow();
+            if (clientWindow == null) {
+                if (create) {
+                    throw new IllegalStateException("Client Window mode not found");
+                }
+                return null;
             }
-            return null;
+
+            flowKey = clientWindow.getId() + "_stateFlowStack";
         }
 
-        String sessionKey = clientWindow.getId() + "_stateFlowStack";
+        if (flowKey == null) {
+            if (executorId == null) {
+                if (create) {
+                    throw new IllegalStateException("Can not create flow queue can not set executor id.");
+                }
+                return null;
+            }
+
+            int pos = executorId.indexOf(':');
+            if (pos >= 0) {
+                executorId = executorId.substring(0, pos);
+            }
+
+            flowKey = executorId + "_stateFlowStack";
+        }
+
         if (!getAlwaysSerialized()) {
-            result = (FlowDeque) flowMap.get(sessionKey);
+            result = (FlowDeque) flowMap.get(flowKey);
             if (null == result && create) {
-                result = new FlowDeque(sessionKey);
+                result = new FlowDeque(flowKey);
             }
         } else {
-            Object state = flowMap.get(sessionKey);
+            Object state = flowMap.get(flowKey);
             if (null == state && create) {
-                result = new FlowDeque(sessionKey);
+                result = new FlowDeque(flowKey);
             } else {
-                result = restoreFlowDequeState(context, state, sessionKey);
+                result = restoreFlowDequeState(context, state, flowKey);
             }
         }
 
@@ -882,15 +841,20 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     private void closeFlowDeque(FacesContext context) {
-        ExternalContext extContext = context.getExternalContext();
-        ClientWindow clientWindow = extContext.getClientWindow();
+        ExternalContext ec = context.getExternalContext();
+        String executorId = getExecutorViewRootId(context);
 
-        FlowDeque flowDeque = getFlowDeque(context, false);
+        FlowDeque flowDeque = getFlowDeque(context, executorId, false);
         if (flowDeque != null) {
             flowDeque.close();
         }
 
-        clientWindow.disableClientWindowRenderMode(context);
+        String flowKey = null;
+        if (StateFlowParams.isUseWindowMode()) {
+            ClientWindow clientWindow = ec.getClientWindow();
+            clientWindow.disableClientWindowRenderMode(context);
+        }
+
     }
 
     @Override
@@ -909,17 +873,42 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             sessionMap.put(LOGICAL_FLOW_MAP, flowMap);
         }
 
-        ClientWindow clientWindow = ec.getClientWindow();
-        if (clientWindow == null) {
-            throw new IllegalStateException("Client Window mode not found");
+        String flowKey = null;
+
+        if (StateFlowParams.isUseWindowMode()) {
+            ClientWindow clientWindow = ec.getClientWindow();
+            if (clientWindow == null) {
+                throw new IllegalStateException("Client Window mode not found");
+            }
+            flowKey = clientWindow.getId() + "_stateFlowStack";
         }
 
-        String sessionKey = clientWindow.getId() + "_stateFlowStack";
+        if (flowKey == null) {
+            String executorId = getExecutorViewRootId(context);
+            if (executorId == null) {
+                throw new IllegalStateException("Can not create flow queue can not set executor id.");
+            }
+
+            int pos = executorId.indexOf(':');
+            if (pos >= 0) {
+                executorId = executorId.substring(0, pos);
+            }
+
+            flowKey = executorId + "_stateFlowStack";
+        }
+
+        if (StateFlowParams.isUseWindowMode()) {
+            ClientWindow clientWindow = ec.getClientWindow();
+            if (clientWindow == null) {
+                throw new IllegalStateException("Client Window mode not found");
+            }
+        }
+
         if (!getAlwaysSerialized()) {
-            flowMap.put(sessionKey, flowStack);
+            flowMap.put(flowKey, flowStack);
         } else {
             Object state = saveFlowDequeState(context, flowStack);
-            flowMap.put(sessionKey, state);
+            flowMap.put(flowKey, state);
         }
     }
 

@@ -20,6 +20,7 @@ import static org.ssoft.faces.impl.state.StateFlowImplConstants.STATE_CHART_AJAX
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.STATE_CHART_DEFAULT_PARAM_NAME;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.STATE_CHART_REQUEST_PARAM_NAME;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.STATE_CHART_VIEW_REDIRECT_PARAM_NAME;
+import static org.ssoft.faces.impl.state.StateFlowImplConstants.STATE_CHART_USE_WINDOW_PARAM_NAME;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.STATE_USE_FLASH_REDIRECT_PARAM_NAME;
 import org.ssoft.faces.impl.state.config.StateWebConfiguration;
 
@@ -29,6 +30,25 @@ import org.ssoft.faces.impl.state.config.StateWebConfiguration;
  */
 public class StateFlowParams {
 
+    /**
+     *
+     * @return
+     */
+    public static boolean isUseWindowMode() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        Boolean useWindowMode = (Boolean) context.getExternalContext()
+                .getApplicationMap().get(STATE_CHART_USE_WINDOW_PARAM_NAME);
+        if (useWindowMode == null) {
+            StateWebConfiguration wcfg = StateWebConfiguration.getInstance();
+            String pname = wcfg.getOptionValue(STATE_CHART_USE_WINDOW_PARAM_NAME, "false");
+            useWindowMode = Boolean.parseBoolean(pname);
+            context.getExternalContext()
+                    .getApplicationMap().put(STATE_CHART_USE_WINDOW_PARAM_NAME, useWindowMode);
+        }
+        return useWindowMode;
+    }
+    
+    
     /**
      *
      * @return
@@ -76,7 +96,7 @@ public class StateFlowParams {
                 .getApplicationMap().get(STATE_USE_FLASH_REDIRECT_PARAM_NAME);
         if (redirect == null) {
             StateWebConfiguration wcfg = StateWebConfiguration.getInstance();
-            String pname = wcfg.getOptionValue(STATE_USE_FLASH_REDIRECT_PARAM_NAME, "false");
+            String pname = wcfg.getOptionValue(STATE_USE_FLASH_REDIRECT_PARAM_NAME, "true");
             redirect = Boolean.parseBoolean(pname);
             context.getExternalContext()
                     .getApplicationMap().put(STATE_USE_FLASH_REDIRECT_PARAM_NAME, redirect);

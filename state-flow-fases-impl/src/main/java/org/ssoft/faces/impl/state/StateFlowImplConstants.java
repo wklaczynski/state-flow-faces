@@ -59,6 +59,11 @@ public class StateFlowImplConstants {
     /**
      *
      */
+    public final static String STATE_CHART_USE_WINDOW_PARAM_NAME = STATE_FLOW_PREFIX + "USE_WINDOW_MODE";
+
+    /**
+     *
+     */
     public final static String STATE_CHART_AJAX_REDIRECT_PARAM_NAME = STATE_FLOW_PREFIX + "DEFAULT_AJAX_REDIRECT";
 
     /**

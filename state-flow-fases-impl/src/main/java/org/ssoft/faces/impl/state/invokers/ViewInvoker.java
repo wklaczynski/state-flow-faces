@@ -41,6 +41,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.Flash;
 import javax.faces.context.PartialViewContext;
+import javax.faces.lifecycle.ClientWindow;
 import javax.faces.render.RenderKit;
 import javax.faces.render.ResponseStateManager;
 import javax.faces.view.ViewDeclarationLanguage;
@@ -107,6 +108,8 @@ public class ViewInvoker implements Invoker, Serializable {
     private String prevViewId;
     private String prevcId;
     private Object prevViewState;
+    private boolean usewindow;
+    private boolean useflash;
 
     /**
      * {@inheritDoc}.
@@ -225,7 +228,7 @@ public class ViewInvoker implements Invoker, Serializable {
 
             boolean redirect = StateFlowParams.isDefaultViewRedirect();
             boolean ajaxredirect = StateFlowParams.isDefaultAjaxRedirect();
-            boolean useflash = StateFlowParams.isDefaultUseFlashInRedirect();
+            useflash = StateFlowParams.isDefaultUseFlashInRedirect();
 
             if (options.containsKey("redirect")) {
                 Object val = options.get("redirect");
@@ -308,6 +311,14 @@ public class ViewInvoker implements Invoker, Serializable {
             rctx.setLocal(prevStateKey + "ViewState", prevViewState);
             rctx.setLocal(prevStateKey + "ViewId", prevViewId);
 
+            usewindow = false;
+            if (StateFlowParams.isUseWindowMode()) {
+                ClientWindow cl = ec.getClientWindow();
+                if (cl != null) {
+                    usewindow = true;
+                }
+            }
+
             PartialViewContext pvc = context.getPartialViewContext();
             if ((redirect || (pvc != null && ajaxredirect && pvc.isAjaxRequest()))) {
                 Context fctx = handler.getFlowContext(context, executor.getRootId());
@@ -316,12 +327,15 @@ public class ViewInvoker implements Invoker, Serializable {
                     fctx.setLocal(FACES_VIEW_STATE, lastViewState);
                 }
 
-                if (useflash) {
-                    Flash flash = ec.getFlash();
-                    flash.setKeepMessages(true);
-                    flash.setRedirect(true);
-                } else {
-                    reqparams.put("exid", Arrays.asList(executor.getRootId()));
+                if (!usewindow) {
+                    if (useflash) {
+                        Flash flash = ec.getFlash();
+                        flash.put("exid", executor.getRootId());
+                        flash.setKeepMessages(true);
+                        flash.setRedirect(true);
+                    } else {
+                        reqparams.put("exid", Arrays.asList(executor.getRootId()));
+                    }
                 }
 
                 Application application = context.getApplication();
@@ -487,6 +501,19 @@ public class ViewInvoker implements Invoker, Serializable {
                             String url = viewHandler.getRedirectURL(context, viewId, reqparams, true);
                             clearViewMapIfNecessary(context.getViewRoot(), viewId);
                             updateRenderTargets(context, viewId);
+
+                            if (!usewindow) {
+                                if (useflash) {
+                                    Flash flash = ec.getFlash();
+                                    flash.put("exid", executor.getRootId());
+
+                                    flash.setKeepMessages(true);
+                                    flash.setRedirect(true);
+                                } else {
+                                    reqparams.put("exid", Arrays.asList(executor.getRootId()));
+                                }
+                            }
+
                             ec.redirect(url);
                             StateFlowHandler handler = StateFlowHandler.getInstance();
                             Context fctx = handler.getFlowContext(context, executor.getRootId());
