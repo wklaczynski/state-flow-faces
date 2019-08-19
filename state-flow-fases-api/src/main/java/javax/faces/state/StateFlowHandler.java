@@ -15,12 +15,10 @@
  */
 package javax.faces.state;
 
-import javax.faces.state.execute.ExecuteContext;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import javax.el.ELContext;
-import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
@@ -67,9 +65,10 @@ public abstract class StateFlowHandler {
     /**
      *
      * @param context
+     * @param executorId
      * @return
      */
-    public abstract Context getFlowContext(FacesContext context);
+    public abstract Context getFlowContext(FacesContext context, String executorId);
 
     /**
      *
@@ -78,12 +77,12 @@ public abstract class StateFlowHandler {
      */
     public abstract String getExecutorViewRootId(FacesContext context);
 
-    /**
-     *
-     * @param context
-     * @param executorId
-     */
-    public abstract void setExecutorViewRootId(FacesContext context, String executorId);
+//    /**
+//     *
+//     * @param context
+//     * @param executorId
+//     */
+//    public abstract void setExecutorViewRootId(FacesContext context, String executorId);
 
     /**
      *
@@ -116,12 +115,12 @@ public abstract class StateFlowHandler {
      */
     public abstract boolean hasViewRoot(FacesContext context);
 
-    /**
-     *
-     * @param context
-     * @return
-     */
-    public abstract boolean isActive(FacesContext context);
+//    /**
+//     *
+//     * @param context
+//     * @return
+//     */
+//    public abstract boolean isActive(FacesContext context);
 
     /**
      *

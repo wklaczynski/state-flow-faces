@@ -114,6 +114,26 @@ public interface Evaluator {
     void evalAssign(Context ctx, ValueExpression location, Object data)
             throws SCXMLExpressionException;
 
+    
+    /**
+     * Assign a ValueExpression to an EL variable, replacing
+     * any previously assignment to the same variable.
+     * The assignment for the variable is removed if
+     * the expression is <code>null</code>.
+     *
+     * @param ctx variable context
+     * @param variable The variable name
+     * @param expression The ValueExpression to be assigned
+     *        to the variable.
+     * @return The previous ValueExpression assigned to this variable,
+     *         null if there is no previous assignment to this variable.
+     * @throws SCXMLExpressionException A malformed expression exception
+     */
+    ValueExpression setVariable(
+            Context ctx, 
+            String variable,
+            ValueExpression expression) throws SCXMLExpressionException ;    
+    
     /**
      * Evaluate a script.
      * Manifests as &lt;script&gt; element.

@@ -17,6 +17,7 @@ package org.ssoft.faces.impl.state.tag;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import javax.el.ValueExpression;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.MetaRule;
 import javax.faces.view.facelets.Metadata;
@@ -47,7 +48,11 @@ public class BeanPropertyTagRule extends MetaRule {
         @Override
         public void applyMetadata(FaceletContext ctx, Object instance) {
             try {
-                this.method.invoke(instance, new Object[]{this.attribute.getValue()});
+                if (ValueExpression.class.isAssignableFrom(method.getParameterTypes()[0])) {
+                    this.method.invoke(instance, new Object[]{this.attribute.getValueExpression(ctx, Object.class)});
+                } else {
+                    this.method.invoke(instance, new Object[]{this.attribute.getValue()});
+                }
             } catch (InvocationTargetException e) {
                 throw new TagAttributeException(this.attribute, e.getCause());
             } catch (IllegalAccessException | IllegalArgumentException e) {

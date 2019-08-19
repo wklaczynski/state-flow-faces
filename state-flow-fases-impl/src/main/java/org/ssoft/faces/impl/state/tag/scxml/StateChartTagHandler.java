@@ -60,6 +60,7 @@ import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.invoke.Invoker;
 import javax.faces.state.scxml.model.CustomAction;
 import static javax.faces.state.StateFlow.DEFAULT_STATE_MACHINE_NAME;
+import static javax.faces.state.StateFlow.DISABLE_EXPRESSION_MAP;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
 
 /**
@@ -222,6 +223,7 @@ public class StateChartTagHandler extends TagHandler {
         Map<String, Class<? extends Invoker>> customInvokers = handler.getCustomInvokers();
 
         Map<Object, Tag> tags = new HashMap<>();
+        fc.getAttributes().put(DISABLE_EXPRESSION_MAP, true);
         pushElement(parent, CUSTOM_ACTIONS_HINT, customActions);
         pushElement(parent, CUSTOM_INVOKERS_HINT, customInvokers);
         pushElement(parent, TAG_MAP, tags);
@@ -239,6 +241,7 @@ public class StateChartTagHandler extends TagHandler {
             popElement(parent, CUSTOM_ACTIONS_HINT);
             ctx.setVariableMapper(corig);
             ctx.setFunctionMapper(forig);
+            fc.getAttributes().remove(DISABLE_EXPRESSION_MAP);
         }
 
         chart.getMetadata().put("faces-tag-info", new HashMap<>(tags));
@@ -267,7 +270,7 @@ public class StateChartTagHandler extends TagHandler {
                     path = "/" + url.getPath();
                 } finally {
                     sfield.setAccessible(saccessible);
-        }
+                }
 
             } finally {
                 ffield.setAccessible(faccessible);

@@ -28,17 +28,18 @@ import javax.faces.state.scxml.SCXMLExecutor;
  */
 public class ExecutorController implements Externalizable {
 
-    private transient SCXMLExecutor _executor;
     private transient String _path;
+    private transient String _executorId;
 
-    public SCXMLExecutor getExecutor() {
-        return _executor;
+    public String getExecutorId() {
+        return _executorId;
     }
 
-    public void setExecutor(SCXMLExecutor executor) {
-        this._executor = executor;
+    public void setExecutorId(String _executorId) {
+        this._executorId = _executorId;
     }
-
+    
+    
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeUTF(_path);
@@ -51,8 +52,8 @@ public class ExecutorController implements Externalizable {
     }
 
     public String getExecutePath(FacesContext context) {
-        if (_path == null && _executor != null) {
-            _path = _executor.getId();
+        if (_path == null && _executorId != null) {
+            _path = _executorId;
         }
         return _path;
     }

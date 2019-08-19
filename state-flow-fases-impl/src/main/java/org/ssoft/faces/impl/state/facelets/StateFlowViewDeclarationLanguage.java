@@ -15,8 +15,13 @@
  */
 package org.ssoft.faces.impl.state.facelets;
 
+import com.sun.faces.renderkit.RenderKitUtils;
+import java.util.Map;
+import java.util.UUID;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.faces.render.ResponseStateManager;
+import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import javax.faces.view.StateManagementStrategy;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewDeclarationLanguageWrapper;
@@ -91,15 +96,51 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
         StateManagementStrategy parent = super.getStateManagementStrategy(context, viewId);
 
         return new StateManagementStrategy() {
+
             @Override
             public Object saveView(FacesContext context) {
                 Object[] rawState = (Object[]) parent.saveView(context);
+
+                UIViewRoot viewRoot = context.getViewRoot();
+                String executorId = null;
+
+                if (viewRoot != null) {
+                    executorId = (String) viewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                }
+
+                if (executorId != null) {
+                    if (rawState != null) {
+                        Map<String, Object> state = (Map<String, Object>) rawState[1];
+                        if (state != null) {
+                            state.put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+                        }
+                    }
+                }
                 return rawState;
             }
 
             @Override
             public UIViewRoot restoreView(FacesContext context, String viewId, String renderKitId) {
-                return parent.restoreView(context, viewId, renderKitId);
+                String executorId = null;
+                
+                ResponseStateManager rsm = RenderKitUtils.getResponseStateManager(context, renderKitId);
+                Object[] rawState = (Object[]) rsm.getState(context, viewId);
+                if (rawState != null) {
+                    Map<String, Object> state = (Map<String, Object>) rawState[1];
+                    if (state != null) {
+                        executorId = (String) state.get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                    }
+                }
+                if (executorId == null) {
+                    executorId = UUID.randomUUID().toString();
+                }
+                UIViewRoot viewRoot = parent.restoreView(context, viewId, renderKitId);
+
+                if (executorId != null) {
+                    viewRoot.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+                }
+
+                return viewRoot;
             }
         };
     }

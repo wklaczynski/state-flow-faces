@@ -44,6 +44,11 @@ public class MinimalEvaluator implements Evaluator, Serializable {
      */
     public static final String SUPPORTED_DATA_MODEL = Evaluator.NULL_DATA_MODEL;
 
+    @Override
+    public ValueExpression setVariable(Context ctx, String variable, ValueExpression expression) throws SCXMLExpressionException {
+        return null;
+    }
+
     /**
      *
      */

@@ -26,6 +26,7 @@ import javax.faces.view.Location;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
 import static javax.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
+import javax.faces.state.StateFlowHandler;
 
 /**
  *
@@ -33,7 +34,8 @@ import static javax.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
  */
 public class UIStateChartFacetRender extends UIPanel {
 
-    private transient SCXMLExecutor _executor;
+//    private transient SCXMLExecutor _executor;
+    private transient String _executorId;
     private transient String _path;
 
     /**
@@ -68,17 +70,17 @@ public class UIStateChartFacetRender extends UIPanel {
         return COMPONENT_FAMILY;
     }
 
-    public SCXMLExecutor getExecutor() {
-        return _executor;
+    public String getExecutorId() {
+        return _executorId;
     }
 
-    public void setExecutor(SCXMLExecutor executor) {
-        this._executor = executor;
+    public void setExecutorId(String _executorId) {
+        this._executorId = _executorId;
     }
 
     public String getExecutePath(FacesContext context) {
-        if (_path == null && _executor != null) {
-            _path = _executor.getId() + ":" + getSlot();
+        if (_path == null && _executorId != null) {
+            _path = _executorId + ":" + getSlot();
         }
         return _path;
     }
@@ -102,8 +104,14 @@ public class UIStateChartFacetRender extends UIPanel {
 
     private UIComponent getCurentEncodeFacet(FacesContext context) {
         UIComponent facet = null;
+        SCXMLExecutor executor = null;
+        StateFlowHandler handler = StateFlowHandler.getInstance();
 
-        SCXMLExecutor executor = getExecutor();
+        String executorId = getExecutorId();
+        if (executorId != null) {
+            executor = handler.getRootExecutor(context, executorId);
+        }
+
         if (executor != null) {
             Context sctx = executor.getRootContext();
             String slot = getSlot();

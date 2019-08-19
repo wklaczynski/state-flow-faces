@@ -15,14 +15,15 @@
  */
 package org.ssoft.faces.impl.state.evaluator;
 
-import com.sun.faces.facelets.el.ELText;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import javax.el.ExpressionFactory;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
+import javax.el.VariableMapper;
 import javax.faces.context.FacesContext;
 import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
+import static javax.faces.state.StateFlow.DISABLE_EXPRESSION_MAP;
 import org.ssoft.faces.impl.state.StateFlowContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
@@ -119,6 +120,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
 
             ctx = getEffectiveContext(ctx);
 
+            fc.getAttributes().put(DISABLE_EXPRESSION_MAP, true);
             ec.putContext(Context.class, ctx);
             ec.putContext(FacesContext.class, fc);
             return call.call();
@@ -129,6 +131,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
         } finally {
             ec.reset();
             fc.getAttributes().remove(CURRENT_EXECUTOR_HINT);
+            fc.getAttributes().remove(DISABLE_EXPRESSION_MAP);
             if (pushed) {
                 manager.pop();
             }
@@ -142,14 +145,33 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     @Override
     public void evalAssign(Context ctx, ValueExpression location, Object data) throws SCXMLExpressionException {
         wrap(ctx, location, () -> {
-            if (data == null) {
-                location.setValue(ec, data);
+            if (location.isLiteralText()) {
+                String name = (String) location.getValue(ec);
+                if (data != null) {
+                    ctx.set(name, data);
+                } else {
+                    ctx.remove(name);
+                }
             } else {
-                location.setValue(ec, data);
+                if (data != null) {
+                    location.setValue(ec, data);
+                } else {
+                    location.setValue(ec, data);
+                }
             }
             return null;
         });
 
+    }
+
+    @Override
+    public ValueExpression setVariable(Context ctx, String variable, ValueExpression expression) throws SCXMLExpressionException {
+        return wrap(ctx, expression, () -> {
+            if (variable != null) {
+                return ec.getVariableMapper().setVariable(variable, expression);
+            }
+            return null;
+        });
     }
 
     @Override

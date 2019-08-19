@@ -19,8 +19,8 @@ package org.ssoft.faces.impl.state.tag.faces;
 import java.util.logging.Logger;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.StateFlow;
+import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.FaceletContext;
@@ -31,8 +31,6 @@ import javax.faces.state.component.UIStateChartFacetRender;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.utils.ComponentUtils;
 import javax.faces.state.execute.ExecutorController;
-import javax.faces.state.execute.ExecuteContextManager;
-import javax.faces.state.scxml.Context;
 import org.ssoft.faces.impl.state.log.FlowLogger;
 
 /**
@@ -61,64 +59,41 @@ public class RenderFacetHandler extends ComponentHandler {
 
         UIComponent cc = ComponentUtils.findCompositeComponentUsingLocation(context, tag.getLocation());
 
-        SCXMLExecutor executor;
         if (cc != null) {
             ExecutorController controller = (ExecutorController) cc
                     .getAttributes().get(StateFlow.EXECUTOR_CONTROLLER_KEY);
-            
+
             if (controller == null) {
                 throw new TagException(this.tag,
                         "Unable to render facet execute component, controller "
                         + "executor can not be defined in the composite component.");
             }
 
-            executor = controller.getExecutor();
+            String executorId = controller.getExecutorId();
 
-            if (executor == null) {
+            if (executorId == null) {
                 throw new TagException(this.tag,
                         "Unable to render facet execute component, controller "
                         + "executor can not be started.");
             }
 
-            if (!executor.isRunning()) {
-                LOGGER.warning(String.format(
-                        "%s request to activate bean in executor, "
-                        + "but that executor is not active.", tag));
-            }
-
-            render.setExecutor(executor);
+            render.setExecutorId(executorId);
         } else {
-            executor = handler.getRootExecutor(context);
-            if (executor == null) {
+            String rootId = (String) context.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+            if (rootId == null) {
                 throw new TagException(this.tag,
                         "Unable to render facet execute component, "
                         + " view root executor can not be started.");
             }
 
-            if (!executor.isRunning()) {
-                LOGGER.warning(String.format(
-                        "%s request to activate bean in executor, "
-                        + "but that executor is not active.", tag));
-            }
-
-            render.setExecutor(executor);
+            render.setExecutorId(rootId);
         }
 
-        ExecuteContextManager manager = ExecuteContextManager.getManager(context);
-        String executePath = render.getExecutePath(context);
-        Context ectx = executor.getRootContext();
-        ExecuteContext executeContext = new ExecuteContext(
-                executePath, executor, ectx);
-        
-        manager.initExecuteContext(context, executePath, executeContext);
-        manager.push(executeContext);
     }
 
     @Override
     public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
-        FacesContext context = ctx.getFacesContext();
-        ExecuteContextManager manager = ExecuteContextManager.getManager(context);
-        manager.pop();
+
     }
 
 }

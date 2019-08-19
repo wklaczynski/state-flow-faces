@@ -86,10 +86,9 @@ import static org.ssoft.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL
 import org.ssoft.faces.impl.state.invokers.FacetInvoker;
 import org.ssoft.faces.impl.state.tag.faces.MethodCall;
 import org.ssoft.faces.impl.state.tag.faces.Redirect;
-import javax.faces.state.utils.ComponentUtils;
 import static org.ssoft.faces.impl.state.utils.Util.toViewId;
 import javax.faces.state.execute.ExecuteContext;
-import javax.faces.state.StateFlow;
+import static javax.faces.state.StateFlow.AFTER_CHANGE_VIEW_EXECUTOR;
 import static javax.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static javax.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
@@ -102,12 +101,8 @@ import static javax.faces.state.scxml.io.StateHolderSaver.restoreContext;
 import static javax.faces.state.scxml.io.StateHolderSaver.saveContext;
 import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
-import javax.faces.state.component.UIStateChartFacetRender;
 import javax.faces.state.scxml.SCXMLSystemContext;
-import javax.faces.state.execute.ExecutorController;
-import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.execute.ExecuteContextManager;
-import static javax.faces.state.StateFlow.EXECUTE_CONTEXT_STATE;
 
 /**
  *
@@ -412,7 +407,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public Context getFlowContext(FacesContext context) {
+    public Context getFlowContext(FacesContext context, String executorId) {
         FlowDeque fs = getFlowDeque(context, false);
         if (fs == null) {
             return null;
@@ -422,15 +417,24 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     @Override
     public String getExecutorViewRootId(FacesContext context) {
-        String uuid = (String) context.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+        String uuid = null;
+
+        if (uuid == null) {
+            UIViewRoot viewRoot = context.getViewRoot();
+            if (viewRoot != null) {
+                uuid = (String) viewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+            }
+        }
+
         if (uuid != null) {
-            return uuid;
+            uuid = (String) context.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
         }
 
 //        if (uuid == null) {
 //            String viewId;
 //            UIViewRoot viewRoot = context.getViewRoot();
 //            if (viewRoot != null) {
+//                uuid = (String) viewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
 //                viewId = viewRoot.getViewId();
 //            } else {
 //                viewId = context.getExternalContext().getRequestPathInfo();
@@ -447,15 +451,16 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 //                }
 //            }
 //        }
-        FlowDeque fs = getFlowDeque(context, true);
-        Context fctx = fs.getFlowContext();
-        if (uuid == null) {
-            uuid = (String) fctx.get(FACES_EXECUTOR_VIEW_ROOT_ID);
-        }
-
+//
+//        FlowDeque fs = getFlowDeque(context, true);
+//        Context fctx = fs.getFlowContext();
+//
+//        if (uuid == null) {
+//            uuid = (String) fctx.get(FACES_EXECUTOR_VIEW_ROOT_ID);
+//        }
         if (uuid == null) {
             uuid = UUID.randomUUID().toString();
-            fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, uuid);
+            //fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, uuid);
         }
 
         context.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, uuid);
@@ -463,14 +468,32 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         return uuid;
     }
 
-    @Override
+//    @Override
     public void setExecutorViewRootId(FacesContext context, String executorId) {
         FlowDeque fs = getFlowDeque(context, true);
 
         if (executorId != null) {
+            SCXMLExecutor prevViewExecutor = getViewExecutor(context);
+
             context.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
-            Context fctx = fs.getFlowContext();
-            fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+//            Context fctx = fs.getFlowContext();
+//            fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+
+            UIViewRoot viewRoot = context.getViewRoot();
+            SCXMLExecutor newViewExecutor = getRootExecutor(context, executorId);
+
+            if (newViewExecutor != null && viewRoot != null) {
+                if (prevViewExecutor == null || !prevViewExecutor.getId().equals(executorId)) {
+                    EventBuilder eb = new EventBuilder(AFTER_CHANGE_VIEW_EXECUTOR, TriggerEvent.CALL_EVENT)
+                            .sendId(viewRoot.getViewId());
+                    try {
+                        newViewExecutor.triggerEvent(eb.build());
+                    } catch (ModelException ex) {
+                        throw new FacesException(ex);
+                    }
+                }
+            }
+
         } else {
             context.getAttributes().remove(FACES_EXECUTOR_VIEW_ROOT_ID);
             Context fctx = fs.getFlowContext();
@@ -541,7 +564,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         return fs.getExecutors().containsKey(executorId);
     }
 
-    @Override
+//    @Override
     public boolean isActive(FacesContext context) {
         FlowDeque fs = getFlowDeque(context, false);
         return fs != null && !fs.isClosed();

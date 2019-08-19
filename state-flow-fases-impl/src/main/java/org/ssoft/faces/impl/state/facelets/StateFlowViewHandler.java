@@ -8,10 +8,13 @@ package org.ssoft.faces.impl.state.facelets;
  * To change this template, choose Tools | Template Manager and open the
  * template in the editor.
  */
+import com.sun.faces.renderkit.RenderKitUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import javax.faces.FacesException;
 import javax.faces.application.ViewHandler;
 import javax.faces.application.ViewHandlerWrapper;
@@ -22,6 +25,7 @@ import javax.faces.component.visit.VisitHint;
 import javax.faces.component.visit.VisitResult;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
+import javax.faces.render.ResponseStateManager;
 import org.ssoft.faces.impl.state.config.StateWebConfiguration;
 import static org.ssoft.faces.impl.state.listener.StateFlowControllerListener.getControllerClientIds;
 import static javax.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
@@ -33,7 +37,11 @@ import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.model.ModelException;
 import static javax.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
+import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import javax.faces.state.component.UIStateChartExecutor;
+import javax.faces.state.execute.ExecuteContext;
+import javax.faces.state.execute.ExecuteContextManager;
+import javax.faces.state.scxml.Context;
 
 /**
  *
@@ -59,19 +67,83 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
     }
 
     @Override
-    public UIViewRoot restoreView(FacesContext facesContext, String viewId) {
-        //send multicast call event before view be restored for executors
+    public UIViewRoot createView(FacesContext facesContext, String viewId) {
         StateFlowHandler handler = StateFlowHandler.getInstance();
+        String executorId = (String) facesContext.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+        if (executorId == null) {
+            executorId = UUID.randomUUID().toString();
+        }
 
-        String name = BEFORE_PHASE_EVENT_PREFIX
-                + PhaseId.RESTORE_VIEW.getName().toLowerCase();
+        ExecuteContextManager manager = ExecuteContextManager.getManager(facesContext);
+        boolean pushed = false;
 
-        if (handler.hasViewRoot(facesContext)) {
+        SCXMLExecutor executor = handler.getRootExecutor(facesContext, executorId);
+
+        if (executor != null) {
+            String executePath = executorId;
+            Context ectx = executor.getGlobalContext();
+            ExecuteContext executeContext = new ExecuteContext(
+                    executePath, executor, ectx);
+
+            manager.initExecuteContext(facesContext, executePath, executeContext);
+            pushed = manager.push(executeContext);
+        }
+
+        UIViewRoot viewRoot = super.createView(facesContext, viewId);
+
+        if (executorId != null) {
+            viewRoot.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+            facesContext.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+        }
+
+        if (pushed) {
+            manager.pop();
+        }
+
+        return viewRoot;
+    }
+
+    @Override
+    public UIViewRoot restoreView(FacesContext facesContext, String viewId) {
+
+        String executorId = null;
+        ViewHandler vh = facesContext.getApplication().getViewHandler();
+        String renderKitId = vh.calculateRenderKitId(facesContext);
+        ResponseStateManager rsm = RenderKitUtils.getResponseStateManager(facesContext, renderKitId);
+        Object[] rawState = (Object[]) rsm.getState(facesContext, viewId);
+        if (rawState != null) {
+            Map<String, Object> state = (Map<String, Object>) rawState[1];
+            if (state != null) {
+                executorId = (String) state.get(FACES_EXECUTOR_VIEW_ROOT_ID);
+            }
+        }
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        if (executorId == null) {
+            executorId = UUID.randomUUID().toString();
+        }
+
+        facesContext.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+
+        SCXMLExecutor executor = handler.getRootExecutor(facesContext, executorId);
+
+        ExecuteContextManager manager = ExecuteContextManager.getManager(facesContext);
+        boolean pushed = false;
+
+        if (executor != null) {
+            String executePath = executorId;
+            Context ectx = executor.getGlobalContext();
+            ExecuteContext executeContext = new ExecuteContext(
+                    executePath, executor, ectx);
+
+            manager.initExecuteContext(facesContext, executePath, executeContext);
+            pushed = manager.push(executeContext);
+
+            String name = BEFORE_PHASE_EVENT_PREFIX
+                    + PhaseId.RESTORE_VIEW.getName().toLowerCase();
 
             EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
                     .sendId(viewId);
 
-            SCXMLExecutor executor = handler.getRootExecutor(facesContext);
             try {
                 executor.triggerEvent(eb.build());
             } catch (ModelException ex) {
@@ -80,8 +152,21 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
         }
 
         UIViewRoot viewRoot = super.restoreView(facesContext, viewId);
+
+        if (executorId != null) {
+            viewRoot.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+        }
+
+        if (pushed) {
+            manager.pop();
+        }
         return viewRoot;
 
+    }
+
+    @Override
+    public void initView(FacesContext context) throws FacesException {
+        super.initView(context);
     }
 
     @Override
@@ -89,7 +174,7 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
         if (!facesContext.getResponseComplete() && viewRoot != null && handler.hasViewRoot(facesContext)) {
-            SCXMLExecutor executor = handler.getRootExecutor(facesContext);
+            SCXMLExecutor executor = handler.getViewExecutor(facesContext);
             try {
                 EventDispatcher ed = executor.getEventdispatcher();
                 if (ed instanceof FacesProcessHolder) {
@@ -118,7 +203,12 @@ public class StateFlowViewHandler extends ViewHandlerWrapper {
                     EventBuilder veb = new EventBuilder(ENCODE_DISPATCHER_EVENTS, TriggerEvent.CALL_EVENT)
                             .sendId(viewRoot.getViewId());
 
-                    SCXMLExecutor executor = controller.getExecutor();
+                    SCXMLExecutor executor = null;
+                    String executorId = controller.getExecutorId();
+                    if (executorId != null) {
+                        executor = handler.getRootExecutor(facesContext, executorId);
+                    }
+
                     if (executor != null) {
                         try {
                             EventDispatcher ed = executor.getEventdispatcher();

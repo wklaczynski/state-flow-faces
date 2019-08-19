@@ -22,6 +22,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.state.StateFlow;
+import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.component.UIStateChartFacetRender;
@@ -52,13 +53,12 @@ public class ExecuteContextManager {
 
     /**
      * @param ctx the <code>FacesContext</code> for the current request
-     * @return the <code>ExecuteContextManager</code> for the current
-     * request
+     * @return the <code>ExecuteContextManager</code> for the current request
      */
     public static ExecuteContextManager getManager(FacesContext ctx) {
 
         ExecuteContextManager manager
-                                    = (ExecuteContextManager) ctx.getAttributes().get(MANAGER_KEY);
+                              = (ExecuteContextManager) ctx.getAttributes().get(MANAGER_KEY);
         if (manager == null) {
             manager = new ExecuteContextManager();
             ctx.getAttributes().put(MANAGER_KEY, manager);
@@ -170,8 +170,8 @@ public class ExecuteContextManager {
     public void initExecuteContext(FacesContext context, String path, ExecuteContext executeContext) {
         executeMap.put(path, executeContext);
     }
-    
-   public ExecuteContext getCurrentExecuteContext(FacesContext context) {
+
+    public ExecuteContext getCurrentExecuteContext(FacesContext context) {
 
 //        SCXMLExecutor executor = (SCXMLExecutor) context.getAttributes().get(CURRENT_EXECUTOR_HINT);
 //        if (executor != null) {
@@ -179,7 +179,6 @@ public class ExecuteContextManager {
 //            ExecuteContext viewContext = new ExecuteContext(null, executor, ctx);
 //            return viewContext;
 //        }
-
         ExecuteContextManager manager = ExecuteContextManager.getManager(context);
         ExecuteContext executeContext = manager.peek();
         if (executeContext != null) {
@@ -194,19 +193,20 @@ public class ExecuteContextManager {
         ExecuteContext executeContext = executeMap.get(path);
         return executeContext;
     }
-   
+
     public ExecuteContext findExecuteContextByComponent(FacesContext context, UIComponent component) {
         UIViewRoot viewRoot = context.getViewRoot();
         ExecuteContext executeContext = null;
-        String executorId = null;
+        String executorId;
         SCXMLExecutor executor = null;
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        
-        String path =  null;
 
-        if (handler.isActive(context)) {
+        String path = null;
 
-            if (viewRoot != null) {
+        executorId = (String) context.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+        if (viewRoot != null) {
+            executorId = (String) viewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+            if (executorId != null) {
 
                 UIComponent currentComponent = component;
 
@@ -215,16 +215,16 @@ public class ExecuteContextManager {
                             .lokated(UIStateChartFacetRender.class, currentComponent);
                     if (render != null) {
                         path = render.getExecutePath(context);
-                        executor = render.getExecutor();
-                        executorId = executor.getId();
+                        executorId = render.getExecutorId();
+                        executor = handler.getRootExecutor(context, executorId);
                     } else {
                         UIStateChartExecutor execute = ComponentUtils
                                 .lokated(UIStateChartExecutor.class, currentComponent);
 
                         if (execute != null) {
-                            path = execute.getExecutePath(context);
-                            executor = execute.getExecutor();
-                            executorId = executor.getId();
+                            executorId = execute.getExecutorId();
+                            executor = handler.getRootExecutor(context, executorId);
+                            path = executor.getId();
                         } else {
                             UIComponent compositeCurrent = ComponentUtils
                                     .findExecuteCompositeComponent(context, currentComponent);
@@ -233,8 +233,8 @@ public class ExecuteContextManager {
                                         .getAttributes().get(StateFlow.EXECUTOR_CONTROLLER_KEY);
                                 if (controller != null) {
                                     path = controller.getExecutePath(context);
-                                    executor = controller.getExecutor();
-                                    executorId = executor.getId();
+                                    executorId = controller.getExecutorId();
+                                    executor = handler.getRootExecutor(context, executorId);
                                 }
                             }
                         }
@@ -242,32 +242,28 @@ public class ExecuteContextManager {
                 }
 
                 if (executorId == null) {
-                    executorId = handler.getExecutorViewRootId(context);
+                    executorId = (String) viewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
                 }
-                if(path==null) {
+                if (path == null) {
                     path = executorId + ":" + viewRoot.getViewId();
                 }
-                
-                
-                executeContext = executeMap.get(path);
-                
 
+                executeContext = executeMap.get(path);
             }
 
-            if (executeContext == null) {
-                if (executorId == null) {
-                    executorId = handler.getExecutorViewRootId(context);
-                    path = executorId;
-                }
+        } else {
+            path = executorId;
+        }
 
-                if (executor == null) {
-                    executor = handler.getRootExecutor(context, executorId);
-                }
+        if (executeContext == null && executorId != null) {
+            if (executor == null) {
+                executor = handler.getRootExecutor(context, executorId);
+            }
 
-                if (executor != null) {
-                    Context ctx = executor.getRootContext();
-                    executeContext = new ExecuteContext(path, executor, ctx);
-                }
+            if (executor != null) {
+                Context ctx = executor.getRootContext();
+                executeContext = new ExecuteContext(path, executor, ctx);
+                executeMap.put(path, executeContext);
             }
         }
 

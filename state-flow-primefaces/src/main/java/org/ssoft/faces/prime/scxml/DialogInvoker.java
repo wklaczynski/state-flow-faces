@@ -15,7 +15,6 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import javax.faces.application.ResourceDependencies;
 import javax.faces.application.ResourceDependency;
-import javax.faces.application.ViewHandler;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
@@ -48,7 +47,6 @@ import org.primefaces.util.ComponentUtils;
 import org.primefaces.util.Constants;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
 import static javax.faces.state.StateFlow.FACES_CHART_VIEW_STATE;
-import static javax.faces.state.StateFlow.FACES_VIEW_STATE;
 import javax.faces.state.execute.ExecuteContextManager;
 import org.primefaces.context.PrimeRequestContext;
 import org.primefaces.util.SharedStringBuilder;
@@ -68,6 +66,9 @@ import org.primefaces.util.SharedStringBuilder;
 })
 public class DialogInvoker implements Invoker, Serializable {
 
+    public static final String DIALOG_CLOSE = DialogInvoker.class.getName() + "#close_dialog";
+    public static final String DIALOG_OPEN = DialogInvoker.class.getName() + "#open_dialog";
+    
     private static final String SB_ESCAPE = ComponentUtils.class.getName() + "#escape";
 
     private final static Logger logger = Logger.getLogger(DialogInvoker.class.getName());
@@ -338,15 +339,17 @@ public class DialogInvoker implements Invoker, Serializable {
             PrimeFaces.current().executeScript(sb.toString());
             sb.setLength(0);
 
-            Context fctx = handler.getFlowContext(context);
+            Context fctx = handler.getFlowContext(context, executor.getRootId());
             if (lastViewState != null) {
                 fctx.setLocal(FACES_CHART_VIEW_STATE, lastViewState);
             }
 
-            handler.setExecutorViewRootId(context, executor.getRootId());
+            //handler.setExecutorViewRootId(context, executor.getRootId());
 
             resolved = false;
             executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
+            context.getAttributes().put(DIALOG_OPEN, true);
+            
         } catch (InvokerException ex) {
             throw ex;
         } catch (Throwable ex) {
@@ -467,36 +470,37 @@ public class DialogInvoker implements Invoker, Serializable {
         sb.setLength(0);
 
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        handler.setExecutorViewRootId(context, prevExecutorId);
+        //handler.setExecutorViewRootId(context, prevExecutorId);
 
-        if (prevViewState != null) {
-            ViewHandler vh = context.getApplication().getViewHandler();
-
-            context.getAttributes().put(FACES_VIEW_STATE, prevViewState);
-            viewRoot = vh.restoreView(context, prevViewId);
-            context.setViewRoot(viewRoot);
-            context.setProcessingEvents(true);
-            vh.initView(context);
-            context.setViewRoot(viewRoot);
-
-            if (prevcId != null) {
-                UIComponent cc = viewRoot.findComponent(prevcId);
-                if (cc != null) {
-                    cc.pushComponentToEL(context, cc);
-                    cc = UIComponent.getCompositeComponentParent(cc);
-                    if (cc != null) {
-                        cc.pushComponentToEL(context, cc);
-                    }
-
-                }
-            }
-
-        }
+//        if (prevViewState != null) {
+//            ViewHandler vh = context.getApplication().getViewHandler();
+//
+//            context.getAttributes().put(FACES_VIEW_STATE, prevViewState);
+//            viewRoot = vh.restoreView(context, prevViewId);
+//            context.setViewRoot(viewRoot);
+//            context.setProcessingEvents(true);
+//            vh.initView(context);
+//            context.setViewRoot(viewRoot);
+//
+//            if (prevcId != null) {
+//                UIComponent cc = viewRoot.findComponent(prevcId);
+//                if (cc != null) {
+//                    cc.pushComponentToEL(context, cc);
+//                    cc = UIComponent.getCompositeComponentParent(cc);
+//                    if (cc != null) {
+//                        cc.pushComponentToEL(context, cc);
+//                    }
+//
+//                }
+//            }
+//
+//        }
 
         PartialViewContext pvc = context.getPartialViewContext();
-        if ((pvc != null && pvc.isAjaxRequest())) {
-            pvc.setRenderAll(true);
+        if ((pvc != null && (pvc.isAjaxRequest() || pvc.isPartialRequest()))) {
+            pvc.setRenderAll(false);
         }
+        context.getAttributes().put(DIALOG_CLOSE, true);
         rctx.removeLocal(EXECUTOR_CONTEXT_VIEW_PATH);
 
         context.renderResponse();

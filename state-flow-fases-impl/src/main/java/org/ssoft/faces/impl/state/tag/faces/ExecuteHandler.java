@@ -55,6 +55,7 @@ import javax.faces.state.scxml.TriggerEvent;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
+import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
 import javax.faces.state.execute.ExecutorController;
 import javax.faces.state.execute.ExecuteContextManager;
@@ -103,7 +104,7 @@ public class ExecuteHandler extends ComponentHandler {
 
         UIStateChartExecutor component = (UIStateChartExecutor) c;
 
-        String rootId = handler.getExecutorViewRootId(context);
+        String rootId = (String) context.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
 
         URL url = getCompositeURL(ctx);
         if (url == null) {
@@ -118,8 +119,8 @@ public class ExecuteHandler extends ComponentHandler {
         String executorName = "controller[" + tag + "]" + viewId + "!" + url.getPath() + "#" + scxmlName;
         String executorId = rootId + ":" + UUID.nameUUIDFromBytes(executorName.getBytes()).toString();
 
-        SCXMLExecutor currentExecutor = component.getExecutor();
-        if (currentExecutor != null && !currentExecutor.getId().equals(executorId)) {
+        String currentExecutorId = component.getExecutorId();
+        if (currentExecutorId != null && !currentExecutorId.equals(executorId)) {
             throw new TagException(this.tag, "Render state component can not multiple start in the same composite component.");
         }
 
@@ -147,12 +148,12 @@ public class ExecuteHandler extends ComponentHandler {
             }
 
             Map<String, Object> params = getParamsMap(ctx);
-            component.setExecutor(executor);
+            component.setExecutorId(executorId);
             handler.execute(context, executor, params);
 
         }
 
-        component.setExecutor(executor);
+        component.setExecutorId(executorId);
         if (ccattrs != null) {
             ExecutorController controller = (ExecutorController) ccattrs
                     .get(StateFlow.EXECUTOR_CONTROLLER_KEY);
@@ -161,7 +162,7 @@ public class ExecuteHandler extends ComponentHandler {
                 controller = new ExecutorController();
                 ccattrs.put(StateFlow.EXECUTOR_CONTROLLER_KEY, controller);
             }
-            controller.setExecutor(executor);
+            controller.setExecutorId(executorId);
         }
 
         if (!executor.isRunning()) {
@@ -187,8 +188,8 @@ public class ExecuteHandler extends ComponentHandler {
         }
 
         ExecuteContextManager manager = ExecuteContextManager.getManager(context);
-        String executePath = component.getExecutePath(context);
-        Context ectx = executor.getRootContext();
+        String executePath = executor.getId();
+        Context ectx = executor.getGlobalContext();
         ExecuteContext executeContext = new ExecuteContext(
                 executePath, executor, ectx);
         

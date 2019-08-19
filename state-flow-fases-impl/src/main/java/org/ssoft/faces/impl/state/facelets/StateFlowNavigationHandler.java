@@ -26,6 +26,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
+import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static javax.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.scxml.SCXMLExecutor;
@@ -69,14 +70,14 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
         StateFlowHandler handler = StateFlowHandler.getInstance();
         boolean consumed = false;
 
-        if (handler.isActive(facesContext)) {
+        SCXMLExecutor executor = handler.getRootExecutor(facesContext);
+        if (executor != null) {
             if (outcome == null) {
                 return;
             }
             if (outcome.endsWith(".xhtml")) {
                 handler.closeAll(facesContext);
             } else {
-                SCXMLExecutor executor = handler.getRootExecutor(facesContext);
                 if (executor != null) {
                     consumed = true;
 

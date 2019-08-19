@@ -132,6 +132,8 @@ public class CustomActionHandlerDelegateImpl extends TagHandlerDelegate {
             actionWrapper.getNamespaces().putAll(namespaces);
         }
 
+        applyNext(ctx, parent, action);
+
         ruleset.finish().applyMetadata(ctx, action);
 
         Object currentFlow = getElement(parent, CURRENT_FLOW_OBJECT);
@@ -151,7 +153,6 @@ public class CustomActionHandlerDelegateImpl extends TagHandlerDelegate {
             throw new TagException(owner.getTag(), "can not stored this element on parent element.");
         }
         
-        applyNext(ctx, parent, action);
 
     }
 

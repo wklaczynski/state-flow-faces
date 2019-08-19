@@ -103,11 +103,17 @@ public class StateFlow {
      */
     public static final String DEFINITION_SET_HINT = "javax.faces.flow.DEFINITION_SET_HINT";
 
-
     /**
      *
      */
     public static final String EXECUTOR_CONTROLLER_KEY = "javax.faces.component.EXECUTOR_CONTROLLER_KEY";
+
+
+    /**
+     *
+     */
+    public static final String DISABLE_EXPRESSION_MAP = "javax.faces.component.DISABLE_EXPRESSION_MAP";
+
     
     /**
      *
@@ -294,4 +300,18 @@ public class StateFlow {
             + PhaseId.PROCESS_VALIDATIONS.getName().toLowerCase();
 
 
+    /**
+     *
+     */
+    public static final String BEFORE_CHANGE_VIEW_EXECUTOR = BEFORE_PHASE_EVENT_PREFIX
+            + "CHANGE_VIEW_EXECUTOR";
+    
+    
+    /**
+     *
+     */
+    public static final String AFTER_CHANGE_VIEW_EXECUTOR = AFTER_PHASE_EVENT_PREFIX
+            + "CHANGE_VIEW_EXECUTOR";
+    
+    
 }

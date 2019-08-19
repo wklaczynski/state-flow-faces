@@ -91,8 +91,14 @@ public class StateFlowControllerListener implements SystemEventListener {
 
                         EventBuilder eb = new EventBuilder(eventName, TriggerEvent.CALL_EVENT)
                                 .sendId(controllerId);
+                        
+                        SCXMLExecutor executor = null;
+                        String executorId = controller.getExecutorId();
+                        
+                        if(executorId != null) {
+                            executor = handler.getRootExecutor(facesContext, executorId);
+                        }
 
-                        SCXMLExecutor executor = controller.getExecutor();
                         if (executor != null) {
                             try {
                                 executor.triggerEvent(eb.build());
@@ -118,7 +124,13 @@ public class StateFlowControllerListener implements SystemEventListener {
                         EventBuilder eb = new EventBuilder(eventName, TriggerEvent.CALL_EVENT)
                                 .sendId(controllerId);
 
-                        SCXMLExecutor executor = controller.getExecutor();
+                        SCXMLExecutor executor = null;
+                        String executorId = controller.getExecutorId();
+                        
+                        if(executorId != null) {
+                            executor = handler.getRootExecutor(facesContext, executorId);
+                        }
+
                         if (executor != null) {
                             try {
                                 executor.triggerEvent(eb.build());

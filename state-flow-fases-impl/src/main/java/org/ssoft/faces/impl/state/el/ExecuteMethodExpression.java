@@ -26,8 +26,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.event.ComponentSystemEventListener;
 import javax.faces.event.PostAddToViewEvent;
-import static javax.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
-import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
+import static javax.faces.state.StateFlow.DISABLE_EXPRESSION_MAP;
 import javax.faces.state.execute.ExecuteContext;
 import javax.faces.validator.ValidatorException;
 import javax.faces.view.facelets.ComponentHandler;
@@ -45,11 +44,11 @@ public class ExecuteMethodExpression extends MethodExpression {
     public ExecuteMethodExpression(MethodExpression delegate) {
         this.delegate = delegate;
         FacesContext ctx = FacesContext.getCurrentInstance();
-        if (!ctx.getAttributes().containsKey(CURRENT_EXECUTOR_HINT) && !ctx.getAttributes().containsKey(BUILD_STATE_MACHINE_HINT)) {
+        if (!ctx.getAttributes().containsKey(DISABLE_EXPRESSION_MAP))  {
             UIComponent component = UIComponent.getCurrentComponent(ctx);
             if (component != null) {
                 if (ComponentHandler.isNew(component)) {
-                    component.subscribeToEvent(PostAddToViewEvent.class, new SetClientIdListener(this));
+                    component.subscribeToEvent(PostAddToViewEvent.class, new SetExecuteIdListener(this));
                 } else {
                     resolveExecutePath(ctx, component);
                 }
@@ -58,12 +57,20 @@ public class ExecuteMethodExpression extends MethodExpression {
     }
 
     private void resolveExecutePath(FacesContext ctx, UIComponent component) {
+        if(delegate.isLiteralText()) {
+            return ;
+        }
+        
+//        if(!UIComponent.isCompositeComponent(component)) {
+//            return;
+//        }
+
         ExecuteContextManager manager = ExecuteContextManager.getManager(ctx);
-        ExecuteContext executeContext = manager.findExecuteContextByComponent(ctx, component);
+        ExecuteContext executeContext = manager.findExecuteContextByComponent(ctx, component.getParent());
         if (executeContext != null) {
             executePath = executeContext.getPath();
+            //executePath = executeContext.getExecutor().getId();
         }
-
     }
 
     @Override
@@ -130,14 +137,14 @@ public class ExecuteMethodExpression extends MethodExpression {
         manager.pop();
     }
 
-    private class SetClientIdListener implements ComponentSystemEventListener, Serializable {
+    private class SetExecuteIdListener implements ComponentSystemEventListener, Serializable {
 
         private ExecuteMethodExpression ex;
 
-        public SetClientIdListener() {
+        public SetExecuteIdListener() {
         }
 
-        public SetClientIdListener(ExecuteMethodExpression ex) {
+        public SetExecuteIdListener(ExecuteMethodExpression ex) {
             this.ex = ex;
         }
 

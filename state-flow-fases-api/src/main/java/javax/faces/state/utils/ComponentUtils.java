@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import javax.faces.application.Application;
 import javax.faces.application.Resource;
 import javax.faces.application.ResourceDependencies;
@@ -36,6 +37,12 @@ import javax.faces.view.Location;
  * @author Waldemar Kłaczyński
  */
 public class ComponentUtils {
+
+    private static final Pattern COMPOSITE_COMPONENT_EXPRESSION
+                                 = Pattern.compile(".(?:[ ]+|[\\[{,(])cc[.].+[}]");
+
+    private static final Pattern METHOD_EXPRESSION_LOOKUP
+                                 = Pattern.compile(".[{]cc[.]attrs[.]\\w+[}]");
 
     public static <T> T closest(Class<T> type, UIComponent base) {
         UIComponent parent = base.getParent();
@@ -181,7 +188,7 @@ public class ComponentUtils {
         if (location == null) {
             return UIComponent.getCompositeComponentParent(component);
         }
-        
+
         String path = location.getPath();
         UIComponent cc = UIComponent.getCompositeComponentParent(component);
         while (cc != null) {
@@ -192,6 +199,16 @@ public class ComponentUtils {
             cc = UIComponent.getCompositeComponentParent(cc);
         }
         return null;
+    }
+
+    public static boolean isExecuteCompositeComponent(UIComponent component) {
+
+        if (!UIComponent.isCompositeComponent(component)) {
+            return false;
+        }
+
+        return component.getAttributes().containsKey(StateFlow.EXECUTOR_CONTROLLER_KEY);
+
     }
 
     public static UIComponent findExecuteCompositeComponent(FacesContext ctx, UIComponent cc) {
@@ -219,6 +236,18 @@ public class ComponentUtils {
             cc = UIComponent.getCompositeComponentParent(cc);
         }
         return null;
+    }
+
+    public static boolean isCompositeComponentExpr(String expression) {
+        return COMPOSITE_COMPONENT_EXPRESSION
+                .matcher(expression)
+                .find();
+    }
+
+    public static boolean isCompositeComponentMethodExprLookup(String expression) {
+        return METHOD_EXPRESSION_LOOKUP
+                .matcher(expression)
+                .matches();
     }
 
 }

@@ -15,11 +15,15 @@
  */
 package org.ssoft.faces.prime;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 import static javax.faces.application.ResourceHandler.RESOURCE_IDENTIFIER;
 import javax.faces.context.FacesContext;
 import javax.faces.context.PartialViewContext;
 import javax.faces.context.PartialViewContextWrapper;
 import javax.faces.event.PhaseId;
+import org.ssoft.faces.prime.scxml.DialogInvoker;
 
 /**
  *
@@ -50,7 +54,28 @@ public class PrimeFlowPartialViewContext extends PartialViewContextWrapper {
         
         super.processPartial(phaseId);
     }
-    
-    
+
+//    @Override
+//    public boolean isRenderAll() {
+//        FacesContext context = FacesContext.getCurrentInstance();
+//        Map<Object, Object> attrs = context.getAttributes();
+//        
+//        if(attrs.containsKey(DialogInvoker.DIALOG_CLOSE)) {
+//            return false;
+//        }
+//        
+//        return super.isRenderAll();
+//    }
+//    
+//    @Override
+//    public Collection<String> getRenderIds() {
+//        FacesContext context = FacesContext.getCurrentInstance();
+//        Map<Object, Object> attrs = context.getAttributes();
+//        if(attrs.containsKey(DialogInvoker.DIALOG_CLOSE)) {
+//            return Collections.EMPTY_SET;
+//        }
+//        
+//        return super.getRenderIds();
+//    }
     
 }

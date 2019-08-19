@@ -5,6 +5,7 @@ if (!PrimeFaces.scxml) {
         openScxmlDialog: function (cfg) {
             PrimeFaces.dialog.DialogHandler.openDialog(cfg);
         },
+        
         closeScxmlDialog: function (cfg) {
             PrimeFaces.dialog.DialogHandler.closeDialog(cfg);
         },

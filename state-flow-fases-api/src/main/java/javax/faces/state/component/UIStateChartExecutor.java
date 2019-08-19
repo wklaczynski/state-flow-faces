@@ -16,8 +16,6 @@
 package javax.faces.state.component;
 
 import javax.faces.component.UIPanel;
-import javax.faces.context.FacesContext;
-import javax.faces.state.scxml.SCXMLExecutor;
 
 /**
  *
@@ -25,8 +23,7 @@ import javax.faces.state.scxml.SCXMLExecutor;
  */
 public class UIStateChartExecutor extends UIPanel {
 
-    private transient SCXMLExecutor _executor;
-    private transient String _path;
+    private transient String _executorId;
 
     /**
      *
@@ -61,14 +58,15 @@ public class UIStateChartExecutor extends UIPanel {
         return COMPONENT_FAMILY;
     }
 
-    public SCXMLExecutor getExecutor() {
-        return _executor;
+    public String getExecutorId() {
+        return _executorId;
     }
 
-    public void setExecutor(SCXMLExecutor executor) {
-        this._executor = executor;
+    public void setExecutorId(String _executorId) {
+        this._executorId = _executorId;
     }
-
+    
+    
     public String getName() {
         return (java.lang.String) getStateHelper().eval(PropertyKeys.name, null);
     }
@@ -83,19 +81,6 @@ public class UIStateChartExecutor extends UIPanel {
 
     public void setRequired(boolean _required) {
         getStateHelper().put(PropertyKeys.required, _required);
-    }
-
-    public String getExecutePath(FacesContext context) {
-        if (_path == null && _executor != null) {
-            _path = _executor.getId();
-        }
-        return _path;
-    }
-    
-    
-    public String getPath(FacesContext context) {
-        String path = context.getViewRoot().getViewId() + "!" + getName();
-        return path;
     }
 
 }

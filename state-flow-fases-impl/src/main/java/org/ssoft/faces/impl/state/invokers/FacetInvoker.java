@@ -54,6 +54,7 @@ import static javax.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_PATH;
 import static javax.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
+import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import javax.faces.state.execute.ExecuteContextManager;
 
 /**
@@ -88,7 +89,7 @@ public class FacetInvoker implements Invoker, Serializable {
     private String viewId;
     private String stateKey;
     private String lastViewId;
-    private Object viewState;
+    private Object lastViewState;
     private String path;
     private String slot;
 
@@ -217,14 +218,14 @@ public class FacetInvoker implements Invoker, Serializable {
                 stateKey = "__@@Invoke:" + invokeId + ":";
 
                 Context stateContext = executor.getGlobalContext();
-                viewState = stateContext.get(stateKey + "ViewState");
+                lastViewState = stateContext.get(stateKey + "ViewState");
                 lastViewId = (String) stateContext.get(stateKey + "LastViewId");
                 if (lastViewId != null) {
                     viewId = lastViewId;
                 }
             } else {
                 lastViewId = null;
-                viewState = null;
+                lastViewState = null;
             }
 
             String oldPath = (String) ctx.get(EXECUTOR_CONTEXT_PATH.get(slot));
@@ -235,16 +236,18 @@ public class FacetInvoker implements Invoker, Serializable {
             }
             ctx.setLocal(EXECUTOR_CONTEXT_PATH.get(slot), path);
 
+            ExecuteContext viewContext = new ExecuteContext(
+                    path, invokeId, executor, ictx.getContext());
+
+            ExecuteContextManager manager = ExecuteContextManager.getManager(context);
+            manager.initExecuteContext(context, path, viewContext);
+
             setRenderFacet(context, source);
 
             UIViewRoot currentViewRoot = context.getViewRoot();
             if (currentViewRoot != null) {
                 String currentViewId = currentViewRoot.getViewId();
                 if (currentViewId.equals(viewId)) {
-
-                    ExecuteContext viewContext = new ExecuteContext(
-                            invokeId, executor, ictx.getContext());
-
                     return;
                 }
             }
@@ -254,9 +257,10 @@ public class FacetInvoker implements Invoker, Serializable {
             boolean ajaxr = StateFlowParams.isDefaultAjaxRedirect();
             PartialViewContext pvc = context.getPartialViewContext();
             if ((redirect || (pvc != null && ajaxr && pvc.isAjaxRequest()))) {
-                if (viewState != null) {
-                    Context flowContext = handler.getFlowContext(context);
-                    flowContext.setLocal(FACES_VIEW_STATE, viewState);
+                Context fctx = handler.getFlowContext(context, executor.getRootId());
+                fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, executor.getRootId());
+                if (lastViewState != null) {
+                    fctx.setLocal(FACES_VIEW_STATE, lastViewState);
                 }
 
                 Application application = context.getApplication();
@@ -276,8 +280,8 @@ public class FacetInvoker implements Invoker, Serializable {
                 context.responseComplete();
             } else {
                 UIViewRoot viewRoot;
-                if (viewState != null) {
-                    context.getAttributes().put(FACES_VIEW_STATE, viewState);
+                if (lastViewState != null) {
+                    context.getAttributes().put(FACES_VIEW_STATE, lastViewState);
                     viewRoot = vh.restoreView(context, viewId);
                     context.setViewRoot(viewRoot);
                     context.setProcessingEvents(true);
@@ -292,9 +296,6 @@ public class FacetInvoker implements Invoker, Serializable {
                 context.setViewRoot(viewRoot);
                 context.renderResponse();
             }
-
-            ExecuteContext viewContext = new ExecuteContext(
-                    invokeId, executor, ictx.getContext());
 
             if ((pvc != null && pvc.isAjaxRequest())) {
                 pvc.setRenderAll(true);
@@ -418,7 +419,7 @@ public class FacetInvoker implements Invoker, Serializable {
                         lastViewId = viewRoot.getViewId();
                         RenderKit renderKit = context.getRenderKit();
                         ResponseStateManager rsm = renderKit.getResponseStateManager();
-                        viewState = rsm.getState(context, lastViewId);
+                        lastViewState = rsm.getState(context, lastViewId);
                     }
                 }
 
@@ -471,10 +472,10 @@ public class FacetInvoker implements Invoker, Serializable {
                 lastViewId = viewRoot.getViewId();
                 RenderKit renderKit = context.getRenderKit();
                 ResponseStateManager rsm = renderKit.getResponseStateManager();
-                viewState = rsm.getState(context, lastViewId);
+                lastViewState = rsm.getState(context, lastViewId);
                 Context storeContext = executor.getGlobalContext();
 
-                storeContext.setLocal(stateKey + "ViewState", viewState);
+                storeContext.setLocal(stateKey + "ViewState", lastViewState);
                 storeContext.setLocal(stateKey + "LastViewId", lastViewId);
             }
         }
