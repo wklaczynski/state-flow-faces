@@ -52,7 +52,6 @@ import static javax.faces.state.StateFlow.FACES_CHART_CONTINER_SOURCE;
 import static javax.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.DEFAULT_STATE_MACHINE_NAME;
-import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
 import static javax.faces.state.StateFlow.VIEW_RESTORED_HINT;
 import javax.faces.state.component.UIStateChartExecutor;
@@ -210,6 +209,8 @@ public class SubInvoker implements Invoker, StateHolder {
             cctx.setLocal(FACES_CHART_CONTINER_NAME, continerName);
             cctx.setLocal(FACES_CHART_CONTINER_SOURCE, continerSource);
 
+            path = executor.getClientId();
+
             ExecuteContext viewContext = new ExecuteContext(
                     path, invokeId, executor, executor.getGlobalContext());
 
@@ -225,7 +226,7 @@ public class SubInvoker implements Invoker, StateHolder {
                 ExecuteContext prevExecuteContext = manager.findExecuteContextByPath(fc, executePath);
 
                 if (prevExecuteContext != null) {
-                    prevViewExecutorId = prevExecuteContext.getExecutor().getId();
+                    prevViewExecutorId = prevExecuteContext.getExecutor().getClientId();
                 }
 
                 UIComponent cc = UIComponent.getCurrentComponent(fc);
@@ -249,8 +250,6 @@ public class SubInvoker implements Invoker, StateHolder {
             });
 
             handler.execute(fc, executor, params);
-
-            path = executor.getId();
 
             if (!executor.isRunning()) {
                 logger.warning(String.format(
@@ -433,6 +432,16 @@ public class SubInvoker implements Invoker, StateHolder {
 
             if (prevViewState != null) {
 
+                ViewHandler vh = fc.getApplication().getViewHandler();
+                fc.getAttributes().put(FACES_VIEW_STATE, prevViewState);
+                viewRoot = vh.restoreView(fc, prevViewId);
+                fc.setViewRoot(viewRoot);
+                fc.setProcessingEvents(true);
+                vh.initView(fc);
+                fc.setViewRoot(viewRoot);
+                fc.renderResponse();
+                fc.getAttributes().put(VIEW_RESTORED_HINT, true);
+
                 if (prevViewExecutorId != null) {
                     ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
                     ExecuteContext executeContext = manager.findExecuteContextByPath(fc, prevViewExecutorId);
@@ -444,21 +453,8 @@ public class SubInvoker implements Invoker, StateHolder {
                         manager.initExecuteContext(fc, executePath, viewContext);
                     }
                 }
-
-                ViewHandler vh = fc.getApplication().getViewHandler();
-                if (prevRootExecutorId != null) {
-                    fc.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, prevRootExecutorId);
-                }
-
-                fc.getAttributes().put(FACES_VIEW_STATE, prevViewState);
-                viewRoot = vh.restoreView(fc, prevViewId);
-                fc.setViewRoot(viewRoot);
-                fc.setProcessingEvents(true);
-                vh.initView(fc);
-                fc.setViewRoot(viewRoot);
-                fc.renderResponse();
-                fc.getAttributes().put(VIEW_RESTORED_HINT, true);
-
+                
+                
                 if (prevcId != null) {
                     UIComponent cc = viewRoot.findComponent(prevcId);
                     if (cc != null) {
