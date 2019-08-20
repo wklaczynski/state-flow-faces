@@ -27,8 +27,8 @@ import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewDeclarationLanguageWrapper;
 import javax.faces.view.ViewMetadata;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.ORYGINAL_SCXML_DEFAULT_SUFIX;
-import static org.ssoft.faces.impl.state.StateFlowImplConstants.ORYGINAL_SCXML_SUFIX;
 import org.ssoft.faces.impl.state.config.StateWebConfiguration;
+import static org.ssoft.faces.impl.state.StateFlowImplConstants.ORGINAL_SCXML_SUFIX;
 
 /**
  *
@@ -71,7 +71,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
     }
 
     private boolean isMatchedWithOryginalSuffix(String viewId) {
-        String[] defaultsuffixes = webConfig.getOptionValues(ORYGINAL_SCXML_SUFIX, " ");
+        String[] defaultsuffixes = webConfig.getOptionValues(ORGINAL_SCXML_SUFIX, " ");
         for (String suffix : defaultsuffixes) {
             if (viewId.endsWith(suffix)) {
                 return true;
@@ -82,7 +82,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
     }
 
     private String getMatchedWithOryginalSuffix(String viewId) {
-        String[] defaultsuffixes = webConfig.getOptionValues(ORYGINAL_SCXML_SUFIX, " ");
+        String[] defaultsuffixes = webConfig.getOptionValues(ORGINAL_SCXML_SUFIX, " ");
         for (String suffix : defaultsuffixes) {
             if (viewId.endsWith(suffix)) {
                 return suffix;

@@ -21,7 +21,7 @@
     
     <!--Extension for oryginal scxml file, without metadata tag-->
     <context-param>
-        <param-name>org.apache.faces.ORYGINAL_SCXML_SUFIX</param-name>
+        <param-name>javax.faces.flow.ORGINAL_SCXML_SUFIX</param-name>
         <param-value>.shtml .flow</param-value>
     </context-param>
     
@@ -29,21 +29,21 @@
     <!--Request parametr for start other scxml definition, default is "flow",
     when not set this parametr in request, then alweys start default scxml by name "main"-->
     <context-param>
-        <param-name>org.apache.faces.STATE_CHART_REQUEST_PARAM_NAME</param-name>
+        <param-name>javax.faces.flow.STATE_CHART_REQUEST_PARAM_NAME</param-name>
         <param-value>flow</param-value>
     </context-param>
 
     <!--If this parametr set "true", then execute conversattion use window id 
     Default is "false"-->
     <context-param>
-        <param-name>org.apache.faces.DEFAULT_VIEW_REDIRECT</param-name>
+        <param-name>javax.faces.flow.DEFAULT_VIEW_REDIRECT</param-name>
         <param-value>true</param-value>
     </context-param>
 
     <!--If this parametr set "true", then view invoker default send redirect 
     when is ajax request and view has be changed. Default is "false"-->
     <context-param>
-        <param-name>org.apache.faces.USE_WINDOW_MODE</param-name>
+        <param-name>javax.faces.flow.USE_WINDOW_MODE</param-name>
         <param-value>true</param-value>
     </context-param>
 
@@ -51,26 +51,26 @@
     <!--If this parametr set "true", then view invoker default send redirect 
     when is ajax request and view has be changed. Default is "true"-->
     <context-param>
-        <param-name>org.apache.faces.DEFAULT_AJAX_REDIRECT</param-name>
+        <param-name>javax.faces.flow.DEFAULT_AJAX_REDIRECT</param-name>
         <param-value>false</param-value>
     </context-param>
 
     <!--If this parametr set "true", then view invoker default send redirect with flash
     when is redirect view invoke request and view has be changed. Default is "true"-->
     <context-param>
-        <param-name>org.apache.faces.DEFAULT_USE_FLASH_IN_REDIRECT</param-name>
+        <param-name>javax.faces.flow.DEFAULT_USE_FLASH_IN_REDIRECT</param-name>
         <param-value>true</param-value>
     </context-param>
             
     <!--Used for test only, alweys disable in production stage-->
     <!--Log all step and transition-->
     <context-param>
-        <param-name>org.apache.faces.STATE_CHART_LOGSTEP</param-name>
+        <param-name>javax.faces.flow.STATE_CHART_LOGSTEP</param-name>
         <param-value>true</param-value>
     </context-param>
     <!--Test save and restore executor and context state for distributable session-->
     <context-param>
-        <param-name>org.apache.faces.STATE_CHART_ALWEYS_SERIALIZED</param-name>
+        <param-name>javax.faces.flow.STATE_CHART_ALWEYS_SERIALIZED</param-name>
         <param-value>false</param-value>
     </context-param>
     

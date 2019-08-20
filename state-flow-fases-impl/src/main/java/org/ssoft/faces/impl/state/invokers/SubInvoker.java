@@ -23,12 +23,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 import javax.faces.FacesException;
+import javax.faces.application.StateManager;
 import javax.faces.application.ViewHandler;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
-import javax.faces.render.RenderKit;
-import javax.faces.render.ResponseStateManager;
 import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.task.FacesProcessHolder;
@@ -53,7 +52,9 @@ import static javax.faces.state.StateFlow.FACES_CHART_CONTINER_SOURCE;
 import static javax.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.DEFAULT_STATE_MACHINE_NAME;
+import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
+import static javax.faces.state.StateFlow.VIEW_RESTORED_HINT;
 import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.execute.ExecuteContextManager;
@@ -213,26 +214,28 @@ public class SubInvoker implements Invoker, StateHolder {
                     path, invokeId, executor, executor.getGlobalContext());
 
             UIViewRoot currentViewRoot = fc.getViewRoot();
-            prevViewId = currentViewRoot.getViewId();
+            if (currentViewRoot != null) {
+                prevViewId = currentViewRoot.getViewId();
 
-            ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
-            String executePath = prevRootExecutorId + ":" + prevViewId;
-            ExecuteContext prevExecuteContext = manager.findExecuteContextByPath(fc, executePath);
+                StateManager sm = fc.getApplication().getStateManager();
+                prevViewState = sm.saveView(fc);
 
-            if (prevExecuteContext != null) {
-                prevViewExecutorId = prevExecuteContext.getExecutor().getId();
+                ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
+                String executePath = prevRootExecutorId + ":" + prevViewId;
+                ExecuteContext prevExecuteContext = manager.findExecuteContextByPath(fc, executePath);
+
+                if (prevExecuteContext != null) {
+                    prevViewExecutorId = prevExecuteContext.getExecutor().getId();
+                }
+
+                UIComponent cc = UIComponent.getCurrentComponent(fc);
+                if (cc != null) {
+                    prevcId = cc.getClientId();
+                }
+
+                manager.initExecuteContext(fc, path, viewContext);
+
             }
-
-            UIComponent cc = UIComponent.getCurrentComponent(fc);
-            if (cc != null) {
-                prevcId = cc.getClientId();
-            }
-
-            RenderKit renderKit = fc.getRenderKit();
-            ResponseStateManager rsm = renderKit.getResponseStateManager();
-            prevViewState = rsm.getState(fc, prevViewId);
-
-            manager.initExecuteContext(fc, path, viewContext);
 
             executor.addListener(scxml, new AbstractSCXMLListener() {
 
@@ -443,6 +446,9 @@ public class SubInvoker implements Invoker, StateHolder {
                 }
 
                 ViewHandler vh = fc.getApplication().getViewHandler();
+                if (prevRootExecutorId != null) {
+                    fc.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, prevRootExecutorId);
+                }
 
                 fc.getAttributes().put(FACES_VIEW_STATE, prevViewState);
                 viewRoot = vh.restoreView(fc, prevViewId);
@@ -451,6 +457,7 @@ public class SubInvoker implements Invoker, StateHolder {
                 vh.initView(fc);
                 fc.setViewRoot(viewRoot);
                 fc.renderResponse();
+                fc.getAttributes().put(VIEW_RESTORED_HINT, true);
 
                 if (prevcId != null) {
                     UIComponent cc = viewRoot.findComponent(prevcId);

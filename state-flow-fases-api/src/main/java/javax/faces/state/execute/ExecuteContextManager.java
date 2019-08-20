@@ -232,9 +232,9 @@ public class ExecuteContextManager {
                                 ExecutorController controller = (ExecutorController) compositeCurrent
                                         .getAttributes().get(StateFlow.EXECUTOR_CONTROLLER_KEY);
                                 if (controller != null) {
-                                    path = controller.getExecutePath(context);
                                     executorId = controller.getExecutorId();
                                     executor = handler.getRootExecutor(context, executorId);
+                                    path = executor.getId();
                                 }
                             }
                         }
@@ -268,6 +268,62 @@ public class ExecuteContextManager {
         }
 
         return executeContext;
+    }
+
+    public String computeExecutePath(FacesContext context, UIComponent component) {
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        String executorId = null;
+        String path = null;
+
+        if (component != null) {
+            UIStateChartFacetRender render = ComponentUtils
+                    .lokated(UIStateChartFacetRender.class, component);
+            if (render != null) {
+                executorId = render.getExecutorId();
+                path = render.getExecutePath(context);
+            } else {
+                UIStateChartExecutor execute = ComponentUtils
+                        .lokated(UIStateChartExecutor.class, component);
+
+                if (execute != null) {
+                    executorId = execute.getExecutorId();
+                    path = executorId;
+                } else {
+                    UIComponent compositeCurrent = ComponentUtils
+                            .findExecuteCompositeComponent(context, component);
+                    if (compositeCurrent != null) {
+                        ExecutorController controller = (ExecutorController) compositeCurrent
+                                .getAttributes().get(StateFlow.EXECUTOR_CONTROLLER_KEY);
+                        if (controller != null) {
+                            executorId = controller.getExecutorId();
+                            path = executorId;
+                        }
+                    }
+                }
+            }
+
+            if (path == null) {
+                UIViewRoot viewRoot = ComponentUtils.assigned(UIViewRoot.class, component);
+                if (viewRoot != null) {
+                    executorId = (String) viewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                    if (executorId != null) {
+                        path = executorId + ":" + viewRoot.getViewId();
+                    }
+                }
+            }
+
+        }
+
+        if (executorId == null) {
+            return null;
+        }
+
+        SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
+        if (executor == null) {
+            return null;
+        }
+        
+        return path;
     }
 
     public ExecuteContext findExecuteContextByComponentId(FacesContext ctx,

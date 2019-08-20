@@ -19,8 +19,6 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import javax.faces.context.FacesContext;
-import javax.faces.state.scxml.SCXMLExecutor;
 
 /**
  *
@@ -28,7 +26,6 @@ import javax.faces.state.scxml.SCXMLExecutor;
  */
 public class ExecutorController implements Externalizable {
 
-    private transient String _path;
     private transient String _executorId;
 
     public String getExecutorId() {
@@ -42,20 +39,12 @@ public class ExecutorController implements Externalizable {
     
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeUTF(_path);
 
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        _path = in.readUTF();
     }
 
-    public String getExecutePath(FacesContext context) {
-        if (_path == null && _executorId != null) {
-            _path = _executorId;
-        }
-        return _path;
-    }
 
 }

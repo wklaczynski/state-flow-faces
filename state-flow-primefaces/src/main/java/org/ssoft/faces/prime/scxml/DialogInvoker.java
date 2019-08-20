@@ -6,6 +6,7 @@ package org.ssoft.faces.prime.scxml;
 
 import java.io.Serializable;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,6 +16,7 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import javax.faces.application.ResourceDependencies;
 import javax.faces.application.ResourceDependency;
+import javax.faces.application.StateManager;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
@@ -68,7 +70,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
     public static final String DIALOG_CLOSE = DialogInvoker.class.getName() + "#close_dialog";
     public static final String DIALOG_OPEN = DialogInvoker.class.getName() + "#open_dialog";
-    
+
     private static final String SB_ESCAPE = ComponentUtils.class.getName() + "#escape";
 
     private final static Logger logger = Logger.getLogger(DialogInvoker.class.getName());
@@ -124,9 +126,9 @@ public class DialogInvoker implements Invoker, Serializable {
     public void invoke(final InvokeContext ictx, String source, final Map params) throws InvokerException {
         StateFlowHandler handler = StateFlowHandler.getInstance();
         try {
-            FacesContext context = FacesContext.getCurrentInstance();
-            Map<String, String> requestParams = context.getExternalContext().getRequestParameterMap();
-            Map<Object, Object> attrs = context.getAttributes();
+            FacesContext fc = FacesContext.getCurrentInstance();
+            Map<String, String> requestParams = fc.getExternalContext().getRequestParameterMap();
+            Map<Object, Object> attrs = fc.getAttributes();
 
             if (source.equals("@this")) {
                 String machineViewId = (String) executor
@@ -134,7 +136,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
                 source = machineViewId;
             }
-            prevExecutorId = handler.getExecutorViewRootId(context);
+            prevExecutorId = handler.getExecutorViewRootId(fc);
 
             viewId = source;
             String oldInvokeViewId = (String) executor.getRootContext().get(EXECUTOR_CONTEXT_VIEW_PATH);
@@ -150,6 +152,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
             Map<String, Object> ajax = new HashMap<>();
             Map<String, List<String>> query = new HashMap<>();
+            query.put("exid", Arrays.asList(executor.getRootId()));
 
             vieparams = new HashMap();
             for (Object key : params.keySet()) {
@@ -209,16 +212,15 @@ public class DialogInvoker implements Invoker, Serializable {
                 lastViewState = null;
             }
 
-            UIViewRoot currentViewRoot = context.getViewRoot();
+            UIViewRoot currentViewRoot = fc.getViewRoot();
 
             prevStateKey = "__@@Invoke:prev:" + invokeId + ":";
             prevViewId = currentViewRoot.getViewId();
 
-            RenderKit renderKit = context.getRenderKit();
-            ResponseStateManager rsm = renderKit.getResponseStateManager();
-            prevViewState = rsm.getState(context, prevViewId);
+            StateManager sm = fc.getApplication().getStateManager();
+            prevViewState = sm.saveView(fc);
 
-            UIComponent cc = UIComponent.getCurrentComponent(context);
+            UIComponent cc = UIComponent.getCurrentComponent(fc);
             if (cc != null) {
                 prevcId = cc.getClientId();
             }
@@ -226,7 +228,7 @@ public class DialogInvoker implements Invoker, Serializable {
             rctx.setLocal(prevStateKey + "ViewState", prevViewState);
             rctx.setLocal(prevStateKey + "ViewId", prevViewId);
 
-            String url = context.getApplication().getViewHandler().getBookmarkableURL(context, viewId, query, false);
+            String url = fc.getApplication().getViewHandler().getBookmarkableURL(fc, viewId, query, false);
             url = escapeEcmaScriptText(url);
 
             pfdlgcid = UUID.randomUUID().toString();
@@ -259,11 +261,11 @@ public class DialogInvoker implements Invoker, Serializable {
             UIComponent component;
 
             if (sourceComponentId != null) {
-                component = context.getViewRoot().findComponent(sourceComponentId);
+                component = fc.getViewRoot().findComponent(sourceComponentId);
                 if (component != null) {
-                    form = ComponentTraversalUtils.closestForm(context, component);
+                    form = ComponentTraversalUtils.closestForm(fc, component);
                     if (form != null) {
-                        formId = form.getClientId(context);
+                        formId = form.getClientId(fc);
                     }
                     sourceId = component.getClientId();
                 }
@@ -339,17 +341,16 @@ public class DialogInvoker implements Invoker, Serializable {
             PrimeFaces.current().executeScript(sb.toString());
             sb.setLength(0);
 
-            Context fctx = handler.getFlowContext(context, executor.getRootId());
+            Context fctx = handler.getFlowContext(fc, executor.getRootId());
             if (lastViewState != null) {
                 fctx.setLocal(FACES_CHART_VIEW_STATE, lastViewState);
             }
 
             //handler.setExecutorViewRootId(context, executor.getRootId());
-
             resolved = false;
             executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
-            context.getAttributes().put(DIALOG_OPEN, true);
-            
+            fc.getAttributes().put(DIALOG_OPEN, true);
+
         } catch (InvokerException ex) {
             throw ex;
         } catch (Throwable ex) {
@@ -447,14 +448,13 @@ public class DialogInvoker implements Invoker, Serializable {
 
         Context rctx = executor.getRootContext();
 
-        FacesContext context = FacesContext.getCurrentInstance();
-        UIViewRoot viewRoot = context.getViewRoot();
+        FacesContext fc = FacesContext.getCurrentInstance();
+        UIViewRoot viewRoot = fc.getViewRoot();
         if (viewRoot != null) {
             if (lastStateKey != null) {
                 lastViewId = viewRoot.getViewId();
-                RenderKit renderKit = context.getRenderKit();
-                ResponseStateManager rsm = renderKit.getResponseStateManager();
-                lastViewState = rsm.getState(context, lastViewId);
+                StateManager sm = fc.getApplication().getStateManager();
+                lastViewState = sm.saveView(fc);
 
                 rctx.setLocal(lastStateKey + "ViewState", lastViewState);
                 rctx.setLocal(lastStateKey + "ViewId", lastViewId);
@@ -495,15 +495,14 @@ public class DialogInvoker implements Invoker, Serializable {
 //            }
 //
 //        }
-
-        PartialViewContext pvc = context.getPartialViewContext();
+        PartialViewContext pvc = fc.getPartialViewContext();
         if ((pvc != null && (pvc.isAjaxRequest() || pvc.isPartialRequest()))) {
             pvc.setRenderAll(false);
         }
-        context.getAttributes().put(DIALOG_CLOSE, true);
+        fc.getAttributes().put(DIALOG_CLOSE, true);
         rctx.removeLocal(EXECUTOR_CONTEXT_VIEW_PATH);
 
-        context.renderResponse();
+        fc.renderResponse();
     }
 
     public static String escapeEcmaScriptText(String text) {

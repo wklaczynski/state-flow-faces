@@ -61,16 +61,8 @@ public class ExecuteMethodExpression extends MethodExpression {
             return ;
         }
         
-//        if(!UIComponent.isCompositeComponent(component)) {
-//            return;
-//        }
-
         ExecuteContextManager manager = ExecuteContextManager.getManager(ctx);
-        ExecuteContext executeContext = manager.findExecuteContextByComponent(ctx, component.getParent());
-        if (executeContext != null) {
-            executePath = executeContext.getPath();
-            //executePath = executeContext.getExecutor().getId();
-        }
+        executePath = manager.computeExecutePath(ctx, component.getParent());
     }
 
     @Override

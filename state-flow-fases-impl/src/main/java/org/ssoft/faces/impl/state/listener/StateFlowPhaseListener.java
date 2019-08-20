@@ -42,7 +42,6 @@ import javax.faces.context.Flash;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
-import javax.faces.lifecycle.ClientWindow;
 import javax.faces.render.ResponseStateManager;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.state.scxml.SCXMLExecutor;
@@ -255,15 +254,18 @@ public class StateFlowPhaseListener implements PhaseListener {
                 executorId = fc.getExternalContext().getRequestParameterMap().get("exid");
             }
 
-            if(executorId == null) {
+            if (executorId == null) {
                 ExternalContext ec = fc.getExternalContext();
                 Flash flash = ec.getFlash();
                 executorId = (String) flash.get("exid");
             }
-            
+
             Context ctx = handler.getFlowContext(fc, executorId);
             if (ctx != null) {
-                executorId = (String) ctx.get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                if (executorId == null) {
+                    executorId = (String) ctx.get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                }
+
                 if (executorId != null) {
                     fc.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
                     ctx.removeLocal(FACES_EXECUTOR_VIEW_ROOT_ID);

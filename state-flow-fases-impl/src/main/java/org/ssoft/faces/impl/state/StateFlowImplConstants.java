@@ -24,7 +24,7 @@ public class StateFlowImplConstants {
     /**
      *
      */
-    public final static String STATE_FLOW_PREFIX = "org.apache.faces.";
+    public final static String STATE_FLOW_PREFIX = "javax.faces.flow.";
 
     /**
      *
@@ -34,7 +34,7 @@ public class StateFlowImplConstants {
     /**
      *
      */
-    public final static String ORYGINAL_SCXML_SUFIX = STATE_FLOW_PREFIX + "ORYGINAL_SCXML_SUFIX";
+    public final static String ORGINAL_SCXML_SUFIX = STATE_FLOW_PREFIX + "ORGINAL_SCXML_SUFIX";
 
     /**
      *

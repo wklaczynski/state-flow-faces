@@ -430,7 +430,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             uuid = (String) context.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
         }
 
-        context.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, uuid);
+        //context.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, uuid);
 
         return uuid;
     }

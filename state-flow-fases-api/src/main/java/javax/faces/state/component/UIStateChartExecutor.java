@@ -16,6 +16,7 @@
 package javax.faces.state.component;
 
 import javax.faces.component.UIPanel;
+import javax.faces.context.FacesContext;
 
 /**
  *
@@ -65,7 +66,6 @@ public class UIStateChartExecutor extends UIPanel {
     public void setExecutorId(String _executorId) {
         this._executorId = _executorId;
     }
-    
     
     public String getName() {
         return (java.lang.String) getStateHelper().eval(PropertyKeys.name, null);
