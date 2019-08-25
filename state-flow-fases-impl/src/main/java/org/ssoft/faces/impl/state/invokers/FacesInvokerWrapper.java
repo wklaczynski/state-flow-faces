@@ -18,8 +18,10 @@ package org.ssoft.faces.impl.state.invokers;
 import java.util.Map;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import static javax.faces.state.StateFlow.BEFORE_RENDER_VIEW;
 import javax.faces.state.scxml.InvokeContext;
 import javax.faces.state.scxml.InvokerWrapper;
+import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.invoke.Invoker;
 import javax.faces.state.scxml.invoke.InvokerException;
 import javax.faces.state.utils.ComponentUtils;
@@ -30,6 +32,8 @@ import javax.faces.state.utils.ComponentUtils;
  */
 public class FacesInvokerWrapper extends InvokerWrapper {
 
+    private boolean initialized;
+
     public FacesInvokerWrapper(Invoker wrapped) {
         super(wrapped);
     }
@@ -37,31 +41,35 @@ public class FacesInvokerWrapper extends InvokerWrapper {
     @Override
     public void invoke(InvokeContext ictx, String url, Map<String, Object> params) throws InvokerException {
         super.invoke(ictx, url, params);
-
-        FacesContext fc = FacesContext.getCurrentInstance();
-        UIViewRoot viewRoot = fc.getViewRoot();
-        if (viewRoot != null) {
-            Invoker invoker = unwrap(this);
-            ComponentUtils.loadResorces(fc, viewRoot, invoker, "head");
-        }
     }
 
     @Override
     public void invokeContent(InvokeContext ictx, String content, Map<String, Object> params) throws InvokerException {
-        super.invokeContent(ictx, content, params); //To change body of generated methods, choose Tools | Templates.
-
-        FacesContext fc = FacesContext.getCurrentInstance();
-        UIViewRoot viewRoot = fc.getViewRoot();
-        if (viewRoot != null) {
-            Invoker invoker = unwrap(this);
-            ComponentUtils.loadResorces(fc, viewRoot, invoker, "head");
-        }
+        super.invokeContent(ictx, content, params);
     }
 
     @Override
     public void cancel() throws InvokerException {
         super.cancel();
+        initHead();
+    }
 
+    @Override
+    public void parentEvent(InvokeContext ictx, TriggerEvent event) throws InvokerException {
+        super.parentEvent(ictx, event);
+        if (event.getName().startsWith(BEFORE_RENDER_VIEW)) {
+            initInvoker();
+        }
+    }
+
+    private void initInvoker() {
+        if (!initialized) {
+            initHead();
+            initialized = true;
+        }
+    }
+
+    private void initHead() {
         FacesContext fc = FacesContext.getCurrentInstance();
         UIViewRoot viewRoot = fc.getViewRoot();
         if (viewRoot != null) {
@@ -70,6 +78,4 @@ public class FacesInvokerWrapper extends InvokerWrapper {
         }
     }
 
-
-    
 }
