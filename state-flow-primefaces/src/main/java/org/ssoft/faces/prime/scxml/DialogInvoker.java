@@ -66,7 +66,7 @@ import org.primefaces.util.SharedStringBuilder;
     ,@ResourceDependency(library = "primefaces", name = "jquery/jquery-plugins.js")
     ,@ResourceDependency(library = "primefaces", name = "core.js")
     ,@ResourceDependency(library = "primefaces", name = "components.js")
-//    ,@ResourceDependency(library = "primeflow", name = "primescxml.js")
+    ,@ResourceDependency(library = "primeflow", name = "primescxml.js")
 })
 public class DialogInvoker implements Invoker, Serializable {
 
