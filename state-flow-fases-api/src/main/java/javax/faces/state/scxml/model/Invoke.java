@@ -465,7 +465,9 @@ public class Invoke extends Action implements ContentContainer, ParamsContainer 
             }
             Map<String, Object> payloadDataMap = new HashMap<>();
             PayloadBuilder.addNamelistDataToPayload(parentState, ctx, eval, exctx.getErrorReporter(), namelist, payloadDataMap);
-            PayloadBuilder.addParamsToPayload(ctx, eval, paramsList, payloadDataMap);
+            PayloadBuilder.addParamsToPayload(
+                    exctx.getStateMachine(),
+                    ctx, eval, paramsList, payloadDataMap);
             invoker.setParentSCXMLExecutor(exctx.getSCXMLExecutor());
 
             InvokeContext ivctx = new InvokeContext(exctx, this);

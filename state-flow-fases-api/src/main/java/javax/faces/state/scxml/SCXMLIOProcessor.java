@@ -59,6 +59,11 @@ public interface SCXMLIOProcessor {
     String SCXML_EVENT_PROCESSOR = "scxml";
 
     /**
+     * Default external Invoke I/O Event Processor alias
+     */
+    String INVOKE_EVENT_PROCESSOR = "invoke";
+
+    /**
      * Prefix for SCXML I/O (own) Session external Event processor
      */
     String SCXML_SESSION_EVENT_PROCESSOR_PREFIX = EVENT_PROCESSOR_ALIAS_PREFIX + "scxml_";

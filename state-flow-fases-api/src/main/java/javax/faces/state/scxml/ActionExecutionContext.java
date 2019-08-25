@@ -16,8 +16,10 @@
  */
 package javax.faces.state.scxml;
 
+import java.util.Map;
 import java.util.logging.Logger;
 import javax.faces.state.scxml.model.EnterableState;
+import javax.faces.state.scxml.model.Invoke;
 import javax.faces.state.scxml.model.SCXML;
 
 
@@ -90,6 +92,13 @@ public class ActionExecutionContext {
         return exctx;
     }
 
+    /**
+     * @return Returns the map of current active Invokes and their invokeId
+     */
+    public Map<Invoke, String> getInvokeIds() {
+        return exctx.getInvokeIds();
+    }
+    
     /**
      * @return Returns the SCXML Execution Logger for the application
      */

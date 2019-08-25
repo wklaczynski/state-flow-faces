@@ -24,11 +24,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.scxml.EventDispatcher;
 import javax.faces.state.scxml.ParentSCXMLIOProcessor;
 import javax.faces.state.scxml.SCXMLIOProcessor;
 import javax.faces.state.scxml.SCXMLLogger;
+import javax.faces.state.scxml.SCXMLSystemContext;
+import javax.faces.state.scxml.SendContext;
 import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.model.ActionExecutionError;
 
@@ -156,15 +159,24 @@ public class SimpleDispatcher implements EventDispatcher, Serializable {
     }
 
     /**
-     * @see EventDispatcher#send(java.util.Map, String, String, String, String,
-     * Object, Object, long)
+     * @see EventDispatcher#send(javax.faces.state.scxml.SendContext)
      */
     @Override
-    public void send(final Map<String, SCXMLIOProcessor> ioProcessors, final String id, final String target,
-            final String type, final String event, final Object data, final Object hints, final long delay) {
+    public void send(final SendContext sctx) {
+
+        Context ctx = sctx.getCurrentContext();
+        final Map<String, SCXMLIOProcessor> ioProcessors = (Map<String, SCXMLIOProcessor>) ctx.get(SCXMLSystemContext.IOPROCESSORS_KEY);
+        final String id = sctx.getId();
+        final String target = sctx.getTarget();
+        final String type = sctx.getType();
+        final String event = sctx.getEvent();
+        final Object data = sctx.getData();
+        final Object hints = sctx.getHints();
+        final long delay = sctx.getDelay();
+
         if (log.isLoggable(Level.INFO)) {
             final String buf
-                    = "send ( id: " + id
+                         = "send ( id: " + id
                     + ", target: " + target
                     + ", type: " + type
                     + ", event: " + event

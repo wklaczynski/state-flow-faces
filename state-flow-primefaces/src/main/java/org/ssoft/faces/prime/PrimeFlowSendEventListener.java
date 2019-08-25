@@ -25,9 +25,11 @@ import javax.faces.event.SystemEventListener;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.event.CancelSystemEvent;
 import javax.faces.state.event.SendSystemEvent;
+import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.scxml.ParentSCXMLIOProcessor;
 import javax.faces.state.scxml.SCXMLIOProcessor;
+import javax.faces.state.scxml.SCXMLSystemContext;
 import javax.faces.state.scxml.SendContext;
 import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.model.ActionExecutionError;
@@ -47,44 +49,46 @@ public class PrimeFlowSendEventListener implements SystemEventListener {
         StateFlowHandler handler = StateFlowHandler.getInstance();
         if (se instanceof SendSystemEvent) {
 
-            SendContext sc = ((SendSystemEvent) se).getSendContext();
+            SendContext sctx = ((SendSystemEvent) se).getSendContext();
 
-            String type = sc.getType();
+            String type = sctx.getType();
 
             if (type == null) {
                 return;
             }
 
-            String id = sc.getId();
-            Map<String, SCXMLIOProcessor> ioProcessors = sc.getIoProcessors();
-            String target = sc.getTarget();
-            String event = sc.getEvent();
+            String id = sctx.getId();
+            Context ctx = sctx.getCurrentContext();
+            Map<String, SCXMLIOProcessor> ioProcessors = (Map<String, SCXMLIOProcessor>) ctx.get(SCXMLSystemContext.IOPROCESSORS_KEY);
 
-            if ("x-dialog-url".equals(type)) {
+            String target = sctx.getTarget();
+            String event = sctx.getEvent();
+
+            if ("x-dialog-change".equals(type)) {
                 String originType = SCXMLIOProcessor.DEFAULT_EVENT_PROCESSOR;
                 boolean internal = false;
+                String invokeId = null;
+
                 SCXMLIOProcessor ioProcessor;
                 String origin = target;
-                if (target == null) {
-                    ioProcessor = ioProcessors.get(SCXMLIOProcessor.SCXML_EVENT_PROCESSOR);
-                    origin = SCXMLIOProcessor.SCXML_EVENT_PROCESSOR;
-                } else if (ioProcessors.containsKey(target)) {
-                    ioProcessor = ioProcessors.get(target);
-                    internal = SCXMLIOProcessor.INTERNAL_EVENT_PROCESSOR.equals(target);
-                } else if (SCXMLIOProcessor.INTERNAL_EVENT_PROCESSOR.equals(target)) {
-                    ioProcessor = ioProcessors.get(SCXMLIOProcessor.INTERNAL_EVENT_PROCESSOR);
-                    internal = true;
-                } else {
+
+                boolean resolved = false;
+                invokeId = target;
+                ioProcessor = ioProcessors.get(SCXMLIOProcessor.SCXML_EVENT_PROCESSOR);
+                origin = SCXMLIOProcessor.INVOKE_EVENT_PROCESSOR;
+                resolved = true;
+
+                if (!resolved) {
                     if (target.startsWith(SCXMLIOProcessor.EVENT_PROCESSOR_ALIAS_PREFIX)) {
                         ioProcessors.get(SCXMLIOProcessor.INTERNAL_EVENT_PROCESSOR).addEvent(
                                 new EventBuilder(TriggerEvent.ERROR_COMMUNICATION, TriggerEvent.ERROR_EVENT)
                                         .sendId(id).build());
-                        throw new AbortProcessingException("<send>: Unavailable target - " + target);
+                        throw new ActionExecutionError(true, "<send>: Unavailable target - " + target);
                     } else {
                         ioProcessors.get(SCXMLIOProcessor.INTERNAL_EVENT_PROCESSOR).addEvent(
                                 new EventBuilder(TriggerEvent.ERROR_EXECUTION, TriggerEvent.ERROR_EVENT)
                                         .sendId(id).build());
-                        throw new AbortProcessingException("<send>: Invalid or unsupported target - " + target);
+                        throw new ActionExecutionError(true, "<send>: Invalid or unsupported target - " + target);
                     }
                 }
 
@@ -95,13 +99,15 @@ public class PrimeFlowSendEventListener implements SystemEventListener {
                 } else {
                     EventBuilder eventBuilder = new EventBuilder(event, TriggerEvent.SIGNAL_EVENT)
                             .sendId(id)
-                            .data(sc.getData());
+                            .data(sctx.getData())
+                            .invokeId(invokeId);
+
                     if (!internal) {
                         eventBuilder.origin(origin).originType(originType);
                         if (SCXMLIOProcessor.PARENT_EVENT_PROCESSOR.equals(target)) {
                             eventBuilder.invokeId(((ParentSCXMLIOProcessor) ioProcessor).getInvokeId());
                         }
-                        long delay = sc.getDelay();
+                        long delay = sctx.getDelay();
 
                         if (delay > 0L) {
                             // Need to execute this one

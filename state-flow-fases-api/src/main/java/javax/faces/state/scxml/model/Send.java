@@ -29,6 +29,7 @@ import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.scxml.SCXMLExpressionException;
 import javax.faces.state.scxml.SCXMLIOProcessor;
 import javax.faces.state.scxml.SCXMLSystemContext;
+import javax.faces.state.scxml.SendContext;
 import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.semantics.ErrorConstants;
 
@@ -433,7 +434,9 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
         Object payload = null;
         Map<String, Object> payloadDataMap = new LinkedHashMap<>();
         PayloadBuilder.addNamelistDataToPayload(parentState, ctx, eval, exctx.getErrorReporter(), namelist, payloadDataMap);
-        PayloadBuilder.addParamsToPayload(ctx, eval, paramsList, payloadDataMap);
+        PayloadBuilder.addParamsToPayload(
+                exctx.getStateMachine(),
+                ctx, eval, paramsList, payloadDataMap);
         if (!payloadDataMap.isEmpty()) {
             payload = payloadDataMap;
         } else if (content != null) {
@@ -473,15 +476,21 @@ public class Send extends Action implements ContentContainer, ParamsContainer {
                         + "\" evaluated to null");
             }
         }
-        Map<String, SCXMLIOProcessor> ioProcessors = (Map<String, SCXMLIOProcessor>) ctx.get(SCXMLSystemContext.IOPROCESSORS_KEY);
         if (exctx.getAppLog().isLoggable(Level.FINE)) {
-            exctx.getAppLog().fine("<send>: Dispatching event '" + eventValue
-                    + "' to target '" + targetValue + "' of target type '"
-                    + typeValue + "' with suggested delay of " + wait
-                    + "ms");
+            exctx.getAppLog().log(Level.FINE, "<send>: Dispatching event ''{0}'' to target ''{1}'' of target type ''{2}'' with suggested delay of {3}ms", new Object[]{eventValue, targetValue, typeValue, wait});
         }
-        exctx.getEventDispatcher().send(ioProcessors, id, targetValue, typeValue, eventValue,
-                payload, hintsValue, wait);
+        SendContext sctx = new SendContext(id, 
+                typeValue, 
+                targetValue, 
+                eventValue, 
+                payload, 
+                hintsValue, 
+                wait, 
+                exctx, 
+                ctx);
+        
+        
+        exctx.getEventDispatcher().send(sctx);
     }
 
     /**

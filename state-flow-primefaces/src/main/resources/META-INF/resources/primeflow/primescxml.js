@@ -4,6 +4,7 @@ if (!PrimeFaces.scxml) {
 
         open: [],
         close: [],
+        change: [],
 
         openScxmlDialog: function (cfg) {
             var rootWindow = this.findRootWindow();
@@ -14,6 +15,12 @@ if (!PrimeFaces.scxml) {
         closeScxmlDialog: function (cfg) {
             var rootWindow = this.findRootWindow();
             rootWindow.PrimeFaces.scxml.close.push(cfg);
+            rootWindow.PrimeFaces.scxml.invokeLater();
+        },
+
+        changeScxmlDialog: function (cfg) {
+            var rootWindow = this.findRootWindow();
+            rootWindow.PrimeFaces.scxml.change.push(cfg);
             rootWindow.PrimeFaces.scxml.invokeLater();
         },
 
@@ -74,8 +81,37 @@ if (!PrimeFaces.scxml) {
 
                 PrimeFaces.dialog.DialogHandler.openDialog(cfg);
             });
+            
+            PrimeFaces.scxml.change.forEach(function (cfg) {
+                var dlgs = $(rootWindow.document.body).children('div.ui-dialog[data-pfdlgcid="' + cfg.pfdlgcid + '"]').not('[data-queuedforremoval]');
+                var dlgsLength = dlgs.length;
+                var cdlg = dlgs.eq(dlgsLength - 1);
+
+                if (cdlg) {
+                    var dialogFrame = cdlg.find('iframe');
+
+                    if (cfg.options.contentWidth) {
+                        var frameWidth = cfg.options.contentWidth || 640;
+                        dialogFrame.width(frameWidth);
+                    }
+
+                    if (cfg.options.iframeTitle) {
+                        dialogFrame.attr('title', cfg.options.iframeTitle);
+                    }
+
+                    if (cfg.url) {
+                        var symbol = cfg.url.indexOf('?') === -1 ? '?' : '&';
+                        var frameURL = cfg.url.indexOf('pfdlgcid') === -1 ? cfg.url + symbol + 'pfdlgcid=' + cfg.pfdlgcid : cfg.url;
+                        dialogFrame.attr('src', frameURL);
+                    }
+                }
+
+            });
+            
+            
             PrimeFaces.scxml.close = [];
             PrimeFaces.scxml.open = [];
+            PrimeFaces.scxml.change = [];
 
             if (closeCfg) {
                 var sourceComponentId;

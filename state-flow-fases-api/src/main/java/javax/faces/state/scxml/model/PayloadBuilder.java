@@ -23,6 +23,7 @@ import java.util.StringTokenizer;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.ErrorReporter;
 import javax.faces.state.scxml.Evaluator;
+import javax.faces.state.scxml.PathResolver;
 import javax.faces.state.scxml.SCXMLExpressionException;
 import javax.faces.state.scxml.semantics.ErrorConstants;
 
@@ -35,9 +36,10 @@ import org.w3c.dom.NodeList;
 public class PayloadBuilder {
 
     /**
-     * Payload data values wrapper list needed when multiple variable entries use the same names.
-     * The multiple values are then wrapped in a list. The PayloadBuilder uses this 'marker' list
-     * to distinguish between entry values which are a list themselves and the wrapper list.
+     * Payload data values wrapper list needed when multiple variable entries
+     * use the same names. The multiple values are then wrapped in a list. The
+     * PayloadBuilder uses this 'marker' list to distinguish between entry
+     * values which are a list themselves and the wrapper list.
      */
     private static class DataValueList extends ArrayList {
     }
@@ -45,14 +47,18 @@ public class PayloadBuilder {
     /**
      * Adds an attribute and value to a payload data map.
      * <p>
-     * As the SCXML specification allows for multiple payload attributes with the same name, this
-     * method takes care of merging multiple values for the same attribute in a list of values.
+     * As the SCXML specification allows for multiple payload attributes with
+     * the same name, this method takes care of merging multiple values for the
+     * same attribute in a list of values.
      * </p>
      * <p>
-     * Furthermore, as modifications of payload data on either the sender or receiver side should affect the
-     * the other side, attribute values (notably: {@link Node} value only for now) is cloned first before being added
-     * to the payload data map. This includes 'nested' values within a {@link NodeList}, {@link List} or {@link Map}.
+     * Furthermore, as modifications of payload data on either the sender or
+     * receiver side should affect the the other side, attribute values
+     * (notably: {@link Node} value only for now) is cloned first before being
+     * added to the payload data map. This includes 'nested' values within a
+     * {@link NodeList}, {@link List} or {@link Map}.
      * </p>
+     *
      * @param attrName the name of the attribute to add
      * @param attrValue the value of the attribute to add
      * @param payload the payload data map to be updated
@@ -63,9 +69,8 @@ public class PayloadBuilder {
         Object value = payload.get(attrName);
         if (value != null) {
             if (value instanceof DataValueList) {
-                valueList = (DataValueList)value;
-            }
-            else {
+                valueList = (DataValueList) value;
+            } else {
                 valueList = new DataValueList();
                 valueList.add(value);
                 payload.put(attrName, valueList);
@@ -77,62 +82,78 @@ public class PayloadBuilder {
                 valueList = new DataValueList();
                 payload.put(attrName, valueList);
             }
-            valueList.addAll((List)value);
-        }
-        else if (valueList != null) {
+            valueList.addAll((List) value);
+        } else if (valueList != null) {
             valueList.add(value);
-        }
-        else {
+        } else {
             payload.put(attrName, value);
         }
     }
 
     /**
-     * Adds data to the payload data map based on the {@link Param}s of this {@link ParamsContainer}
+     * Adds data to the payload data map based on the {@link Param}s of this
+     * {@link ParamsContainer}
+     *
+     * @param stateMachine
      * @param ctx The Context to look up the data
      * @param evaluator the evaluator to evaluate/lookup the data
      * @param paramsList the list of params
      * @param payload the payload data map to be updated
-     * @throws SCXMLExpressionException if a malformed or invalid expression is evaluated
+     * @throws SCXMLExpressionException if a malformed or invalid expression is
+     * evaluated
      * @see PayloadBuilder#addToPayload(String, Object, java.util.Map)
      */
-    public static void addParamsToPayload(final Context ctx, final Evaluator evaluator, final List<Param> paramsList,
-                                          Map<String, Object> payload)
+    public static void addParamsToPayload(final SCXML stateMachine, final Context ctx, final Evaluator evaluator, final List<Param> paramsList,
+            Map<String, Object> payload)
             throws SCXMLExpressionException {
         if (!paramsList.isEmpty()) {
             Object paramValue;
             for (Param p : paramsList) {
                 if (p.getExpr() != null) {
                     paramValue = evaluator.eval(ctx, p.getExpr());
-                }
-                else if (p.getLocation() != null) {
+                    if (p.getLocation() != null) {
+                        if (p.getLocation().equalsIgnoreCase("@path")) {
+                            String src = (String) paramValue;
+                            if (src != null) {
+                                PathResolver pr = stateMachine.getPathResolver();
+                                if (pr != null) {
+                                    src = pr.resolvePath(src);
+                                }
+                                paramValue = src;
+                            }
+                        }
+                    }
+                } else if (p.getLocation() != null) {
                     paramValue = evaluator.eval(ctx, p.getLocation());
-                }
-                else {
+                } else {
                     // ignore invalid param definition
                     continue;
                 }
-                addToPayload((String)evaluator.eval(ctx, p.getName()), evaluator.cloneData(paramValue), payload);
+                addToPayload((String) evaluator.eval(ctx, p.getName()), evaluator.cloneData(paramValue), payload);
             }
         }
     }
 
     /**
-     * Adds data to the payload data map based on the namelist which names are location expressions
-     * (typically data ids or for example XPath variables). The names and the values they 'point' at
-     * are added to the payload data map.
-     * @param parentState the enterable state in which the namelist holder is defined
+     * Adds data to the payload data map based on the namelist which names are
+     * location expressions (typically data ids or for example XPath variables).
+     * The names and the values they 'point' at are added to the payload data
+     * map.
+     *
+     * @param parentState the enterable state in which the namelist holder is
+     * defined
      * @param ctx the Context to look up the data
      * @param evaluator the evaluator to evaluate/lookup the data
      * @param errorReporter to report errors
      * @param namelist the namelist
      * @param payload the payload data map to be updated
-     * @throws SCXMLExpressionException if a malformed or invalid expression is evaluated
+     * @throws SCXMLExpressionException if a malformed or invalid expression is
+     * evaluated
      * @see PayloadBuilder#addToPayload(String, Object, java.util.Map)
      */
     public static void addNamelistDataToPayload(final EnterableState parentState, final Context ctx,
-                                                final Evaluator evaluator, final ErrorReporter errorReporter,
-                                                final String namelist, Map<String, Object> payload)
+            final Evaluator evaluator, final ErrorReporter errorReporter,
+            final String namelist, Map<String, Object> payload)
             throws SCXMLExpressionException {
         if (namelist != null) {
             StringTokenizer tkn = new StringTokenizer(namelist);

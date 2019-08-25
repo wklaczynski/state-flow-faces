@@ -38,11 +38,13 @@ import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.scxml.EventDispatcher;
 import javax.faces.state.scxml.ParentSCXMLIOProcessor;
 import javax.faces.state.scxml.SCXMLIOProcessor;
+import static javax.faces.state.scxml.SCXMLIOProcessor.EVENT_PROCESSOR_ALIAS_PREFIX;
 import javax.faces.state.scxml.SCXMLSystemContext;
 import javax.faces.state.scxml.SendContext;
 import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.io.StateHolder;
 import javax.faces.state.scxml.model.ActionExecutionError;
+import javax.faces.state.scxml.model.Invoke;
 
 /**
  * <p>
@@ -138,12 +140,20 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
     }
 
     /**
-     * @see EventDispatcher#send(java.util.Map, String, String, String, String,
-     * Object, Object, long)
+     * @see EventDispatcher#send(javax.faces.state.scxml.SendContext)
      */
     @Override
-    public void send(final Map<String, SCXMLIOProcessor> ioProcessors, final String id, final String target,
-            final String type, final String event, final Object data, final Object hints, final long delay) {
+    public void send(final SendContext sctx) {
+
+        Context ctx = sctx.getCurrentContext();
+        final String id = sctx.getId();
+        final String target = sctx.getTarget();
+        final String type = sctx.getType();
+        final String event = sctx.getEvent();
+        final Object data = sctx.getData();
+        final Object hints = sctx.getHints();
+        final long delay = sctx.getDelay();
+
         if (log.isLoggable(Level.INFO)) {
             final String buf
                          = "send ( id: " + id
@@ -161,9 +171,12 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
         if (type == null || type.equalsIgnoreCase(SCXMLIOProcessor.SCXML_EVENT_PROCESSOR)
                 || type.equals(SCXMLIOProcessor.DEFAULT_EVENT_PROCESSOR)) {
             String originType = SCXMLIOProcessor.DEFAULT_EVENT_PROCESSOR;
-            SCXMLIOProcessor ioProcessor;
+            SCXMLIOProcessor ioProcessor = null;
+            String invokeId = null;
 
             boolean internal = false;
+
+            final Map<String, SCXMLIOProcessor> ioProcessors = (Map<String, SCXMLIOProcessor>) ctx.get(SCXMLSystemContext.IOPROCESSORS_KEY);
 
             String origin = target;
             if (target == null) {
@@ -172,9 +185,22 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
             } else if (ioProcessors.containsKey(target)) {
                 ioProcessor = ioProcessors.get(target);
                 internal = SCXMLIOProcessor.INTERNAL_EVENT_PROCESSOR.equals(target);
+                if (ioProcessor == null
+                        && target.startsWith(SCXMLIOProcessor.EVENT_PROCESSOR_ALIAS_PREFIX)
+                        && !target.startsWith(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX)) {
+                    
+                    invokeId = target.substring(SCXMLIOProcessor.EVENT_PROCESSOR_ALIAS_PREFIX.length());
+                    ioProcessor = ioProcessors.get(SCXMLIOProcessor.SCXML_EVENT_PROCESSOR);
+                    origin = SCXMLIOProcessor.INVOKE_EVENT_PROCESSOR;
+                }
             } else if (SCXMLIOProcessor.INTERNAL_EVENT_PROCESSOR.equals(target)) {
                 ioProcessor = ioProcessors.get(SCXMLIOProcessor.INTERNAL_EVENT_PROCESSOR);
                 internal = true;
+            } else if (target.startsWith(SCXMLIOProcessor.EVENT_PROCESSOR_ALIAS_PREFIX)
+                    && !target.startsWith(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX)) {
+                invokeId = target.substring(SCXMLIOProcessor.EVENT_PROCESSOR_ALIAS_PREFIX.length());
+                ioProcessor = ioProcessors.get(SCXMLIOProcessor.SCXML_EVENT_PROCESSOR);
+                origin = SCXMLIOProcessor.INVOKE_EVENT_PROCESSOR;
             } else {
                 if (target.startsWith(SCXMLIOProcessor.EVENT_PROCESSOR_ALIAS_PREFIX)) {
                     ioProcessors.get(SCXMLIOProcessor.INTERNAL_EVENT_PROCESSOR).addEvent(
@@ -196,7 +222,8 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
             } else {
                 EventBuilder eventBuilder = new EventBuilder(event, TriggerEvent.SIGNAL_EVENT)
                         .sendId(id)
-                        .data(data);
+                        .data(data)
+                        .invokeId(invokeId);
                 if (!internal) {
                     eventBuilder.origin(origin).originType(originType);
                     if (SCXMLIOProcessor.PARENT_EVENT_PROCESSOR.equals(target)) {
@@ -224,8 +251,7 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
         } else {
             try {
                 FacesContext fc = FacesContext.getCurrentInstance();
-                SendContext sc = new SendContext(id, type, target, event, data, hints, delay, ioProcessors);
-                fc.getApplication().publishEvent(fc, SendSystemEvent.class, SendContext.class, sc);
+                fc.getApplication().publishEvent(fc, SendSystemEvent.class, SendContext.class, sctx);
             } catch (AbortProcessingException ape) {
                 throw new ActionExecutionError(true, ape.getMessage());
             }

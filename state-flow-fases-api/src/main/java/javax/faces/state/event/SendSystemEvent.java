@@ -18,7 +18,7 @@ import javax.faces.state.scxml.model.Invoke;
  *
  * @since 1.2
  */
-public abstract class SendSystemEvent extends SystemEvent {
+public final class SendSystemEvent extends SystemEvent {
 
 
     /**

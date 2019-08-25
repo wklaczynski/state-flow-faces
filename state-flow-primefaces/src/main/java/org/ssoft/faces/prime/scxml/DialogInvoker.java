@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
+import javax.faces.FacesException;
 import javax.faces.application.ResourceDependencies;
 import javax.faces.application.ResourceDependency;
 import javax.faces.application.StateManager;
@@ -289,18 +290,16 @@ public class DialogInvoker implements Invoker, Serializable {
 //            sb.append("PrimeFaces.cw(\"ScxmlDialogInvoker\",\"")
 //                    .append(widgetVar)
 //                    .append("\",{id:\"").append(invokeId).append("\"");
-
 //            sb.append(",behaviors:{");
 //            sb.append("dialogReturn:").append("function(ext) {")
 //                    .append(ajaxscript)
 //                    .append("}");
 //            sb.append("});");
-
             sb.append("PrimeFaces.scxml.openScxmlDialog({")
                     .append("url:'").append(url).append("'")
                     .append(",pfdlgcid:'").append(pfdlgcid).append("'")
                     .append(",sourceComponentId:'").append(sourceId).append("'")
-//                    .append(",sourceWidgetVar:'").append(widgetVar).append("'")
+                    //                    .append(",sourceWidgetVar:'").append(widgetVar).append("'")
                     .append(",invokeId:'").append(invokeId).append("'")
                     .append(",executorId:'").append(executor.getRootId()).append("'");
 
@@ -342,7 +341,7 @@ public class DialogInvoker implements Invoker, Serializable {
                         .onsuccess(null)
                         .oncomplete(null)
                         .buildBehavior(renderingMode);
-                
+
                 sb.append(",behaviors:{");
                 sb.append("parentRefresh:").append("function(ext) {")
                         .append(reloadroot)
@@ -436,8 +435,158 @@ public class DialogInvoker implements Invoker, Serializable {
             }
         }
 
+        if (event.getType() == TriggerEvent.SIGNAL_EVENT
+                && event.getInvokeId() != null
+                && event.getInvokeId().endsWith(invokeId)) {
+           
+            if (event.getName().startsWith("view.change.url")) {
+                Map<String, Object> params = new HashMap<>();
+                Object data = event.getData();
+                if(data instanceof Map) {
+                    params.putAll((Map) data);
+                }
+                
+                String src = (String) params.get("src");
+                changeUrl(ictx, src, params);
+            }
+        }
+
     }
 
+    public void changeUrl(final InvokeContext ictx, String source, final Map params) {
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        try {
+            FacesContext fc = FacesContext.getCurrentInstance();
+            Map<String, String> requestParams = fc.getExternalContext().getRequestParameterMap();
+
+            if (source.equals("@this")) {
+                String machineViewId = (String) executor
+                        .getStateMachine().getMetadata().get("faces-viewid");
+
+                source = machineViewId;
+            }
+            prevExecutorId = handler.getExecutorViewRootId(fc);
+
+            viewId = source;
+            String oldInvokeViewId = (String) executor.getRootContext().get(EXECUTOR_CONTEXT_VIEW_PATH);
+            if (oldInvokeViewId == null) {
+                throw new InvokerException(String.format(
+                        "Can not change invoke to view: \"%s\", when dialog can not started.",
+                        viewId));
+            }
+
+            Map<String, Object> options = new HashMap<>();
+
+            Map<String, Object> ajax = new HashMap<>();
+            Map<String, List<String>> query = new HashMap<>();
+            query.put("exid", Arrays.asList(executor.getRootId()));
+
+            vieparams = new HashMap();
+            for (Object key : params.keySet()) {
+                String skey = (String) key;
+                Object value = params.get(key);
+                if (value instanceof String) {
+                    if (containsOnlyDigits((String) value)) {
+                        value = NumberFormat.getInstance().parse((String) value);
+                    } else if ("true".equals(value)) {
+                        value = true;
+                    } else if ("false".equals(value)) {
+                        value = false;
+                    }
+                }
+
+                if (skey.startsWith("@query.param.")) {
+                    skey = skey.substring(13);
+                    query.put(skey, Collections.singletonList(value.toString()));
+                } else if (skey.startsWith("@dialog.param.")) {
+                    skey = skey.substring(14);
+                    options.put(skey, value);
+                } else if (skey.startsWith("@ajax.")) {
+                    skey = skey.substring(6);
+                    ajax.put(skey, value.toString());
+                } else {
+                    vieparams.put(skey, value);
+                }
+            }
+
+            Context rctx = executor.getRootContext();
+
+            if (lastStateKey != null) {
+                lastStateKey = "__@@Invoke:last:" + invokeId + ":";
+                if (rctx.hasLocal(lastStateKey + "ViewState")) {
+                    lastViewState = rctx.get(lastStateKey + "ViewState");
+                    lastViewId = (String) rctx.get(lastStateKey + "ViewId");
+                    if (lastViewId != null) {
+                        viewId = lastViewId;
+                    }
+                }
+            } else {
+                lastViewId = null;
+                lastViewState = null;
+            }
+
+            String url = fc.getApplication().getViewHandler().getBookmarkableURL(fc, viewId, query, false);
+            url = escapeEcmaScriptText(url);
+
+            if (pfdlgcid == null) {
+                pfdlgcid = requestParams.get(Constants.DIALOG_FRAMEWORK.CONVERSATION_PARAM);
+            }
+            
+            if (pfdlgcid == null) {
+                pfdlgcid = UUID.randomUUID().toString();
+            }
+
+            path = executor.getRootId() + ":" + viewId;
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("{");
+
+            sb.append("PrimeFaces.scxml.changeScxmlDialog({")
+                    .append("url:'").append(url).append("'")
+                    .append(",pfdlgcid:'").append(pfdlgcid).append("'");
+
+            sb.append(",options:{");
+            if (options != null && options.size() > 0) {
+                for (Iterator<String> it = options.keySet().iterator(); it.hasNext();) {
+                    String optionName = it.next();
+                    Object optionValue = options.get(optionName);
+
+                    sb.append(optionName).append(":");
+                    if (optionValue instanceof String) {
+                        sb.append("'").append(escapeEcmaScriptText((String) optionValue)).append("'");
+                    } else {
+                        sb.append(optionValue);
+                    }
+                    if (it.hasNext()) {
+                        sb.append(",");
+                    }
+                }
+            }
+            sb.append("}");
+
+            sb.append("});");
+
+            sb.append("};");
+            PrimeFaces.current().executeScript(sb.toString());
+            sb.setLength(0);
+
+            Context fctx = handler.getFlowContext(fc, executor.getRootId());
+            if (lastViewState != null) {
+                fctx.setLocal(FACES_CHART_VIEW_STATE, lastViewState);
+            }
+
+            resolved = false;
+            executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
+            fc.getAttributes().put(DIALOG_OPEN, true);
+
+        } catch (Throwable ex) {
+            throw new FacesException(ex);
+        }
+    }
+    
+    
+    
     private boolean containsOnlyAlphaNumeric(String s) {
         for (int i = 0, n = s.length(); i < n; i++) {
             if (!Character.isLetterOrDigit(s.codePointAt(i))) {

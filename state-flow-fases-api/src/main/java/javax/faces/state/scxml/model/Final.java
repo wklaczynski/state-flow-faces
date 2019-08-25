@@ -123,7 +123,9 @@ public class Final extends EnterableState {
                     }
                 } else {
                     Map<String, Object> payloadDataMap = new LinkedHashMap<>();
-                    PayloadBuilder.addParamsToPayload(exctx.getScInstance().getGlobalContext(),
+                    PayloadBuilder.addParamsToPayload(
+                            exctx.getStateMachine(),
+                            exctx.getScInstance().getGlobalContext(),
                             exctx.getEvaluator(), doneData.getParams(), payloadDataMap);
                     if (!payloadDataMap.isEmpty()) {
                         result = payloadDataMap;

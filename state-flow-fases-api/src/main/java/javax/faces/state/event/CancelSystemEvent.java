@@ -17,7 +17,7 @@ import javax.faces.state.scxml.model.Invoke;
  *
  * @since 1.2
  */
-public abstract class CancelSystemEvent extends SystemEvent {
+public final class CancelSystemEvent extends SystemEvent {
 
 
     /**

@@ -6,6 +6,9 @@
 package javax.faces.state.scxml;
 
 import java.util.Map;
+import java.util.logging.Logger;
+import javax.faces.state.scxml.model.Invoke;
+import javax.faces.state.scxml.model.SCXML;
 
 /**
  *
@@ -27,9 +30,10 @@ public class SendContext {
     
     private final long delay;
     
-    private final Map<String, SCXMLIOProcessor> ioProcessors;
+    private final ActionExecutionContext exctx;
+    private final Context ctx;
 
-    public SendContext(String id, String type, String target, String event, Object data, Object hints, long delay, Map<String, SCXMLIOProcessor> ioProcessors) {
+    public SendContext(String id, String type, String target, String event, Object data, Object hints, long delay, ActionExecutionContext exctx, Context ctx) {
         this.id = id;
         this.type = type;
         this.target = target;
@@ -37,7 +41,8 @@ public class SendContext {
         this.data = data;
         this.hints = hints;
         this.delay = delay;
-        this.ioProcessors = ioProcessors;
+        this.exctx = exctx;
+        this.ctx = ctx;
     }
 
     public String getId() {
@@ -68,8 +73,67 @@ public class SendContext {
         return delay;
     }
 
-    public Map<String, SCXMLIOProcessor> getIoProcessors() {
-        return ioProcessors;
+    /**
+     * @return Returns the state machine
+     */
+    public SCXML getStateMachine() {
+        return exctx.getStateMachine();
+    }
+
+    /**
+     * @return Returns the global context
+     */
+    public Context getGlobalContext() {
+        return exctx.getGlobalContext();
+    }
+
+    /**
+     * @return Returns the context
+     */
+    public Context getCurrentContext() {
+        return ctx;
+    }
+
+    /**
+     * @return Returns The evaluator.
+     */
+    public Evaluator getEvaluator() {
+        return exctx.getEvaluator();
+    }
+
+    /**
+     * @return Returns the error reporter
+     */
+    public ErrorReporter getErrorReporter() {
+        return exctx.getErrorReporter();
+    }
+
+    /**
+     * @return Returns the event dispatcher
+     */
+    public EventDispatcher getEventDispatcher() {
+        return exctx.getEventDispatcher();
+    }
+
+    /**
+     * @return Returns the I/O Processor for the internal event queue
+     */
+    public SCXMLIOProcessor getInternalIOProcessor() {
+        return exctx.getInternalIOProcessor();
+    }
+
+    /**
+     * @return Returns the map of current active Invokes and their invokeId
+     */
+    public Map<Invoke, String> getInvokeIds() {
+        return exctx.getInvokeIds();
+    }
+    
+    /**
+     * @return Returns the SCXML Execution Logger for the application
+     */
+    public Logger getAppLog() {
+        return exctx.getAppLog();
     }
     
 }
