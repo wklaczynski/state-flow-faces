@@ -136,7 +136,6 @@ public class SubInvoker implements Invoker, StateHolder {
      */
     @Override
     public SCXMLIOProcessor getChildIOProcessor() {
-        // not used
         return executor;
     }
 
@@ -243,7 +242,7 @@ public class SubInvoker implements Invoker, StateHolder {
                 @Override
                 public void onExit(EnterableState state) {
                     if (state instanceof Final) {
-                        restorPrevView();
+                        exitExecutor();
                     }
                 }
 
@@ -422,6 +421,10 @@ public class SubInvoker implements Invoker, StateHolder {
         StateFlowHandler.getInstance().close(context, executor);
     }
 
+    private void exitExecutor() {
+        restorPrevView();
+    }
+
     private void restorPrevView() {
         FacesContext fc = FacesContext.getCurrentInstance();
 
@@ -440,7 +443,10 @@ public class SubInvoker implements Invoker, StateHolder {
                 vh.initView(fc);
                 fc.setViewRoot(viewRoot);
                 fc.renderResponse();
-                fc.getAttributes().put(VIEW_RESTORED_HINT, true);
+                
+                if (!fc.getAttributes().containsKey(VIEW_RESTORED_HINT)) {
+                    fc.getAttributes().put(VIEW_RESTORED_HINT, true);
+                }
 
                 if (prevViewExecutorId != null) {
                     ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
@@ -453,8 +459,7 @@ public class SubInvoker implements Invoker, StateHolder {
                         manager.initExecuteContext(fc, executePath, viewContext);
                     }
                 }
-                
-                
+
                 if (prevcId != null) {
                     UIComponent cc = viewRoot.findComponent(prevcId);
                     if (cc != null) {
@@ -541,7 +546,7 @@ public class SubInvoker implements Invoker, StateHolder {
             @Override
             public void onExit(EnterableState state) {
                 if (state instanceof Final) {
-                    restorPrevView();
+                    exitExecutor();
                 }
             }
 

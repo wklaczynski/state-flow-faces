@@ -27,6 +27,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
+import javax.faces.event.AbortProcessingException;
+import javax.faces.state.event.CancelSystemEvent;
+import javax.faces.state.event.SendSystemEvent;
 import javax.faces.state.task.DelayedEventTask;
 import javax.faces.state.task.FacesProcessHolder;
 import javax.faces.state.task.TimerEventProducer;
@@ -36,13 +39,14 @@ import javax.faces.state.scxml.EventDispatcher;
 import javax.faces.state.scxml.ParentSCXMLIOProcessor;
 import javax.faces.state.scxml.SCXMLIOProcessor;
 import javax.faces.state.scxml.SCXMLSystemContext;
+import javax.faces.state.scxml.SendContext;
 import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.io.StateHolder;
 import javax.faces.state.scxml.model.ActionExecutionError;
 
 /**
  * <p>
- EventDispatcher implementation that can execute <code>delay</code>ed
+ * EventDispatcher implementation that can execute <code>delay</code>ed
  * &lt;send&gt; events for the &quot;scxml&quot; <code>type</code> attribute
  * value (which is also the default). This implementation uses J2SE
  * <code>Timer</code>s.</p>
@@ -114,6 +118,12 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
     @Override
     public void cancel(final String sendId) {
         if (!tasks.containsKey(sendId)) {
+            try {
+                FacesContext fc = FacesContext.getCurrentInstance();
+                fc.getApplication().publishEvent(fc, CancelSystemEvent.class, String.class, sendId);
+            } catch (AbortProcessingException ape) {
+                throw new ActionExecutionError(true, ape.getMessage());
+            }
             return; // done, we don't track this one or its already expired
         }
         DelayedEventTask task = tasks.get(sendId);
@@ -136,7 +146,7 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
             final String type, final String event, final Object data, final Object hints, final long delay) {
         if (log.isLoggable(Level.INFO)) {
             final String buf
-                    = "send ( id: " + id
+                         = "send ( id: " + id
                     + ", target: " + target
                     + ", type: " + type
                     + ", event: " + event
@@ -212,9 +222,13 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
                 ioProcessor.addEvent(eventBuilder.build());
             }
         } else {
-            ioProcessors.get(SCXMLIOProcessor.INTERNAL_EVENT_PROCESSOR)
-                    .addEvent(new EventBuilder(TriggerEvent.ERROR_EXECUTION, TriggerEvent.ERROR_EVENT).sendId(id).build());
-            throw new ActionExecutionError(true, "<send>: Unsupported type - " + type);
+            try {
+                FacesContext fc = FacesContext.getCurrentInstance();
+                SendContext sc = new SendContext(id, type, target, event, data, hints, delay, ioProcessors);
+                fc.getApplication().publishEvent(fc, SendSystemEvent.class, SendContext.class, sc);
+            } catch (AbortProcessingException ape) {
+                throw new ActionExecutionError(true, ape.getMessage());
+            }
         }
     }
 
@@ -262,7 +276,7 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
         tasks.clear();
 
         Map<String, SCXMLIOProcessor> ioProcessors
-                = (Map<String, SCXMLIOProcessor>) context.get(SCXMLSystemContext.IOPROCESSORS_KEY);
+                                      = (Map<String, SCXMLIOProcessor>) context.get(SCXMLSystemContext.IOPROCESSORS_KEY);
 
         if (null != state) {
             Object[] values = (Object[]) state;
@@ -291,7 +305,7 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
         Set<String> keys = new LinkedHashSet<>(tasks.keySet());
         for (String key : keys) {
             DelayedEventTask task = tasks.get(key);
-            if(timerEventProducer.execute(task)) {
+            if (timerEventProducer.execute(task)) {
                 tasks.remove(key);
             }
         }

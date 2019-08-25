@@ -136,13 +136,13 @@ public class FacetInvoker implements Invoker, Serializable {
      */
     @Override
     public void invoke(final InvokeContext ictx, String source, final Map<String, Object> params) throws InvokerException {
-        FacesContext context = FacesContext.getCurrentInstance();
+        FacesContext fc = FacesContext.getCurrentInstance();
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        ExternalContext ec = context.getExternalContext();
+        ExternalContext ec = fc.getExternalContext();
         try {
             Context sctx = executor.getRootContext();
             if (viewId == null) {
-                viewId = context.getViewRoot().getViewId();
+                viewId = fc.getViewRoot().getViewId();
             }
 
             reqparams = new HashMap<>();
@@ -242,14 +242,14 @@ public class FacetInvoker implements Invoker, Serializable {
             ExecuteContext viewContext = new ExecuteContext(
                     path, invokeId, executor, ictx.getContext());
 
-            ExecuteContextManager manager = ExecuteContextManager.getManager(context);
-            manager.initExecuteContext(context, path, viewContext);
+            ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
+            manager.initExecuteContext(fc, path, viewContext);
 
-            setRenderFacet(context, source);
+            setRenderFacet(fc, source);
 
-            UIViewRoot currentViewRoot = context.getViewRoot();
+            UIViewRoot currentViewRoot = fc.getViewRoot();
 
-            ViewHandler vh = context.getApplication().getViewHandler();
+            ViewHandler vh = fc.getApplication().getViewHandler();
 
             usewindow = false;
             if (StateFlowParams.isUseWindowMode()) {
@@ -259,8 +259,8 @@ public class FacetInvoker implements Invoker, Serializable {
                 }
             }
 
-            if (redirect) {
-                redirect = context.getAttributes().containsKey(VIEW_RESTORED_HINT);
+            if (redirect && fc.getAttributes().containsKey(VIEW_RESTORED_HINT)) {
+                redirect = (boolean) fc.getAttributes().get(VIEW_RESTORED_HINT);
                 if (!redirect) {
                     if (currentViewRoot != null) {
                         String currentViewId = currentViewRoot.getViewId();
@@ -269,16 +269,22 @@ public class FacetInvoker implements Invoker, Serializable {
                         }
                     }
                 }
+            } else {
+                redirect = false;
             }
 
-            if (context.getResponseComplete()) {
+            if (ajaxredirect && fc.getAttributes().containsKey(VIEW_RESTORED_HINT)) {
+                ajaxredirect = (boolean) fc.getAttributes().get(VIEW_RESTORED_HINT);
+            }
+            
+            if (fc.getResponseComplete()) {
                 return;
             }
 
-            PartialViewContext pvc = context.getPartialViewContext();
+            PartialViewContext pvc = fc.getPartialViewContext();
             if ((redirect || (pvc != null && ajaxredirect && pvc.isAjaxRequest()))) {
 
-                Context fctx = handler.getFlowContext(context, executor.getRootId());
+                Context fctx = handler.getFlowContext(fc, executor.getRootId());
                 fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, executor.getRootId());
                 if (lastViewState != null) {
                     fctx.setLocal(FACES_VIEW_STATE, lastViewState);
@@ -295,15 +301,15 @@ public class FacetInvoker implements Invoker, Serializable {
                     }
                 }
 
-                Application application = context.getApplication();
+                Application application = fc.getApplication();
                 ViewHandler viewHandler = application.getViewHandler();
-                String url = viewHandler.getRedirectURL(context, viewId, reqparams, false);
-                clearViewMapIfNecessary(context.getViewRoot(), viewId);
+                String url = viewHandler.getRedirectURL(fc, viewId, reqparams, false);
+                clearViewMapIfNecessary(fc.getViewRoot(), viewId);
 
-                updateRenderTargets(context, viewId);
+                updateRenderTargets(fc, viewId);
                 ec.redirect(url);
 
-                context.responseComplete();
+                fc.responseComplete();
             } else {
                 if (currentViewRoot != null) {
                     String currentViewId = currentViewRoot.getViewId();
@@ -314,20 +320,20 @@ public class FacetInvoker implements Invoker, Serializable {
 
                 UIViewRoot viewRoot;
                 if (lastViewState != null) {
-                    context.getAttributes().put(FACES_VIEW_STATE, lastViewState);
-                    viewRoot = vh.restoreView(context, viewId);
-                    context.setViewRoot(viewRoot);
-                    context.setProcessingEvents(true);
-                    vh.initView(context);
+                    fc.getAttributes().put(FACES_VIEW_STATE, lastViewState);
+                    viewRoot = vh.restoreView(fc, viewId);
+                    fc.setViewRoot(viewRoot);
+                    fc.setProcessingEvents(true);
+                    vh.initView(fc);
                 } else {
                     viewRoot = null;
                     if (viewRoot == null) {
-                        viewRoot = vh.createView(context, viewId);
+                        viewRoot = vh.createView(fc, viewId);
                     }
                     viewRoot.setViewId(viewId);
                 }
-                context.setViewRoot(viewRoot);
-                context.renderResponse();
+                fc.setViewRoot(viewRoot);
+                fc.renderResponse();
             }
 
             if ((pvc != null && pvc.isAjaxRequest())) {

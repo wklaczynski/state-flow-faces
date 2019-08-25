@@ -28,6 +28,7 @@ import javax.faces.state.scxml.model.ModelException;
 import javax.faces.state.scxml.model.SCXML;
 import static javax.faces.state.StateFlow.DEFAULT_STATE_MACHINE_NAME;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
+import javax.faces.state.task.TimerEventProducer;
 
 /**
  *
@@ -56,6 +57,12 @@ public abstract class StateFlowHandler {
      */
     public abstract List<CustomAction> getCustomActions();
 
+    /**
+     *
+     * @return
+     */
+    public abstract TimerEventProducer getTimerEventProducer();
+    
     /**
      *
      * @return

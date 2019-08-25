@@ -49,6 +49,7 @@ import org.primefaces.util.ComponentUtils;
 import org.primefaces.util.Constants;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
 import static javax.faces.state.StateFlow.FACES_CHART_VIEW_STATE;
+import static javax.faces.state.StateFlow.VIEW_RESTORED_HINT;
 import javax.faces.state.execute.ExecuteContextManager;
 import org.primefaces.context.PrimeRequestContext;
 import org.primefaces.util.SharedStringBuilder;
@@ -64,7 +65,7 @@ import org.primefaces.util.SharedStringBuilder;
     ,@ResourceDependency(library = "primefaces", name = "jquery/jquery-plugins.js")
     ,@ResourceDependency(library = "primefaces", name = "core.js")
     ,@ResourceDependency(library = "primefaces", name = "components.js")
-    ,@ResourceDependency(library = "primeflow", name = "primescxml.js")
+//    ,@ResourceDependency(library = "primeflow", name = "primescxml.js")
 })
 public class DialogInvoker implements Invoker, Serializable {
 
@@ -100,6 +101,7 @@ public class DialogInvoker implements Invoker, Serializable {
     private String prevcId;
     private Object prevViewState;
     private String path;
+    private String sourceId;
 
     @Override
     public String getInvokeId() {
@@ -257,7 +259,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
             String formId = null;
             UIComponent form;
-            String sourceId = currentViewRoot.getId();
+            sourceId = currentViewRoot.getId();
             UIComponent component;
 
             if (sourceComponentId != null) {
@@ -275,48 +277,32 @@ public class DialogInvoker implements Invoker, Serializable {
                 update = "@all";
             }
 
-            String ajaxscript = builder.init()
-                    .source(sourceId)
-                    .form(formId)
-                    .event("scxmlhide")
-                    .update(component, update != null ? update : "@all")
-                    .process(component, process != null ? process : "@none")
-                    .async(false)
-                    .global(global != null ? Boolean.parseBoolean(global) : true)
-                    .delay(null)
-                    .timeout(0)
-                    .partialSubmit(false, false, null)
-                    .resetValues(false, false)
-                    .ignoreAutoUpdate(true)
-                    .onstart(null)
-                    .onerror(null)
-                    .onsuccess(null)
-                    .oncomplete(null)
-                    .buildBehavior(renderingMode);
+            boolean firstDialog = true;
+            if (fc.getAttributes().containsKey(DIALOG_CLOSE)) {
+                firstDialog = !(boolean) fc.getAttributes().get(DIALOG_CLOSE);
+            }
 
             StringBuilder sb = new StringBuilder();
 
             sb.append("{");
 
-            sb.append("PrimeFaces.cw(\"ScxmlDialogInvoker\",\"")
-                    .append(widgetVar)
-                    .append("\",{id:\"").append(invokeId).append("\"");
+//            sb.append("PrimeFaces.cw(\"ScxmlDialogInvoker\",\"")
+//                    .append(widgetVar)
+//                    .append("\",{id:\"").append(invokeId).append("\"");
 
-            sb.append(",behaviors:{");
-            sb.append("dialogReturn:")
-                    .append("function(ext) {")
-                    .append(ajaxscript)
-                    .append("}");
-            sb.append("}});");
+//            sb.append(",behaviors:{");
+//            sb.append("dialogReturn:").append("function(ext) {")
+//                    .append(ajaxscript)
+//                    .append("}");
+//            sb.append("});");
 
-            sb.append("PrimeFaces.scxml.openScxmlDialog({url:'").append(url)
-                    .append("',pfdlgcid:'").append(pfdlgcid)
-                    .append("',sourceComponentId:'")
-                    .append(sourceId).append("'");
-
-            if (widgetVar != null) {
-                sb.append(",sourceWidgetVar:'").append(widgetVar).append("'");
-            }
+            sb.append("PrimeFaces.scxml.openScxmlDialog({")
+                    .append("url:'").append(url).append("'")
+                    .append(",pfdlgcid:'").append(pfdlgcid).append("'")
+                    .append(",sourceComponentId:'").append(sourceId).append("'")
+//                    .append(",sourceWidgetVar:'").append(widgetVar).append("'")
+                    .append(",invokeId:'").append(invokeId).append("'")
+                    .append(",executorId:'").append(executor.getRootId()).append("'");
 
             sb.append(",options:{");
             if (options != null && options.size() > 0) {
@@ -335,7 +321,36 @@ public class DialogInvoker implements Invoker, Serializable {
                     }
                 }
             }
-            sb.append("}});");
+            sb.append("}");
+
+            if (firstDialog) {
+                String reloadroot = builder.init()
+                        .source(sourceId)
+                        .form(formId)
+                        .event("scxmlhide")
+                        .update(component, update != null ? update : "@all")
+                        .process(component, process != null ? process : "@none")
+                        .async(false)
+                        .global(global != null ? Boolean.parseBoolean(global) : true)
+                        .delay(null)
+                        .timeout(0)
+                        .partialSubmit(false, false, null)
+                        .resetValues(false, false)
+                        .ignoreAutoUpdate(true)
+                        .onstart(null)
+                        .onerror(null)
+                        .onsuccess(null)
+                        .oncomplete(null)
+                        .buildBehavior(renderingMode);
+                
+                sb.append(",behaviors:{");
+                sb.append("parentRefresh:").append("function(ext) {")
+                        .append(reloadroot)
+                        .append("}");
+                sb.append("}");
+            }
+
+            sb.append("});");
 
             sb.append("};");
             PrimeFaces.current().executeScript(sb.toString());
@@ -346,7 +361,6 @@ public class DialogInvoker implements Invoker, Serializable {
                 fctx.setLocal(FACES_CHART_VIEW_STATE, lastViewState);
             }
 
-            //handler.setExecutorViewRootId(context, executor.getRootId());
             resolved = false;
             executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
             fc.getAttributes().put(DIALOG_OPEN, true);
@@ -463,44 +477,21 @@ public class DialogInvoker implements Invoker, Serializable {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("parent.PrimeFaces.scxml.closeScxmlDialog({pfdlgcid:'")
-                .append(pfdlgcid).append("'});");
+        sb.append("parent.PrimeFaces.scxml.closeScxmlDialog({")
+                .append("pfdlgcid:'").append(pfdlgcid).append("'")
+                .append(",invokeId:'").append(invokeId).append("'")
+                .append("});");
 
         PrimeFaces.current().executeScript(sb.toString());
         sb.setLength(0);
 
-        StateFlowHandler handler = StateFlowHandler.getInstance();
-        //handler.setExecutorViewRootId(context, prevExecutorId);
-
-//        if (prevViewState != null) {
-//            ViewHandler vh = context.getApplication().getViewHandler();
-//
-//            context.getAttributes().put(FACES_VIEW_STATE, prevViewState);
-//            viewRoot = vh.restoreView(context, prevViewId);
-//            context.setViewRoot(viewRoot);
-//            context.setProcessingEvents(true);
-//            vh.initView(context);
-//            context.setViewRoot(viewRoot);
-//
-//            if (prevcId != null) {
-//                UIComponent cc = viewRoot.findComponent(prevcId);
-//                if (cc != null) {
-//                    cc.pushComponentToEL(context, cc);
-//                    cc = UIComponent.getCompositeComponentParent(cc);
-//                    if (cc != null) {
-//                        cc.pushComponentToEL(context, cc);
-//                    }
-//
-//                }
-//            }
-//
-//        }
         PartialViewContext pvc = fc.getPartialViewContext();
         if ((pvc != null && (pvc.isAjaxRequest() || pvc.isPartialRequest()))) {
             pvc.setRenderAll(false);
         }
         fc.getAttributes().put(DIALOG_CLOSE, true);
         rctx.removeLocal(EXECUTOR_CONTEXT_VIEW_PATH);
+        fc.getAttributes().put(VIEW_RESTORED_HINT, false);
 
         fc.renderResponse();
     }

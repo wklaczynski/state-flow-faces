@@ -64,6 +64,7 @@ import javax.faces.state.scxml.InvokeContext;
 import javax.faces.state.scxml.model.ModelException;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
 import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
+import static javax.faces.state.StateFlow.VIEW_RESTORED_HINT;
 import javax.faces.state.execute.ExecuteContextManager;
 
 /**
@@ -268,6 +269,10 @@ public class ViewInvoker implements Invoker, Serializable {
                 lastViewState = null;
             }
 
+            if (ajaxredirect && fc.getAttributes().containsKey(VIEW_RESTORED_HINT)) {
+                ajaxredirect = (boolean) fc.getAttributes().get(VIEW_RESTORED_HINT);
+            }
+            
             path = executor.getRootId() + ":" + viewId;
             executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
 
@@ -277,28 +282,30 @@ public class ViewInvoker implements Invoker, Serializable {
             ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
             manager.initExecuteContext(fc, path, viewContext);
 
-            UIViewRoot currentViewRoot = fc.getViewRoot();
-
             prevStateKey = "__@@Invoke:prev:" + invokeId + ":";
-            prevViewId = currentViewRoot.getViewId();
+            
+            UIViewRoot currentViewRoot = fc.getViewRoot();
+            if (currentViewRoot != null) {
+                prevViewId = currentViewRoot.getViewId();
 
-            String executePath = prevRootExecutorId + ":" + prevViewId;
-            ExecuteContext prevExecuteContext = manager.findExecuteContextByPath(fc, executePath);
+                String executePath = prevRootExecutorId + ":" + prevViewId;
+                ExecuteContext prevExecuteContext = manager.findExecuteContextByPath(fc, executePath);
 
-            if (prevExecuteContext != null) {
-                prevViewExecutorId = prevExecuteContext.getExecutor().getId();
+                if (prevExecuteContext != null) {
+                    prevViewExecutorId = prevExecuteContext.getExecutor().getClientId();
+                }
+
+                UIComponent cc = UIComponent.getCurrentComponent(fc);
+                if (cc != null) {
+                    prevcId = cc.getClientId();
+                }
+
+                StateManager sm = fc.getApplication().getStateManager();
+                prevViewState = sm.saveView(fc);
+
+                rctx.setLocal(prevStateKey + "ViewState", prevViewState);
+                rctx.setLocal(prevStateKey + "ViewId", prevViewId);
             }
-
-            UIComponent cc = UIComponent.getCurrentComponent(fc);
-            if (cc != null) {
-                prevcId = cc.getClientId();
-            }
-
-            StateManager sm = fc.getApplication().getStateManager();
-            prevViewState = sm.saveView(fc);
-
-            rctx.setLocal(prevStateKey + "ViewState", prevViewState);
-            rctx.setLocal(prevStateKey + "ViewId", prevViewId);
 
             usewindow = false;
             if (StateFlowParams.isUseWindowMode()) {
@@ -312,6 +319,19 @@ public class ViewInvoker implements Invoker, Serializable {
                 return;
             }
 
+            if (redirect && fc.getAttributes().containsKey(VIEW_RESTORED_HINT)) {
+                redirect = (boolean) fc.getAttributes().get(VIEW_RESTORED_HINT);
+                if (!redirect) {
+                    if (currentViewRoot != null) {
+                        String currentViewId = currentViewRoot.getViewId();
+                        if (!currentViewId.equals(viewId)) {
+                            redirect = true;
+                        }
+                    }
+                }
+            }
+            
+            
             PartialViewContext pvc = fc.getPartialViewContext();
             if ((redirect || (pvc != null && ajaxredirect && pvc.isAjaxRequest()))) {
 
@@ -611,6 +631,8 @@ public class ViewInvoker implements Invoker, Serializable {
             pvc.setRenderAll(true);
         }
 
+        //restorPrevView();
+        
         rctx.removeLocal(EXECUTOR_CONTEXT_VIEW_PATH);
 
         fc.renderResponse();

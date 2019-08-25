@@ -20,7 +20,6 @@ import java.util.concurrent.Callable;
 import javax.el.ExpressionFactory;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
-import javax.el.VariableMapper;
 import javax.faces.context.FacesContext;
 import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static javax.faces.state.StateFlow.DISABLE_EXPRESSION_MAP;

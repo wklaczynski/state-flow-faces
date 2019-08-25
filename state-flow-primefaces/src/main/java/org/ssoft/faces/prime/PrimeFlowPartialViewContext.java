@@ -15,15 +15,11 @@
  */
 package org.ssoft.faces.prime;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
 import static javax.faces.application.ResourceHandler.RESOURCE_IDENTIFIER;
 import javax.faces.context.FacesContext;
 import javax.faces.context.PartialViewContext;
 import javax.faces.context.PartialViewContextWrapper;
 import javax.faces.event.PhaseId;
-import org.ssoft.faces.prime.scxml.DialogInvoker;
 
 /**
  *

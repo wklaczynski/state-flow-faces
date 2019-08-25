@@ -170,7 +170,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
     }
 
-    private TimerEventProducer getEventProducer() {
+    @Override
+    public TimerEventProducer getTimerEventProducer() {
         if (eventProducer == null) {
             eventProducer = new TimerEventProducerImpl();
             ServiceLoader<TimerEventProducer> loader = ServiceLoader.load(TimerEventProducer.class);
@@ -514,7 +515,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         StateFlowEvaluator evaluator = new StateFlowEvaluator();
 
-        TimerEventProducer timerEventProducer = getEventProducer();
+        TimerEventProducer timerEventProducer = getTimerEventProducer();
 
         StateFlowDispatcher dispatcher = new StateFlowDispatcher(timerEventProducer);
         StateFlowErrorReporter errorReporter = new StateFlowErrorReporter();

@@ -7,7 +7,17 @@
     xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd">
     
     <name>state_flow_primefaces</name>
+          
             
+    <application>
+        <system-event-listener>
+            <system-event-listener-class>org.ssoft.faces.prime.PrimeFlowSendEventListener</system-event-listener-class>
+            <system-event-class>javax.faces.state.event.SendSystemEvent</system-event-class>
+            <source-class>javax.faces.state.scxml.SendContext</source-class>
+        </system-event-listener>
+    </application>
+              
+                  
     <factory>
         <partial-view-context-factory>org.ssoft.faces.prime.PrimeFlowPartialViewContextFactory</partial-view-context-factory>
     </factory>
