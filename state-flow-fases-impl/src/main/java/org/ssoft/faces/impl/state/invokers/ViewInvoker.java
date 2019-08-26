@@ -423,6 +423,264 @@ public class ViewInvoker implements Invoker, Serializable {
         }
     }
 
+    public void changeUrl(final InvokeContext ictx, String source, final Map<String, Object> params) {
+        FacesContext fc = FacesContext.getCurrentInstance();
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        boolean oldProcessingEvents = fc.isProcessingEvents();
+        try {
+            fc.setProcessingEvents(false);
+            ExternalContext ec = fc.getExternalContext();
+            ViewHandler vh = fc.getApplication().getViewHandler();
+
+            if (source.equals("@this")) {
+                String machineViewId = (String) executor
+                        .getStateMachine().getMetadata().get("faces-viewid");
+
+                source = machineViewId;
+            }
+
+            NavigationCase navCase = findNavigationCase(fc, source);
+            viewId = source;
+            try {
+                viewId = navCase.getToViewId(fc);
+            } catch (NullPointerException th) {
+                throw new IOException(String.format("invoke source \"%s\" not found", source));
+            } catch (Throwable th) {
+                throw new IOException(String.format("invoke source \"%s\" not found", source), th);
+            }
+            viewId = vh.deriveLogicalViewId(fc, viewId);
+            prevRootExecutorId = handler.getExecutorViewRootId(fc);
+
+            String oldInvokeViewId = (String) executor.getRootContext().get(EXECUTOR_CONTEXT_VIEW_PATH);
+            if (oldInvokeViewId == null) {
+                throw new InvokerException(String.format(
+                        "Can not change invoke to view: \"%s\", when invoke view can not started.",
+                        viewId));
+            }
+
+            Map<String, Object> options = new HashMap();
+
+            reqparams = new HashMap<>();
+            Map<String, List<String>> navparams = navCase.getParameters();
+            if (navparams != null) {
+                reqparams.putAll(navparams);
+            }
+
+            vieparams = new HashMap();
+            for (String key : params.keySet()) {
+                String skey = (String) key;
+                Object value = params.get(key);
+                if (value instanceof String) {
+                    if (containsOnlyDigits((String) value)) {
+                        value = NumberFormat.getInstance().parse((String) value);
+                    } else if ("true".equals(value)) {
+                        value = true;
+                    } else if ("false".equals(value)) {
+                        value = false;
+                    }
+                }
+                if (skey.startsWith("@redirect.param.")) {
+                    skey = skey.substring(16);
+                    reqparams.put(skey, Collections.singletonList(value.toString()));
+                } else if (skey.startsWith("@view.param.")) {
+                    skey = skey.substring(12);
+                    options.put(skey, value.toString());
+                } else if (value != null) {
+                    vieparams.put(skey, value.toString());
+                }
+            }
+
+            boolean redirect = StateFlowParams.isDefaultViewRedirect();
+            boolean ajaxredirect = StateFlowParams.isDefaultAjaxRedirect();
+            useflash = StateFlowParams.isDefaultUseFlashInRedirect();
+
+            if (options.containsKey("redirect")) {
+                Object val = options.get("redirect");
+                if (val instanceof String) {
+                    redirect = Boolean.valueOf((String) val);
+                } else if (val instanceof Boolean) {
+                    redirect = (Boolean) val;
+                }
+            }
+
+            if (options.containsKey("flash")) {
+                Object val = options.get("flash");
+                if (val instanceof String) {
+                    useflash = Boolean.valueOf((String) val);
+                } else if (val instanceof Boolean) {
+                    useflash = (Boolean) val;
+                }
+            }
+
+            Context rctx = executor.getRootContext();
+
+            if (lastStateKey != null) {
+                lastStateKey = "__@@Invoke:last:" + invokeId + ":";
+                if (rctx.hasLocal(lastStateKey + "ViewState")) {
+                    lastViewState = rctx.get(lastStateKey + "ViewState");
+                    lastViewId = (String) rctx.get(lastStateKey + "ViewId");
+                    if (lastViewId != null) {
+                        viewId = lastViewId;
+                    }
+                }
+            } else {
+                lastViewId = null;
+                lastViewState = null;
+            }
+
+            if (ajaxredirect && fc.getAttributes().containsKey(VIEW_RESTORED_HINT)) {
+                ajaxredirect = (boolean) fc.getAttributes().get(VIEW_RESTORED_HINT);
+            }
+            
+            path = executor.getRootId() + ":" + viewId;
+            executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
+
+            ExecuteContext viewContext = new ExecuteContext(
+                    path, invokeId, executor, ictx.getContext());
+
+            ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
+            manager.initExecuteContext(fc, path, viewContext);
+
+            prevStateKey = "__@@Invoke:prev:" + invokeId + ":";
+            
+            UIViewRoot currentViewRoot = fc.getViewRoot();
+            if (currentViewRoot != null) {
+                prevViewId = currentViewRoot.getViewId();
+
+                String executePath = prevRootExecutorId + ":" + prevViewId;
+                ExecuteContext prevExecuteContext = manager.findExecuteContextByPath(fc, executePath);
+
+                if (prevExecuteContext != null) {
+                    prevViewExecutorId = prevExecuteContext.getExecutor().getClientId();
+                }
+
+                UIComponent cc = UIComponent.getCurrentComponent(fc);
+                if (cc != null) {
+                    prevcId = cc.getClientId();
+                }
+
+                StateManager sm = fc.getApplication().getStateManager();
+                prevViewState = sm.saveView(fc);
+
+                rctx.setLocal(prevStateKey + "ViewState", prevViewState);
+                rctx.setLocal(prevStateKey + "ViewId", prevViewId);
+            }
+
+            usewindow = false;
+            if (StateFlowParams.isUseWindowMode()) {
+                ClientWindow cl = ec.getClientWindow();
+                if (cl != null) {
+                    usewindow = true;
+                }
+            }
+
+            if (fc.getResponseComplete()) {
+                return;
+            }
+
+            if (redirect && fc.getAttributes().containsKey(VIEW_RESTORED_HINT)) {
+                redirect = (boolean) fc.getAttributes().get(VIEW_RESTORED_HINT);
+                if (!redirect) {
+                    if (currentViewRoot != null) {
+                        String currentViewId = currentViewRoot.getViewId();
+                        if (!currentViewId.equals(viewId)) {
+                            redirect = true;
+                        }
+                    }
+                }
+            }
+            
+            
+            PartialViewContext pvc = fc.getPartialViewContext();
+            if ((redirect || (pvc != null && ajaxredirect && pvc.isAjaxRequest()))) {
+
+                Context fctx = handler.getFlowContext(fc, executor.getRootId());
+                fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, executor.getRootId());
+                if (lastViewState != null) {
+                    fctx.setLocal(FACES_VIEW_STATE, lastViewState);
+                }
+
+                if (!usewindow) {
+                    if (useflash) {
+                        Flash flash = ec.getFlash();
+                        flash.put("exid", executor.getRootId());
+                        flash.setKeepMessages(true);
+                        flash.setRedirect(true);
+                    } else {
+                        reqparams.put("exid", Arrays.asList(executor.getRootId()));
+                    }
+                }
+
+                Application application = fc.getApplication();
+                ViewHandler viewHandler = application.getViewHandler();
+                String url = viewHandler.getRedirectURL(fc, viewId, reqparams, false);
+                clearViewMapIfNecessary(fc.getViewRoot(), viewId);
+
+                updateRenderTargets(fc, viewId);
+                ec.redirect(url);
+
+                fc.responseComplete();
+            } else {
+                if (currentViewRoot != null) {
+                    String currentViewId = currentViewRoot.getViewId();
+                    if (currentViewId.equals(viewId)) {
+                        if ((pvc != null && (pvc.isAjaxRequest() || pvc.isPartialRequest()))) {
+                            pvc.setRenderAll(true);
+                        }
+                        return;
+                    }
+                }
+
+                UIViewRoot viewRoot;
+                if (lastViewState != null) {
+                    fc.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executor.getRootId());
+                    fc.getAttributes().put(FACES_VIEW_STATE, lastViewState);
+                    viewRoot = vh.restoreView(fc, viewId);
+                    fc.setViewRoot(viewRoot);
+                    fc.setProcessingEvents(true);
+                    vh.initView(fc);
+                } else {
+                    fc.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executor.getRootId());
+                    viewRoot = null;
+                    ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(fc, viewId);
+                    ViewMetadata metadata = null;
+                    if (vdl != null) {
+                        metadata = vdl.getViewMetadata(fc, viewId);
+                    }
+
+                    if (viewRoot != null) {
+                        if (!ViewMetadata.hasMetadata(viewRoot)) {
+                            fc.renderResponse();
+                        }
+                    }
+
+                    if (vdl == null || metadata == null) {
+                        fc.renderResponse();
+                    }
+
+                    if (viewRoot == null) {
+                        viewRoot = vh.createView(fc, viewId);
+                    }
+
+                    viewRoot.setViewId(viewId);
+                }
+                fc.setViewRoot(viewRoot);
+            }
+
+            if ((pvc != null && pvc.isAjaxRequest())) {
+                pvc.setRenderAll(true);
+            }
+            fc.renderResponse();
+
+        } catch (FacesException ex) {
+            throw ex;
+        } catch (Throwable ex) {
+            throw new FacesException(ex);
+        } finally {
+            fc.setProcessingEvents(oldProcessingEvents);
+        }
+    }
+    
     private void updateRenderTargets(FacesContext ctx, String newId) {
         if (ctx.getViewRoot() == null || !ctx.getViewRoot().getViewId().equals(newId)) {
             PartialViewContext pctx = ctx.getPartialViewContext();
@@ -599,6 +857,23 @@ public class ViewInvoker implements Invoker, Serializable {
                 }
             }
         }
+        
+        if (event.getType() == TriggerEvent.SIGNAL_EVENT
+                && event.getInvokeId() != null
+                && event.getInvokeId().endsWith(invokeId)) {
+           
+            if (event.getName().startsWith("view.change.url")) {
+                Map<String, Object> params = new HashMap<>();
+                Object data = event.getData();
+                if(data instanceof Map) {
+                    params.putAll((Map) data);
+                }
+                
+                String src = (String) params.get("src");
+                changeUrl(ictx, src, params);
+            }
+        }
+        
     }
 
     /**

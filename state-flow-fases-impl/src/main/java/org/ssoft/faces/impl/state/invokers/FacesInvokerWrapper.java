@@ -41,11 +41,13 @@ public class FacesInvokerWrapper extends InvokerWrapper {
     @Override
     public void invoke(InvokeContext ictx, String url, Map<String, Object> params) throws InvokerException {
         super.invoke(ictx, url, params);
+        initHead();
     }
 
     @Override
     public void invokeContent(InvokeContext ictx, String content, Map<String, Object> params) throws InvokerException {
         super.invokeContent(ictx, content, params);
+        initHead();
     }
 
     @Override
@@ -57,9 +59,7 @@ public class FacesInvokerWrapper extends InvokerWrapper {
     @Override
     public void parentEvent(InvokeContext ictx, TriggerEvent event) throws InvokerException {
         super.parentEvent(ictx, event);
-        if (event.getName().startsWith(BEFORE_RENDER_VIEW)) {
-            initInvoker();
-        }
+        initHead();
     }
 
     private void initInvoker() {

@@ -185,7 +185,7 @@ public class DialogInvoker implements Invoker, Serializable {
                 }
             }
 
-            boolean transientState = true;
+            boolean transientState = false;
             if (options.containsKey("transient")) {
                 Object val = options.get("transient");
                 if (val instanceof String) {
@@ -198,11 +198,10 @@ public class DialogInvoker implements Invoker, Serializable {
             Context rctx = executor.getRootContext();
 
             if (!transientState) {
-                lastStateKey = "__@@Invoke:last:" + invokeId + ":";
+                lastStateKey = "__@@Invoke:last:" + invokeId + ":" + viewId;
             }
 
             if (lastStateKey != null) {
-                lastStateKey = "__@@Invoke:last:" + invokeId + ":";
                 if (rctx.hasLocal(lastStateKey + "ViewState")) {
                     lastViewState = rctx.get(lastStateKey + "ViewState");
                     lastViewId = (String) rctx.get(lastStateKey + "ViewId");
@@ -411,13 +410,13 @@ public class DialogInvoker implements Invoker, Serializable {
 
             if (event.getName().startsWith(AFTER_RENDER_VIEW)) {
 
-                UIViewRoot viewRoot = context.getViewRoot();
-                if (viewRoot != null) {
-                    lastViewId = viewRoot.getViewId();
-                    RenderKit renderKit = context.getRenderKit();
-                    ResponseStateManager rsm = renderKit.getResponseStateManager();
-                    lastViewState = rsm.getState(context, lastViewId);
-                }
+//                UIViewRoot viewRoot = context.getViewRoot();
+//                if (viewRoot != null) {
+//                    lastViewId = viewRoot.getViewId();
+//                    RenderKit renderKit = context.getRenderKit();
+//                    ResponseStateManager rsm = renderKit.getResponseStateManager();
+//                    lastViewState = rsm.getState(context, lastViewId);
+//                }
             }
 
             if (event.getName().startsWith(VIEW_EVENT_PREFIX)) {
@@ -438,14 +437,14 @@ public class DialogInvoker implements Invoker, Serializable {
         if (event.getType() == TriggerEvent.SIGNAL_EVENT
                 && event.getInvokeId() != null
                 && event.getInvokeId().endsWith(invokeId)) {
-           
+
             if (event.getName().startsWith("view.change.url")) {
                 Map<String, Object> params = new HashMap<>();
                 Object data = event.getData();
-                if(data instanceof Map) {
+                if (data instanceof Map) {
                     params.putAll((Map) data);
                 }
-                
+
                 String src = (String) params.get("src");
                 changeUrl(ictx, src, params);
             }
@@ -509,10 +508,42 @@ public class DialogInvoker implements Invoker, Serializable {
                 }
             }
 
+            boolean transientState = false;
+            if (options.containsKey("transient")) {
+                Object val = options.get("transient");
+                if (val instanceof String) {
+                    transientState = Boolean.valueOf((String) val);
+                } else if (val instanceof Boolean) {
+                    transientState = (Boolean) val;
+                }
+            }
+
             Context rctx = executor.getRootContext();
 
+            UIViewRoot currentViewRoot = fc.getViewRoot();
+            if (currentViewRoot != null) {
+                lastViewId = currentViewRoot.getViewId();
+                if (!transientState) {
+                    lastStateKey = "__@@Invoke:last:" + invokeId + ":" + lastViewId;
+                }
+
+                if (lastStateKey != null) {
+                    StateManager sm = fc.getApplication().getStateManager();
+                    lastViewState = sm.saveView(fc);
+
+                    rctx.setLocal(lastStateKey + "ViewState", lastViewState);
+                    rctx.setLocal(lastStateKey + "ViewId", lastViewId);
+                }
+            }
+
+            if (!transientState) {
+                lastStateKey = "__@@Invoke:last:" + invokeId + ":" + viewId;
+            }
+
+            lastViewId = null;
+            lastViewState = null;
+
             if (lastStateKey != null) {
-                lastStateKey = "__@@Invoke:last:" + invokeId + ":";
                 if (rctx.hasLocal(lastStateKey + "ViewState")) {
                     lastViewState = rctx.get(lastStateKey + "ViewState");
                     lastViewId = (String) rctx.get(lastStateKey + "ViewId");
@@ -520,9 +551,6 @@ public class DialogInvoker implements Invoker, Serializable {
                         viewId = lastViewId;
                     }
                 }
-            } else {
-                lastViewId = null;
-                lastViewState = null;
             }
 
             String url = fc.getApplication().getViewHandler().getBookmarkableURL(fc, viewId, query, false);
@@ -531,7 +559,7 @@ public class DialogInvoker implements Invoker, Serializable {
             if (pfdlgcid == null) {
                 pfdlgcid = requestParams.get(Constants.DIALOG_FRAMEWORK.CONVERSATION_PARAM);
             }
-            
+
             if (pfdlgcid == null) {
                 pfdlgcid = UUID.randomUUID().toString();
             }
@@ -584,9 +612,7 @@ public class DialogInvoker implements Invoker, Serializable {
             throw new FacesException(ex);
         }
     }
-    
-    
-    
+
     private boolean containsOnlyAlphaNumeric(String s) {
         for (int i = 0, n = s.length(); i < n; i++) {
             if (!Character.isLetterOrDigit(s.codePointAt(i))) {

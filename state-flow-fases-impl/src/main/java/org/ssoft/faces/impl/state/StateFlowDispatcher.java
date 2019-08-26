@@ -38,13 +38,11 @@ import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.scxml.EventDispatcher;
 import javax.faces.state.scxml.ParentSCXMLIOProcessor;
 import javax.faces.state.scxml.SCXMLIOProcessor;
-import static javax.faces.state.scxml.SCXMLIOProcessor.EVENT_PROCESSOR_ALIAS_PREFIX;
 import javax.faces.state.scxml.SCXMLSystemContext;
 import javax.faces.state.scxml.SendContext;
 import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.io.StateHolder;
 import javax.faces.state.scxml.model.ActionExecutionError;
-import javax.faces.state.scxml.model.Invoke;
 
 /**
  * <p>
@@ -153,19 +151,6 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
         final Object data = sctx.getData();
         final Object hints = sctx.getHints();
         final long delay = sctx.getDelay();
-
-        if (log.isLoggable(Level.INFO)) {
-            final String buf
-                         = "send ( id: " + id
-                    + ", target: " + target
-                    + ", type: " + type
-                    + ", event: " + event
-                    + ", data: " + String.valueOf(data)
-                    + ", hints: " + String.valueOf(hints)
-                    + ", delay: " + delay
-                    + ')';
-            log.info(buf);
-        }
 
         // We only handle the "scxml" type (which is the default too) and optionally the #_internal target
         if (type == null || type.equalsIgnoreCase(SCXMLIOProcessor.SCXML_EVENT_PROCESSOR)
