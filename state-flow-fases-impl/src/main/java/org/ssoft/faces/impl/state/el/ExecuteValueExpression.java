@@ -16,6 +16,7 @@
 package org.ssoft.faces.impl.state.el;
 
 import java.io.Serializable;
+import java.util.Stack;
 import javax.el.ELContext;
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
@@ -26,8 +27,8 @@ import javax.faces.event.ComponentSystemEventListener;
 import javax.faces.event.PostAddToViewEvent;
 import static javax.faces.state.StateFlow.DISABLE_EXPRESSION_MAP;
 import javax.faces.state.execute.ExecuteContext;
-import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.state.execute.ExecuteContextManager;
+import javax.faces.view.facelets.ComponentHandler;
 
 /**
  *
@@ -41,10 +42,14 @@ public final class ExecuteValueExpression extends ValueExpression {
     public ExecuteValueExpression(ValueExpression originalVE) {
         this.originalVE = originalVE;
         FacesContext ctx = FacesContext.getCurrentInstance();
-        if (!ctx.getAttributes().containsKey(DISABLE_EXPRESSION_MAP))  {
+        if (!ctx.getAttributes().containsKey(DISABLE_EXPRESSION_MAP)) {
             UIComponent component = UIComponent.getCurrentComponent(ctx);
             if (component != null) {
                 if (ComponentHandler.isNew(component)) {
+                    Stack<String> buildPathStack = ExecuteExpressionFactory.getBuildPathStack(ctx);
+                    if (!buildPathStack.isEmpty()) {
+                        executePath = ExecuteExpressionFactory.getBuildPathStack(ctx).peek();
+                    }
                     component.subscribeToEvent(PostAddToViewEvent.class, new SetExecuteIdListener(this));
                 } else {
                     resolveExecutePath(ctx, component);
@@ -54,14 +59,14 @@ public final class ExecuteValueExpression extends ValueExpression {
     }
 
     private void resolveExecutePath(FacesContext ctx, UIComponent component) {
-        if(originalVE.isLiteralText()) {
-            return ;
+        if (originalVE.isLiteralText()) {
+            return;
         }
-        
+
         ExecuteContextManager manager = ExecuteContextManager.getManager(ctx);
         executePath = manager.computeExecutePath(ctx, component.getParent());
     }
-    
+
     @Override
     public Object getValue(ELContext elContext) {
 
@@ -167,7 +172,7 @@ public final class ExecuteValueExpression extends ValueExpression {
         if (executePath == null) {
             return false;
         }
-        
+
         ExecuteContextManager manager = ExecuteContextManager.getManager(ctx);
         ExecuteContext executeContext = manager.findExecuteContextByPath(ctx, executePath);
         if (executeContext != null) {
@@ -198,5 +203,5 @@ public final class ExecuteValueExpression extends ValueExpression {
             resolveExecutePath(ctx, event.getComponent());
         }
     }
-    
+
 }

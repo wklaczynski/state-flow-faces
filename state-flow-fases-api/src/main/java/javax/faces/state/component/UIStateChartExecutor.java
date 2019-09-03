@@ -16,7 +16,6 @@
 package javax.faces.state.component;
 
 import javax.faces.component.UIPanel;
-import javax.faces.context.FacesContext;
 
 /**
  *
@@ -26,6 +25,11 @@ public class UIStateChartExecutor extends UIPanel {
 
     private transient String _executorId;
 
+    public static final String SCXML_URL = "javax.faces.state.component.SCXML_URL";
+
+    public static final String SCXML_NAME = "javax.faces.state.component.SCXML_NAME";
+    
+    
     /**
      *
      */
@@ -82,5 +86,5 @@ public class UIStateChartExecutor extends UIPanel {
     public void setRequired(boolean _required) {
         getStateHelper().put(PropertyKeys.required, _required);
     }
-
+    
 }

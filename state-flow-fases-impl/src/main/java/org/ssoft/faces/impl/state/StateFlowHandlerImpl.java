@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -33,7 +34,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.UUID;
 import java.util.logging.Logger;
 import javax.el.ELContext;
 import javax.enterprise.inject.spi.BeanManager;
@@ -42,6 +42,9 @@ import javax.faces.application.ProjectStage;
 import javax.faces.application.ViewHandler;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
+import javax.faces.component.visit.VisitContext;
+import javax.faces.component.visit.VisitHint;
+import javax.faces.component.visit.VisitResult;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.FacesContextWrapper;
@@ -88,9 +91,9 @@ import org.ssoft.faces.impl.state.tag.faces.MethodCall;
 import org.ssoft.faces.impl.state.tag.faces.Redirect;
 import static org.ssoft.faces.impl.state.utils.Util.toViewId;
 import javax.faces.state.execute.ExecuteContext;
-import static javax.faces.state.StateFlow.AFTER_CHANGE_VIEW_EXECUTOR;
 import static javax.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static javax.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
+import static javax.faces.state.StateFlow.CONTROLLER_SET_HINT;
 import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static javax.faces.state.StateFlow.PORTLET_EVENT_PREFIX;
 import javax.faces.state.scxml.EventBuilder;
@@ -101,6 +104,7 @@ import static javax.faces.state.scxml.io.StateHolderSaver.restoreContext;
 import static javax.faces.state.scxml.io.StateHolderSaver.saveContext;
 import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
+import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.scxml.SCXMLSystemContext;
 import javax.faces.state.execute.ExecuteContextManager;
 
@@ -432,7 +436,6 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
 
         //context.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, uuid);
-
         return uuid;
     }
 
@@ -653,6 +656,55 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         } catch (Throwable ex) {
             throw new FacesException(ex);
         }
+    }
+
+    @Override
+    public void broadcastEvent(FacesContext fc, TriggerEvent evt) {
+        SCXMLExecutor rexecutor = getRootExecutor(fc);
+        if (rexecutor != null) {
+            try {
+                rexecutor.triggerEvent(evt);
+            } catch (ModelException ex) {
+                throw new FacesException(ex);
+            }
+        }
+
+        UIViewRoot viewRoot = fc.getViewRoot();
+        List<String> clientIds = getControllerClientIds(fc);
+        if (clientIds != null && !clientIds.isEmpty()) {
+            Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
+            VisitContext visitContext = VisitContext.createVisitContext(fc, clientIds, hints);
+            viewRoot.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
+                if (target instanceof UIStateChartExecutor) {
+                    UIStateChartExecutor controller = (UIStateChartExecutor) target;
+                    String controllerId = controller.getClientId(fc);
+
+                    SCXMLExecutor executor = null;
+                    String executorId = controller.getExecutorId();
+                    if (executorId != null) {
+                        executor = getRootExecutor(fc, executorId);
+                    }
+
+                    if (executor != null) {
+                        try {
+                            executor.triggerEvent(evt);
+                        } catch (ModelException ex) {
+                            throw new FacesException(ex);
+                        }
+                    }
+                }
+                return VisitResult.ACCEPT;
+            });
+        }
+
+    }
+
+    @Override
+    public List<String> getControllerClientIds(FacesContext context) {
+        if (context.getViewRoot() == null) {
+            return null;
+        }
+        return (ArrayList<String>) context.getViewRoot().getAttributes().get(CONTROLLER_SET_HINT);
     }
 
     @Override

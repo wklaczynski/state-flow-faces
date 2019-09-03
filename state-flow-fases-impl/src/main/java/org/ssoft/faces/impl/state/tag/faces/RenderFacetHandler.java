@@ -16,7 +16,10 @@
  */
 package org.ssoft.faces.impl.state.tag.faces;
 
+import java.io.IOException;
 import java.util.logging.Logger;
+import javax.el.ELException;
+import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.state.StateFlow;
@@ -26,11 +29,11 @@ import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagException;
-import javax.faces.state.StateFlowHandler;
 import javax.faces.state.component.UIStateChartFacetRender;
-import javax.faces.state.scxml.SCXMLExecutor;
+import javax.faces.state.execute.ExecuteContextManager;
 import javax.faces.state.utils.ComponentUtils;
 import javax.faces.state.execute.ExecutorController;
+import org.ssoft.faces.impl.state.el.ExecuteExpressionFactory;
 import org.ssoft.faces.impl.state.log.FlowLogger;
 
 /**
@@ -54,7 +57,6 @@ public class RenderFacetHandler extends ComponentHandler {
     @Override
     public void onComponentCreated(FaceletContext ctx, UIComponent c, UIComponent parent) {
         FacesContext context = ctx.getFacesContext();
-        StateFlowHandler handler = StateFlowHandler.getInstance();
         UIStateChartFacetRender render = (UIStateChartFacetRender) c;
 
         UIComponent cc = ComponentUtils.findCompositeComponentUsingLocation(context, tag.getLocation());
@@ -92,8 +94,19 @@ public class RenderFacetHandler extends ComponentHandler {
     }
 
     @Override
-    public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
+    public void applyNextHandler(FaceletContext ctx, UIComponent c) throws IOException, FacesException, ELException {
+        FacesContext context = ctx.getFacesContext();
+        UIStateChartFacetRender render = (UIStateChartFacetRender) c;
+        try {
+            ExecuteExpressionFactory.getBuildPathStack(context).push(render.getExecutePath(context));
+            super.applyNextHandler(ctx, c);
+        } finally {
+            ExecuteExpressionFactory.getBuildPathStack(context).pop();
+        }
+    }
 
+    @Override
+    public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
     }
 
 }

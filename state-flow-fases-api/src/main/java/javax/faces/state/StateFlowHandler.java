@@ -28,6 +28,7 @@ import javax.faces.state.scxml.model.ModelException;
 import javax.faces.state.scxml.model.SCXML;
 import static javax.faces.state.StateFlow.DEFAULT_STATE_MACHINE_NAME;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
+import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.task.TimerEventProducer;
 
 /**
@@ -62,7 +63,7 @@ public abstract class StateFlowHandler {
      * @return
      */
     public abstract TimerEventProducer getTimerEventProducer();
-    
+
     /**
      *
      * @return
@@ -90,7 +91,6 @@ public abstract class StateFlowHandler {
 //     * @param executorId
 //     */
 //    public abstract void setExecutorViewRootId(FacesContext context, String executorId);
-
     /**
      *
      * @param context
@@ -151,6 +151,20 @@ public abstract class StateFlowHandler {
      * @param params
      */
     public abstract void execute(FacesContext context, SCXMLExecutor executor, Map<String, Object> params);
+
+    /**
+     *
+     * @param context
+     * @param evt
+     */
+    public abstract void broadcastEvent(FacesContext context, TriggerEvent evt);
+
+    /**
+     *
+     * @param context
+     * @return 
+     */
+    public abstract List<String> getControllerClientIds(FacesContext context);
 
     /**
      *

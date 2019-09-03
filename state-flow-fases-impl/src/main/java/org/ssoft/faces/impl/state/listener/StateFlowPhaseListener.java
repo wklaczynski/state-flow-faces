@@ -19,11 +19,11 @@ import com.sun.faces.context.StateContext;
 import com.sun.faces.renderkit.RenderKitUtils;
 import static com.sun.faces.util.RequestStateManager.FACES_VIEW_STATE;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -48,7 +48,6 @@ import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.model.SCXML;
 import org.ssoft.faces.impl.state.StateFlowParams;
-import static org.ssoft.faces.impl.state.listener.StateFlowControllerListener.getControllerClientIds;
 import static javax.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static javax.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import static javax.faces.state.StateFlow.SKIP_START_STATE_MACHINE_HINT;
@@ -102,7 +101,7 @@ public class StateFlowPhaseListener implements PhaseListener {
                 }
             }
 
-            ArrayList<String> clientIds = getControllerClientIds(fc);
+            List<String> clientIds = handler.getControllerClientIds(fc);
             if (clientIds != null && !clientIds.isEmpty()) {
                 Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
                 VisitContext visitContext = VisitContext.createVisitContext(fc, clientIds, hints);
@@ -189,7 +188,7 @@ public class StateFlowPhaseListener implements PhaseListener {
 
                 }
 
-                ArrayList<String> clientIds = getControllerClientIds(fc);
+                List<String> clientIds = handler.getControllerClientIds(fc);
                 if (clientIds != null && !clientIds.isEmpty()) {
                     Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
                     VisitContext visitContext = VisitContext.createVisitContext(fc, clientIds, hints);

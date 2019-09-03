@@ -17,6 +17,7 @@ package org.ssoft.faces.impl.state.listener;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
@@ -53,12 +54,13 @@ public class StateFlowControllerListener implements SystemEventListener {
         if (!(cse.getSource() instanceof UIStateChartExecutor)) {
             return;
         }
+        StateFlowHandler handler = StateFlowHandler.getInstance();
 
         FacesContext facesContext = FacesContext.getCurrentInstance();
         UIStateChartExecutor component = (UIStateChartExecutor) cse.getSource();
         String clientId = ((UIComponent) component).getClientId(facesContext);
 
-        ArrayList<String> clientIds = getControllerClientIds(facesContext);
+        List<String> clientIds = handler.getControllerClientIds(facesContext);
         UIViewRoot root = facesContext.getViewRoot();
 
         if (cse instanceof PostAddToViewEvent) {
@@ -69,15 +71,12 @@ public class StateFlowControllerListener implements SystemEventListener {
 
             if (!clientIds.contains(clientId)) {
                 clientIds.add(clientId);
-            } else {
-                clientIds.remove(clientId);
             }
         }
 
         if (root != null && clientIds != null && !clientIds.isEmpty()) {
 
             if (cse instanceof PostRestoreStateEvent) {
-                StateFlowHandler handler = StateFlowHandler.getInstance();
 
                 String eventName = BEFORE_PHASE_EVENT_PREFIX
                         + PhaseId.RESTORE_VIEW.getName().toLowerCase();
@@ -110,7 +109,6 @@ public class StateFlowControllerListener implements SystemEventListener {
                     return VisitResult.ACCEPT;
                 });
             } else if (cse instanceof PreRenderViewEvent) {
-                StateFlowHandler handler = StateFlowHandler.getInstance();
 
                 String eventName = ENCODE_DISPATCHER_EVENTS;
 
@@ -151,10 +149,11 @@ public class StateFlowControllerListener implements SystemEventListener {
         return o instanceof UIStateChartExecutor;
     }
 
-    public static ArrayList<String> getControllerClientIds(FacesContext context) {
-        if (context.getViewRoot() == null) {
-            return null;
-        }
-        return (ArrayList<String>) context.getViewRoot().getAttributes().get(CONTROLLER_SET_HINT);
-    }
+//    public static ArrayList<String> getControllerClientIds(FacesContext context) {
+//        if (context.getViewRoot() == null) {
+//            return null;
+//        }
+//        return (ArrayList<String>) context.getViewRoot().getAttributes().get(CONTROLLER_SET_HINT);
+//    }
+
 }

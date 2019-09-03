@@ -17,9 +17,11 @@ package javax.faces.state.utils;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 import javax.faces.application.Application;
 import javax.faces.application.Resource;
@@ -27,9 +29,12 @@ import javax.faces.application.ResourceDependencies;
 import javax.faces.application.ResourceDependency;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIOutput;
+import javax.faces.component.UIParameter;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.state.StateFlow;
+import javax.faces.state.component.UIStateChartExecutor;
+import javax.faces.state.execute.ExecutorController;
 import javax.faces.view.Location;
 
 /**
@@ -213,13 +218,27 @@ public class ComponentUtils {
 
     public static UIComponent findExecuteCompositeComponent(FacesContext ctx, UIComponent cc) {
 
+        if (cc instanceof UIParameter) {
+            cc = cc.getParent();
+        }
+
+        String excuded = null;
+        if (cc instanceof UIStateChartExecutor) {
+            excuded = ((UIStateChartExecutor) cc).getExecutorId();
+            cc = cc.getParent();
+        }
+
         if (!UIComponent.isCompositeComponent(cc)) {
             cc = UIComponent.getCompositeComponentParent(cc);
         }
 
         while (cc != null) {
-            if (cc.getAttributes().containsKey(StateFlow.EXECUTOR_CONTROLLER_KEY)) {
-                return cc;
+            ExecutorController controller = (ExecutorController) cc
+                    .getAttributes().get(StateFlow.EXECUTOR_CONTROLLER_KEY);
+            if (controller != null) {
+                if (excuded == null || !excuded.equals(controller.getExecutorId())) {
+                    return cc;
+                }
             }
             cc = UIComponent.getCompositeComponentParent(cc);
         }

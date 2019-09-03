@@ -27,6 +27,9 @@ import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,8 +39,13 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.FacesException;
 import javax.faces.application.StateManager;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIParameter;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.faces.state.StateFlowHandler;
+import javax.faces.state.scxml.model.ModelException;
+import javax.faces.state.scxml.model.SCXML;
 import javax.faces.view.facelets.Facelet;
 import javax.faces.view.facelets.FaceletContext;
 import org.ssoft.faces.impl.state.StateFlowImplConstants;
@@ -432,5 +440,89 @@ public class Util {
 
         return url;
     }
+    
+    public static SCXML findStateMachine(FacesContext fc, String continerName, String scxmlId, Object continerSource) {
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+
+        UIComponent compositeParent = UIComponent.getCurrentCompositeComponent(fc);
+        if (compositeParent != null) {
+
+            URL url = (URL) continerSource;
+            if (url == null) {
+                throw new IllegalStateException(
+                        "Unable to localize composite url '"
+                        + scxmlId
+                        + "' in parent composite component with id '"
+                        + compositeParent.getClientId(fc)
+                        + '\'');
+            }
+
+            if (continerName == null) {
+                throw new IllegalStateException(String.format(
+                        "Can not find scxml definition \"%s\", "
+                        + "view location not found in composite component.",
+                        scxmlId));
+            }
+
+            try {
+                SCXML scxml = handler.getStateMachine(fc, url, continerName, scxmlId);
+                if (scxml == null) {
+                    throw new IllegalStateException(String.format(
+                            "Can not find scxml definition id=\"%s\", not found"
+                            + " in composite <f:metadata...",
+                            scxmlId));
+                }
+
+                return scxml;
+            } catch (ModelException ex) {
+                throw new IllegalStateException(String.format(
+                        "can not find scxml definition \"%s\", throw model exception.",
+                        scxmlId), ex);
+            }
+        } else {
+            try {
+                SCXML scxml = handler.findStateMachine(fc, scxmlId);
+                if (scxml == null) {
+                    throw new IllegalStateException(String.format(
+                            "can not find scxml definition id=\"%s\", not found"
+                            + " in composite <f:metadata...",
+                            scxmlId));
+                }
+                return scxml;
+            } catch (ModelException ex) {
+                throw new IllegalStateException(String.format(
+                        "can not find scxml definition \"%s\", throw model exception.",
+                        scxmlId), ex);
+            }
+        }
+    }
+    
+    public static Map<String, List<String>> getUIParams(UIComponent component) {
+        Map<String, List<String>> params = null;
+
+        for (int i = 0; i < component.getChildCount(); i++) {
+            UIComponent child = component.getChildren().get(i);
+            if (child.isRendered() && (child instanceof UIParameter)) {
+                UIParameter uiParam = (UIParameter) child;
+
+                if (!uiParam.isDisable()) {
+                    if (params == null) {
+                        params = new LinkedHashMap<>();
+                    }
+
+                    List<String> paramValues = params.get(uiParam.getName());
+                    if (paramValues == null) {
+                        paramValues = new ArrayList<>();
+                        params.put(uiParam.getName(), paramValues);
+                    }
+
+                    paramValues.add(String.valueOf(uiParam.getValue()));
+                }
+            }
+        }
+
+        return params;
+    }
+    
     
 }

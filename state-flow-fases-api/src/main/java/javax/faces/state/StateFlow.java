@@ -108,7 +108,6 @@ public class StateFlow {
      */
     public static final String EXECUTOR_CONTROLLER_KEY = "javax.faces.component.EXECUTOR_CONTROLLER_KEY";
 
-
     /**
      *
      */

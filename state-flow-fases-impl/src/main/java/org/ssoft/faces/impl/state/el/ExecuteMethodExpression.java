@@ -16,6 +16,7 @@
 package org.ssoft.faces.impl.state.el;
 
 import java.io.Serializable;
+import java.util.Stack;
 import javax.el.ELContext;
 import javax.el.ELException;
 import javax.el.MethodExpression;
@@ -29,8 +30,8 @@ import javax.faces.event.PostAddToViewEvent;
 import static javax.faces.state.StateFlow.DISABLE_EXPRESSION_MAP;
 import javax.faces.state.execute.ExecuteContext;
 import javax.faces.validator.ValidatorException;
-import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.state.execute.ExecuteContextManager;
+import javax.faces.view.facelets.ComponentHandler;
 
 /**
  *
@@ -44,10 +45,14 @@ public class ExecuteMethodExpression extends MethodExpression {
     public ExecuteMethodExpression(MethodExpression delegate) {
         this.delegate = delegate;
         FacesContext ctx = FacesContext.getCurrentInstance();
-        if (!ctx.getAttributes().containsKey(DISABLE_EXPRESSION_MAP))  {
+        if (!ctx.getAttributes().containsKey(DISABLE_EXPRESSION_MAP)) {
             UIComponent component = UIComponent.getCurrentComponent(ctx);
             if (component != null) {
                 if (ComponentHandler.isNew(component)) {
+                    Stack<String> buildPathStack = ExecuteExpressionFactory.getBuildPathStack(ctx);
+                    if (!buildPathStack.isEmpty()) {
+                        executePath = ExecuteExpressionFactory.getBuildPathStack(ctx).peek();
+                    }
                     component.subscribeToEvent(PostAddToViewEvent.class, new SetExecuteIdListener(this));
                 } else {
                     resolveExecutePath(ctx, component);
@@ -57,10 +62,9 @@ public class ExecuteMethodExpression extends MethodExpression {
     }
 
     private void resolveExecutePath(FacesContext ctx, UIComponent component) {
-        if(delegate.isLiteralText()) {
-            return ;
+        if (delegate.isLiteralText()) {
+            return;
         }
-        
         ExecuteContextManager manager = ExecuteContextManager.getManager(ctx);
         executePath = manager.computeExecutePath(ctx, component.getParent());
     }

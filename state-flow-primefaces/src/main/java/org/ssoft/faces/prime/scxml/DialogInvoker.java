@@ -23,8 +23,6 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.PartialViewContext;
-import javax.faces.render.RenderKit;
-import javax.faces.render.ResponseStateManager;
 import static org.ssoft.faces.prime.PrimeFacesFlowUtils.applyParams;
 import static javax.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static javax.faces.state.StateFlow.AFTER_RENDER_VIEW;
