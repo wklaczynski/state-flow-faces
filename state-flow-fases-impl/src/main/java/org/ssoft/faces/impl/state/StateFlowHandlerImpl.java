@@ -118,6 +118,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     private final List<CustomAction> customActions = Collections.synchronizedList(new ArrayList<>());
     private final Map<String, Class<? extends Invoker>> customInvokers = Collections.synchronizedMap(new HashMap<>());
 
+    public static final String FIRST_FLOW_CONTEXT = StateFlowHandlerImpl.class.getName() + ":FACES_CHART_FLOW_CONTEXT";
     public static final String VIEW_UUID_KEY = "javax.faces.state.StateFlowHandler:VIEW_UUID_KEY";
 
     /**
@@ -412,12 +413,23 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public Context getFlowContext(FacesContext context, String executorId) {
-        FlowDeque fs = getFlowDeque(context, executorId, false);
-        if (fs == null) {
-            return null;
+    public Context getFlowContext(FacesContext fc, String executorId) {
+        Context context = (Context) fc.getAttributes().get(FIRST_FLOW_CONTEXT);
+        if (context != null) {
+            return context;
         }
-        return fs.getFlowContext();
+
+        FlowDeque fs = getFlowDeque(fc, executorId, false);
+        if (fs != null) {
+            context = fs.getFlowContext();
+        }
+
+        if (context == null) {
+            context = new SimpleContext();
+            fc.getAttributes().put(FIRST_FLOW_CONTEXT, context);
+        }
+
+        return context;
     }
 
     @Override
@@ -818,16 +830,16 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         return getFlowDeque(context, executorId, create);
     }
 
-    private FlowDeque getFlowDeque(FacesContext context, String executorId, boolean create) {
+    private FlowDeque getFlowDeque(FacesContext fc, String executorId, boolean create) {
 
-        FlowDeque result = (FlowDeque) context.getAttributes()
+        FlowDeque result = (FlowDeque) fc.getAttributes()
                 .get(STATE_FLOW_STACK);
 
         if (result != null) {
             return result;
         }
 
-        ExternalContext ec = context.getExternalContext();
+        ExternalContext ec = fc.getExternalContext();
         Object session = ec.getSession(create);
         if (session == null) {
             return null;
@@ -884,11 +896,16 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             if (null == state && create) {
                 result = new FlowDeque(flowKey);
             } else {
-                result = restoreFlowDequeState(context, state, flowKey);
+                result = restoreFlowDequeState(fc, state, flowKey);
+            }
+            if (fc.getAttributes().containsKey(FIRST_FLOW_CONTEXT)) {
+                Context first = (Context) fc.getAttributes().get(FIRST_FLOW_CONTEXT);
+                result.getFlowContext().getVars().putAll(first.getVars());
+                fc.getAttributes().remove(FIRST_FLOW_CONTEXT);
             }
         }
 
-        context.getAttributes().put(STATE_FLOW_STACK, result);
+        fc.getAttributes().put(STATE_FLOW_STACK, result);
 
         return result;
     }
