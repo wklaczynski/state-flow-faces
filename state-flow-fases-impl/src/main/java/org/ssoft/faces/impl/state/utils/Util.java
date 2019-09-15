@@ -21,9 +21,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -35,13 +32,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.faces.FacesException;
 import javax.faces.application.StateManager;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIParameter;
-import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.model.ModelException;
@@ -132,75 +126,6 @@ public class Util {
             }
         }
         return lastModified;
-    }
-
-    /**
-     *
-     * @param instance
-     */
-    public static void postConstruct(Object instance) {
-        Class<?> clazz = instance.getClass();
-
-        while (clazz != null) {
-            Method[] methods = clazz.getDeclaredMethods();
-            Method postConstruct = null;
-            for (Method method : methods) {
-                if (method.isAnnotationPresent(PostConstruct.class)) {
-                    if ((postConstruct != null) || (method.getParameterTypes().length != 0) || (Modifier.isStatic(method.getModifiers())) || (method.getExceptionTypes().length > 0) || (!method.getReturnType().getName().equals("void"))) {
-                        throw new IllegalArgumentException("Invalid PostConstruct annotation");
-                    }
-                    postConstruct = method;
-                }
-            }
-
-            if (postConstruct != null) {
-                try {
-                    boolean accessibility = postConstruct.isAccessible();
-                    postConstruct.setAccessible(true);
-                    postConstruct.invoke(instance);
-                    postConstruct.setAccessible(accessibility);
-                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                    log.log(Level.SEVERE, "Post Construct Error " + instance.getClass().getName(), ex);
-                }
-            }
-
-            clazz = clazz.getSuperclass();
-        }
-    }
-
-    /**
-     *
-     * @param instance
-     */
-    public static void preDestroy(Object instance) {
-        Class<?> clazz = instance.getClass();
-
-        while (clazz != null) {
-            Method[] methods = clazz.getDeclaredMethods();
-
-            Method preDestroy = null;
-            for (Method method : methods) {
-                if (method.isAnnotationPresent(PreDestroy.class)) {
-                    if ((preDestroy != null) || (method.getParameterTypes().length != 0) || (Modifier.isStatic(method.getModifiers())) || (method.getExceptionTypes().length > 0) || (!method.getReturnType().getName().equals("void"))) {
-                        throw new IllegalArgumentException("Invalid PreDestroy annotation");
-                    }
-                    preDestroy = method;
-                }
-            }
-
-            if (preDestroy != null) {
-                try {
-                    boolean accessibility = preDestroy.isAccessible();
-                    preDestroy.setAccessible(true);
-                    preDestroy.invoke(instance);
-                    preDestroy.setAccessible(accessibility);
-                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                    log.log(Level.SEVERE, "Pre Destroy Error " + instance.getClass().getName(), ex);
-                }
-            }
-
-            clazz = clazz.getSuperclass();
-        }
     }
 
     private static final String FACES_CONTEXT_ATTRIBUTES_XMLDECL_KEY = Util.class.getName() + "_FACES_CONTEXT_ATTRS_XMLDECL_KEY";
