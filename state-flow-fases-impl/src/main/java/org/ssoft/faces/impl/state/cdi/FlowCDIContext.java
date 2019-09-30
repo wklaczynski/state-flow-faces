@@ -35,6 +35,7 @@ import javax.servlet.http.HttpSessionEvent;
 import org.ssoft.faces.impl.state.StateFlowImplConstants;
 import org.ssoft.faces.impl.state.log.FlowLogger;
 import javax.faces.state.annotation.FlowScoped;
+import javax.faces.state.scxml.SCXMLExecutor;
 
 /**
  *
@@ -60,12 +61,12 @@ public class FlowCDIContext implements Context, Serializable {
 
         FacesContext facesContext = FacesContext.getCurrentInstance();
         
-        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.flow(facesContext, FLOW_SCOPE_KEY);
 
         T result = get(mapHelper, contextual);
 
         if (null == result) {
-            javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForRootExecutor();
+            javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getContextForRootExecutor();
             Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMap();
 
             String passivationCapableId = ((PassivationCapable) contextual).getId();
@@ -96,7 +97,7 @@ public class FlowCDIContext implements Context, Serializable {
             throw new IllegalArgumentException("FlowScoped StateDialogScoped " + contextual.toString() + " must be PassivationCapable, but is not.");
         }
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.flow(facesContext, FLOW_SCOPE_KEY);
 
         T result = get(mapHelper, contextual);
         mapHelper = null;
@@ -111,12 +112,14 @@ public class FlowCDIContext implements Context, Serializable {
             throw new IllegalArgumentException("StateDialogScoped bean " + contextual.toString() + " must be PassivationCapable, but is not.");
         }
         String passivationCapableId = ((PassivationCapable) contextual).getId();
-        return (T) mapHelper.getScopedBeanContextForRootExecutor().get(passivationCapableId);
+        return (T) mapHelper.getContextForRootExecutor().get(passivationCapableId);
     }
 
     @Override
     public boolean isActive() {
-        return true;
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.flow(facesContext, FLOW_SCOPE_KEY);
+        return mapHelper.isActive();
     }
 
     /**
@@ -129,9 +132,9 @@ public class FlowCDIContext implements Context, Serializable {
     }
 
     private static Map<Object, Object> getCurrentFlowScopeAndUpdateSession(StateScopeMapHelper mapHelper) {
-        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForRootExecutor();
+        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getContextForRootExecutor();
         Map<Object, Object> result = null;
-        if (mapHelper.isExists()) {
+        if (mapHelper.isActive()) {
             result = (Map<Object, Object>) flowScopedBeanMap.get(FLOW_SCOPE_MAP_KEY);
             if (null == result) {
                 result = new ConcurrentHashMap<>();
@@ -145,8 +148,8 @@ public class FlowCDIContext implements Context, Serializable {
     static void flowExited() {
 
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, FLOW_SCOPE_KEY);
-        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForRootExecutor();
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.flow(facesContext, FLOW_SCOPE_KEY);
+        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getContextForRootExecutor();
         Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMap();
         assert (!flowScopedBeanMap.getVars().isEmpty());
         assert (!creationalMap.isEmpty());
@@ -196,7 +199,7 @@ public class FlowCDIContext implements Context, Serializable {
 
     static void flowEntered() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, FLOW_SCOPE_KEY);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.flow(facesContext, FLOW_SCOPE_KEY);
 
         mapHelper.createMaps();
 

@@ -60,12 +60,12 @@ public class ChartCDIContext implements Context, Serializable {
 
         FacesContext facesContext = FacesContext.getCurrentInstance();
         SCXMLExecutor executor = getExecutor(facesContext);
-        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, executor, CHART_SCOPE_KEY, true);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.chart(facesContext, executor, CHART_SCOPE_KEY);
         
         T result = get(mapHelper, contextual);
 
         if (null == result) {
-            javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForCurrentExecutor();
+            javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getContextForCurrentExecutor();
             Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMap();
 
             String passivationCapableId = ((PassivationCapable)contextual).getId();
@@ -107,7 +107,7 @@ public class ChartCDIContext implements Context, Serializable {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         SCXMLExecutor executor = getExecutor(facesContext);
 
-        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, executor, CHART_SCOPE_KEY, false);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.chart(facesContext, executor, CHART_SCOPE_KEY);
 
         T result = get(mapHelper, contextual);
         mapHelper = null;
@@ -121,13 +121,16 @@ public class ChartCDIContext implements Context, Serializable {
             throw new IllegalArgumentException("StateChartScoped bean " + contextual.toString() + " must be PassivationCapable, but is not.");
         }
         String passivationCapableId = ((PassivationCapable)contextual).getId();
-        return (T) mapHelper.getScopedBeanContextForCurrentExecutor().get(passivationCapableId);
+        return (T) mapHelper.getContextForCurrentExecutor().get(passivationCapableId);
     }
 
 
     @Override
     public boolean isActive() {
-        return null != getExecutor();
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        SCXMLExecutor executor = getExecutor(facesContext);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.chart(facesContext, executor, CHART_SCOPE_KEY);
+        return mapHelper.isActive();
     }
 
     /**
@@ -141,9 +144,9 @@ public class ChartCDIContext implements Context, Serializable {
 
     
     private static Map<Object, Object> getCurrentFlowScopeAndUpdateSession(StateScopeMapHelper mapHelper) {
-        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForCurrentExecutor();
+        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getContextForCurrentExecutor();
         Map<Object, Object> result = null;
-        if (mapHelper.isExists()) {
+        if (mapHelper.isActive()) {
             result = (Map<Object, Object>) flowScopedBeanMap.get(CHART_SCOPE_MAP_KEY);
             if (null == result) {
                 result = new ConcurrentHashMap<>();
@@ -156,8 +159,8 @@ public class ChartCDIContext implements Context, Serializable {
 
     static void executorExited(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, executor, CHART_SCOPE_KEY, true);
-        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForCurrentExecutor();
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.chart(facesContext, executor, CHART_SCOPE_KEY);
+        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getContextForCurrentExecutor();
         Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMap();
         assert(!flowScopedBeanMap.getVars().isEmpty());
         assert(!creationalMap.isEmpty());
@@ -207,7 +210,7 @@ public class ChartCDIContext implements Context, Serializable {
 
     static void executorEntered(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, executor, CHART_SCOPE_KEY, true);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.chart(facesContext, executor, CHART_SCOPE_KEY);
 
         mapHelper.createMaps();
 

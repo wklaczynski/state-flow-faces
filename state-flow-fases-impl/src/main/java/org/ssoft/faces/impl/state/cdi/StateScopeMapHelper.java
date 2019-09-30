@@ -45,11 +45,38 @@ public class StateScopeMapHelper {
     private final String prefix;
     private String sessionId;
 
-    public static StateScopeMapHelper get(FacesContext facesContext, SCXMLExecutor executor, String prefix, boolean root) {
+    public static StateScopeMapHelper flow(FacesContext facesContext, String prefix) {
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        String sessionId = handler.getExecutorViewRootId(facesContext);
+        Context context = handler.getFlowContext(facesContext, null);
+        return new StateScopeMapHelper(facesContext, context, prefix, sessionId);
+    }
+
+    public static StateScopeMapHelper dialog(FacesContext facesContext, SCXMLExecutor executor, String prefix) {
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        Context context = handler.getFlowContext(facesContext, null);
+        String sessionId = null;
+        if (executor != null) {
+            sessionId = executor.getId();
+        } else {
+            sessionId = handler.getExecutorViewRootId(facesContext);
+        }
+        return new StateScopeMapHelper(facesContext, context, prefix, sessionId);
+    }
+
+    public static StateScopeMapHelper chart(FacesContext facesContext, SCXMLExecutor executor, String prefix) {
+        return get(facesContext, executor, prefix, true);
+    }
+
+    public static StateScopeMapHelper state(FacesContext facesContext, SCXMLExecutor executor, String prefix) {
+        return get(facesContext, executor, prefix, true);
+    }
+
+    private static StateScopeMapHelper get(FacesContext facesContext, SCXMLExecutor executor, String prefix, boolean root) {
         Context context = null;
         String sessionId = null;
         if (executor != null) {
-            sessionId = (String) executor.getSCInstance().getSystemContext().get(SCXMLSystemContext.SESSIONID_KEY);
+            sessionId = executor.getId();
             if (root) {
                 context = executor.getRootContext();
             } else {
@@ -57,17 +84,8 @@ public class StateScopeMapHelper {
             }
         }
         return new StateScopeMapHelper(facesContext, context, prefix, sessionId);
-
     }
 
-    public static StateScopeMapHelper get(FacesContext facesContext, String prefix) {
-        StateFlowHandler handler = StateFlowHandler.getInstance();        
-        String sessionId = handler.getExecutorViewRootId(facesContext);
-        Context context = handler.getFlowContext(facesContext, null);
-        return new StateScopeMapHelper(facesContext, context, prefix, sessionId);
-    }
-    
-    
     /**
      *
      * @param facesContext
@@ -99,7 +117,7 @@ public class StateScopeMapHelper {
      *
      */
     public void createMaps() {
-        getScopedBeanContextForCurrentExecutor();
+        getContextForCurrentExecutor();
         getScopedCreationalMap();
     }
 
@@ -111,7 +129,7 @@ public class StateScopeMapHelper {
      *
      * @return
      */
-    public boolean isExists() {
+    public boolean isActive() {
         return context != null;
     }
 
@@ -119,8 +137,8 @@ public class StateScopeMapHelper {
      *
      * @return
      */
-    public String getCreationalForExecutorKey() {
-        if (context == null) {
+    private String getCreationalForExecutorKey() {
+        if (!isActive()) {
             return null;
         }
         return generateKeyForCDIBeansBelong(sessionId, "_creational");
@@ -130,7 +148,7 @@ public class StateScopeMapHelper {
      *
      * @return
      */
-    public String getBeansForExecutorKey() {
+    private String getBeansForExecutorKey() {
         return generateKeyForCDIBeansBelong(sessionId, "_beans");
     }
 
@@ -138,8 +156,8 @@ public class StateScopeMapHelper {
      *
      * @return
      */
-    public Context getScopedBeanContextForCurrentExecutor() {
-        if (!isExists()) {
+    public Context getContextForCurrentExecutor() {
+        if (!isActive()) {
             return new SimpleContext();
         }
         ScopedBeanContext result;
@@ -158,8 +176,8 @@ public class StateScopeMapHelper {
      *
      * @return
      */
-    public Context getScopedBeanContextForRootExecutor() {
-        if (!isExists()) {
+    public Context getContextForRootExecutor() {
+        if (!isActive()) {
             return new SimpleContext();
         }
 
@@ -179,7 +197,7 @@ public class StateScopeMapHelper {
      * @return
      */
     public Map<String, CreationalContext<?>> getScopedCreationalMap() {
-        if (!isExists()) {
+        if (!isActive()) {
             return Collections.emptyMap();
         }
 
@@ -198,14 +216,14 @@ public class StateScopeMapHelper {
      *
      */
     public void updateSession() {
-        if (!isExists()) {
+        if (!isActive()) {
             return;
         }
 
         String beansForExecutorKey = getBeansForExecutorKey();
         String creationalForExecutorKey = getCreationalForExecutorKey();
 
-        sessionMap.put(beansForExecutorKey, getScopedBeanContextForCurrentExecutor());
+        sessionMap.put(beansForExecutorKey, getContextForCurrentExecutor());
         sessionMap.put(creationalForExecutorKey, getScopedCreationalMap());
         Object obj = sessionMap.get(PER_SESSION_BEAN_MAP_LIST);
         if (null != obj) {
