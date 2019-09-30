@@ -116,7 +116,7 @@ public class StateScopeMapHelper {
      *
      */
     public void createMaps() {
-        getContextForCurrentExecutor();
+        getScopeBeanContext();
         getScopedCreationalMap();
     }
 
@@ -136,7 +136,7 @@ public class StateScopeMapHelper {
      *
      * @return
      */
-    private String getCreationalForExecutorKey() {
+    private String getCreationalKey() {
         if (!isActive()) {
             return null;
         }
@@ -147,7 +147,7 @@ public class StateScopeMapHelper {
      *
      * @return
      */
-    private String getBeansForExecutorKey() {
+    private String getBeansKey() {
         return generateKeyForCDIBeansBelong(sessionId, "_beans");
     }
 
@@ -155,38 +155,18 @@ public class StateScopeMapHelper {
      *
      * @return
      */
-    public Context getContextForCurrentExecutor() {
-        if (!isActive()) {
-            return new SimpleContext();
-        }
-        ScopedBeanContext result;
-        String beansForExecutorKey = getBeansForExecutorKey();
-
-        result = (ScopedBeanContext) sessionMap.get(beansForExecutorKey);
-        if (null == result) {
-            result = new ScopedBeanContext();
-            sessionMap.put(beansForExecutorKey, result);
-            ensureBeanMapCleanupOnSessionDestroyed(sessionMap, beansForExecutorKey);
-        }
-        return result;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Context getContextForRootExecutor() {
+    public Context getScopeBeanContext() {
         if (!isActive()) {
             return new SimpleContext();
         }
 
         ScopedBeanContext result;
-        String beansForExecutorKey = getBeansForExecutorKey();
-        result = (ScopedBeanContext) sessionMap.get(beansForExecutorKey);
+        String beansKey = getBeansKey();
+        result = (ScopedBeanContext) sessionMap.get(beansKey);
         if (null == result) {
             result = new ScopedBeanContext();
-            sessionMap.put(beansForExecutorKey, result);
-            ensureBeanMapCleanupOnSessionDestroyed(sessionMap, beansForExecutorKey);
+            sessionMap.put(beansKey, result);
+            ensureBeanMapCleanupOnSessionDestroyed(sessionMap, beansKey);
         }
         return result;
     }
@@ -201,12 +181,12 @@ public class StateScopeMapHelper {
         }
 
         Map<String, CreationalContext<?>> result;
-        String creationalForExecutorKey = getCreationalForExecutorKey();
-        result = (Map<String, CreationalContext<?>>) sessionMap.get(creationalForExecutorKey);
+        String creationalKey = getCreationalKey();
+        result = (Map<String, CreationalContext<?>>) sessionMap.get(creationalKey);
         if (null == result) {
             result = new ConcurrentHashMap<>();
-            sessionMap.put(creationalForExecutorKey, result);
-            ensureCreationalCleanupOnSessionDestroyed(sessionMap, creationalForExecutorKey);
+            sessionMap.put(creationalKey, result);
+            ensureCreationalCleanupOnSessionDestroyed(sessionMap, creationalKey);
         }
         return result;
     }
@@ -219,11 +199,11 @@ public class StateScopeMapHelper {
             return;
         }
 
-        String beansForExecutorKey = getBeansForExecutorKey();
-        String creationalForExecutorKey = getCreationalForExecutorKey();
+        String beansKey = getBeansKey();
+        String creationalKey = getCreationalKey();
 
-        sessionMap.put(beansForExecutorKey, getContextForCurrentExecutor());
-        sessionMap.put(creationalForExecutorKey, getScopedCreationalMap());
+        sessionMap.put(beansKey, getScopeBeanContext());
+        sessionMap.put(creationalKey, getScopedCreationalMap());
         Object obj = sessionMap.get(PER_SESSION_BEAN_MAP_LIST);
         if (null != obj) {
             sessionMap.put(PER_SESSION_BEAN_MAP_LIST, obj);

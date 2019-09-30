@@ -124,7 +124,7 @@ public class StateCDIContext implements Context, Serializable {
         T result = get(mapHelper, contextual, executor, state);
 
         if (null == result && creational != null) {
-            javax.faces.state.scxml.Context scopedBeanMap = mapHelper.getContextForCurrentExecutor();
+            javax.faces.state.scxml.Context scopedBeanMap = mapHelper.getScopeBeanContext();
             Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMap();
 
             String passivationCapableId = ((PassivationCapable) contextual).getId();
@@ -209,7 +209,7 @@ public class StateCDIContext implements Context, Serializable {
         String passivationCapableId = ((PassivationCapable) contextual).getId();
 
         String beanId = state.getId() + ":" + passivationCapableId;
-        javax.faces.state.scxml.Context map = mapHelper.getContextForCurrentExecutor();
+        javax.faces.state.scxml.Context map = mapHelper.getScopeBeanContext();
         return (T) map.get(beanId);
     }
 
@@ -231,7 +231,7 @@ public class StateCDIContext implements Context, Serializable {
     }
 
     private static Map<Object, Object> getCurrentFlowScopeAndUpdateSession(StateScopeMapHelper mapHelper) {
-        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getContextForCurrentExecutor();
+        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopeBeanContext();
         Map<Object, Object> result = null;
         if (mapHelper.isActive()) {
             result = (Map<Object, Object>) flowScopedBeanMap.get(TARGET_SCOPE_MAP_KEY);
@@ -248,7 +248,7 @@ public class StateCDIContext implements Context, Serializable {
         FacesContext facesContext = FacesContext.getCurrentInstance();
 
         StateScopeMapHelper mapHelper = StateScopeMapHelper.state(facesContext, executor, TARGET_SCOPE_KEY);
-        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getContextForCurrentExecutor();
+        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopeBeanContext();
         Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMap();
         assert (!flowScopedBeanMap.getVars().isEmpty());
         assert (!creationalMap.isEmpty());
