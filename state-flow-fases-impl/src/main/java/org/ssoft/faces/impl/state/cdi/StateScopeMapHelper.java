@@ -28,7 +28,6 @@ import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.Context;
 import javax.servlet.http.HttpSession;
 import javax.faces.state.scxml.SCXMLExecutor;
-import javax.faces.state.scxml.SCXMLSystemContext;
 import javax.faces.state.scxml.env.SimpleContext;
 
 /**
