@@ -282,13 +282,13 @@ public class ExecuteContextManager {
             }
 
             UIStateChartFacetRender render = ComponentUtils
-                    .lokated(UIStateChartFacetRender.class, currentComponent);
+                    .assigned(UIStateChartFacetRender.class, currentComponent);
             if (render != null) {
                 executorId = render.getExecutorId();
                 path = render.getExecutePath(context);
             } else {
                 UIStateChartExecutor execute = ComponentUtils
-                        .lokated(UIStateChartExecutor.class, currentComponent);
+                        .assigned(UIStateChartExecutor.class, currentComponent);
 
                 if (execute != null) {
                     executorId = execute.getExecutorId();

@@ -28,17 +28,17 @@ import javax.faces.state.scxml.env.EffectiveContextMap;
  *
  * @author Waldemar Kłaczyński
  */
-public class DialogContextProducer extends CdiProducer<Map<String, Object>> {
+public class FlowContextProducer extends CdiProducer<Map<String, Object>> {
 
     /**
      * Serialization version
      */
     private static final long serialVersionUID = 1L;
 
-    public DialogContextProducer() {
-        super.name("dialogScope")
+    public FlowContextProducer() {
+        super.name("scxmlScope")
                 .scope(RequestScoped.class)
-                .qualifiers(new DialogContextAnnotationLiteral())
+                .qualifiers(new FlowContextAnnotationLiteral())
                 .types(new ParameterizedTypeImpl(Map.class, new Type[]{String.class, Object.class}),
                         Map.class,
                         Object.class)
@@ -47,24 +47,13 @@ public class DialogContextProducer extends CdiProducer<Map<String, Object>> {
     }
 
     private Map<String, Object> getParams() {
+        StateFlowHandler flowHandler = StateFlowHandler.getInstance();
         FacesContext fc = FacesContext.getCurrentInstance();
         Map<String, Object> result = null;
-        SCXMLExecutor executor = getExecutor(fc);
-        if (executor != null) {
-            result = new EffectiveContextMap(executor.getRootContext());
+        if (null != flowHandler) {
+            result = new EffectiveContextMap(flowHandler.getFlowContext(fc, null));
         }
         return result;
     }
 
-    private static SCXMLExecutor getExecutor(FacesContext context) {
-        StateFlowHandler flowHandler = StateFlowHandler.getInstance();
-        if (null == flowHandler) {
-            return null;
-        }
-
-        SCXMLExecutor result = flowHandler.getRootExecutor(context);
-        return result;
-    }
-    
-    
 }

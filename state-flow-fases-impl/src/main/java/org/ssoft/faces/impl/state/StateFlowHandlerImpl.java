@@ -427,6 +427,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         if (context == null) {
             context = new SimpleContext();
             fc.getAttributes().put(FIRST_FLOW_CONTEXT, context);
+            StateFlowCDIHelper.flowEntered();
         }
 
         return context;
@@ -916,6 +917,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         FlowDeque flowDeque = getFlowDeque(context, executorId, false);
         if (flowDeque != null) {
+            StateFlowCDIHelper.flowExited();
             flowDeque.close();
         }
 

@@ -34,24 +34,24 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import org.ssoft.faces.impl.state.StateFlowImplConstants;
 import org.ssoft.faces.impl.state.log.FlowLogger;
-import javax.faces.state.StateFlowHandler;
-import javax.faces.state.scxml.SCXMLExecutor;
-import javax.faces.state.annotation.ChartScoped;
+import javax.faces.state.annotation.FlowScoped;
 
 /**
  *
  * @author Waldemar Kłaczyński
  */
-public class ChartCDIContext implements Context, Serializable {
+public class FlowCDIContext implements Context, Serializable {
 
-    private static final String CHART_SCOPE_KEY = "chartscope";
-    private static final String CHART_SCOPE_MAP_KEY = StateFlowImplConstants.STATE_FLOW_PREFIX + "STATE_CHART_SCOPE_MAP";
+    private static final String FLOW_SCOPE_KEY = "flowscope";
+    private static final String FLOW_SCOPE_MAP_KEY = StateFlowImplConstants.STATE_FLOW_PREFIX + "STATE_DIALOG_SCOPE_MAP";
     private static final Logger LOGGER = FlowLogger.CDI.getLogger();
 
     @Override
     public Class<? extends Annotation> getScope() {
-        return ChartScoped.class;
+        return FlowScoped.class;
     }
+
+    
     
     @Override
     @SuppressWarnings("UnusedAssignment")
@@ -59,30 +59,21 @@ public class ChartCDIContext implements Context, Serializable {
         assertNotReleased();
 
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        SCXMLExecutor executor = getExecutor(facesContext);
-        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, executor, CHART_SCOPE_KEY, true);
         
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, FLOW_SCOPE_KEY);
+
         T result = get(mapHelper, contextual);
 
         if (null == result) {
-            javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForCurrentExecutor();
+            javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForRootExecutor();
             Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMap();
 
-            String passivationCapableId = ((PassivationCapable)contextual).getId();
+            String passivationCapableId = ((PassivationCapable) contextual).getId();
 
             synchronized (flowScopedBeanMap) {
                 result = (T) flowScopedBeanMap.get(passivationCapableId);
                 if (null == result) {
 
-                    if (null == executor) {
-                        return null;
-                    }
-
-                    if (!executor.isRunning()) {
-                        LOGGER.warning("Request to activate bean in executor, but that executor is not active.");
-                    }
-
-                    
                     result = contextual.create(creational);
 
                     if (null != result) {
@@ -98,16 +89,14 @@ public class ChartCDIContext implements Context, Serializable {
     }
 
     @Override
-    @SuppressWarnings("UnusedAssignment")
+    @SuppressWarnings({"UnusedAssignment", "null"})
     public <T> T get(Contextual<T> contextual) {
         assertNotReleased();
         if (!(contextual instanceof PassivationCapable)) {
-            throw new IllegalArgumentException("FlowScoped StateChartScoped " + contextual.toString() + " must be PassivationCapable, but is not.");
+            throw new IllegalArgumentException("FlowScoped StateDialogScoped " + contextual.toString() + " must be PassivationCapable, but is not.");
         }
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        SCXMLExecutor executor = getExecutor(facesContext);
-
-        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, executor, CHART_SCOPE_KEY, false);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, FLOW_SCOPE_KEY);
 
         T result = get(mapHelper, contextual);
         mapHelper = null;
@@ -115,19 +104,19 @@ public class ChartCDIContext implements Context, Serializable {
         return result;
     }
 
+    @SuppressWarnings("null")
     private <T> T get(StateScopeMapHelper mapHelper, Contextual<T> contextual) {
         assertNotReleased();
         if (!(contextual instanceof PassivationCapable)) {
-            throw new IllegalArgumentException("StateChartScoped bean " + contextual.toString() + " must be PassivationCapable, but is not.");
+            throw new IllegalArgumentException("StateDialogScoped bean " + contextual.toString() + " must be PassivationCapable, but is not.");
         }
-        String passivationCapableId = ((PassivationCapable)contextual).getId();
-        return (T) mapHelper.getScopedBeanContextForCurrentExecutor().get(passivationCapableId);
+        String passivationCapableId = ((PassivationCapable) contextual).getId();
+        return (T) mapHelper.getScopedBeanContextForRootExecutor().get(passivationCapableId);
     }
-
 
     @Override
     public boolean isActive() {
-        return null != getExecutor();
+        return true;
     }
 
     /**
@@ -139,33 +128,33 @@ public class ChartCDIContext implements Context, Serializable {
         StateScopeMapHelper.sessionDestroyed(session);
     }
 
-    
     private static Map<Object, Object> getCurrentFlowScopeAndUpdateSession(StateScopeMapHelper mapHelper) {
-        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForCurrentExecutor();
+        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForRootExecutor();
         Map<Object, Object> result = null;
         if (mapHelper.isExists()) {
-            result = (Map<Object, Object>) flowScopedBeanMap.get(CHART_SCOPE_MAP_KEY);
+            result = (Map<Object, Object>) flowScopedBeanMap.get(FLOW_SCOPE_MAP_KEY);
             if (null == result) {
                 result = new ConcurrentHashMap<>();
-                flowScopedBeanMap.setLocal(CHART_SCOPE_MAP_KEY, result);
+                flowScopedBeanMap.setLocal(FLOW_SCOPE_MAP_KEY, result);
             }
         }
         mapHelper.updateSession();
         return result;
     }
 
-    static void executorExited(SCXMLExecutor executor) {
+    static void flowExited() {
+
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, executor, CHART_SCOPE_KEY, true);
-        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForCurrentExecutor();
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, FLOW_SCOPE_KEY);
+        javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForRootExecutor();
         Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMap();
-        assert(!flowScopedBeanMap.getVars().isEmpty());
-        assert(!creationalMap.isEmpty());
+        assert (!flowScopedBeanMap.getVars().isEmpty());
+        assert (!creationalMap.isEmpty());
         BeanManager beanManager = (BeanManager) Util.getCdiBeanManager(facesContext);
 
         for (Map.Entry<String, Object> entry : flowScopedBeanMap.getVars().entrySet()) {
             String passivationCapableId = entry.getKey();
-            if (CHART_SCOPE_MAP_KEY.equals(passivationCapableId)) {
+            if (FLOW_SCOPE_MAP_KEY.equals(passivationCapableId)) {
                 continue;
             }
             Contextual owner = beanManager.getPassivationCapableBean(passivationCapableId);
@@ -194,20 +183,20 @@ public class ChartCDIContext implements Context, Serializable {
                 Set<Bean<?>> availableBeans = beanManager.getBeans(flowCDIEventFireHelperImplClass);
                 if (null != availableBeans && !availableBeans.isEmpty()) {
                     Bean<?> bean = beanManager.resolve(availableBeans);
-                    CreationalContext<?> creationalContext =
-                            beanManager.createCreationalContext(null);
-                    StateFlowCDIEventFireHelper eventHelper = 
-                            (StateFlowCDIEventFireHelper)  beanManager.getReference(bean, bean.getBeanClass(),
+                    CreationalContext<?> creationalContext
+                            = beanManager.createCreationalContext(null);
+                    StateFlowCDIEventFireHelper eventHelper
+                            = (StateFlowCDIEventFireHelper) beanManager.getReference(bean, bean.getBeanClass(),
                                     creationalContext);
-                    eventHelper.fireExecutorDestroyedEvent(executor);
+                    eventHelper.fireFlowDestroyedEvent(mapHelper.getContext());
                 }
             }
         }
     }
 
-    static void executorEntered(SCXMLExecutor executor) {
+    static void flowEntered() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, executor, CHART_SCOPE_KEY, true);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, FLOW_SCOPE_KEY);
 
         mapHelper.createMaps();
 
@@ -227,42 +216,22 @@ public class ChartCDIContext implements Context, Serializable {
                 Set<Bean<?>> availableBeans = beanManager.getBeans(flowCDIEventFireHelperImplClass);
                 if (null != availableBeans && !availableBeans.isEmpty()) {
                     Bean<?> bean = beanManager.resolve(availableBeans);
-                    CreationalContext<?> creationalContext =
-                            beanManager.createCreationalContext(null);
-                    StateFlowCDIEventFireHelper eventHelper = 
-                            (StateFlowCDIEventFireHelper)  beanManager.getReference(bean, bean.getBeanClass(),
+                    CreationalContext<?> creationalContext
+                            = beanManager.createCreationalContext(null);
+                    StateFlowCDIEventFireHelper eventHelper
+                            = (StateFlowCDIEventFireHelper) beanManager.getReference(bean, bean.getBeanClass(),
                                     creationalContext);
-                    eventHelper.fireExecutorInitializedEvent(executor);
+                    eventHelper.fireFlowInitializedEvent(mapHelper.getContext());
                 }
             }
         }
     }
 
-    
-    
-    
     @SuppressWarnings({"FinalPrivateMethod"})
     private final void assertNotReleased() {
         if (!isActive()) {
             throw new IllegalStateException();
         }
-    }
-
-    private SCXMLExecutor getExecutor() {
-        FacesContext context = FacesContext.getCurrentInstance();
-        SCXMLExecutor result = getExecutor(context);
-        return result;
-    }
-
-    private static SCXMLExecutor getExecutor(FacesContext context) {
-        StateFlowHandler flowHandler = StateFlowHandler.getInstance();
-        if (null == flowHandler) {
-            return null;
-        }
-
-        SCXMLExecutor result = flowHandler.getCurrentExecutor(context);
-        return result;
-
     }
 
 }

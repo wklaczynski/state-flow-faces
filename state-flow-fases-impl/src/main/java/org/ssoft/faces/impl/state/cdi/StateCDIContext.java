@@ -119,7 +119,7 @@ public class StateCDIContext implements Context, Serializable {
         TargetBeanInfo tbi = targetIds.get(contextual);
         TransitionTarget state = findState(facesContext, executor, tbi.id);
 
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY, true);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, executor, TARGET_SCOPE_KEY, true);
 
         T result = get(mapHelper, contextual, executor, state);
 
@@ -186,7 +186,7 @@ public class StateCDIContext implements Context, Serializable {
                     +"\", but that state is not active.");
         }
 
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY, true);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, executor, TARGET_SCOPE_KEY, true);
         T result = get(mapHelper, contextual, executor, state);
 
         return result;
@@ -231,7 +231,7 @@ public class StateCDIContext implements Context, Serializable {
     private static Map<Object, Object> getCurrentFlowScopeAndUpdateSession(StateScopeMapHelper mapHelper) {
         javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForCurrentExecutor();
         Map<Object, Object> result = null;
-        if (mapHelper.isExecutorExists()) {
+        if (mapHelper.isExists()) {
             result = (Map<Object, Object>) flowScopedBeanMap.get(TARGET_SCOPE_MAP_KEY);
             if (null == result) {
                 result = new ConcurrentHashMap<>();
@@ -245,7 +245,7 @@ public class StateCDIContext implements Context, Serializable {
     static void executorExited(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
 
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY, true);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, executor, TARGET_SCOPE_KEY, true);
         javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForCurrentExecutor();
         Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMap();
         assert (!flowScopedBeanMap.getVars().isEmpty());
@@ -305,7 +305,7 @@ public class StateCDIContext implements Context, Serializable {
     static void executorEntered(SCXMLExecutor executor) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
 
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, TARGET_SCOPE_KEY, true);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, executor, TARGET_SCOPE_KEY, true);
 
         mapHelper.createMaps();
 

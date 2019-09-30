@@ -62,7 +62,7 @@ public class DialogCDIContext implements Context, Serializable {
 
         FacesContext facesContext = FacesContext.getCurrentInstance();
         SCXMLExecutor executor = getExecutor(facesContext);
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, DIALOG_SCOPE_KEY, true);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, executor, DIALOG_SCOPE_KEY, true);
 
         T result = get(mapHelper, contextual);
 
@@ -107,7 +107,7 @@ public class DialogCDIContext implements Context, Serializable {
         }
         FacesContext facesContext = FacesContext.getCurrentInstance();
         SCXMLExecutor current = getExecutor(facesContext);
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, current, DIALOG_SCOPE_KEY, true);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, current, DIALOG_SCOPE_KEY, true);
 
         T result = get(mapHelper, contextual);
         mapHelper = null;
@@ -141,7 +141,7 @@ public class DialogCDIContext implements Context, Serializable {
     private static Map<Object, Object> getCurrentFlowScopeAndUpdateSession(StateScopeMapHelper mapHelper) {
         javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForRootExecutor();
         Map<Object, Object> result = null;
-        if (mapHelper.isExecutorExists()) {
+        if (mapHelper.isExists()) {
             result = (Map<Object, Object>) flowScopedBeanMap.get(DIALOG_SCOPE_MAP_KEY);
             if (null == result) {
                 result = new ConcurrentHashMap<>();
@@ -158,7 +158,7 @@ public class DialogCDIContext implements Context, Serializable {
         }
 
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, DIALOG_SCOPE_KEY, true);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, executor, DIALOG_SCOPE_KEY, true);
         javax.faces.state.scxml.Context flowScopedBeanMap = mapHelper.getScopedBeanContextForRootExecutor();
         Map<String, CreationalContext<?>> creationalMap = mapHelper.getScopedCreationalMap();
         assert (!flowScopedBeanMap.getVars().isEmpty());
@@ -213,7 +213,7 @@ public class DialogCDIContext implements Context, Serializable {
         }
         
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        StateScopeMapHelper mapHelper = new StateScopeMapHelper(facesContext, executor, DIALOG_SCOPE_KEY, true);
+        StateScopeMapHelper mapHelper = StateScopeMapHelper.get(facesContext, executor, DIALOG_SCOPE_KEY, true);
 
         mapHelper.createMaps();
 

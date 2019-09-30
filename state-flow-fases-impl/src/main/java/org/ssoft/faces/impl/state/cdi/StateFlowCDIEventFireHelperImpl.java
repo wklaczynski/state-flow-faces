@@ -24,6 +24,8 @@ import javax.faces.state.scxml.model.TransitionTarget;
 import javax.faces.state.annotation.DialogScoped;
 import javax.faces.state.annotation.ChartScoped;
 import javax.faces.state.annotation.StateScoped;
+import javax.faces.state.scxml.Context;
+import javax.faces.state.annotation.FlowScoped;
 
 /**
  *
@@ -58,6 +60,13 @@ public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHel
     @Inject
     @Destroyed(StateScoped.class)
     Event<SCXMLExecutor> stateTargetScopeExecutorDestroyedEvent;
+
+    @Inject
+    @Initialized(FlowScoped.class)
+    Event<Context> stateScxmlScopeFlowContextInitializedEvent;
+    @Inject
+    @Destroyed(FlowScoped.class)
+    Event<Context> stateScxmlScopeFlowContextDestroyedEvent;
     
     /**
      *
@@ -129,6 +138,22 @@ public class StateFlowCDIEventFireHelperImpl implements StateFlowCDIEventFireHel
     @Override
     public void fireTargetExecutorDestroyedEvent(SCXMLExecutor executor) {
         stateTargetScopeExecutorDestroyedEvent.fire(executor);
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void fireFlowInitializedEvent(Context context) {
+        stateScxmlScopeFlowContextInitializedEvent.fire(context);
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void fireFlowDestroyedEvent(Context context) {
+        stateScxmlScopeFlowContextDestroyedEvent.fire(context);
     }
 
 }

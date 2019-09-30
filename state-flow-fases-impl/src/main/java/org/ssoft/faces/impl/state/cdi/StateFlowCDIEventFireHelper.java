@@ -15,6 +15,7 @@
  */
 package org.ssoft.faces.impl.state.cdi;
 
+import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.model.TransitionTarget;
 
@@ -71,5 +72,17 @@ public interface StateFlowCDIEventFireHelper {
      * @param executor
      */
     void fireTargetExecutorDestroyedEvent(SCXMLExecutor executor);
+
+    /**
+     *
+     * @param context
+     */
+    void fireFlowInitializedEvent(Context context);
+
+    /**
+     *
+     * @param context
+     */
+    void fireFlowDestroyedEvent(Context context);
     
 }

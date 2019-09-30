@@ -20,6 +20,7 @@ import java.util.Map;
 import javax.el.ELContext;
 import javax.enterprise.context.RequestScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.env.EffectiveContextMap;
 
@@ -47,12 +48,21 @@ public class ChartContextProducer extends CdiProducer<Map<String, Object>> {
     
     private Map<String, Object> getParams() {
         FacesContext fc = FacesContext.getCurrentInstance();
-        ELContext elContext = fc.getELContext();
         Map<String, Object> result = null;
-        SCXMLExecutor executor = (SCXMLExecutor) elContext.getContext(SCXMLExecutor.class);
+        SCXMLExecutor executor = getExecutor(fc);
         if (executor != null) {
             result = new EffectiveContextMap(executor.getGlobalContext());
         }
+        return result;
+    }
+
+    private static SCXMLExecutor getExecutor(FacesContext context) {
+        StateFlowHandler flowHandler = StateFlowHandler.getInstance();
+        if (null == flowHandler) {
+            return null;
+        }
+
+        SCXMLExecutor result = flowHandler.getRootExecutor(context);
         return result;
     }
     

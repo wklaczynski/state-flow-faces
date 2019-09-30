@@ -101,8 +101,9 @@ public class StateFlowCDIExtension implements Extension {
      */
     public void afterBean(@Observes final AfterBeanDiscovery event, BeanManager beanManager) {
 
-        event.addContext(new ChartCDIContext());
+        event.addContext(new FlowCDIContext());
         event.addContext(new DialogCDIContext());
+        event.addContext(new ChartCDIContext());
         event.addContext(new StateCDIContext(targetScopedBeanFlowIds));
         targetScopedBeanFlowIds.clear();
 

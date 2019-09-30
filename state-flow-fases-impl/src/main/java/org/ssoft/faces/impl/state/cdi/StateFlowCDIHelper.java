@@ -26,6 +26,20 @@ public class StateFlowCDIHelper {
 
     /**
      *
+     */
+    public static void flowEntered() {
+        FlowCDIContext.flowEntered();
+    }
+
+    /**
+     *
+     */
+    public static void flowExited() {
+        FlowCDIContext.flowExited();
+    }
+    
+    /**
+     *
      * @param executor
      */
     public static void executorEntered(SCXMLExecutor executor) {

@@ -27,6 +27,7 @@ import org.ssoft.faces.impl.state.cdi.DialogCDIContext;
 import org.ssoft.faces.impl.state.cdi.StateCDIContext;
 import org.ssoft.faces.impl.state.tag.TagHandlerDelegateFactoryImpl;
 import javax.faces.state.tag.TagHandlerDelegateFactory;
+import org.ssoft.faces.impl.state.cdi.FlowCDIContext;
 
 /**
  *
@@ -74,6 +75,7 @@ public class StateFlowConfigureListener implements ServletContextListener, HttpS
      */
     @Override
     public void sessionDestroyed(HttpSessionEvent se) {
+        FlowCDIContext.sessionDestroyed(se);
         ChartCDIContext.sessionDestroyed(se);
         DialogCDIContext.sessionDestroyed(se);
         StateCDIContext.sessionDestroyed(se);
