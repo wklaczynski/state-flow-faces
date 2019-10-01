@@ -30,21 +30,27 @@ import javax.faces.state.scxml.env.SimpleContext;
  */
 public class ScopedBeanContext extends AbstractContext implements Serializable {
 
+    private String key;
+
     /**
      * Constructor.
      *
+     * @param key
      */
-    public ScopedBeanContext() {
+    public ScopedBeanContext(String key) {
         super(null, null);
+        this.key = key;
     }
 
     /**
      * Constructor.
      *
      * @param parent A parent Context, can be null
+     * @param key
      */
-    public ScopedBeanContext(final Context parent) {
+    public ScopedBeanContext(final Context parent, String key) {
         super(parent, null);
+        this.key = key;
     }
 
     /**
@@ -52,11 +58,17 @@ public class ScopedBeanContext extends AbstractContext implements Serializable {
      *
      * @param parent A parent Context, can be null
      * @param initialVars A pre-populated initial variables map
+     * @param key
      */
-    public ScopedBeanContext(Context parent, Map<String, Object> initialVars) {
+    public ScopedBeanContext(Context parent, Map<String, Object> initialVars, String key) {
         super(parent, initialVars);
+        this.key = key;
     }
 
+    public String getKey() {
+        return key;
+    }
+    
     private void writeObject(ObjectOutputStream out) throws IOException {
         Object states[] = new Object[2];
 

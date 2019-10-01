@@ -199,6 +199,7 @@ public class ExecuteHandler extends ComponentHandler {
         String executorId = component.getExecutorId();
         StateFlowHandler handler = StateFlowHandler.getInstance();
         String viewId = viewRoot.getViewId();
+        String rootId = (String) fc.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
 
         String scxmlName = (String) component.getAttributes().get(UIStateChartExecutor.SCXML_NAME);
         URL url = (URL) component.getAttributes().get(UIStateChartExecutor.SCXML_URL);
@@ -218,6 +219,7 @@ public class ExecuteHandler extends ComponentHandler {
                 sctx.setLocal(FACES_CHART_CONTROLLER_TYPE, EXECUTOR_CONTROLLER_TYPE);
                 sctx.setLocal(FACES_CHART_CONTINER_NAME, continerName);
                 sctx.setLocal(FACES_CHART_CONTINER_SOURCE, url);
+                sctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, rootId);
 
                 sctx.setLocal(FACES_CHART_EXECUTOR_VIEW_ID, viewId);
 

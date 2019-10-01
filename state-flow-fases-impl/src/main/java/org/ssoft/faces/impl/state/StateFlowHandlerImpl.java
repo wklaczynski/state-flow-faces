@@ -413,6 +413,20 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
+    public String getFlowId(FacesContext context) {
+        String executorId = getExecutorViewRootId(context);
+        if (executorId == null) {
+            return null;
+        }
+
+        int pos = executorId.indexOf(':');
+        if (pos >= 0) {
+            executorId = executorId.substring(0, pos);
+        }
+        return executorId;
+    }
+
+    @Override
     public Context getFlowContext(FacesContext fc, String executorId) {
         Context context = (Context) fc.getAttributes().get(FIRST_FLOW_CONTEXT);
         if (context != null) {
