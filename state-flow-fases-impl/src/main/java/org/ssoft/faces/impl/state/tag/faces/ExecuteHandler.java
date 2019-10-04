@@ -187,10 +187,10 @@ public class ExecuteHandler extends ComponentHandler {
             context.getViewRoot().getAttributes().put(CONTROLLER_SET_HINT, clientIds);
         }
 
-        String clientId = c.getClientId(context);
-        if (!clientIds.contains(clientId)) {
-            clientIds.add(clientId);
-        }
+//        String clientId = c.getClientId(context);
+//        if (!clientIds.contains(clientId)) {
+//            clientIds.add(clientId);
+//        }
 
     }
 

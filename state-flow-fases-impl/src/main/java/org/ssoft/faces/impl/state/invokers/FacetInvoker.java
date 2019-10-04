@@ -276,7 +276,7 @@ public class FacetInvoker implements Invoker, Serializable {
             if (ajaxredirect && fc.getAttributes().containsKey(VIEW_RESTORED_HINT)) {
                 ajaxredirect = (boolean) fc.getAttributes().get(VIEW_RESTORED_HINT);
             }
-            
+
             if (fc.getResponseComplete()) {
                 return;
             }
@@ -284,8 +284,13 @@ public class FacetInvoker implements Invoker, Serializable {
             PartialViewContext pvc = fc.getPartialViewContext();
             if ((redirect || (pvc != null && ajaxredirect && pvc.isAjaxRequest()))) {
 
-                Context fctx = handler.getFlowContext(fc, executor.getRootId());
-                fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, executor.getRootId());
+                String viewExecuteId = executor.getRootId();
+                if (currentViewRoot != null) {
+                    viewExecuteId = (String) currentViewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                }
+
+                Context fctx = handler.getFlowContext(fc, viewExecuteId);
+                fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, viewExecuteId);
                 if (lastViewState != null) {
                     fctx.setLocal(FACES_VIEW_STATE, lastViewState);
                 }
@@ -293,11 +298,11 @@ public class FacetInvoker implements Invoker, Serializable {
                 if (!usewindow) {
                     if (useflash) {
                         Flash flash = ec.getFlash();
-                        flash.put("exid", executor.getRootId());
+                        flash.put("exid", viewExecuteId);
                         flash.setKeepMessages(true);
                         flash.setRedirect(true);
                     } else {
-                        reqparams.put("exid", Arrays.asList(executor.getRootId()));
+                        reqparams.put("exid", Arrays.asList(viewExecuteId));
                     }
                 }
 
@@ -318,6 +323,18 @@ public class FacetInvoker implements Invoker, Serializable {
                     }
                 }
 
+                String viewExecuteId = executor.getRootId();
+                if (currentViewRoot != null) {
+                    viewExecuteId = (String) currentViewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                }
+
+                Context fctx = handler.getFlowContext(fc, viewExecuteId);
+                fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, viewExecuteId);
+                if (lastViewState != null) {
+                    fctx.setLocal(FACES_VIEW_STATE, lastViewState);
+                }
+                
+                
                 UIViewRoot viewRoot;
                 if (lastViewState != null) {
                     fc.getAttributes().put(FACES_VIEW_STATE, lastViewState);

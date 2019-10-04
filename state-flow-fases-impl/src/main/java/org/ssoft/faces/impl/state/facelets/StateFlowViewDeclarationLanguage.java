@@ -123,6 +123,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
         String executorId = (String) fc.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
         if (executorId == null) {
             executorId = UUID.randomUUID().toString();
+            fc.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
         }
 
         ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
@@ -146,9 +147,8 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
         super.buildView(fc, viewRoot);
 
         ExecuteExpressionFactory.getBuildPathStack(fc).pop();
-        
+
         if (executorId != null) {
-            viewRoot.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
             fc.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
         }
 
@@ -158,6 +158,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
     }
 
     @Override
+    @SuppressWarnings("null")
     public void renderView(FacesContext fc, UIViewRoot viewRoot) throws IOException {
         StateFlowHandler handler = StateFlowHandler.getInstance();
         if (!fc.getResponseComplete() && viewRoot != null && handler.hasViewRoot(fc)) {
@@ -313,8 +314,9 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
 
                 UIViewRoot viewRoot = context.getViewRoot();
                 String executorId = null;
-
+                String viewId = null;
                 if (viewRoot != null) {
+                    viewId = viewRoot.getViewId();
                     executorId = (String) viewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
                 }
 
