@@ -57,6 +57,11 @@ public class ExecuteMethodExpression extends MethodExpression {
                 } else {
                     resolveExecutePath(ctx, component);
                 }
+            } else {
+                Stack<String> buildPathStack = ExecuteExpressionFactory.getBuildPathStack(ctx);
+                if (!buildPathStack.isEmpty()) {
+                    executePath = ExecuteExpressionFactory.getBuildPathStack(ctx).peek();
+                }
             }
         }
     }

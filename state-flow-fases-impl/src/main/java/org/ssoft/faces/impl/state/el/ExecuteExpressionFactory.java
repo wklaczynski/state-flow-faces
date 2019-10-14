@@ -28,15 +28,15 @@ import javax.faces.context.FacesContext;
  */
 public class ExecuteExpressionFactory extends ExpressionFactory {
 
-    public static final String EXECUTION_PARH_STACK_HINT = ExecuteExpressionFactory.class.getName() + ":EXECUTION_PARH_STACK_HINT";
+    public static final String EXECUTION_PATH_STACK_HINT = ExecuteExpressionFactory.class.getName() + ":EXECUTION_PARH_STACK_HINT";
 
     private final ExpressionFactory wrapped;
 
     public static Stack<String> getBuildPathStack(FacesContext fc) {
-        Stack<String> pathStack = (Stack<String>) fc.getAttributes().get(EXECUTION_PARH_STACK_HINT);
+        Stack<String> pathStack = (Stack<String>) fc.getAttributes().get(EXECUTION_PATH_STACK_HINT);
         if (pathStack == null) {
             pathStack = new Stack<>();
-            fc.getAttributes().put(EXECUTION_PARH_STACK_HINT, pathStack);
+            fc.getAttributes().put(EXECUTION_PATH_STACK_HINT, pathStack);
         }
         return pathStack;
     }

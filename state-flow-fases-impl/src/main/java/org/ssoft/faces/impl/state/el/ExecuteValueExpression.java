@@ -54,6 +54,11 @@ public final class ExecuteValueExpression extends ValueExpression {
                 } else {
                     resolveExecutePath(ctx, component);
                 }
+            } else {
+                Stack<String> buildPathStack = ExecuteExpressionFactory.getBuildPathStack(ctx);
+                if (!buildPathStack.isEmpty()) {
+                    executePath = ExecuteExpressionFactory.getBuildPathStack(ctx).peek();
+                }
             }
         }
     }

@@ -34,6 +34,7 @@ import javax.faces.component.visit.VisitResult;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
 import javax.faces.render.ResponseStateManager;
+import static javax.faces.state.StateFlow.AFTER_BUILD_VIEW;
 import static javax.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import static javax.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
 import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
@@ -92,7 +93,9 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
         if (handlesByOryginal(viewId)) {
             return new ScxmlViewMetadataImpl(this, viewId);
         } else {
-            return wrapped.getViewMetadata(context, viewId);
+            ViewMetadata viewMetadata = wrapped.getViewMetadata(context, viewId);
+            
+            return  new StateFlowViewMetadata(this, viewMetadata, viewId);
         }
     }
 
@@ -154,6 +157,60 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
 
         if (pushed) {
             manager.pop();
+        }
+        
+        if (!fc.getResponseComplete() && handler.hasViewRoot(fc)) {
+            SCXMLExecutor executor = handler.getRootExecutor(fc, executorId);
+            try {
+                EventDispatcher ed = executor.getEventdispatcher();
+                if (ed instanceof FacesProcessHolder) {
+                    EventBuilder deb = new EventBuilder(AFTER_BUILD_VIEW,
+                            TriggerEvent.CALL_EVENT)
+                            .sendId(viewRoot.getViewId());
+
+                    executor.triggerEvent(deb.build());
+                    ((FacesProcessHolder) ed).encodeBegin(fc);
+                    ((FacesProcessHolder) ed).encodeEnd(fc);
+                }
+            } catch (ModelException ex) {
+                throw new FacesException(ex);
+            }
+        }
+
+        List<String> clientIds = handler.getControllerClientIds(fc);
+        if (clientIds != null && !clientIds.isEmpty()) {
+            Set<VisitHint> hints = EnumSet.of(VisitHint.SKIP_ITERATION);
+            VisitContext visitContext = VisitContext.createVisitContext(fc, clientIds, hints);
+            viewRoot.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
+                if (target instanceof UIStateChartExecutor) {
+                    UIStateChartExecutor controller = (UIStateChartExecutor) target;
+                    String controllerId = controller.getClientId(fc);
+
+                    EventBuilder veb = new EventBuilder(AFTER_BUILD_VIEW, TriggerEvent.CALL_EVENT)
+                            .sendId(viewRoot.getViewId());
+
+                    SCXMLExecutor executor = null;
+                    String cexecutorId = controller.getExecutorId();
+                    if (cexecutorId != null) {
+                        executor = handler.getRootExecutor(fc, cexecutorId);
+                    }
+
+                    if (executor != null) {
+                        try {
+                            EventDispatcher ed = executor.getEventdispatcher();
+                            if (ed instanceof FacesProcessHolder) {
+                                executor.triggerEvent(veb.build());
+                                ((FacesProcessHolder) ed).encodeBegin(fc);
+                                ((FacesProcessHolder) ed).encodeEnd(fc);
+                            }
+                        } catch (ModelException | IOException ex) {
+                            throw new FacesException(ex);
+                        }
+                    }
+
+                }
+                return VisitResult.ACCEPT;
+            });
         }
     }
 

@@ -246,6 +246,12 @@ public class StateFlow {
     /**
      *
      */
+    public static final String AFTER_BUILD_VIEW = AFTER_PHASE_EVENT_PREFIX
+            + "BUILD_VIEW";
+    
+    /**
+     *
+     */
     public static final String BEFORE_RESTORE_VIEW = BEFORE_PHASE_EVENT_PREFIX
             + PhaseId.RESTORE_VIEW.getName().toLowerCase();
 
