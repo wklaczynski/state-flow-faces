@@ -33,6 +33,7 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
 import javax.faces.state.StateFlow;
+import static javax.faces.state.StateFlow.BEFORE_BUILD_VIEW;
 import static javax.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
@@ -55,10 +56,12 @@ import javax.faces.state.execute.ExecuteContextManager;
 import javax.faces.state.execute.ExecutorController;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.EventBuilder;
+import javax.faces.state.scxml.EventDispatcher;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.model.ModelException;
 import javax.faces.state.scxml.model.SCXML;
+import javax.faces.state.task.FacesProcessHolder;
 import javax.faces.view.facelets.CompositeFaceletHandler;
 import javax.faces.view.facelets.FaceletHandler;
 import javax.faces.view.facelets.Tag;
@@ -88,25 +91,40 @@ public class ExecuteHandler extends ComponentHandler {
 
     @Override
     public void applyNextHandler(FaceletContext ctx, UIComponent c) throws IOException, FacesException, ELException {
-        FacesContext context = ctx.getFacesContext();
+        FacesContext fc = ctx.getFacesContext();
         UIStateChartExecutor component = (UIStateChartExecutor) c;
 
-        ExecuteContextManager manager = ExecuteContextManager.getManager(context);
+        ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
         boolean pushed = false;
         try {
             String executorId = component.getExecutorId();
-            ExecuteExpressionFactory.getBuildPathStack(context).push(executorId);
+            ExecuteExpressionFactory.getBuildPathStack(fc).push(executorId);
 
             StateFlowHandler handler = StateFlowHandler.getInstance();
-            SCXMLExecutor executor = handler.getRootExecutor(context, executorId);
+            SCXMLExecutor executor = handler.getRootExecutor(fc, executorId);
             if (executor != null) {
                 String executePath = executor.getId();
                 Context ectx = executor.getGlobalContext();
                 ExecuteContext executeContext = new ExecuteContext(
                         executePath, executor, ectx);
 
-                manager.initExecuteContext(context, executePath, executeContext);
+                manager.initExecuteContext(fc, executePath, executeContext);
                 pushed = manager.push(executeContext);
+
+                try {
+                    UIViewRoot viewRoot = fc.getViewRoot();
+                    EventDispatcher ed = executor.getEventdispatcher();
+                    if (ed instanceof FacesProcessHolder) {
+                        EventBuilder deb = new EventBuilder(BEFORE_BUILD_VIEW,
+                                TriggerEvent.CALL_EVENT)
+                                .sendId(viewRoot.getViewId());
+
+                        executor.triggerEvent(deb.build());
+                    }
+                } catch (ModelException ex) {
+                    throw new FacesException(ex);
+                }
+
             }
 
             super.applyNextHandler(ctx, c);
@@ -115,16 +133,16 @@ public class ExecuteHandler extends ComponentHandler {
             if (pushed) {
                 manager.pop();
             }
-            ExecuteExpressionFactory.getBuildPathStack(context).pop();
+            ExecuteExpressionFactory.getBuildPathStack(fc).pop();
         }
 
     }
 
     @Override
     public void onComponentCreated(FaceletContext ctx, UIComponent c, UIComponent parent) {
-        FacesContext context = ctx.getFacesContext();
+        FacesContext fc = ctx.getFacesContext();
 
-        UIViewRoot viewRoot = context.getViewRoot();
+        UIViewRoot viewRoot = fc.getViewRoot();
         String viewId = viewRoot.getViewId();
 
         ValueExpression ve = name.getValueExpression(ctx, String.class);
@@ -132,7 +150,7 @@ public class ExecuteHandler extends ComponentHandler {
 
         UIStateChartExecutor component = (UIStateChartExecutor) c;
 
-        String rootId = (String) context.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+        String rootId = (String) fc.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
 
         URL url = getCompositeURL(ctx);
         if (url == null) {
@@ -174,7 +192,7 @@ public class ExecuteHandler extends ComponentHandler {
             controller.setExecutorId(executorId);
         }
 
-        buildController(ctx, viewRoot, component);
+        SCXMLExecutor executor = buildController(ctx, viewRoot, component);
 
     }
 
@@ -191,7 +209,6 @@ public class ExecuteHandler extends ComponentHandler {
 //        if (!clientIds.contains(clientId)) {
 //            clientIds.add(clientId);
 //        }
-
     }
 
     private SCXMLExecutor buildController(FaceletContext ctx, UIViewRoot viewRoot, UIStateChartExecutor component) {

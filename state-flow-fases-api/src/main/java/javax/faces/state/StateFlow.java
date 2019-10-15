@@ -246,6 +246,12 @@ public class StateFlow {
     /**
      *
      */
+    public static final String BEFORE_BUILD_VIEW = BEFORE_PHASE_EVENT_PREFIX
+            + "BUILD_VIEW";
+
+    /**
+     *
+     */
     public static final String AFTER_BUILD_VIEW = AFTER_PHASE_EVENT_PREFIX
             + "BUILD_VIEW";
     

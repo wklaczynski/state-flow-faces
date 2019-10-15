@@ -814,7 +814,7 @@ public class ViewInvoker implements Invoker, Serializable {
             if (viewId.equals(event.getSendId())) {
                 UIViewRoot viewRoot = context.getViewRoot();
 
-                if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
+                //if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
                     if (viewRoot != null) {
                         try {
                             ExecuteContext viewContext = new ExecuteContext(
@@ -831,7 +831,7 @@ public class ViewInvoker implements Invoker, Serializable {
                         applyParams(context, viewRoot, vieparams);
                         resolved = true;
                     }
-                }
+                //}
 
                 if (event.getName().startsWith(AFTER_RENDER_VIEW)) {
                     if (viewRoot != null) {

@@ -35,6 +35,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
 import javax.faces.render.ResponseStateManager;
 import static javax.faces.state.StateFlow.AFTER_BUILD_VIEW;
+import static javax.faces.state.StateFlow.BEFORE_BUILD_VIEW;
 import static javax.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import static javax.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
 import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
@@ -145,6 +146,20 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
 
             manager.initExecuteContext(fc, executePath, executeContext);
             pushed = manager.push(executeContext);
+            
+            SCXMLExecutor executor = handler.getRootExecutor(fc, executorId);
+            try {
+                EventDispatcher ed = executor.getEventdispatcher();
+                if (ed instanceof FacesProcessHolder) {
+                    EventBuilder deb = new EventBuilder(BEFORE_BUILD_VIEW,
+                            TriggerEvent.CALL_EVENT)
+                            .sendId(viewRoot.getViewId());
+
+                    executor.triggerEvent(deb.build());
+                }
+            } catch (ModelException ex) {
+                throw new FacesException(ex);
+            }
         }
 
         super.buildView(fc, viewRoot);
@@ -169,8 +184,6 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
                             .sendId(viewRoot.getViewId());
 
                     executor.triggerEvent(deb.build());
-                    ((FacesProcessHolder) ed).encodeBegin(fc);
-                    ((FacesProcessHolder) ed).encodeEnd(fc);
                 }
             } catch (ModelException ex) {
                 throw new FacesException(ex);
