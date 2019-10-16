@@ -415,7 +415,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     @Override
     public String getFlowId(FacesContext context) {
-        String executorId = getExecutorViewRootId(context);
+        String executorId = getViewExecutorId(context);
         if (executorId == null) {
             return null;
         }
@@ -449,7 +449,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
-    public String getExecutorViewRootId(FacesContext context) {
+    public String getViewExecutorId(FacesContext context) {
         String uuid = null;
 
         if (uuid == null) {
@@ -524,7 +524,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     @Override
     public SCXMLExecutor getViewExecutor(FacesContext context) {
-        String executorId = getExecutorViewRootId(context);
+        String executorId = getViewExecutorId(context);
         if (executorId == null) {
             return null;
         }
@@ -540,12 +540,24 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     @Override
+    public SCXMLExecutor getViewRootExecutor(FacesContext context) {
+        SCXMLExecutor executor = getViewExecutor(context);
+        if(executor != null) {
+            while (executor.getParentSCXMLIOProcessor() != null
+                    && executor.getParentSCXMLIOProcessor().getExecutor() != null) {
+                executor = executor.getParentSCXMLIOProcessor().getExecutor();
+            }
+        }
+        return executor;
+    }
+
+    @Override
     public boolean hasViewRoot(FacesContext context) {
         FlowDeque fs = getFlowDeque(context, false);
         if (fs == null) {
             return false;
         }
-        String executorId = getExecutorViewRootId(context);
+        String executorId = getViewExecutorId(context);
         return fs.getExecutors().containsKey(executorId);
     }
 
@@ -708,10 +720,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     @Override
     public void broadcastEvent(FacesContext fc, TriggerEvent evt) {
-        SCXMLExecutor rexecutor = getRootExecutor(fc);
-        if (rexecutor != null) {
+        SCXMLExecutor executor = getViewExecutor(fc);
+        if (executor != null) {
             try {
-                rexecutor.triggerEvent(evt);
+                executor.triggerEvent(evt);
             } catch (ModelException ex) {
                 throw new FacesException(ex);
             }
@@ -727,15 +739,15 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     UIStateChartExecutor controller = (UIStateChartExecutor) target;
                     String controllerId = controller.getClientId(fc);
 
-                    SCXMLExecutor executor = null;
+                    SCXMLExecutor cexecutor = null;
                     String executorId = controller.getExecutorId();
                     if (executorId != null) {
-                        executor = getRootExecutor(fc, executorId);
+                        cexecutor = getRootExecutor(fc, executorId);
                     }
 
-                    if (executor != null) {
+                    if (cexecutor != null) {
                         try {
-                            executor.triggerEvent(evt);
+                            cexecutor.triggerEvent(evt);
                         } catch (ModelException ex) {
                             throw new FacesException(ex);
                         }
@@ -762,7 +774,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return;
         }
 
-        String executorId = getExecutorViewRootId(context);
+        String executorId = getViewExecutorId(context);
 
         Map<String, SCXMLExecutor> executors = fs.getExecutors();
 
@@ -862,7 +874,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     }
 
     private FlowDeque getFlowDeque(FacesContext context, boolean create) {
-        String executorId = getExecutorViewRootId(context);
+        String executorId = getViewExecutorId(context);
         return getFlowDeque(context, executorId, create);
     }
 
@@ -948,7 +960,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     private void closeFlowDeque(FacesContext context) {
         ExternalContext ec = context.getExternalContext();
-        String executorId = getExecutorViewRootId(context);
+        String executorId = getViewExecutorId(context);
 
         FlowDeque flowDeque = getFlowDeque(context, executorId, false);
         if (flowDeque != null) {
@@ -991,7 +1003,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         }
 
         if (flowKey == null) {
-            String executorId = getExecutorViewRootId(context);
+            String executorId = getViewExecutorId(context);
             if (executorId == null) {
                 throw new IllegalStateException("Can not create flow queue can not set executor id.");
             }

@@ -137,7 +137,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
                 source = machineViewId;
             }
-            prevExecutorId = handler.getExecutorViewRootId(fc);
+            prevExecutorId = handler.getViewExecutorId(fc);
 
             viewId = source;
             String oldInvokeViewId = (String) executor.getRootContext().get(EXECUTOR_CONTEXT_VIEW_PATH);
@@ -462,7 +462,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
                 source = machineViewId;
             }
-            prevExecutorId = handler.getExecutorViewRootId(fc);
+            prevExecutorId = handler.getViewExecutorId(fc);
 
             viewId = source;
             String oldInvokeViewId = (String) executor.getRootContext().get(EXECUTOR_CONTEXT_VIEW_PATH);

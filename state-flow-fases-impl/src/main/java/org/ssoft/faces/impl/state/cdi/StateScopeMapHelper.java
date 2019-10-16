@@ -63,7 +63,7 @@ public class StateScopeMapHelper {
             rootId = (String) sctx.get(FACES_VIEW_ROOT_EXECUTOR_ID);
 
         } else {
-            sessionId = handler.getExecutorViewRootId(facesContext);
+            sessionId = handler.getViewExecutorId(facesContext);
         }
         return new StateScopeMapHelper(facesContext, context, prefix, sessionId, rootId);
     }

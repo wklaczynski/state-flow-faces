@@ -15,7 +15,6 @@
  */
 package org.ssoft.faces.impl.state.cdi;
 
-import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;

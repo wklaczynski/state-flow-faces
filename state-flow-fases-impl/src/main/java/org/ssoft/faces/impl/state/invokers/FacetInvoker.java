@@ -17,8 +17,10 @@
 package org.ssoft.faces.impl.state.invokers;
 
 import static com.sun.faces.util.RequestStateManager.FACES_VIEW_STATE;
+import java.io.IOException;
 import java.io.Serializable;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,7 +57,6 @@ import static javax.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_PATH;
 import static javax.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
-import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import static javax.faces.state.StateFlow.VIEW_RESTORED_HINT;
 import javax.faces.state.execute.ExecuteContextManager;
 import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
@@ -362,7 +363,7 @@ public class FacetInvoker implements Invoker, Serializable {
 
         } catch (FacesException | InvokerException ex) {
             throw ex;
-        } catch (Throwable ex) {
+        } catch (IOException | ParseException | ModelException ex) {
             logger.log(Level.SEVERE, "Invoke failed", ex);
             throw new InvokerException(ex.getMessage(), ex);
         }

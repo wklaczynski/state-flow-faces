@@ -136,26 +136,26 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
 
         boolean pushed = false;
 
-        SCXMLExecutor rootexecutor = handler.getRootExecutor(fc, executorId);
+        SCXMLExecutor executor = handler.getRootExecutor(fc, executorId);
 
-        if (rootexecutor != null) {
+        if (executor != null) {
             String executePath = executorId;
-            Context ectx = rootexecutor.getGlobalContext();
+            Context ectx = executor.getGlobalContext();
             ExecuteContext executeContext = new ExecuteContext(
-                    executePath, rootexecutor, ectx);
+                    executePath, executor, ectx);
 
             manager.initExecuteContext(fc, executePath, executeContext);
             pushed = manager.push(executeContext);
             
-            SCXMLExecutor executor = handler.getRootExecutor(fc, executorId);
+            SCXMLExecutor rexecutor = handler.getRootExecutor(fc, executorId);
             try {
-                EventDispatcher ed = executor.getEventdispatcher();
+                EventDispatcher ed = rexecutor.getEventdispatcher();
                 if (ed instanceof FacesProcessHolder) {
                     EventBuilder deb = new EventBuilder(BEFORE_BUILD_VIEW,
                             TriggerEvent.CALL_EVENT)
                             .sendId(viewRoot.getViewId());
 
-                    executor.triggerEvent(deb.build());
+                    rexecutor.triggerEvent(deb.build());
                 }
             } catch (ModelException ex) {
                 throw new FacesException(ex);
@@ -171,15 +171,15 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
         }
         
         if (!fc.getResponseComplete() && handler.hasViewRoot(fc)) {
-            SCXMLExecutor executor = handler.getRootExecutor(fc, executorId);
+            SCXMLExecutor rexecutor = handler.getRootExecutor(fc, executorId);
             try {
-                EventDispatcher ed = executor.getEventdispatcher();
+                EventDispatcher ed = rexecutor.getEventdispatcher();
                 if (ed instanceof FacesProcessHolder) {
                     EventBuilder deb = new EventBuilder(AFTER_BUILD_VIEW,
                             TriggerEvent.CALL_EVENT)
                             .sendId(viewRoot.getViewId());
 
-                    executor.triggerEvent(deb.build());
+                    rexecutor.triggerEvent(deb.build());
                 }
             } catch (ModelException ex) {
                 throw new FacesException(ex);
@@ -198,21 +198,19 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
                     EventBuilder veb = new EventBuilder(AFTER_BUILD_VIEW, TriggerEvent.CALL_EVENT)
                             .sendId(viewRoot.getViewId());
 
-                    SCXMLExecutor executor = null;
+                    SCXMLExecutor rexecutor = null;
                     String cexecutorId = controller.getExecutorId();
                     if (cexecutorId != null) {
-                        executor = handler.getRootExecutor(fc, cexecutorId);
+                        rexecutor = handler.getRootExecutor(fc, cexecutorId);
                     }
 
-                    if (executor != null) {
+                    if (rexecutor != null) {
                         try {
-                            EventDispatcher ed = executor.getEventdispatcher();
+                            EventDispatcher ed = rexecutor.getEventdispatcher();
                             if (ed instanceof FacesProcessHolder) {
-                                executor.triggerEvent(veb.build());
-                                ((FacesProcessHolder) ed).encodeBegin(fc);
-                                ((FacesProcessHolder) ed).encodeEnd(fc);
+                                rexecutor.triggerEvent(veb.build());
                             }
-                        } catch (ModelException | IOException ex) {
+                        } catch (ModelException ex) {
                             throw new FacesException(ex);
                         }
                     }
@@ -228,7 +226,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
     public void renderView(FacesContext fc, UIViewRoot viewRoot) throws IOException {
         StateFlowHandler handler = StateFlowHandler.getInstance();
         if (!fc.getResponseComplete() && viewRoot != null && handler.hasViewRoot(fc)) {
-            SCXMLExecutor executor = handler.getViewExecutor(fc);
+            SCXMLExecutor executor = handler.getViewRootExecutor(fc);
             try {
                 EventDispatcher ed = executor.getEventdispatcher();
                 if (ed instanceof FacesProcessHolder) {

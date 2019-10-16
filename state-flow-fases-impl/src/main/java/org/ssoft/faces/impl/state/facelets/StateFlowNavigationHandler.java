@@ -34,7 +34,6 @@ import javax.faces.state.StateFlowHandler;
 import javax.faces.state.component.UIStateChartFacetRender;
 import javax.faces.state.scxml.model.ModelException;
 import javax.faces.state.utils.ComponentUtils;
-import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
 
 /**
  *

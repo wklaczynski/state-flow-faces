@@ -243,7 +243,7 @@ public class ExecuteHandler extends ComponentHandler {
 
                 rctx.setLocal(FACES_CHART_EXECUTOR_VIEW_ID, viewId);
 
-            } catch (Throwable ex) {
+            } catch (ModelException ex) {
                 throw new TagException(tag, ex);
             } finally {
 //                component.popComponentFromEL(fc);
@@ -304,7 +304,7 @@ public class ExecuteHandler extends ComponentHandler {
                 ffield.setAccessible(faccessible);
             }
 
-        } catch (Throwable ex) {
+        } catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException ex) {
         }
 
         return url;

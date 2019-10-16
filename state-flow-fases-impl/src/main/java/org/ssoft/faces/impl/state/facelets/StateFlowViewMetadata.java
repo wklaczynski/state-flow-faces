@@ -71,13 +71,13 @@ public class StateFlowViewMetadata extends ViewMetadata {
 
         boolean pushed = false;
 
-        SCXMLExecutor rootexecutor = handler.getRootExecutor(fc, executorId);
+        SCXMLExecutor executor = handler.getExecutor(fc, executorId);
 
-        if (rootexecutor != null) {
+        if (executor != null) {
             String executePath = executorId;
-            Context ectx = rootexecutor.getGlobalContext();
+            Context ectx = executor.getGlobalContext();
             ExecuteContext executeContext = new ExecuteContext(
-                    executePath, rootexecutor, ectx);
+                    executePath, executor, ectx);
 
             manager.initExecuteContext(fc, executePath, executeContext);
             pushed = manager.push(executeContext);

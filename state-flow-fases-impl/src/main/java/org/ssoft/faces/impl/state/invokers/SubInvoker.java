@@ -203,7 +203,7 @@ public class SubInvoker implements Invoker, StateHolder {
                 executeComponent.popComponentFromEL(fc);
             }
 
-            prevRootExecutorId = handler.getExecutorViewRootId(fc);
+            prevRootExecutorId = handler.getViewExecutorId(fc);
 
             Context cctx = executor.getRootContext();
             cctx.setLocal(FACES_CHART_CONTROLLER_TYPE, controllerType);

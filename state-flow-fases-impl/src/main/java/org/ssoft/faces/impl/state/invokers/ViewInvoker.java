@@ -20,6 +20,7 @@ import static com.sun.faces.util.RequestStateManager.FACES_VIEW_STATE;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,7 +55,6 @@ import javax.faces.state.scxml.SCXMLIOProcessor;
 import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.invoke.Invoker;
 import javax.faces.state.scxml.invoke.InvokerException;
-import static javax.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static javax.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static javax.faces.state.StateFlow.VIEW_EVENT_PREFIX;
 import javax.faces.state.StateFlowHandler;
@@ -176,7 +176,7 @@ public class ViewInvoker implements Invoker, Serializable {
                 throw new IOException(String.format("invoke source \"%s\" not found", source), th);
             }
             viewId = vh.deriveLogicalViewId(fc, viewId);
-            prevRootExecutorId = handler.getExecutorViewRootId(fc);
+            prevRootExecutorId = handler.getViewExecutorId(fc);
 
             String oldInvokeViewId = (String) executor.getRootContext().get(EXECUTOR_CONTEXT_VIEW_PATH);
             if (oldInvokeViewId != null) {
@@ -344,11 +344,11 @@ public class ViewInvoker implements Invoker, Serializable {
                 if (!usewindow) {
                     if (useflash) {
                         Flash flash = ec.getFlash();
-                        flash.put("exid", executor.getRootId());
+                        flash.put("exid", executor.getId());
                         flash.setKeepMessages(true);
                         flash.setRedirect(true);
                     } else {
-                        reqparams.put("exid", Arrays.asList(executor.getRootId()));
+                        reqparams.put("exid", Arrays.asList(executor.getId()));
                     }
                 }
 
@@ -415,7 +415,7 @@ public class ViewInvoker implements Invoker, Serializable {
 
         } catch (FacesException | InvokerException ex) {
             throw ex;
-        } catch (Throwable ex) {
+        } catch (IOException | ParseException | ModelException ex) {
             logger.log(Level.SEVERE, "Invoke failed", ex);
             throw new InvokerException(ex.getMessage(), ex);
         } finally {
@@ -449,7 +449,7 @@ public class ViewInvoker implements Invoker, Serializable {
                 throw new IOException(String.format("invoke source \"%s\" not found", source), th);
             }
             viewId = vh.deriveLogicalViewId(fc, viewId);
-            prevRootExecutorId = handler.getExecutorViewRootId(fc);
+            prevRootExecutorId = handler.getViewExecutorId(fc);
 
             String oldInvokeViewId = (String) executor.getRootContext().get(EXECUTOR_CONTEXT_VIEW_PATH);
             if (oldInvokeViewId == null) {
@@ -594,8 +594,8 @@ public class ViewInvoker implements Invoker, Serializable {
             PartialViewContext pvc = fc.getPartialViewContext();
             if ((redirect || (pvc != null && ajaxredirect && pvc.isAjaxRequest()))) {
 
-                Context fctx = handler.getFlowContext(fc, executor.getRootId());
-                fctx.setLocal(FACES_VIEW_ROOT_EXECUTOR_ID, executor.getRootId());
+                Context fctx = handler.getFlowContext(fc, executor.getId());
+                fctx.setLocal(FACES_VIEW_ROOT_EXECUTOR_ID, executor.getId());
                 if (lastViewState != null) {
                     fctx.setLocal(FACES_VIEW_STATE, lastViewState);
                 }
@@ -603,11 +603,11 @@ public class ViewInvoker implements Invoker, Serializable {
                 if (!usewindow) {
                     if (useflash) {
                         Flash flash = ec.getFlash();
-                        flash.put("exid", executor.getRootId());
+                        flash.put("exid", executor.getId());
                         flash.setKeepMessages(true);
                         flash.setRedirect(true);
                     } else {
-                        reqparams.put("exid", Arrays.asList(executor.getRootId()));
+                        reqparams.put("exid", Arrays.asList(executor.getId()));
                     }
                 }
 
@@ -674,7 +674,7 @@ public class ViewInvoker implements Invoker, Serializable {
 
         } catch (FacesException ex) {
             throw ex;
-        } catch (Throwable ex) {
+        } catch (IOException | ParseException | InvokerException | ModelException ex) {
             throw new FacesException(ex);
         } finally {
             fc.setProcessingEvents(oldProcessingEvents);

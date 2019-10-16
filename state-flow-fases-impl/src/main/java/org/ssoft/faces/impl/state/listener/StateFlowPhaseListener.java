@@ -88,12 +88,11 @@ public class StateFlowPhaseListener implements PhaseListener {
             String name = AFTER_PHASE_EVENT_PREFIX
                     + event.getPhaseId().getName().toLowerCase();
 
+            EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
+                    .sendId(fc.getViewRoot().getViewId());
+            
             if (handler.hasViewRoot(fc)) {
-                SCXMLExecutor executor = handler.getViewExecutor(fc);
-
-                EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
-                        .sendId(fc.getViewRoot().getViewId());
-
+                SCXMLExecutor executor = handler.getViewRootExecutor(fc);
                 try {
                     executor.triggerEvent(eb.build());
                 } catch (ModelException ex) {
@@ -108,7 +107,6 @@ public class StateFlowPhaseListener implements PhaseListener {
                 viewRoot.visitTree(visitContext, (VisitContext context, UIComponent target) -> {
                     if (target instanceof UIStateChartExecutor) {
                         UIStateChartExecutor controller = (UIStateChartExecutor) target;
-                        String controllerId = controller.getClientId(fc);
 
                         EventBuilder veb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
                                 .sendId(viewRoot.getViewId());
@@ -162,7 +160,7 @@ public class StateFlowPhaseListener implements PhaseListener {
                     EventBuilder eb = new EventBuilder(name, TriggerEvent.CALL_EVENT)
                             .sendId(viewRoot.getViewId());
 
-                    SCXMLExecutor executor = handler.getViewExecutor(fc);
+                    SCXMLExecutor executor = handler.getViewRootExecutor(fc);
                     try {
                         executor.triggerEvent(eb.build());
                     } catch (ModelException ex) {

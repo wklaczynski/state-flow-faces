@@ -34,7 +34,6 @@ import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.model.ModelException;
 import javax.faces.state.task.FacesProcessHolder;
 import org.ssoft.faces.impl.state.el.ExecuteExpressionFactory;
-import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
 
 public class StateFlowResourceHandler extends ResourceHandlerWrapper {
 

@@ -90,7 +90,7 @@ public abstract class StateFlowHandler {
      * @param context
      * @return
      */
-    public abstract String getExecutorViewRootId(FacesContext context);
+    public abstract String getViewExecutorId(FacesContext context);
 
 //    /**
 //     *
@@ -122,6 +122,13 @@ public abstract class StateFlowHandler {
      * @return
      */
     public abstract SCXMLExecutor getViewExecutor(FacesContext context);
+    
+    /**
+     *
+     * @param context
+     * @return
+     */
+    public abstract SCXMLExecutor getViewRootExecutor(FacesContext context);
 
     /**
      *

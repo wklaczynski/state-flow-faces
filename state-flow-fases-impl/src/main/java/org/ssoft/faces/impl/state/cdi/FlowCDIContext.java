@@ -35,7 +35,6 @@ import javax.servlet.http.HttpSessionEvent;
 import org.ssoft.faces.impl.state.StateFlowImplConstants;
 import org.ssoft.faces.impl.state.log.FlowLogger;
 import javax.faces.state.annotation.FlowScoped;
-import javax.faces.state.scxml.SCXMLExecutor;
 
 /**
  *
