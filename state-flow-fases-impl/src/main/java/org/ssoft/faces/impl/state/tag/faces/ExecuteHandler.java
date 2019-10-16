@@ -48,7 +48,6 @@ import static javax.faces.state.StateFlow.FACES_CHART_CONTINER_SOURCE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import javax.faces.state.component.UIStateChartExecutor;
-import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.execute.ExecuteContext;
@@ -68,6 +67,7 @@ import javax.faces.view.facelets.Tag;
 import org.ssoft.faces.impl.state.el.ExecuteExpressionFactory;
 import org.ssoft.faces.impl.state.log.FlowLogger;
 import static org.ssoft.faces.impl.state.utils.Util.findStateMachine;
+import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
 
 /**
  */
@@ -150,7 +150,7 @@ public class ExecuteHandler extends ComponentHandler {
 
         UIStateChartExecutor component = (UIStateChartExecutor) c;
 
-        String rootId = (String) fc.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+        String rootId = (String) fc.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
 
         URL url = getCompositeURL(ctx);
         if (url == null) {
@@ -166,6 +166,9 @@ public class ExecuteHandler extends ComponentHandler {
         c.getAttributes().put(UIStateChartExecutor.SCXML_NAME, scxmlName);
 
         String executorName = "controller[" + tag + "]" + viewId + "!" + url.getPath() + "#" + scxmlName;
+        
+        //ctx.generateUniqueId(tagId);
+        
         String executorId = rootId + ":" + UUID.nameUUIDFromBytes(executorName.getBytes()).toString();
 
         String currentExecutorId = component.getExecutorId();
@@ -216,7 +219,7 @@ public class ExecuteHandler extends ComponentHandler {
         String executorId = component.getExecutorId();
         StateFlowHandler handler = StateFlowHandler.getInstance();
         String viewId = viewRoot.getViewId();
-        String rootId = (String) fc.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+        String rootId = (String) fc.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
 
         String scxmlName = (String) component.getAttributes().get(UIStateChartExecutor.SCXML_NAME);
         URL url = (URL) component.getAttributes().get(UIStateChartExecutor.SCXML_URL);
@@ -232,13 +235,13 @@ public class ExecuteHandler extends ComponentHandler {
                 SCXML stateMachine = findStateMachine(fc, continerName, scxmlName, url);
                 executor = handler.createRootExecutor(executorId, fc, stateMachine);
                 executor.getSCInstance().getSystemContext();
-                Context sctx = executor.getRootContext();
-                sctx.setLocal(FACES_CHART_CONTROLLER_TYPE, EXECUTOR_CONTROLLER_TYPE);
-                sctx.setLocal(FACES_CHART_CONTINER_NAME, continerName);
-                sctx.setLocal(FACES_CHART_CONTINER_SOURCE, url);
-                sctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, rootId);
+                Context rctx = executor.getRootContext();
+                rctx.setLocal(FACES_CHART_CONTROLLER_TYPE, EXECUTOR_CONTROLLER_TYPE);
+                rctx.setLocal(FACES_CHART_CONTINER_NAME, continerName);
+                rctx.setLocal(FACES_CHART_CONTINER_SOURCE, url);
+                rctx.setLocal(FACES_VIEW_ROOT_EXECUTOR_ID, rootId);
 
-                sctx.setLocal(FACES_CHART_EXECUTOR_VIEW_ID, viewId);
+                rctx.setLocal(FACES_CHART_EXECUTOR_VIEW_ID, viewId);
 
             } catch (Throwable ex) {
                 throw new TagException(tag, ex);

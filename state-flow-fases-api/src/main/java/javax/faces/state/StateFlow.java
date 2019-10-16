@@ -196,7 +196,7 @@ public class StateFlow {
     /**
      *
      */
-    public static final String FACES_EXECUTOR_VIEW_ROOT_ID = "com.sun.faces.FACES_EXECUTOR_VIEW_ROOT_ID";
+    public static final String FACES_VIEW_ROOT_EXECUTOR_ID = "com.sun.faces.FACES_VIEW_ROOT_EXECUTOR_ID";
 
     /**
      *

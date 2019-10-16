@@ -38,7 +38,7 @@ public class StateFlowResource extends ResourceWrapper {
         queyParams = "";
         SCXMLExecutor executor = getExecutor();
         if(executor != null) {
-            queyParams = "&exid=" + executor.getClientId();
+            queyParams = "&exid=" + executor.getId();
         }
     }
 

@@ -95,7 +95,6 @@ import javax.faces.state.execute.ExecuteContext;
 import static javax.faces.state.StateFlow.BUILD_STATE_CONTINER_HINT;
 import static javax.faces.state.StateFlow.BUILD_STATE_MACHINE_HINT;
 import static javax.faces.state.StateFlow.CONTROLLER_SET_HINT;
-import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static javax.faces.state.StateFlow.PORTLET_EVENT_PREFIX;
 import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.task.TimerEventProducer;
@@ -108,6 +107,7 @@ import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
 import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.scxml.SCXMLSystemContext;
 import javax.faces.state.execute.ExecuteContextManager;
+import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
 
 /**
  *
@@ -455,15 +455,14 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         if (uuid == null) {
             UIViewRoot viewRoot = context.getViewRoot();
             if (viewRoot != null) {
-                uuid = (String) viewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                uuid = (String) viewRoot.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
             }
         }
 
         if (uuid == null) {
-            uuid = (String) context.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+            uuid = (String) context.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
         }
 
-        //context.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, uuid);
         return uuid;
     }
 
@@ -653,7 +652,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             Map<String, String> roots = fs.getRoots();
             Map<String, SCXMLExecutor> executors = fs.getExecutors();
 
-            String executorId = executor.getClientId();
+            String executorId = executor.getId();
 
             executors.put(executorId, executor);
             if (root) {

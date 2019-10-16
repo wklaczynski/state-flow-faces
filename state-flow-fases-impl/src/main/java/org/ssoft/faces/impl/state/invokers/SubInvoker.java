@@ -193,8 +193,10 @@ public class SubInvoker implements Invoker, StateHolder {
                     throw new InvokerException(String.format(
                             "invoked scxml id='%s' not found in %s", scxmlId, viewId));
                 }
+                
+                String parentid = parentSCXMLExecutor.getId();
 
-                String childId = UUID.randomUUID().toString();
+                String childId = parentid + ":" + UUID.randomUUID().toString();
 
                 executor = handler.createChildExecutor(childId, fc, parentSCXMLExecutor, invokeId, scxml);
             } finally {
@@ -208,7 +210,7 @@ public class SubInvoker implements Invoker, StateHolder {
             cctx.setLocal(FACES_CHART_CONTINER_NAME, continerName);
             cctx.setLocal(FACES_CHART_CONTINER_SOURCE, continerSource);
 
-            path = executor.getClientId();
+            path = executor.getId();
 
             ExecuteContext viewContext = new ExecuteContext(
                     path, invokeId, executor, executor.getGlobalContext());
@@ -225,7 +227,7 @@ public class SubInvoker implements Invoker, StateHolder {
                 ExecuteContext prevExecuteContext = manager.findExecuteContextByPath(fc, executePath);
 
                 if (prevExecuteContext != null) {
-                    prevViewExecutorId = prevExecuteContext.getExecutor().getClientId();
+                    prevViewExecutorId = prevExecuteContext.getExecutor().getId();
                 }
 
                 UIComponent cc = UIComponent.getCurrentComponent(fc);

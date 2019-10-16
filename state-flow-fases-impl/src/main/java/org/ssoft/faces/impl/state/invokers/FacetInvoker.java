@@ -55,9 +55,10 @@ import static javax.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_PATH;
 import static javax.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
-import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
+import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import static javax.faces.state.StateFlow.VIEW_RESTORED_HINT;
 import javax.faces.state.execute.ExecuteContextManager;
+import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
 
 /**
  * A simple {@link Invoker} for SCXML documents. Invoked SCXML document may not
@@ -284,13 +285,14 @@ public class FacetInvoker implements Invoker, Serializable {
             PartialViewContext pvc = fc.getPartialViewContext();
             if ((redirect || (pvc != null && ajaxredirect && pvc.isAjaxRequest()))) {
 
-                String viewExecuteId = executor.getRootId();
+                Context rctx = executor.getRootContext();
+                String viewExecuteId = (String) rctx.get(FACES_VIEW_ROOT_EXECUTOR_ID);
                 if (currentViewRoot != null) {
-                    viewExecuteId = (String) currentViewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                    viewExecuteId = (String) currentViewRoot.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
                 }
 
                 Context fctx = handler.getFlowContext(fc, viewExecuteId);
-                fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, viewExecuteId);
+                fctx.setLocal(FACES_VIEW_ROOT_EXECUTOR_ID, viewExecuteId);
                 if (lastViewState != null) {
                     fctx.setLocal(FACES_VIEW_STATE, lastViewState);
                 }
@@ -323,13 +325,14 @@ public class FacetInvoker implements Invoker, Serializable {
                     }
                 }
 
-                String viewExecuteId = executor.getRootId();
+                Context rctx = executor.getRootContext();
+                String viewExecuteId = (String) rctx.get(FACES_VIEW_ROOT_EXECUTOR_ID);
                 if (currentViewRoot != null) {
-                    viewExecuteId = (String) currentViewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                    viewExecuteId = (String) currentViewRoot.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
                 }
 
                 Context fctx = handler.getFlowContext(fc, viewExecuteId);
-                fctx.setLocal(FACES_EXECUTOR_VIEW_ROOT_ID, viewExecuteId);
+                fctx.setLocal(FACES_VIEW_ROOT_EXECUTOR_ID, viewExecuteId);
                 if (lastViewState != null) {
                     fctx.setLocal(FACES_VIEW_STATE, lastViewState);
                 }

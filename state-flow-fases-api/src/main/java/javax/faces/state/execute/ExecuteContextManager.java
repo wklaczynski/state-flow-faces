@@ -22,13 +22,13 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIParameter;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
-import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.component.UIStateChartFacetRender;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.utils.ComponentUtils;
+import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
 
 /**
  *
@@ -202,9 +202,9 @@ public class ExecuteContextManager {
 
         String path = null;
 
-        executorId = (String) context.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+        executorId = (String) context.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
         if (viewRoot != null) {
-            executorId = (String) viewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+            executorId = (String) viewRoot.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
             if (executorId != null) {
 
                 if (component != null) {
@@ -236,7 +236,7 @@ public class ExecuteContextManager {
                 }
 
                 if (executorId == null) {
-                    executorId = (String) viewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                    executorId = (String) viewRoot.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
                 }
                 if (path == null) {
                     path = executorId + ":" + viewRoot.getViewId();
@@ -298,7 +298,7 @@ public class ExecuteContextManager {
 
             if (path == null) {
                 if (viewRoot != null) {
-                    executorId = (String) viewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                    executorId = (String) viewRoot.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
                     if (executorId != null) {
                         path = executorId + ":" + viewRoot.getViewId();
                     }
@@ -330,7 +330,7 @@ public class ExecuteContextManager {
 
             if (executorId == null) {
                 if (viewRoot != null) {
-                    executorId = (String) viewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                    executorId = (String) viewRoot.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
                 }
             }
 

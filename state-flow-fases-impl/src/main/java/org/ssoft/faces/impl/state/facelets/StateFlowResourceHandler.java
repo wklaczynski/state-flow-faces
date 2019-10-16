@@ -23,7 +23,6 @@ import javax.faces.application.ResourceHandler;
 import javax.faces.application.ResourceHandlerWrapper;
 import javax.faces.context.FacesContext;
 import static javax.faces.state.StateFlow.BEFORE_HANDLE_RESOURCE;
-import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.execute.ExecuteContextManager;
@@ -35,6 +34,7 @@ import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.model.ModelException;
 import javax.faces.state.task.FacesProcessHolder;
 import org.ssoft.faces.impl.state.el.ExecuteExpressionFactory;
+import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
 
 public class StateFlowResourceHandler extends ResourceHandlerWrapper {
 
@@ -82,15 +82,22 @@ public class StateFlowResourceHandler extends ResourceHandlerWrapper {
             executorId = params.get("exid");
         }
         SCXMLExecutor executor = null;
-        
-        if(executorId != null) {
-           executor = handler.getExecutor(fc, executorId);
+
+        if (executorId != null) {
+            executor = handler.getExecutor(fc, executorId);
         }
 
         if (executor != null) {
-            
 
             Context ctx = handler.getFlowContext(fc, executorId);
+
+//            Context rctx = executor.getRootContext();
+//            String rootid = (String) rctx.get(FACES_VIEW_ROOT_EXECUTOR_ID);
+
+//            if (rootid != null) {
+//                fc.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, rootid);
+//                ctx.removeLocal(FACES_VIEW_ROOT_EXECUTOR_ID);
+//            }
 
             SCXMLExecutor rootexecutor = handler.getRootExecutor(fc, executorId);
 
@@ -109,14 +116,9 @@ public class StateFlowResourceHandler extends ResourceHandlerWrapper {
             pushed = manager.push(executeContext);
 
             if (rootexecutor != null) {
-                String rootid = rootexecutor.getId();
-                if (rootid != null) {
-                    fc.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, rootid);
-                    ctx.removeLocal(FACES_EXECUTOR_VIEW_ROOT_ID);
-                }
 
                 String resId = fc.getExternalContext().getRequestPathInfo();
-                
+
                 try {
                     EventDispatcher ed = rootexecutor.getEventdispatcher();
                     if (ed instanceof FacesProcessHolder) {

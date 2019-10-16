@@ -37,13 +37,6 @@ public interface SCXMLIOProcessor {
     String getRootId();
 
     /**
-     * Get the id.
-     *
-     * @return String An identifier.
-     */
-    String getClientId();
-    
-    /**
      * The name of the default SCXML I/O Event Processor
      */
     String DEFAULT_EVENT_PROCESSOR = "http://www.w3.org/TR/scxml/#SCXMLEventProcessor";

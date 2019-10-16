@@ -26,7 +26,6 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
-import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import static javax.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.scxml.SCXMLExecutor;
@@ -35,6 +34,7 @@ import javax.faces.state.StateFlowHandler;
 import javax.faces.state.component.UIStateChartFacetRender;
 import javax.faces.state.scxml.model.ModelException;
 import javax.faces.state.utils.ComponentUtils;
+import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
 
 /**
  *

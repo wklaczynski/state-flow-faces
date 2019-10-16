@@ -24,12 +24,12 @@ import javax.enterprise.context.spi.Contextual;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.Context;
 import javax.servlet.http.HttpSession;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.env.SimpleContext;
+import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
 
 /**
  *
@@ -60,7 +60,7 @@ public class StateScopeMapHelper {
         if (executor != null) {
             sessionId = executor.getId();
             Context sctx = executor.getRootContext();
-            rootId = (String) sctx.get(FACES_EXECUTOR_VIEW_ROOT_ID);
+            rootId = (String) sctx.get(FACES_VIEW_ROOT_EXECUTOR_ID);
 
         } else {
             sessionId = handler.getExecutorViewRootId(facesContext);
@@ -202,8 +202,8 @@ public class StateScopeMapHelper {
         if (null == result) {
             Context parent = null;
             Context sctx = executor.getRootContext();
-            String nextId = (String) sctx.get(FACES_EXECUTOR_VIEW_ROOT_ID);
-            if (nextId != null) {
+            String nextId = (String) sctx.get(FACES_VIEW_ROOT_EXECUTOR_ID);
+            if (nextId != null && !nextId.equals(parentId)) {
                 SCXMLExecutor next = fh.getRootExecutor(fc, nextId);
                 if (next != null) {
                     parent = getParentScopeBeanContext(fc, fh, next);

@@ -18,7 +18,6 @@ package org.ssoft.faces.impl.state.facelets;
 import java.util.UUID;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
-import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.execute.ExecuteContextManager;
@@ -27,6 +26,7 @@ import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.view.ViewDeclarationLanguage;
 import javax.faces.view.ViewMetadata;
 import org.ssoft.faces.impl.state.el.ExecuteExpressionFactory;
+import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
 
 /**
  *
@@ -59,10 +59,10 @@ public class StateFlowViewMetadata extends ViewMetadata {
     public UIViewRoot createMetadataView(FacesContext fc) {
         
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        String executorId = (String) fc.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+        String executorId = (String) fc.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
         if (executorId == null) {
             executorId = UUID.randomUUID().toString();
-            fc.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+            fc.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executorId);
         }
 
         ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
@@ -86,10 +86,6 @@ public class StateFlowViewMetadata extends ViewMetadata {
        UIViewRoot viewRoot = wraped.createMetadataView(fc);
 
         ExecuteExpressionFactory.getBuildPathStack(fc).pop();
-
-        if (executorId != null) {
-            fc.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
-        }
 
         if (pushed) {
             manager.pop();

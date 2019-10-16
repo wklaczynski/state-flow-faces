@@ -63,9 +63,9 @@ import static javax.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import static javax.faces.state.StateFlow.DEFAULT_STATE_MACHINE_NAME;
-import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.execute.ExecuteContextManager;
+import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
 
 /**
  *
@@ -262,12 +262,12 @@ public class StateFlowPhaseListener implements PhaseListener {
             Context ctx = handler.getFlowContext(fc, executorId);
             if (ctx != null) {
                 if (executorId == null) {
-                    executorId = (String) ctx.get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                    executorId = (String) ctx.get(FACES_VIEW_ROOT_EXECUTOR_ID);
                 }
 
                 if (executorId != null) {
-                    fc.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
-                    ctx.removeLocal(FACES_EXECUTOR_VIEW_ROOT_ID);
+                    fc.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executorId);
+                    ctx.removeLocal(FACES_VIEW_ROOT_EXECUTOR_ID);
                 }
 
                 Object lastViewState = ctx.get(FACES_VIEW_STATE);
@@ -315,9 +315,9 @@ public class StateFlowPhaseListener implements PhaseListener {
                 if (rawState != null) {
                     Map<String, Object> state = (Map<String, Object>) rawState[1];
                     if (state != null) {
-                        String uuid = (String) state.get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                        String uuid = (String) state.get(FACES_VIEW_ROOT_EXECUTOR_ID);
                         if (uuid != null) {
-                            viewRoot.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, uuid);
+                            viewRoot.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, uuid);
                         }
 
                         String cid = viewRoot.getClientId(context);
@@ -373,7 +373,7 @@ public class StateFlowPhaseListener implements PhaseListener {
 
         StateFlowHandler flowHandler = StateFlowHandler.getInstance();
 
-        String executorId = (String) viewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+        String executorId = (String) viewRoot.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
         if (executorId != null) {
             SCXMLExecutor executor = flowHandler.getRootExecutor(context, executorId);
             if (executor != null) {
@@ -458,12 +458,13 @@ public class StateFlowPhaseListener implements PhaseListener {
             }
 
             executor = handler.createRootExecutor(executorId, context, stateFlow);
-            Context sctx = executor.getRootContext();
-            sctx.setLocal(FACES_CHART_CONTROLLER_TYPE, VIEWROOT_CONTROLLER_TYPE);
+            Context rctx = executor.getRootContext();
+            rctx.setLocal(FACES_CHART_CONTROLLER_TYPE, VIEWROOT_CONTROLLER_TYPE);
+            rctx.setLocal(FACES_VIEW_ROOT_EXECUTOR_ID, executor.getId());
 
             if (null != currentViewRoot) {
                 String viewId = currentViewRoot.getViewId();
-                sctx.setLocal(FACES_CHART_EXECUTOR_VIEW_ID, viewId);
+                rctx.setLocal(FACES_CHART_EXECUTOR_VIEW_ID, viewId);
             }
 
             handler.execute(context, executor, params);

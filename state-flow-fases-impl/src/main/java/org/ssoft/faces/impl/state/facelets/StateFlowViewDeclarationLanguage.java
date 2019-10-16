@@ -38,7 +38,6 @@ import static javax.faces.state.StateFlow.AFTER_BUILD_VIEW;
 import static javax.faces.state.StateFlow.BEFORE_BUILD_VIEW;
 import static javax.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import static javax.faces.state.StateFlow.ENCODE_DISPATCHER_EVENTS;
-import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.execute.ExecuteContext;
@@ -59,6 +58,7 @@ import org.ssoft.faces.impl.state.config.StateWebConfiguration;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.ORGINAL_SCXML_SUFIX;
 import org.ssoft.faces.impl.state.el.ExecuteExpressionFactory;
 import org.ssoft.faces.impl.state.log.FlowLogger;
+import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
 
 /**
  *
@@ -106,7 +106,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
 
     @Override
     public UIViewRoot createView(FacesContext fc, String viewId) {
-        String executorId = (String) fc.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+        String executorId = (String) fc.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
         if (executorId == null) {
             executorId = UUID.randomUUID().toString();
         }
@@ -114,8 +114,8 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
         UIViewRoot viewRoot = super.createView(fc, viewId);
 
         if (executorId != null) {
-            viewRoot.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
-            fc.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+            viewRoot.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executorId);
+            fc.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executorId);
         }
 
         return viewRoot;
@@ -124,10 +124,10 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
     @Override
     public void buildView(FacesContext fc, UIViewRoot viewRoot) throws IOException {
         StateFlowHandler handler = StateFlowHandler.getInstance();
-        String executorId = (String) fc.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+        String executorId = (String) fc.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
         if (executorId == null) {
             executorId = UUID.randomUUID().toString();
-            fc.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+            fc.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executorId);
         }
 
         ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
@@ -165,10 +165,6 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
         super.buildView(fc, viewRoot);
 
         ExecuteExpressionFactory.getBuildPathStack(fc).pop();
-
-        if (executorId != null) {
-            fc.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
-        }
 
         if (pushed) {
             manager.pop();
@@ -302,7 +298,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
         if (rawState != null) {
             Map<String, Object> state = (Map<String, Object>) rawState[1];
             if (state != null) {
-                executorId = (String) state.get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                executorId = (String) state.get(FACES_VIEW_ROOT_EXECUTOR_ID);
             }
         }
         StateFlowHandler handler = StateFlowHandler.getInstance();
@@ -310,7 +306,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
             executorId = UUID.randomUUID().toString();
         }
 
-        fc.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+        fc.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executorId);
 
         SCXMLExecutor executor = handler.getRootExecutor(fc, executorId);
 
@@ -342,7 +338,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
         UIViewRoot viewRoot = super.restoreView(fc, viewId);
 
         if (executorId != null) {
-            viewRoot.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+            viewRoot.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executorId);
         }
 
         if (pushed) {
@@ -387,14 +383,14 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
                 String viewId = null;
                 if (viewRoot != null) {
                     viewId = viewRoot.getViewId();
-                    executorId = (String) viewRoot.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                    executorId = (String) viewRoot.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
                 }
 
                 if (executorId != null) {
                     if (rawState != null) {
                         Map<String, Object> state = (Map<String, Object>) rawState[1];
                         if (state != null) {
-                            state.put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+                            state.put(FACES_VIEW_ROOT_EXECUTOR_ID, executorId);
                         }
                     }
                 }
@@ -410,7 +406,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
                 if (rawState != null) {
                     Map<String, Object> state = (Map<String, Object>) rawState[1];
                     if (state != null) {
-                        executorId = (String) state.get(FACES_EXECUTOR_VIEW_ROOT_ID);
+                        executorId = (String) state.get(FACES_VIEW_ROOT_EXECUTOR_ID);
                     }
                 }
                 if (executorId == null) {
@@ -419,7 +415,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
                 UIViewRoot viewRoot = parent.restoreView(context, viewId, renderKitId);
 
                 if (executorId != null) {
-                    viewRoot.getAttributes().put(FACES_EXECUTOR_VIEW_ROOT_ID, executorId);
+                    viewRoot.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executorId);
                 }
 
                 return viewRoot;

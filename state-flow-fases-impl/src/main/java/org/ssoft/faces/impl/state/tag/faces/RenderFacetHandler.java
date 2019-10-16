@@ -23,7 +23,6 @@ import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.state.StateFlow;
-import static javax.faces.state.StateFlow.FACES_EXECUTOR_VIEW_ROOT_ID;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.FaceletContext;
@@ -35,6 +34,7 @@ import javax.faces.state.utils.ComponentUtils;
 import javax.faces.state.execute.ExecutorController;
 import org.ssoft.faces.impl.state.el.ExecuteExpressionFactory;
 import org.ssoft.faces.impl.state.log.FlowLogger;
+import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
 
 /**
  */
@@ -81,7 +81,7 @@ public class RenderFacetHandler extends ComponentHandler {
 
             render.setExecutorId(executorId);
         } else {
-            String rootId = (String) context.getAttributes().get(FACES_EXECUTOR_VIEW_ROOT_ID);
+            String rootId = (String) context.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
             if (rootId == null) {
                 throw new TagException(this.tag,
                         "Unable to render facet execute component, "
