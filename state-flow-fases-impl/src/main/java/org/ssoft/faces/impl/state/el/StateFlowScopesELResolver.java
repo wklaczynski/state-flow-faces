@@ -626,6 +626,9 @@ public class StateFlowScopesELResolver extends ELResolver {
         }
 
         public Object get(String name) {
+            if(name.equals("execute")) {
+                return executor;
+            }
             return ctx.get(name);
         }
 
@@ -634,6 +637,9 @@ public class StateFlowScopesELResolver extends ELResolver {
         }
 
         public boolean has(String name) {
+            if(name.equals("execute")) {
+                return true;
+            }
             return ctx.has(name);
         }
 
@@ -662,6 +668,9 @@ public class StateFlowScopesELResolver extends ELResolver {
         }
 
         public Object get(String name) {
+            if(name.equals("execute")) {
+                return executor;
+            }
             return ctx.get(name);
         }
 
@@ -670,6 +679,9 @@ public class StateFlowScopesELResolver extends ELResolver {
         }
 
         public boolean has(String name) {
+            if(name.equals("execute")) {
+                return true;
+            }
             return ctx.has(name);
         }
 

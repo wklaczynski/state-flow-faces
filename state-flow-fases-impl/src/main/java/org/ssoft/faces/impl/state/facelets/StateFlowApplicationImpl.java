@@ -18,6 +18,7 @@ package org.ssoft.faces.impl.state.facelets;
 import javax.el.ExpressionFactory;
 import javax.faces.application.Application;
 import javax.faces.application.ApplicationWrapper;
+import javax.faces.application.ResourceHandler;
 import org.ssoft.faces.impl.state.el.ExecuteExpressionFactory;
 
 /**
@@ -35,4 +36,10 @@ public class StateFlowApplicationImpl extends ApplicationWrapper {
         return new ExecuteExpressionFactory(super.getExpressionFactory());
     }
 
+    @Override
+    public ResourceHandler getResourceHandler() {
+        ResourceHandler handler = super.getResourceHandler(); 
+        return new StateFlowResourceHandler(handler);
+    }
+    
 }

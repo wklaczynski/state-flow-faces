@@ -25,7 +25,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static javax.faces.state.scxml.SCXMLConstants.STATE_MACHINE_HINT;
-import javax.faces.state.scxml.invoke.Invoker;
 import javax.faces.state.scxml.io.StateHolder;
 import javax.faces.state.scxml.model.EnterableState;
 import javax.faces.state.scxml.model.ModelException;
