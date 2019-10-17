@@ -272,8 +272,8 @@ public class ViewInvoker implements Invoker, Serializable {
             if (ajaxredirect && fc.getAttributes().containsKey(VIEW_RESTORED_HINT)) {
                 ajaxredirect = (boolean) fc.getAttributes().get(VIEW_RESTORED_HINT);
             }
-            
-            path = executor.getRootId() + ":" + viewId;
+
+            path = executor.getId() + ":" + viewId;
             executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
 
             ExecuteContext viewContext = new ExecuteContext(
@@ -283,7 +283,7 @@ public class ViewInvoker implements Invoker, Serializable {
             manager.initExecuteContext(fc, path, viewContext);
 
             prevStateKey = "__@@Invoke:prev:" + invokeId + ":";
-            
+
             UIViewRoot currentViewRoot = fc.getViewRoot();
             if (currentViewRoot != null) {
                 prevViewId = currentViewRoot.getViewId();
@@ -330,8 +330,7 @@ public class ViewInvoker implements Invoker, Serializable {
                     }
                 }
             }
-            
-            
+
             PartialViewContext pvc = fc.getPartialViewContext();
             if ((redirect || (pvc != null && ajaxredirect && pvc.isAjaxRequest()))) {
 
@@ -531,8 +530,8 @@ public class ViewInvoker implements Invoker, Serializable {
             if (ajaxredirect && fc.getAttributes().containsKey(VIEW_RESTORED_HINT)) {
                 ajaxredirect = (boolean) fc.getAttributes().get(VIEW_RESTORED_HINT);
             }
-            
-            path = executor.getRootId() + ":" + viewId;
+
+            path = executor.getId() + ":" + viewId;
             executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
 
             ExecuteContext viewContext = new ExecuteContext(
@@ -542,7 +541,7 @@ public class ViewInvoker implements Invoker, Serializable {
             manager.initExecuteContext(fc, path, viewContext);
 
             prevStateKey = "__@@Invoke:prev:" + invokeId + ":";
-            
+
             UIViewRoot currentViewRoot = fc.getViewRoot();
             if (currentViewRoot != null) {
                 prevViewId = currentViewRoot.getViewId();
@@ -589,8 +588,7 @@ public class ViewInvoker implements Invoker, Serializable {
                     }
                 }
             }
-            
-            
+
             PartialViewContext pvc = fc.getPartialViewContext();
             if ((redirect || (pvc != null && ajaxredirect && pvc.isAjaxRequest()))) {
 
@@ -680,7 +678,7 @@ public class ViewInvoker implements Invoker, Serializable {
             fc.setProcessingEvents(oldProcessingEvents);
         }
     }
-    
+
     private void updateRenderTargets(FacesContext ctx, String newId) {
         if (ctx.getViewRoot() == null || !ctx.getViewRoot().getViewId().equals(newId)) {
             PartialViewContext pctx = ctx.getPartialViewContext();
@@ -811,27 +809,23 @@ public class ViewInvoker implements Invoker, Serializable {
 //                }
 //            }
 
+            try {
+                ExecuteContext viewContext = new ExecuteContext(
+                        path, invokeId, executor, ictx.getContext());
+
+                ExecuteContextManager manager = ExecuteContextManager.getManager(context);
+                manager.initExecuteContext(context, path, viewContext);
+            } catch (ModelException ex) {
+                throw new InvokerException(ex);
+            }
+
             if (viewId.equals(event.getSendId())) {
                 UIViewRoot viewRoot = context.getViewRoot();
 
-                //if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
-                    if (viewRoot != null) {
-                        try {
-                            ExecuteContext viewContext = new ExecuteContext(
-                                    path, invokeId, executor, ictx.getContext());
-
-                            ExecuteContextManager manager = ExecuteContextManager.getManager(context);
-                            manager.initExecuteContext(context, path, viewContext);
-                        } catch (ModelException ex) {
-                            throw new InvokerException(ex);
-                        }
-                    }
-
-                    if (!resolved && !context.getResponseComplete()) {
-                        applyParams(context, viewRoot, vieparams);
-                        resolved = true;
-                    }
-                //}
+                if (!resolved && !context.getResponseComplete()) {
+                    applyParams(context, viewRoot, vieparams);
+                    resolved = true;
+                }
 
                 if (event.getName().startsWith(AFTER_RENDER_VIEW)) {
                     if (viewRoot != null) {
@@ -857,23 +851,23 @@ public class ViewInvoker implements Invoker, Serializable {
                 }
             }
         }
-        
+
         if (event.getType() == TriggerEvent.SIGNAL_EVENT
                 && event.getInvokeId() != null
                 && event.getInvokeId().endsWith(invokeId)) {
-           
+
             if (event.getName().startsWith("view.change.url")) {
                 Map<String, Object> params = new HashMap<>();
                 Object data = event.getData();
-                if(data instanceof Map) {
+                if (data instanceof Map) {
                     params.putAll((Map) data);
                 }
-                
+
                 String src = (String) params.get("src");
                 changeUrl(ictx, src, params);
             }
         }
-        
+
     }
 
     /**
@@ -907,7 +901,6 @@ public class ViewInvoker implements Invoker, Serializable {
         }
 
         //restorPrevView();
-        
         rctx.removeLocal(EXECUTOR_CONTEXT_VIEW_PATH);
 
         fc.renderResponse();

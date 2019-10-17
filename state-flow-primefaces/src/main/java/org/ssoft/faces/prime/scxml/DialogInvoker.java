@@ -6,6 +6,7 @@ package org.ssoft.faces.prime.scxml;
 
 import java.io.Serializable;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,12 +60,12 @@ import org.primefaces.util.SharedStringBuilder;
  */
 @StateChartInvoker("dialog")
 @ResourceDependencies({
-    @ResourceDependency(library = "primefaces", name = "components.css")
-    ,@ResourceDependency(library = "primefaces", name = "jquery/jquery.js")
-    ,@ResourceDependency(library = "primefaces", name = "jquery/jquery-plugins.js")
-    ,@ResourceDependency(library = "primefaces", name = "core.js")
-    ,@ResourceDependency(library = "primefaces", name = "components.js")
-    ,@ResourceDependency(library = "primeflow", name = "primescxml.js")
+    @ResourceDependency(library = "primefaces", name = "components.css"),
+    @ResourceDependency(library = "primefaces", name = "jquery/jquery.js"),
+    @ResourceDependency(library = "primefaces", name = "jquery/jquery-plugins.js"),
+    @ResourceDependency(library = "primefaces", name = "core.js"),
+    @ResourceDependency(library = "primefaces", name = "components.js"),
+    @ResourceDependency(library = "primeflow", name = "primescxml.js")
 })
 public class DialogInvoker implements Invoker, Serializable {
 
@@ -239,7 +240,7 @@ public class DialogInvoker implements Invoker, Serializable {
                 pfdlgcid = UUID.randomUUID().toString();
             }
 
-            path = executor.getRootId() + ":" + viewId;
+            path = executor.getId() + ":" + viewId;
 
             String widgetVar = "widget_" + invokeId;
 
@@ -363,7 +364,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
         } catch (InvokerException ex) {
             throw ex;
-        } catch (Throwable ex) {
+        } catch (ParseException ex) {
             throw new InvokerException(ex);
         }
     }
@@ -384,29 +385,31 @@ public class DialogInvoker implements Invoker, Serializable {
 
         FacesContext context = FacesContext.getCurrentInstance();
         //filter all multicast call event from started viewId by this invoker
-        if (event.getType() == TriggerEvent.CALL_EVENT && viewId.equals(event.getSendId())) {
 
-            if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
-                UIViewRoot viewRoot = context.getViewRoot();
-                if (viewRoot != null) {
-                    try {
-                        ExecuteContext executeContext = new ExecuteContext(
-                                path, invokeId, executor, ictx.getContext());
+        if (event.getType() == TriggerEvent.CALL_EVENT) {
+            try {
+                ExecuteContext executeContext = new ExecuteContext(
+                        path, invokeId, executor, ictx.getContext());
 
-                        ExecuteContextManager manager = ExecuteContextManager.getManager(context);
-                        manager.initExecuteContext(context, path, executeContext);
-                    } catch (ModelException ex) {
-                        throw new InvokerException(ex);
+                ExecuteContextManager manager = ExecuteContextManager.getManager(context);
+                manager.initExecuteContext(context, path, executeContext);
+            } catch (ModelException ex) {
+                throw new InvokerException(ex);
+            }
+
+            if (viewId.equals(event.getSendId())) {
+
+                if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
+                    UIViewRoot viewRoot = context.getViewRoot();
+                    if (viewRoot != null) {
+                        if (!resolved && !context.getResponseComplete()) {
+                            applyParams(context, viewRoot, vieparams);
+                            resolved = true;
+                        }
                     }
                 }
 
-                if (!resolved && !context.getResponseComplete()) {
-                    applyParams(context, viewRoot, vieparams);
-                    resolved = true;
-                }
-            }
-
-            if (event.getName().startsWith(AFTER_RENDER_VIEW)) {
+                if (event.getName().startsWith(AFTER_RENDER_VIEW)) {
 
 //                UIViewRoot viewRoot = context.getViewRoot();
 //                if (viewRoot != null) {
@@ -415,20 +418,21 @@ public class DialogInvoker implements Invoker, Serializable {
 //                    ResponseStateManager rsm = renderKit.getResponseStateManager();
 //                    lastViewState = rsm.getState(context, lastViewId);
 //                }
-            }
+                }
 
-            if (event.getName().startsWith(VIEW_EVENT_PREFIX)) {
-                ExternalContext ec = context.getExternalContext();
+                if (event.getName().startsWith(VIEW_EVENT_PREFIX)) {
+                    ExternalContext ec = context.getExternalContext();
 
-                Map<String, String> params = new HashMap<>();
-                params.putAll(ec.getRequestParameterMap());
+                    Map<String, String> params = new HashMap<>();
+                    params.putAll(ec.getRequestParameterMap());
 
-                String outcome = event.getName().substring(VIEW_EVENT_PREFIX.length());
-                EventBuilder evb = new EventBuilder("view." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
+                    String outcome = event.getName().substring(VIEW_EVENT_PREFIX.length());
+                    EventBuilder evb = new EventBuilder("view." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
 
-                evb.data(params);
-                evb.sendId(invokeId);
-                executor.addEvent(evb.build());
+                    evb.data(params);
+                    evb.sendId(invokeId);
+                    executor.addEvent(evb.build());
+                }
             }
         }
 
@@ -562,7 +566,7 @@ public class DialogInvoker implements Invoker, Serializable {
                 pfdlgcid = UUID.randomUUID().toString();
             }
 
-            path = executor.getRootId() + ":" + viewId;
+            path = executor.getId() + ":" + viewId;
 
             StringBuilder sb = new StringBuilder();
 
@@ -606,7 +610,7 @@ public class DialogInvoker implements Invoker, Serializable {
             executor.getRootContext().setLocal(EXECUTOR_CONTEXT_VIEW_PATH, viewId);
             fc.getAttributes().put(DIALOG_OPEN, true);
 
-        } catch (Throwable ex) {
+        } catch (ParseException | InvokerException ex) {
             throw new FacesException(ex);
         }
     }

@@ -260,7 +260,7 @@ public class SubInvoker implements Invoker, StateHolder {
 
         } catch (FacesException | InvokerException ex) {
             throw ex;
-        } catch (Throwable ex) {
+        } catch (IOException | ModelException ex) {
             throw new InvokerException(ex.getMessage(), ex);
         }
     }
@@ -399,7 +399,7 @@ public class SubInvoker implements Invoker, StateHolder {
                 executor.triggerEvents();
             } catch (FacesException ex) {
                 throw ex;
-            } catch (Throwable me) {
+            } catch (IOException | ModelException me) {
                 throw new InvokerException(me);
             }
         }

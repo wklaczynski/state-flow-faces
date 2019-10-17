@@ -337,8 +337,7 @@ public class FacetInvoker implements Invoker, Serializable {
                 if (lastViewState != null) {
                     fctx.setLocal(FACES_VIEW_STATE, lastViewState);
                 }
-                
-                
+
                 UIViewRoot viewRoot;
                 if (lastViewState != null) {
                     fc.getAttributes().put(FACES_VIEW_STATE, lastViewState);
@@ -456,23 +455,18 @@ public class FacetInvoker implements Invoker, Serializable {
         FacesContext fc = FacesContext.getCurrentInstance();
         //filter all multicast call event from started viewId by this invoker
         if (event.getType() == TriggerEvent.CALL_EVENT) {
+            try {
+                ExecuteContext viewContext = new ExecuteContext(
+                        path, invokeId, executor, ictx.getContext());
+
+                ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
+                manager.initExecuteContext(fc, path, viewContext);
+            } catch (ModelException ex) {
+                throw new InvokerException(ex);
+            }
 
             if (viewId.equals(event.getSendId())) {
                 UIViewRoot viewRoot = fc.getViewRoot();
-
-                if (event.getName().startsWith(AFTER_PHASE_EVENT_PREFIX)) {
-                    if (viewRoot != null) {
-                        try {
-                            ExecuteContext viewContext = new ExecuteContext(
-                                    path, invokeId, executor, ictx.getContext());
-
-                            ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
-                            manager.initExecuteContext(fc, path, viewContext);
-                        } catch (ModelException ex) {
-                            throw new InvokerException(ex);
-                        }
-                    }
-                }
 
                 if (event.getName().startsWith(AFTER_RENDER_VIEW)) {
                     if (viewRoot != null) {
