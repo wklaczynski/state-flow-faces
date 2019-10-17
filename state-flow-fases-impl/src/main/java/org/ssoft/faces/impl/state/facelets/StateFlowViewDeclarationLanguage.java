@@ -95,8 +95,8 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
             return new ScxmlViewMetadataImpl(this, viewId);
         } else {
             ViewMetadata viewMetadata = wrapped.getViewMetadata(context, viewId);
-            
-            return  new StateFlowViewMetadata(this, viewMetadata, viewId);
+
+            return new StateFlowViewMetadata(this, viewMetadata, viewId);
         }
     }
 
@@ -136,7 +136,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
 
         boolean pushed = false;
 
-        SCXMLExecutor executor = handler.getRootExecutor(fc, executorId);
+        SCXMLExecutor executor = handler.getExecutor(fc, executorId);
 
         if (executor != null) {
             String executePath = executorId;
@@ -146,7 +146,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
 
             manager.initExecuteContext(fc, executePath, executeContext);
             pushed = manager.push(executeContext);
-            
+
             SCXMLExecutor rexecutor = handler.getRootExecutor(fc, executorId);
             try {
                 EventDispatcher ed = rexecutor.getEventdispatcher();
@@ -169,7 +169,7 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
         if (pushed) {
             manager.pop();
         }
-        
+
         if (!fc.getResponseComplete() && handler.hasViewRoot(fc)) {
             SCXMLExecutor rexecutor = handler.getRootExecutor(fc, executorId);
             try {
