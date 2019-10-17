@@ -373,14 +373,14 @@ public class ViewInvoker implements Invoker, Serializable {
 
                 UIViewRoot viewRoot;
                 if (lastViewState != null) {
-                    fc.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executor.getRootId());
+                    fc.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executor.getId());
                     fc.getAttributes().put(FACES_VIEW_STATE, lastViewState);
                     viewRoot = vh.restoreView(fc, viewId);
                     fc.setViewRoot(viewRoot);
                     fc.setProcessingEvents(true);
                     vh.initView(fc);
                 } else {
-                    fc.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executor.getRootId());
+                    fc.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executor.getId());
                     viewRoot = null;
                     ViewDeclarationLanguage vdl = vh.getViewDeclarationLanguage(fc, viewId);
                     ViewMetadata metadata = null;

@@ -154,7 +154,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
             Map<String, Object> ajax = new HashMap<>();
             Map<String, List<String>> query = new HashMap<>();
-            query.put("exid", Arrays.asList(executor.getRootId()));
+            query.put("exid", Arrays.asList(executor.getId()));
 
             vieparams = new HashMap();
             for (Object key : params.keySet()) {
@@ -299,7 +299,7 @@ public class DialogInvoker implements Invoker, Serializable {
                     .append(",sourceComponentId:'").append(sourceId).append("'")
                     //                    .append(",sourceWidgetVar:'").append(widgetVar).append("'")
                     .append(",invokeId:'").append(invokeId).append("'")
-                    .append(",executorId:'").append(executor.getRootId()).append("'");
+                    .append(",executorId:'").append(executor.getId()).append("'");
 
             sb.append(",options:{");
             if (options != null && options.size() > 0) {
@@ -353,7 +353,7 @@ public class DialogInvoker implements Invoker, Serializable {
             PrimeFaces.current().executeScript(sb.toString());
             sb.setLength(0);
 
-            Context fctx = handler.getFlowContext(fc, executor.getRootId());
+            Context fctx = handler.getFlowContext(fc, executor.getId());
             if (lastViewState != null) {
                 fctx.setLocal(FACES_CHART_VIEW_STATE, lastViewState);
             }
@@ -480,7 +480,7 @@ public class DialogInvoker implements Invoker, Serializable {
 
             Map<String, Object> ajax = new HashMap<>();
             Map<String, List<String>> query = new HashMap<>();
-            query.put("exid", Arrays.asList(executor.getRootId()));
+            query.put("exid", Arrays.asList(executor.getId()));
 
             vieparams = new HashMap();
             for (Object key : params.keySet()) {
@@ -601,7 +601,7 @@ public class DialogInvoker implements Invoker, Serializable {
             PrimeFaces.current().executeScript(sb.toString());
             sb.setLength(0);
 
-            Context fctx = handler.getFlowContext(fc, executor.getRootId());
+            Context fctx = handler.getFlowContext(fc, executor.getId());
             if (lastViewState != null) {
                 fctx.setLocal(FACES_CHART_VIEW_STATE, lastViewState);
             }
