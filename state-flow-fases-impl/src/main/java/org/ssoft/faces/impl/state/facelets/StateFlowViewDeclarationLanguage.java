@@ -95,7 +95,10 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
             return new ScxmlViewMetadataImpl(this, viewId);
         } else {
             ViewMetadata viewMetadata = wrapped.getViewMetadata(context, viewId);
-
+            if(viewMetadata == null) {
+                return null;
+            }
+            
             return new StateFlowViewMetadata(this, viewMetadata, viewId);
         }
     }
