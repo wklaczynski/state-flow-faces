@@ -287,7 +287,9 @@ public class StateScopeMapHelper {
             for (String cur : beanMapList) {
                 ScopedBeanContext beanMap
                         = (ScopedBeanContext) session.getAttribute(cur);
-                beanMap.getVars().clear();
+                if (beanMap != null) {
+                    beanMap.getVars().clear();
+                }
                 session.removeAttribute(cur);
             }
             session.removeAttribute(PER_SESSION_BEAN_MAP_LIST);
@@ -299,8 +301,10 @@ public class StateScopeMapHelper {
             for (String cur : creationalList) {
                 Map<Contextual<?>, CreationalContext<?>> beanMap
                         = (Map<Contextual<?>, CreationalContext<?>>) session.getAttribute(cur);
-                beanMap.clear();
-                session.removeAttribute(cur);
+                if (beanMap != null) {
+                    beanMap.clear();
+                    session.removeAttribute(cur);
+                }
             }
             session.removeAttribute(PER_SESSION_CREATIONAL_LIST);
             creationalList.clear();
