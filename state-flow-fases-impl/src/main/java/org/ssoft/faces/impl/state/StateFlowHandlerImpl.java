@@ -542,7 +542,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     @Override
     public SCXMLExecutor getViewRootExecutor(FacesContext context) {
         SCXMLExecutor executor = getViewExecutor(context);
-        if(executor != null) {
+        if (executor != null) {
             while (executor.getParentSCXMLIOProcessor() != null
                     && executor.getParentSCXMLIOProcessor().getExecutor() != null) {
                 executor = executor.getParentSCXMLIOProcessor().getExecutor();
@@ -668,10 +668,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
             executors.put(executorId, executor);
             if (root) {
-                SCXMLExecutor viewroot = getRootExecutor(context);
+                SCXMLExecutor viewroot = getViewExecutor(context);
                 if (viewroot != null) {
                     String parentId = viewroot.getId();
-                    map.computeIfAbsent(parentId, (t) -> new ArrayList<>())
+                    map.computeIfAbsent(parentId, (key) -> new ArrayList<>())
                             .add(executorId);
                     roots.put(executorId, parentId);
                 }
@@ -1226,7 +1226,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     Context context = new SimpleContext();
                     restoreContext(context, flowContext, blocks[4]);
                 }
-                
+
             }
         }
 
