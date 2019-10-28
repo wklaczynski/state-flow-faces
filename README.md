@@ -163,12 +163,12 @@ These instructions will get you a copy of the project up and running on your loc
 <dependency>
     <groupId>org.ssoft.faces</groupId>
     <artifactId>state-flow-fases-api</artifactId>
-    <version>1.1-RC1</version>
+    <version>1.2-SNAPSHOT</version>
 </dependency>
 <dependency>
     <groupId>org.ssoft.faces</groupId>
     <artifactId>state-flow-fases-impl</artifactId>
-    <version>1.1-RC1</version>
+    <version>1.2-SNAPSHOT</version>
 </dependency>
 ```
 And primefaces extension to add dialog invoker and pull task with primefaces ajax script:
@@ -177,7 +177,7 @@ And primefaces extension to add dialog invoker and pull task with primefaces aja
 <dependency>
     <groupId>org.ssoft.faces</groupId>
     <artifactId>state-flow-primefaces</artifactId>
-    <version>1.1-RC1</version>
+    <version>1.2-SNAPSHOT</version>
 </dependency>
 ```
 
