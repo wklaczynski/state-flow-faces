@@ -28,7 +28,6 @@ import javax.faces.state.scxml.Evaluator;
 import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.scxml.SCXMLExpressionException;
 import javax.faces.state.scxml.SCXMLIOProcessor;
-import javax.faces.state.scxml.SCXMLSystemContext;
 import javax.faces.state.scxml.SendContext;
 import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.semantics.ErrorConstants;

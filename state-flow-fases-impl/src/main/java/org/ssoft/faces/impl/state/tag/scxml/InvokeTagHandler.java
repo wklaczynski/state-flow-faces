@@ -49,6 +49,11 @@ public class InvokeTagHandler extends AbstractFlowTagHandler<Invoke> {
 
     /**
      *
+     */
+    protected final TagAttribute idlocation;
+
+    /**
+     *
      * @param config
      */
     public InvokeTagHandler(TagConfig config) {
@@ -59,6 +64,7 @@ public class InvokeTagHandler extends AbstractFlowTagHandler<Invoke> {
         this.type = this.getRequiredAttribute("type");
         this.src = this.getRequiredAttribute("src");
         this.id = this.getAttribute("id");
+        this.idlocation = this.getAttribute("idlocation");
     }
 
     /**
@@ -89,6 +95,7 @@ public class InvokeTagHandler extends AbstractFlowTagHandler<Invoke> {
         }
 
         target.setId(id != null ? id.getValue() : null);
+        target.setIdlocation(idlocation != null ? id.getValueExpression(ctx, Object.class) : null);
 
         TransitionalState state = (TransitionalState) parentElement;
         state.addInvoke(target);

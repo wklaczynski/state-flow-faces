@@ -141,6 +141,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         super();
         customInvokers.put("view", ViewInvoker.class);
         customInvokers.put("scxml", SubInvoker.class);
+        customInvokers.put("http://www.w3.org/TR/scxml/", SubInvoker.class);
         customInvokers.put("facet", FacetInvoker.class);
 
         customActions.add(new CustomAction(SCXML_DATA_MODEL, "var", SetVariable.class));

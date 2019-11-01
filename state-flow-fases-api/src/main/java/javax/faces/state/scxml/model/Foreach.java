@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import javax.el.ValueExpression;
-import javax.el.VariableMapper;
 import javax.faces.state.scxml.ActionExecutionContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.Evaluator;
@@ -32,7 +31,6 @@ import javax.faces.state.scxml.SCXMLExpressionException;
 import javax.faces.state.utils.IndexedValueExpression;
 import javax.faces.state.utils.IteratedValueExpression;
 import javax.faces.state.utils.MappedValueExpression;
-import javax.faces.view.facelets.TagAttributeException;
 
 /**
  * The class in this SCXML object model that corresponds to the &lt;foreach&gt;
