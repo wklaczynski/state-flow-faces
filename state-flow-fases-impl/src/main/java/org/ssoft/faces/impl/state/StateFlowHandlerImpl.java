@@ -851,7 +851,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             if (map.containsKey(executorId)) {
                 List<String> children = map.get(executorId);
                 for (String childId : children) {
-                    if (executors.containsKey(childId)) {
+                    if (!executorId.equals(childId) && executors.containsKey(childId)) {
                         SCXMLExecutor child = executors.get(childId);
                         close(context, fs, child);
                     }
