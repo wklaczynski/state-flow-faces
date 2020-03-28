@@ -15,7 +15,6 @@
  */
 package org.ssoft.faces.impl.state.cdi;
 
-import com.sun.faces.util.Util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -88,7 +87,7 @@ public class CdiUtil {
      * @return
      */
     public static <T> T getBeanReference(Class<T> type, Annotation... qualifiers) {
-        return type.cast(getBeanReferenceByType(Util.getCdiBeanManager(FacesContext.getCurrentInstance()), type, qualifiers));
+        return type.cast(getBeanReferenceByType(getCdiBeanManager(FacesContext.getCurrentInstance()), type, qualifiers));
     }
 
     /**
@@ -131,7 +130,7 @@ public class CdiUtil {
      * @return a bean instance adhering to the required type
      */
     public static <T> T getBeanInstance(Class<T> type, boolean create) {
-        BeanManager beanManager = Util.getCdiBeanManager(FacesContext.getCurrentInstance());
+        BeanManager beanManager = getCdiBeanManager(FacesContext.getCurrentInstance());
         @SuppressWarnings("unchecked")
         Bean<T> bean = (Bean<T>) beanManager.resolve(beanManager.getBeans(type));
 

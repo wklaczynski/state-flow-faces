@@ -235,7 +235,7 @@ public class DialogInvoker implements Invoker, Serializable {
             pfdlgcid = UUID.randomUUID().toString();
             String sourceComponentId = (String) attrs.get(CURRENT_COMPONENT_HINT);
 
-            pfdlgcid = requestParams.get(Constants.DIALOG_FRAMEWORK.CONVERSATION_PARAM);
+            pfdlgcid = requestParams.get(Constants.DialogFramework.CONVERSATION_PARAM);
             if (pfdlgcid == null) {
                 pfdlgcid = UUID.randomUUID().toString();
             }
@@ -559,7 +559,7 @@ public class DialogInvoker implements Invoker, Serializable {
             url = escapeEcmaScriptText(url);
 
             if (pfdlgcid == null) {
-                pfdlgcid = requestParams.get(Constants.DIALOG_FRAMEWORK.CONVERSATION_PARAM);
+                pfdlgcid = requestParams.get(Constants.DialogFramework.CONVERSATION_PARAM);
             }
 
             if (pfdlgcid == null) {
