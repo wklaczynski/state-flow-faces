@@ -25,8 +25,6 @@ import javax.faces.state.scxml.model.TransitionTarget;
  * An abstract adapter class for the <code>SXCMLListener</code> interface.
  * This class exists as a convenience for creating listener objects, and as
  * such all the methods in this class are empty.
- *
- * @since 0.7
  */
 public abstract class AbstractSCXMLListener implements SCXMLListener {
 

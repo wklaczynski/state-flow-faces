@@ -25,7 +25,7 @@ import java.util.Set;
 import javax.faces.state.scxml.Context;
 
 /**
- * A map that will back the effective {@link Context} for an {@link org.apache.commons.scxml2.Evaluator} execution.
+ * A map that will back the effective {@link Context} execution.
  * The effective context enables the chaining of contexts all the way from the current state node to the root.
  */
 public final class EffectiveContextMap extends AbstractMap<String, Object> implements Serializable {

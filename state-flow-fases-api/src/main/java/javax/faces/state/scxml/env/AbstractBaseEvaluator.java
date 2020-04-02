@@ -23,10 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.el.ValueExpression;
-import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.Evaluator;
-import javax.faces.state.scxml.SCXMLExpressionException;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;

@@ -24,11 +24,6 @@ import java.io.Serializable;
 public class EventVariable implements Serializable {
 
     /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 1L;
-
-    /**
      *
      */
     public static final String TYPE_PLATFORM = "platform";

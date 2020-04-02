@@ -33,10 +33,6 @@ import static javax.faces.state.scxml.io.StateHolderSaver.saveAttachedState;
 public class AbstractContext implements Context, StateHolder {
 
     /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 1L;
-    /**
      * Implementation independent log category.
      */
     protected static final Logger log = SCXMLLogger.SCXML.getLogger();

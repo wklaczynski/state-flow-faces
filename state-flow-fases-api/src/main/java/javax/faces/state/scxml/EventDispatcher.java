@@ -16,7 +16,7 @@
  */
 package javax.faces.state.scxml;
 
-import java.util.Map;
+import javax.faces.state.scxml.invoke.Invoker;
 
 /**
  * The event controller interface used to send messages containing
