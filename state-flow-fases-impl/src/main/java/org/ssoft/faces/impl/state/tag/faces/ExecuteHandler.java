@@ -166,9 +166,8 @@ public class ExecuteHandler extends ComponentHandler {
         c.getAttributes().put(UIStateChartExecutor.SCXML_NAME, scxmlName);
 
         String executorName = "controller[" + tag + "]" + viewId + "!" + url.getPath() + "#" + scxmlName;
-        
+
         //ctx.generateUniqueId(tagId);
-        
         String executorId = rootId + ":" + UUID.nameUUIDFromBytes(executorName.getBytes()).toString();
 
         String currentExecutorId = component.getExecutorId();
@@ -176,15 +175,16 @@ public class ExecuteHandler extends ComponentHandler {
             throw new TagException(this.tag, "Render state component can not multiple start in the same composite component.");
         }
 
-        Map<String, Object> ccattrs = null;
-        UIComponent cc = null;
-
-        if (null != parent && null != (cc = parent.getParent()) && UIComponent.isCompositeComponent(cc)) {
-            ccattrs = cc.getAttributes();
-        }
+        Map<String, Object> ccattrs = component.getAttributes();
+//        UIComponent cc = null;
+//
+//        if (null != parent && null != (cc = parent.getParent()) && UIComponent.isCompositeComponent(cc)) {
+//            ccattrs = cc.getAttributes();
+//        }
 
         component.setExecutorId(executorId);
         if (ccattrs != null) {
+            ccattrs.put(StateFlow.EXECUTOR_CONTROLLER_LOCATION_KEY, tag.getLocation());
             ExecutorController controller = (ExecutorController) ccattrs
                     .get(StateFlow.EXECUTOR_CONTROLLER_KEY);
 

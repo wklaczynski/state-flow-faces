@@ -17,11 +17,9 @@ package javax.faces.state.utils;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Pattern;
 import javax.faces.application.Application;
 import javax.faces.application.Resource;
@@ -33,7 +31,6 @@ import javax.faces.component.UIParameter;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.state.StateFlow;
-import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.execute.ExecutorController;
 import javax.faces.view.Location;
 
@@ -44,10 +41,10 @@ import javax.faces.view.Location;
 public class ComponentUtils {
 
     private static final Pattern COMPOSITE_COMPONENT_EXPRESSION
-                                 = Pattern.compile(".(?:[ ]+|[\\[{,(])cc[.].+[}]");
+            = Pattern.compile(".(?:[ ]+|[\\[{,(])cc[.].+[}]");
 
     private static final Pattern METHOD_EXPRESSION_LOOKUP
-                                 = Pattern.compile(".[{]cc[.]attrs[.]\\w+[}]");
+            = Pattern.compile(".[{]cc[.]attrs[.]\\w+[}]");
 
     public static <T> T closest(Class<T> type, UIComponent base) {
         UIComponent parent = base.getParent();
@@ -100,12 +97,15 @@ public class ComponentUtils {
                 if (location == null) {
                     return (T) parent;
                 }
-                UIComponent cc = findLocatedParentCompositeComponent(ctx, parent);
-                if (cc == null) {
+                if (path == null) {
                     return (T) parent;
                 }
-                Resource r = (Resource) cc.getAttributes().get(Resource.COMPONENT_RESOURCE_KEY);
-                if (path == null || r == null || path.endsWith('/' + r.getResourceName()) && path.contains(r.getLibraryName())) {
+                Location plocation = (Location) parent.getAttributes().get(UIComponent.VIEW_LOCATION_KEY);
+                if (plocation == null) {
+                    return (T) parent;
+                }
+                String ppath = plocation.getPath();
+                if (Objects.equals(path, ppath)) {
                     return (T) parent;
                 }
             }
@@ -206,7 +206,7 @@ public class ComponentUtils {
         return null;
     }
 
-    public static boolean isExecuteCompositeComponent(UIComponent component) {
+    public static boolean isExecuteComponent(UIComponent component) {
 
         if (!UIComponent.isCompositeComponent(component)) {
             return false;
@@ -216,36 +216,48 @@ public class ComponentUtils {
 
     }
 
-    public static UIComponent findExecuteCompositeComponent(FacesContext ctx, UIComponent cc) {
+    public static UIComponent findExecutorComponentUsingLocation(FacesContext ctx, UIComponent base, Location location) {
+        UIComponent execute = findExecuteComponent(ctx, base);
+        String path = location.getPath();
 
-        if (cc instanceof UIParameter) {
-            cc = cc.getParent();
-        }
-
-        String excuded = null;
-        if (cc instanceof UIStateChartExecutor) {
-            excuded = ((UIStateChartExecutor) cc).getExecutorId();
-            cc = cc.getParent();
-        }
-
-        if (!UIComponent.isCompositeComponent(cc)) {
-            cc = UIComponent.getCompositeComponentParent(cc);
-        }
-
-        while (cc != null) {
-            ExecutorController controller = (ExecutorController) cc
+        while (execute != null) {
+            ExecutorController controller = (ExecutorController) execute
                     .getAttributes().get(StateFlow.EXECUTOR_CONTROLLER_KEY);
             if (controller != null) {
-                if (excuded == null || !excuded.equals(controller.getExecutorId())) {
-                    return cc;
+                Location r = (Location) execute.getAttributes().get(StateFlow.EXECUTOR_CONTROLLER_LOCATION_KEY);
+                if(r == null) {
+                    return execute;
+                }
+                if (path.equals(r.getPath())) {
+                    return execute;
                 }
             }
-            cc = UIComponent.getCompositeComponentParent(cc);
+
+            execute = findExecuteComponent(ctx, execute.getParent());
+        }
+
+        return null;
+    }
+
+    public static UIComponent findExecuteComponent(FacesContext ctx, UIComponent base) {
+        if (base instanceof UIParameter) {
+            base = base.getParent();
+        }
+
+        UIComponent component = base;
+
+        while (component != null) {
+            ExecutorController controller = (ExecutorController) component
+                    .getAttributes().get(StateFlow.EXECUTOR_CONTROLLER_KEY);
+            if (controller != null) {
+                return component;
+            }
+            component = component.getParent();
         }
         return null;
     }
 
-    public static UIComponent findExecuteCompositeComponent(FacesContext ctx) {
+    public static UIComponent findExecuteComponent(FacesContext ctx) {
 
         UIComponent cc = UIComponent.getCurrentCompositeComponent(ctx);
         while (cc != null) {

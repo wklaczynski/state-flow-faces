@@ -111,6 +111,11 @@ public class StateFlow {
     /**
      *
      */
+    public static final String EXECUTOR_CONTROLLER_LOCATION_KEY = "javax.faces.component.EXECUTOR_CONTROLLER_LOCATION_KEY";
+
+    /**
+     *
+     */
     public static final String DISABLE_EXPRESSION_MAP = "javax.faces.component.DISABLE_EXPRESSION_MAP";
 
     

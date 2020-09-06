@@ -25,6 +25,9 @@ import java.io.ObjectOutput;
  * @author Waldemar Kłaczyński
  */
 public class ExecutorController implements Externalizable {
+    
+    public static final String COMPONENT_LOCATION_KEY =
+            "javax.faces.application.Resource.ComponentResource";
 
     private transient String _executorId;
 

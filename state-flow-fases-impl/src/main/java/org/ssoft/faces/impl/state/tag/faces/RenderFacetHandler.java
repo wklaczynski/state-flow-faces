@@ -58,7 +58,7 @@ public class RenderFacetHandler extends ComponentHandler {
         FacesContext context = ctx.getFacesContext();
         UIStateChartFacetRender render = (UIStateChartFacetRender) c;
 
-        UIComponent cc = ComponentUtils.findCompositeComponentUsingLocation(context, tag.getLocation());
+        UIComponent cc = ComponentUtils.findExecutorComponentUsingLocation(context, parent, tag.getLocation());
 
         if (cc != null) {
             ExecutorController controller = (ExecutorController) cc
@@ -67,7 +67,7 @@ public class RenderFacetHandler extends ComponentHandler {
             if (controller == null) {
                 throw new TagException(this.tag,
                         "Unable to render facet execute component, controller "
-                        + "executor can not be defined in the composite component.");
+                        + "executor can not be defined in the component.");
             }
 
             String executorId = controller.getExecutorId();
