@@ -271,7 +271,7 @@ public class SubInvoker implements Invoker, StateHolder {
         if (sorceId != null) {
             UIComponent source = viewRoot.findComponent(sorceId);
             if (source != null) {
-                UIStateChartExecutor ec = ComponentUtils.lokated(UIStateChartExecutor.class, source);
+                UIStateChartExecutor ec = ComponentUtils.passed(UIStateChartExecutor.class, source);
                 if (ec != null) {
                     return ec;
                 }

@@ -82,7 +82,6 @@ public class ComponentUtils {
         if (type.isAssignableFrom(base.getClass())) {
             return (T) base;
         }
-        FacesContext ctx = FacesContext.getCurrentInstance();
 
         String path = null;
         Location location = (Location) base.getAttributes().get(UIComponent.VIEW_LOCATION_KEY);
@@ -115,6 +114,14 @@ public class ComponentUtils {
         return null;
     }
 
+    public static <T> T passed(Class<T> type, UIComponent base) {
+        T result = lokated(type, base);
+        if(result == null) {
+            result = assigned(type, base);
+        }
+        return result;
+    }
+    
     public static <T> ArrayList<T> children(Class<T> type, UIComponent base) {
 
         ArrayList<T> result = new ArrayList<>();

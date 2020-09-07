@@ -218,14 +218,14 @@ public class ExecuteContextManager {
                     }
 
                     UIStateChartFacetRender render = ComponentUtils
-                            .lokated(UIStateChartFacetRender.class, currentComponent);
+                            .passed(UIStateChartFacetRender.class, currentComponent);
                     if (render != null) {
                         path = render.getExecutePath(context);
                         executorId = render.getExecutorId();
                         executor = handler.getExecutor(context, executorId);
                     } else {
                         UIStateChartExecutor execute = ComponentUtils
-                                .lokated(UIStateChartExecutor.class, currentComponent);
+                                .passed(UIStateChartExecutor.class, currentComponent);
 
                         if (execute != null) {
                             executorId = execute.getExecutorId();
@@ -316,12 +316,12 @@ public class ExecuteContextManager {
 
         if (component != null) {
             UIStateChartFacetRender render = ComponentUtils
-                    .lokated(UIStateChartFacetRender.class, component);
+                    .passed(UIStateChartFacetRender.class, component);
             if (render != null) {
                 executorId = render.getExecutorId();
             } else {
                 UIStateChartExecutor execute = ComponentUtils
-                        .lokated(UIStateChartExecutor.class, component);
+                        .passed(UIStateChartExecutor.class, component);
 
                 if (execute != null) {
                     executorId = execute.getExecutorId();
