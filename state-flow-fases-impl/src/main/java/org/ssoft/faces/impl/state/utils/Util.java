@@ -360,7 +360,7 @@ public class Util {
                 ffield.setAccessible(faccessible);
             }
 
-        } catch (Throwable ex) {
+        } catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException ex) {
         }
 
         return url;
@@ -369,18 +369,8 @@ public class Util {
     public static SCXML findStateMachine(FacesContext fc, String continerName, String scxmlId, Object continerSource) {
         StateFlowHandler handler = StateFlowHandler.getInstance();
 
-        UIComponent compositeParent = UIComponent.getCurrentCompositeComponent(fc);
-        if (compositeParent != null) {
-
+        if (continerSource instanceof URL) {
             URL url = (URL) continerSource;
-            if (url == null) {
-                throw new IllegalStateException(
-                        "Unable to localize composite url '"
-                        + scxmlId
-                        + "' in parent composite component with id '"
-                        + compositeParent.getClientId(fc)
-                        + '\'');
-            }
 
             if (continerName == null) {
                 throw new IllegalStateException(String.format(

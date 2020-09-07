@@ -157,7 +157,7 @@ public class ExecuteHandler extends ComponentHandler {
             throw new TagException(this.tag,
                     "Unable to localize composite url '"
                     + scxmlName
-                    + "' in parent composite component with id '"
+                    + "' in parent component with id '"
                     + parent.getClientId(ctx.getFacesContext())
                     + '\'');
         }
