@@ -27,23 +27,31 @@ import javax.el.VariableMapper;
 public class EvaluatorVariableMapper extends VariableMapper {
 
     private Map vars;
+    private final StateFlowEvaluator evaluator;
 
-    /**
-     *
-     */
-    public EvaluatorVariableMapper() {
+    public EvaluatorVariableMapper(StateFlowEvaluator evaluator) {
         super();
+        this.evaluator = evaluator;
     }
 
     /**
      * @param name
-     * @return 
+     * @return
      * @see javax.el.VariableMapper#resolveVariable(java.lang.String)
      */
     @Override
     public ValueExpression resolveVariable(String name) {
         if (this.vars != null) {
-            return (ValueExpression) this.vars.get(name);
+            ValueExpression expression = (ValueExpression) this.vars.get(name);
+            if(expression != null) {
+                return expression;
+            }
+        }
+        if (evaluator.getELContext() != null && evaluator.getELContext().getVariableMapper() != null) {
+            ValueExpression expression = evaluator.getELContext().getVariableMapper().resolveVariable(name);
+            if(expression != null) {
+                return expression;
+            }
         }
         return null;
     }
@@ -51,8 +59,9 @@ public class EvaluatorVariableMapper extends VariableMapper {
     /**
      * @param name
      * @param expression
-     * @return 
-     * @see javax.el.VariableMapper#setVariable(java.lang.String, javax.el.ValueExpression)
+     * @return
+     * @see javax.el.VariableMapper#setVariable(java.lang.String,
+     * javax.el.ValueExpression)
      */
     @Override
     public ValueExpression setVariable(String name, ValueExpression expression) {

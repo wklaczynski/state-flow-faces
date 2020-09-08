@@ -17,6 +17,7 @@ package org.ssoft.faces.impl.state.evaluator;
 
 import java.util.Map;
 import java.util.concurrent.Callable;
+import javax.el.ELContext;
 import javax.el.ExpressionFactory;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
@@ -47,32 +48,42 @@ import org.ssoft.faces.impl.state.invokers.FacesInvokerWrapper;
  */
 public class StateFlowEvaluator extends AbstractBaseEvaluator {
 
-    /**
-     *
-     */
     public static final String CURRENT_STACK_KEY = "javax.faces.state.CURRENT_STACK";
 
-    /**
-     *
-     */
+    private static final String EVAL_EL_CASHE = StateFlowEvaluator.class.getName() + ":EL_CASHE";
+
     public static final String FLOW_EL_CONTEXT_KEY = "javax.faces.FLOW_CONTEXT_KEY".intern();
 
-    /**
-     *
-     */
     public static final String FLOW_ISTANCE_KEY = "javax.faces.FLOW_CONTEXT_KEY".intern();
 
-    private final transient ThreadLocal<StateFlowELContext> eccashe;
-
     private transient StateFlowELContext ec;
-    private transient ExpressionFactory ef;
+    private transient ExpressionFactory expressionFactory;
+    private transient ELContext elContext;
 
-    /**
-     *
-     */
     public StateFlowEvaluator() {
         super();
-        eccashe = new ThreadLocal<>();
+        FacesContext fc = FacesContext.getCurrentInstance();
+        elContext = fc.getELContext();
+    }
+
+    @Override
+    public ELContext getELContext() {
+        return elContext;
+    }
+
+    @Override
+    public void setELContext(ELContext elContext) {
+        FacesContext fc = FacesContext.getCurrentInstance();
+        fc.getAttributes().remove(this);
+        this.elContext = elContext;
+    }
+
+    public ExpressionFactory getExpressionFactory() {
+        return expressionFactory;
+    }
+
+    public void setExpressionFactory(ExpressionFactory expressionFactory) {
+        this.expressionFactory = expressionFactory;
     }
 
     @Override
@@ -88,14 +99,15 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     private <V, T> V wrap(Context ctx, T expr, Callable<V> call) throws SCXMLExpressionException {
         FacesContext fc = FacesContext.getCurrentInstance();
 
-        if (ef == null) {
-            ef = fc.getApplication().getExpressionFactory();
+        if (expressionFactory == null) {
+            expressionFactory = fc.getApplication().getExpressionFactory();
         }
+        String sessionId = (String) ctx.get(SCXMLSystemContext.SESSIONID_KEY);
 
-        ec = eccashe.get();
+        ec = (StateFlowELContext) fc.getAttributes().get(this);
         if (ec == null) {
-            ec = new StateFlowELContext(fc);
-            eccashe.set(ec);
+            ec = new StateFlowELContext(fc, this);
+            fc.getAttributes().put(this, ec);
         }
 
         ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
@@ -103,7 +115,6 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
 
         try {
             Map<String, SCXMLIOProcessor> ioProcessors = (Map<String, SCXMLIOProcessor>) ctx.get(SCXMLSystemContext.IOPROCESSORS_KEY);
-            String sessionId = (String) ctx.get(SCXMLSystemContext.SESSIONID_KEY);
             if (ioProcessors.containsKey(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX + sessionId)) {
                 SCXMLExecutor executor = (SCXMLExecutor) ioProcessors.get(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX + sessionId);
                 fc.getAttributes().put(CURRENT_EXECUTOR_HINT, executor);
@@ -125,7 +136,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
             return call.call();
         } catch (NullPointerException ex) {
             throw new SCXMLExpressionException(String.format("%s error: null pointer exception", expr.toString()), ex);
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             throw new SCXMLExpressionException(String.format("%s error: %s", expr.toString(), Util.getErrorMessage(ex)), ex);
         } finally {
             ec.reset();
@@ -176,7 +187,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     @Override
     public Object eval(Context ctx, String expr) throws SCXMLExpressionException {
         return wrap(ctx, expr, () -> {
-            ValueExpression ve = ef.createValueExpression(ec, resolve(ctx, expr), Object.class);
+            ValueExpression ve = getExpressionFactory().createValueExpression(ec, resolve(ctx, expr), Object.class);
             return ve.getValue(ec);
         });
     }
@@ -208,7 +219,7 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
     @Override
     public Object evalScript(Context ctx, String script) throws SCXMLExpressionException {
         return wrap(ctx, script, () -> {
-            ValueExpression ve = ef.createValueExpression(ec, resolve(ctx, script), Object.class);
+            ValueExpression ve = getExpressionFactory().createValueExpression(ec, resolve(ctx, script), Object.class);
             return ve.getValue(ec);
         });
     }

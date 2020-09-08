@@ -23,7 +23,6 @@ import javax.el.ELResolver;
 import javax.el.FunctionMapper;
 import javax.el.VariableMapper;
 import javax.faces.context.FacesContext;
-import org.ssoft.faces.impl.state.el.CompositeFunctionMapper;
 
 /**
  *
@@ -33,35 +32,37 @@ public class StateFlowELContext extends ELContext implements Serializable {
 
     private final HashMap<Class<?>, Object> map = new HashMap<>();
     private final ELContext ctx;
-    private VariableMapper varMapper;
-    private FunctionMapper fnMapper;
-    private final FunctionMapper defFnMapper;
+    private final VariableMapper varMapper;
+    private final EvalueatorFunctionMapper fnMapper;
     private final CompositeELResolver elResolver;
+    private final StateFlowEvaluator evaluator;
 
-    public StateFlowELContext(FacesContext facesContext) {
+    public StateFlowELContext(FacesContext facesContext, StateFlowEvaluator evaluator) {
         super();
-        this.ctx = facesContext.getELContext();
+        this.evaluator = evaluator;
 
-        this.varMapper = ctx.getVariableMapper();
-        if (varMapper == null) {
-            this.varMapper = new EvaluatorVariableMapper();
-        }
+        this.ctx = evaluator.getELContext();
 
-        this.defFnMapper = this.fnMapper = ctx.getFunctionMapper();
-
+        this.varMapper = new EvaluatorVariableMapper(evaluator);
+        this.fnMapper = new EvalueatorFunctionMapper(evaluator);
+        
         this.elResolver = new CompositeELResolver();
-        this.elResolver.add(new EvaluatorELResolver());
+        this.elResolver.add(new EvaluatorELResolver(evaluator, varMapper));
         this.elResolver.add(ctx.getELResolver());
 
     }
 
+    public StateFlowEvaluator getEvaluator() {
+        return evaluator;
+    }
+    
     @Override
     public FunctionMapper getFunctionMapper() {
         return this.fnMapper;
     }
 
     public void addFunctionMaper(FunctionMapper functionMapper) {
-        this.fnMapper = new CompositeFunctionMapper(functionMapper, this.fnMapper);
+        this.fnMapper.add(functionMapper);
     }
 
     @Override
@@ -75,8 +76,8 @@ public class StateFlowELContext extends ELContext implements Serializable {
     }
 
     public void reset() {
-        this.fnMapper = defFnMapper;
         this.map.clear();
+        fnMapper.reset();
     }
 
     @Override

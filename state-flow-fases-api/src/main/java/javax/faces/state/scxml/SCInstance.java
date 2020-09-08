@@ -167,7 +167,7 @@ public class SCInstance implements Serializable, StateHolder {
             throw new ModelException(ERR_NO_STATE_MACHINE);
         }
         if (evaluator == null) {
-            evaluator = EvaluatorFactory.getEvaluator(stateMachine);
+            throw new ModelException("Incompatible not defined evaluator \"" + stateMachine.getDatamodelName() + "\"");
         }
         if (evaluator.requiresGlobalContext()) {
             singleContext = true;

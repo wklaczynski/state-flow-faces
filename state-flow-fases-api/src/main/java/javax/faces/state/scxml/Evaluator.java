@@ -16,6 +16,7 @@
  */
 package javax.faces.state.scxml;
 
+import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
 import javax.faces.state.scxml.invoke.Invoker;
@@ -153,7 +154,6 @@ public interface Evaluator {
      * @return new child context
      */
     Context newContext(Context parent);
-
     
     /**
      * Create a new {@link Invoker}
@@ -165,6 +165,10 @@ public interface Evaluator {
      * instantiated.
      */
     Invoker newInvoker(final String type) throws InvokerException;
+
+    ELContext getELContext();
+
+    void setELContext(ELContext elContext);
     
 }
 

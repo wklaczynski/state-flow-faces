@@ -25,6 +25,8 @@ import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.el.PropertyNotFoundException;
 import javax.el.PropertyNotWritableException;
+import javax.el.ValueExpression;
+import javax.el.VariableMapper;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.SCXMLSystemContext;
@@ -36,18 +38,20 @@ import javax.faces.state.scxml.system.EventVariable;
  */
 public class EvaluatorELResolver extends ELResolver implements Serializable {
 
-    /**
-     *
-     */
     public static final String DONE_DATA_NAME = "done";
 
-    /**
-     *
-     */
     public static final String EVENT_VAR_NAME = "event";
 
     private static final Set<String> writeprotect = new HashSet<>(Arrays.asList(
             SCXMLSystemContext.EVENT_KEY));
+
+    private final StateFlowEvaluator evaluator;
+    private final VariableMapper variableMapper;
+
+    public EvaluatorELResolver(StateFlowEvaluator evaluator, VariableMapper variableMapper) {
+        this.evaluator = evaluator;
+        this.variableMapper = variableMapper;
+    }
 
     @Override
     public Object getValue(ELContext context, Object base, Object property) {
@@ -84,6 +88,13 @@ public class EvaluatorELResolver extends ELResolver implements Serializable {
                             result = value;
                         }
                     }
+
+                    ValueExpression expression = variableMapper.resolveVariable(property.toString());
+                    if (expression != null) {
+                        context.setPropertyResolved(true);
+                        result = expression.getValue(context);
+                    }
+
                     break;
                 }
             }

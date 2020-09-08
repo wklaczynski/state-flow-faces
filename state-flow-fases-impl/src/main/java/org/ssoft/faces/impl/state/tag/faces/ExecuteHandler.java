@@ -103,6 +103,7 @@ public class ExecuteHandler extends ComponentHandler {
             StateFlowHandler handler = StateFlowHandler.getInstance();
             SCXMLExecutor executor = handler.getRootExecutor(fc, executorId);
             if (executor != null) {
+                executor.getEvaluator().setELContext(ctx);
                 String executePath = executor.getId();
                 Context ectx = executor.getGlobalContext();
                 ExecuteContext executeContext = new ExecuteContext(
@@ -250,6 +251,9 @@ public class ExecuteHandler extends ComponentHandler {
             }
 
             resolveParams(ctx, component, params);
+            ctx.getELResolver();
+            executor.getEvaluator().setELContext(ctx);
+
             handler.execute(fc, executor, params);
         }
 
