@@ -42,6 +42,7 @@ import javax.faces.state.scxml.SendContext;
 import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.scxml.io.StateHolder;
 import javax.faces.state.scxml.model.ActionExecutionError;
+import javax.faces.state.scxml.model.ModelException;
 
 /**
  * <p>
@@ -172,7 +173,7 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
                 if (ioProcessor == null
                         && target.startsWith(SCXMLIOProcessor.EVENT_PROCESSOR_ALIAS_PREFIX)
                         && !target.startsWith(SCXMLIOProcessor.SCXML_SESSION_EVENT_PROCESSOR_PREFIX)) {
-                    
+
                     invokeId = target.substring(SCXMLIOProcessor.EVENT_PROCESSOR_ALIAS_PREFIX.length());
                     ioProcessor = ioProcessors.get(SCXMLIOProcessor.SCXML_EVENT_PROCESSOR);
                     origin = SCXMLIOProcessor.INVOKE_EVENT_PROCESSOR;
@@ -229,8 +230,21 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
                         }
                         return;
                     }
+
+                    if (SCXMLIOProcessor.PARENT_EVENT_PROCESSOR.equals(target)) {
+                        try {
+                            ioProcessor.addEvent(eventBuilder.build());
+                            ((ParentSCXMLIOProcessor) ioProcessor).triggerEvents();
+                        } catch (ModelException ex) {
+                            throw new ActionExecutionError(true, ex.getMessage());
+                        }
+                    } else {
+                        ioProcessor.addEvent(eventBuilder.build());
+                    }
+
+                } else {
+                    ioProcessor.addEvent(eventBuilder.build());
                 }
-                ioProcessor.addEvent(eventBuilder.build());
             }
         } else {
             try {
@@ -286,7 +300,7 @@ public class StateFlowDispatcher implements EventDispatcher, FacesProcessHolder,
         tasks.clear();
 
         Map<String, SCXMLIOProcessor> ioProcessors
-                                      = (Map<String, SCXMLIOProcessor>) context.get(SCXMLSystemContext.IOPROCESSORS_KEY);
+                = (Map<String, SCXMLIOProcessor>) context.get(SCXMLSystemContext.IOPROCESSORS_KEY);
 
         if (null != state) {
             Object[] values = (Object[]) state;

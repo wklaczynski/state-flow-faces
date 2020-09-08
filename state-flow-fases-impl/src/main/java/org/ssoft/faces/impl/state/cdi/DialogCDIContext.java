@@ -53,8 +53,6 @@ public class DialogCDIContext implements Context, Serializable {
         return DialogScoped.class;
     }
 
-    
-    
     @Override
     @SuppressWarnings("UnusedAssignment")
     public <T> T get(Contextual<T> contextual, CreationalContext<T> creational) {
@@ -148,7 +146,7 @@ public class DialogCDIContext implements Context, Serializable {
     }
 
     static void executorExited(SCXMLExecutor executor) {
-        if(executor.getParentSCXMLIOProcessor() != null) {
+        if (!executor.isRoot()) {
             return;
         }
 
@@ -203,10 +201,10 @@ public class DialogCDIContext implements Context, Serializable {
     }
 
     static void executorEntered(SCXMLExecutor executor) {
-        if(executor.getParentSCXMLIOProcessor() != null) {
+        if (!executor.isRoot()) {
             return;
         }
-        
+
         FacesContext facesContext = FacesContext.getCurrentInstance();
         StateScopeMapHelper mapHelper = StateScopeMapHelper.dialog(facesContext, executor, DIALOG_SCOPE_KEY);
 

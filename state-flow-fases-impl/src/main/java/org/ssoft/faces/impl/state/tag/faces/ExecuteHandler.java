@@ -227,6 +227,8 @@ public class ExecuteHandler extends ComponentHandler {
 
         SCXMLExecutor executor = handler.getRootExecutor(fc, executorId);
         if (executor == null) {
+            SCXMLExecutor parent = handler.getCurrentExecutor(fc);
+            
             String uuid = UUID.nameUUIDFromBytes(url.getPath().getBytes()).toString();
             String continerName = STATE_CHART_FACET_NAME + "_" + uuid;
 
@@ -234,7 +236,7 @@ public class ExecuteHandler extends ComponentHandler {
             //            component.pushComponentToEL(fc, component);
             try {
                 SCXML stateMachine = findStateMachine(fc, continerName, scxmlName, url);
-                executor = handler.createRootExecutor(executorId, fc, stateMachine);
+                executor = handler.createRootExecutor(executorId, fc, parent, component.getId(), stateMachine);
                 executor.getSCInstance().getSystemContext();
                 Context rctx = executor.getRootContext();
                 rctx.setLocal(FACES_CHART_CONTROLLER_TYPE, EXECUTOR_CONTROLLER_TYPE);

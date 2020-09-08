@@ -16,6 +16,9 @@
  */
 package javax.faces.state.scxml;
 
+import javax.faces.FacesException;
+import javax.faces.state.scxml.model.ModelException;
+
 /**
  *
  * @author Waldemar Kłaczyński
@@ -39,6 +42,24 @@ public class ParentSCXMLIOProcessor implements SCXMLIOProcessor {
     public synchronized void addEvent(final TriggerEvent event) {
         if (executor != null) {
             executor.addEvent(event);
+        }
+    }
+
+    public void triggerEvent(TriggerEvent evt) throws ModelException {
+        if (executor != null) {
+            executor.triggerEvent(evt);
+        }
+    }
+
+    public void triggerEvents(TriggerEvent[] evts) throws ModelException {
+        if (executor != null) {
+            executor.triggerEvents(evts);
+        }
+    }
+
+    public void triggerEvents() throws ModelException {
+        if (executor != null) {
+            executor.triggerEvents();
         }
     }
 
@@ -82,6 +103,13 @@ public class ParentSCXMLIOProcessor implements SCXMLIOProcessor {
      *
      */
     public synchronized void close() {
+        if (executor != null) {
+            try {
+                executor.triggerEvents();
+            } catch (ModelException ex) {
+                throw new FacesException(ex);
+            }
+        }
         executor = null;
     }
 
@@ -92,5 +120,5 @@ public class ParentSCXMLIOProcessor implements SCXMLIOProcessor {
     public synchronized boolean isClosed() {
         return executor == null;
     }
-    
+
 }

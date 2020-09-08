@@ -28,7 +28,6 @@ import javax.faces.state.scxml.model.ModelException;
 import javax.faces.state.scxml.model.SCXML;
 import static javax.faces.state.StateFlow.DEFAULT_STATE_MACHINE_NAME;
 import static javax.faces.state.StateFlow.STATE_CHART_FACET_NAME;
-import javax.faces.state.scxml.Evaluator;
 import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.task.TimerEventProducer;
 
@@ -154,7 +153,22 @@ public abstract class StateFlowHandler {
      * @return
      * @throws ModelException
      */
-    public abstract SCXMLExecutor createRootExecutor(String id, FacesContext context, SCXML scxml) throws ModelException;
+    public SCXMLExecutor createRootExecutor(String id, FacesContext context, SCXML scxml) throws ModelException {
+        return createRootExecutor(id, context, null, null, scxml);
+    }
+    
+
+    /**
+     *
+     * @param id
+     * @param context
+     * @param parent
+     * @param invokeId
+     * @param scxml
+     * @return
+     * @throws ModelException
+     */
+    public abstract SCXMLExecutor createRootExecutor(String id, FacesContext context, SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException;
 
     /**
      *

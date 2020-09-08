@@ -78,6 +78,11 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
     private final SCXMLExecutionContext exctx;
 
     /**
+     * Flag indicating the executor instance has been root.
+     */
+    private boolean root;
+
+    /**
      * The external event queue
      */
     private final Queue<TriggerEvent> externalEventQueue = new ConcurrentLinkedQueue<>();
@@ -88,7 +93,7 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
      * @param id
      */
     public SCXMLExecutor(String id) {
-        this(id, null, null, null, null);
+        this(id, (Evaluator) null, null, null, null);
     }
 
     /**
@@ -99,8 +104,8 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
      * @param evtDisp The event dispatcher
      * @param errRep The error reporter
      */
-    public SCXMLExecutor(String id, final Evaluator expEvaluator,
-            final EventDispatcher evtDisp, final ErrorReporter errRep) {
+    public SCXMLExecutor(String id, Evaluator expEvaluator,
+            EventDispatcher evtDisp, ErrorReporter errRep) {
         this(id, expEvaluator, evtDisp, errRep, null);
     }
 
@@ -113,13 +118,57 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
      * @param errRep The error reporter
      * @param semantics The SCXML semantics
      */
-    public SCXMLExecutor(String id, final Evaluator expEvaluator,
-            final EventDispatcher evtDisp, final ErrorReporter errRep,
-            final SCXMLSemantics semantics) {
+    public SCXMLExecutor(String id, Evaluator expEvaluator,
+            EventDispatcher evtDisp, ErrorReporter errRep,
+            SCXMLSemantics semantics) {
 
         this.id = id;
+        this.root = true;
         this.semantics = semantics != null ? semantics : new SCXMLSemanticsImpl();
         this.exctx = new SCXMLExecutionContext(this, expEvaluator, evtDisp, errRep);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param id
+     * @param expEvaluator The expression evaluator
+     * @param invokeId
+     * @param parentSCXMLExecutor the parent SCXMLExecutor
+     * @param evtDisp The event dispatcher
+     * @param errRep The error reporter
+     * @throws javax.faces.state.scxml.model.ModelException
+     */
+    public SCXMLExecutor(String id, SCXMLExecutor parentSCXMLExecutor, String invokeId,
+            Evaluator expEvaluator,
+            EventDispatcher evtDisp, ErrorReporter errRep) throws ModelException {
+        this(id, parentSCXMLExecutor, invokeId, expEvaluator, evtDisp, errRep, null);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param id
+     * @param expEvaluator The expression
+     * @param invokeId evaluator
+     * @param parentSCXMLExecutor the parent SCXMLExecutor
+     * @param evtDisp The event dispatcher
+     * @param errRep The error reporter
+     * @param semantics The SCXML semantics
+     * @throws javax.faces.state.scxml.model.ModelException
+     */
+    public SCXMLExecutor(String id, SCXMLExecutor parentSCXMLExecutor, String invokeId, 
+            Evaluator expEvaluator,
+            EventDispatcher evtDisp, ErrorReporter errRep,
+            SCXMLSemantics semantics) throws ModelException {
+
+        this.id = id;
+        this.root = true;
+        this.parentSCXMLIOProcessor = new ParentSCXMLIOProcessor(parentSCXMLExecutor, invokeId);
+        this.semantics = semantics != null ? semantics : parentSCXMLExecutor.semantics;
+        this.exctx = new SCXMLExecutionContext(this, expEvaluator, evtDisp, errRep);
+
+        getSCInstance().setSingleContext(parentSCXMLExecutor.isSingleContext());
     }
 
     /**
@@ -131,8 +180,10 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
      * @param scxml
      * @throws javax.faces.state.scxml.model.ModelException
      */
-    public SCXMLExecutor(String id, final SCXMLExecutor parentSCXMLExecutor, final String invokeId, final SCXML scxml) throws ModelException {
+    public SCXMLExecutor(String id, SCXMLExecutor parentSCXMLExecutor,
+            String invokeId, SCXML scxml) throws ModelException {
         this.id = id;
+        this.root = false;
         this.parentSCXMLIOProcessor = new ParentSCXMLIOProcessor(parentSCXMLExecutor, invokeId);
         this.semantics = parentSCXMLExecutor.semantics;
         this.exctx = new SCXMLExecutionContext(this, parentSCXMLExecutor.getEvaluator(),
@@ -150,6 +201,15 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
     @Override
     public final String getId() {
         return id;
+    }
+
+    /**
+     * Get the true if is the root executor.
+     *
+     * @return String An identifier.
+     */
+    public boolean isRoot() {
+        return root;
     }
 
     /**
@@ -655,12 +715,13 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
      */
     @Override
     public Object saveState(Context context) {
-        Object values[] = new Object[2];
+        Object values[] = new Object[3];
 
         context.setLocal(STATE_MACHINE_HINT, getSCInstance().getStateMachine());
 
         values[0] = id;
-        values[1] = exctx.saveState(context);
+        values[1] = root;
+        values[2] = exctx.saveState(context);
         return values;
     }
 
@@ -680,7 +741,8 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
         Object[] values = (Object[]) state;
 
         id = (String) values[0];
-        if (values[1] != null) {
+        root = (Boolean) values[0];
+        if (values[2] != null) {
             exctx.restoreState(context, values[1]);
         }
     }

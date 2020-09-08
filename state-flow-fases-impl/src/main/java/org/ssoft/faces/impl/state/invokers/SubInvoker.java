@@ -193,7 +193,7 @@ public class SubInvoker implements Invoker, StateHolder {
                     throw new InvokerException(String.format(
                             "invoked scxml id='%s' not found in %s", scxmlId, viewId));
                 }
-                
+
                 String parentid = parentSCXMLExecutor.getId();
 
                 String childId = parentid + ":" + UUID.randomUUID().toString();
@@ -412,7 +412,7 @@ public class SubInvoker implements Invoker, StateHolder {
     @Override
     public void cancel() throws InvokerException {
         cancelled = true;
-        if (executor.getParentSCXMLIOProcessor() != null) {
+        if (!executor.isRoot()) {
             ParentSCXMLIOProcessor ioProcessor = executor.getParentSCXMLIOProcessor();
             if (!ioProcessor.isClosed()) {
                 executor.addEvent(new EventBuilder("cancel.invoke." + invokeId, TriggerEvent.CANCEL_EVENT).build());
@@ -445,7 +445,7 @@ public class SubInvoker implements Invoker, StateHolder {
                 vh.initView(fc);
                 fc.setViewRoot(viewRoot);
                 fc.renderResponse();
-                
+
                 if (!fc.getAttributes().containsKey(VIEW_RESTORED_HINT)) {
                     fc.getAttributes().put(VIEW_RESTORED_HINT, true);
                 }

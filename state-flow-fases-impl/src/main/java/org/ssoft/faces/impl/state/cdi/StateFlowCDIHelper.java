@@ -37,13 +37,13 @@ public class StateFlowCDIHelper {
     public static void flowExited() {
         FlowCDIContext.flowExited();
     }
-    
+
     /**
      *
      * @param executor
      */
     public static void executorEntered(SCXMLExecutor executor) {
-        if (executor.getParentSCXMLIOProcessor() == null) {
+        if (executor.isRoot()) {
             DialogCDIContext.executorEntered(executor);
         }
         ChartCDIContext.executorEntered(executor);
@@ -55,7 +55,7 @@ public class StateFlowCDIHelper {
      * @param executor
      */
     public static void executorExited(SCXMLExecutor executor) {
-        if (executor.getParentSCXMLIOProcessor() == null) {
+        if (executor.isRoot()) {
             DialogCDIContext.executorExited(executor);
         }
         ChartCDIContext.executorExited(executor);
@@ -79,6 +79,5 @@ public class StateFlowCDIHelper {
     public static void stateExited(SCXMLExecutor executor, EnterableState state) {
         //StateTargetCDIContext.stateExited(executor, state);
     }
-    
-    
+
 }
