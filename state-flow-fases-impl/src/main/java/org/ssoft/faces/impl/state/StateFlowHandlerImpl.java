@@ -585,7 +585,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         errorReporter.getTags().putAll(new HashMap<>(tags));
 
         Context flowContext = fs.getFlowContext();
-        
+
         Context rootCtx;
         SCXMLExecutor executor;
         if (parent == null) {
@@ -593,12 +593,12 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             rootCtx = executor.getEvaluator().newContext(flowContext);
         } else {
             executor = new SCXMLExecutor(id, parent, invokeId, evaluator, dispatcher, errorReporter);
-            rootCtx = executor.getEvaluator().newContext(parent.getRootContext());
+            rootCtx = executor.getEvaluator().newContext(flowContext);
         }
 
         executor.setStateMachine(scxml);
         executor.addListener(scxml, new StateFlowCDIListener(executor));
-        
+
         executor.setRootContext(rootCtx);
 
         if (context.getApplication().getProjectStage() == ProjectStage.Production) {
@@ -620,8 +620,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
         });
 
-        Context globalCtx = executor.getGlobalContext();
-        globalCtx.setLocal("scxml_has_parent", false);
+        Context ctx = executor.getRootContext();
+        ctx.setLocal("scxml_has_parent", false);
 
         return executor;
     }
@@ -649,10 +649,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
         }
 
-        if (parent != null) {
-            Context globalCtx = executor.getGlobalContext();
-            globalCtx.setLocal("scxml_has_parent", true);
-        }
+        Context ctx = executor.getRootContext();
+        ctx.setLocal("scxml_has_parent", parent != null);
 
         return executor;
     }
