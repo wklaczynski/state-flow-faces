@@ -21,7 +21,9 @@ import javax.el.ELContext;
 import javax.el.ExpressionFactory;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.convert.Converter;
 import static javax.faces.state.StateFlow.CURRENT_EXECUTOR_HINT;
 import static javax.faces.state.StateFlow.DISABLE_EXPRESSION_MAP;
 import org.ssoft.faces.impl.state.StateFlowContext;
@@ -31,6 +33,7 @@ import javax.faces.state.scxml.SCXMLExpressionException;
 import javax.faces.state.scxml.env.AbstractBaseEvaluator;
 import org.ssoft.faces.impl.state.utils.Util;
 import javax.faces.state.StateFlowHandler;
+import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.execute.ExecuteContext;
 import javax.faces.state.scxml.SCXMLIOProcessor;
 import javax.faces.state.scxml.SCXMLSystemContext;
@@ -40,6 +43,7 @@ import javax.faces.state.scxml.invoke.InvokerException;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
 import javax.faces.state.scxml.model.SCXML;
 import javax.faces.state.execute.ExecuteContextManager;
+import javax.faces.state.utils.ComponentUtils;
 import org.ssoft.faces.impl.state.invokers.FacesInvokerWrapper;
 
 /**
@@ -164,6 +168,41 @@ public class StateFlowEvaluator extends AbstractBaseEvaluator {
                 }
             } else {
                 if (data != null) {
+                    FacesContext fc = FacesContext.getCurrentInstance();
+
+                    Class<?> type = location.getType(ec);
+                    if (type.isAssignableFrom(data.getClass())) {
+                        location.setValue(ec, data);
+                        return null;
+                    }
+
+                    if (type.isAssignableFrom(data.getClass())) {
+                        location.setValue(ec, data);
+                        return null;
+                    }
+
+                    if (type.isAssignableFrom(String.class)) {
+                        location.setValue(ec, String.valueOf(data));
+                        return null;
+                    }
+
+                    if (data instanceof String) {
+                        Converter converter = fc.getApplication().createConverter(type);
+                        if (converter != null) {
+                            UIComponent current = UIComponent.getCurrentComponent(fc);
+                            current = ComponentUtils
+                                    .passed(UIStateChartExecutor.class, current);
+
+                            if (current == null) {
+                                current = fc.getViewRoot();
+                            }
+
+                            Object target = converter.getAsObject(fc, current, data.toString());
+                            location.setValue(ec, target);
+                            return null;
+                        }
+                    }
+                    
                     location.setValue(ec, data);
                 } else {
                     location.setValue(ec, data);
