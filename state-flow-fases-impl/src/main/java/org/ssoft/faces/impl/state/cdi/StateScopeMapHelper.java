@@ -52,18 +52,31 @@ public class StateScopeMapHelper {
         return new StateScopeMapHelper(facesContext, context, prefix, sessionId, null);
     }
 
+//    public static StateScopeMapHelper dialog(FacesContext facesContext, SCXMLExecutor executor, String prefix) {
+//        StateFlowHandler handler = StateFlowHandler.getInstance();
+//        Context context = handler.getFlowContext(facesContext, null);
+//        String sessionId;
+//        String rootId = null;
+//        if (executor != null) {
+//            sessionId = executor.getId();
+//            Context sctx = executor.getRootContext();
+//            rootId = (String) sctx.get(FACES_VIEW_ROOT_EXECUTOR_ID);
+//
+//        } else {
+//            sessionId = handler.getViewExecutorId(facesContext);
+//        }
+//        return new StateScopeMapHelper(facesContext, context, prefix, sessionId, rootId);
+//    }
+
     public static StateScopeMapHelper dialog(FacesContext facesContext, SCXMLExecutor executor, String prefix) {
-        StateFlowHandler handler = StateFlowHandler.getInstance();
-        Context context = handler.getFlowContext(facesContext, null);
-        String sessionId;
+        Context context = null;
+        String sessionId = null;
         String rootId = null;
         if (executor != null) {
             sessionId = executor.getId();
             Context sctx = executor.getRootContext();
-            rootId = (String) sctx.get(FACES_VIEW_ROOT_EXECUTOR_ID);
+            rootId = executor.getRootId();
 
-        } else {
-            sessionId = handler.getViewExecutorId(facesContext);
         }
         return new StateScopeMapHelper(facesContext, context, prefix, sessionId, rootId);
     }

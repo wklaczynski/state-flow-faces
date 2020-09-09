@@ -219,7 +219,7 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
      */
     @Override
     public final String getRootId() {
-        return parentSCXMLIOProcessor == null ? id : parentSCXMLIOProcessor.getRootId();
+        return root ? id : parentSCXMLIOProcessor.getRootId();
     }
 
     /**

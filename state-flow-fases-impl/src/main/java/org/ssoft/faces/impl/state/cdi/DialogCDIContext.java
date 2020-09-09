@@ -60,6 +60,7 @@ public class DialogCDIContext implements Context, Serializable {
 
         FacesContext facesContext = FacesContext.getCurrentInstance();
         SCXMLExecutor executor = getExecutor(facesContext);
+
         StateScopeMapHelper mapHelper = StateScopeMapHelper.dialog(facesContext, executor, DIALOG_SCOPE_KEY);
 
         T result = get(mapHelper, contextual);
@@ -256,7 +257,7 @@ public class DialogCDIContext implements Context, Serializable {
             return null;
         }
 
-        SCXMLExecutor result = flowHandler.getRootExecutor(context);
+        SCXMLExecutor result = flowHandler.getCurrentExecutor(context);
         return result;
 
     }
