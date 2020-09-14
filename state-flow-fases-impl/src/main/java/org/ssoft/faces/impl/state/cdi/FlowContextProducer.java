@@ -17,11 +17,9 @@ package org.ssoft.faces.impl.state.cdi;
 
 import java.lang.reflect.Type;
 import java.util.Map;
-import javax.el.ELContext;
 import javax.enterprise.context.RequestScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.state.StateFlowHandler;
-import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.env.EffectiveContextMap;
 
 /**
