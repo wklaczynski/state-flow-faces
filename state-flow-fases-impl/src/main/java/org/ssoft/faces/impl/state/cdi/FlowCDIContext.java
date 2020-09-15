@@ -50,8 +50,6 @@ public class FlowCDIContext implements Context, Serializable {
     public Class<? extends Annotation> getScope() {
         return FlowScoped.class;
     }
-
-    
     
     @Override
     @SuppressWarnings("UnusedAssignment")

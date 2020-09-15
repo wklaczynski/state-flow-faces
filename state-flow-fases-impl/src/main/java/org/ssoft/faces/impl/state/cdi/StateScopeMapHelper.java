@@ -29,7 +29,6 @@ import javax.faces.state.scxml.Context;
 import javax.servlet.http.HttpSession;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.env.SimpleContext;
-import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
 
 /**
  *
@@ -49,36 +48,19 @@ public class StateScopeMapHelper {
         StateFlowHandler handler = StateFlowHandler.getInstance();
         String sessionId = handler.getFlowId(facesContext);
         Context context = handler.getFlowContext(facesContext, null);
-        return new StateScopeMapHelper(facesContext, context, prefix, sessionId, null);
+        return new StateScopeMapHelper(facesContext, context, prefix, sessionId, false);
     }
 
-//    public static StateScopeMapHelper dialog(FacesContext facesContext, SCXMLExecutor executor, String prefix) {
-//        StateFlowHandler handler = StateFlowHandler.getInstance();
-//        Context context = handler.getFlowContext(facesContext, null);
-//        String sessionId;
-//        String rootId = null;
-//        if (executor != null) {
-//            sessionId = executor.getId();
-//            Context sctx = executor.getRootContext();
-//            rootId = (String) sctx.get(FACES_VIEW_ROOT_EXECUTOR_ID);
-//
-//        } else {
-//            sessionId = handler.getViewExecutorId(facesContext);
-//        }
-//        return new StateScopeMapHelper(facesContext, context, prefix, sessionId, rootId);
-//    }
-
     public static StateScopeMapHelper dialog(FacesContext facesContext, SCXMLExecutor executor, String prefix) {
-        Context context = null;
-        String sessionId = null;
-        String rootId = null;
+        StateFlowHandler handler = StateFlowHandler.getInstance();
+        Context context = handler.getFlowContext(facesContext, null);
+        String sessionId;
         if (executor != null) {
             sessionId = executor.getId();
-            Context sctx = executor.getRootContext();
-            rootId = executor.getRootId();
-
+        } else {
+            sessionId = handler.getViewExecutorId(facesContext);
         }
-        return new StateScopeMapHelper(facesContext, context, prefix, sessionId, rootId);
+        return new StateScopeMapHelper(facesContext, context, prefix, sessionId, true);
     }
 
     public static StateScopeMapHelper chart(FacesContext facesContext, SCXMLExecutor executor, String prefix) {
@@ -100,10 +82,9 @@ public class StateScopeMapHelper {
                 context = executor.getGlobalContext();
             }
         }
-        return new StateScopeMapHelper(facesContext, context, prefix, sessionId, null);
+        return new StateScopeMapHelper(facesContext, context, prefix, sessionId, false);
     }
     private boolean fullScope;
-    private String rootId;
 
     /**
      *
@@ -111,19 +92,15 @@ public class StateScopeMapHelper {
      * @param context
      * @param prefix
      * @param sessionId
-     * @param rootId
+     * @param fullScope
      */
-    public StateScopeMapHelper(FacesContext facesContext, Context context, String prefix, String sessionId, String rootId) {
+    public StateScopeMapHelper(FacesContext facesContext, Context context, String prefix, String sessionId, boolean fullScope) {
         this(prefix);
         ExternalContext extContext = facesContext.getExternalContext();
         this.sessionMap = extContext.getSessionMap();
         this.context = context;
         this.sessionId = sessionId;
-        this.rootId = rootId;
-        if (rootId != null) {
-            fullScope = true;
-        }
-
+        this.fullScope = fullScope;
     }
 
     /**
@@ -194,10 +171,8 @@ public class StateScopeMapHelper {
             if (fullScope) {
                 FacesContext fc = FacesContext.getCurrentInstance();
                 StateFlowHandler fh = StateFlowHandler.getInstance();
-                SCXMLExecutor executor = fh.getRootExecutor(fc, rootId);
-                if (executor != null) {
-                    parent = getParentScopeBeanContext(fc, fh, executor);
-                }
+                SCXMLExecutor executor = fh.getExecutor(fc, sessionId);
+                parent = getParentScopeBeanContext(fc, fh, executor);
             }
             result = new ScopedBeanContext(parent, beansKey);
             sessionMap.put(beansKey, result);
@@ -208,20 +183,25 @@ public class StateScopeMapHelper {
 
     private Context getParentScopeBeanContext(FacesContext fc, StateFlowHandler fh, SCXMLExecutor executor) {
 
+        if (executor == null) {
+            return null;
+        }
+
+        SCXMLExecutor next = null;
+        if (executor.getParentSCXMLIOProcessor() != null) {
+            next = executor.getParentSCXMLIOProcessor().getExecutor();
+        }
+
+        if (next == null) {
+            return null;
+        }
+
         ScopedBeanContext result;
-        String parentId = executor.getId();
+        String parentId = next.getId();
         String beansKey = generateKeyForCDIBeansBelong(parentId, "_beans");
         result = (ScopedBeanContext) sessionMap.get(beansKey);
         if (null == result) {
-            Context parent = null;
-            Context sctx = executor.getRootContext();
-            String nextId = (String) sctx.get(FACES_VIEW_ROOT_EXECUTOR_ID);
-            if (nextId != null && !nextId.equals(parentId)) {
-                SCXMLExecutor next = fh.getRootExecutor(fc, nextId);
-                if (next != null) {
-                    parent = getParentScopeBeanContext(fc, fh, next);
-                }
-            }
+            Context parent = getParentScopeBeanContext(fc, fh, next);
             result = new ScopedBeanContext(parent, beansKey);
             sessionMap.put(beansKey, result);
             ensureBeanMapCleanupOnSessionDestroyed(sessionMap, beansKey);
