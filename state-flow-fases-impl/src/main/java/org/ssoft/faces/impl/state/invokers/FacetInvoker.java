@@ -39,7 +39,6 @@ import javax.faces.context.Flash;
 import javax.faces.context.PartialViewContext;
 import javax.faces.lifecycle.ClientWindow;
 import org.ssoft.faces.impl.state.StateFlowParams;
-import static javax.faces.state.StateFlow.AFTER_PHASE_EVENT_PREFIX;
 import static javax.faces.state.StateFlow.AFTER_RENDER_VIEW;
 import static javax.faces.state.StateFlow.VIEW_EVENT_PREFIX;
 import javax.faces.state.scxml.SCXMLExecutor;
@@ -55,8 +54,11 @@ import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.model.ModelException;
 import static javax.faces.state.StateFlow.RENDER_EXECUTOR_FACET;
 import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_PATH;
+import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
+import static javax.faces.state.StateFlow.EXECUTOR_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.VIEWROOT_CONTROLLER_TYPE;
 import static javax.faces.state.StateFlow.FACES_CHART_CONTROLLER_TYPE;
+import static javax.faces.state.StateFlow.FACES_CHART_EXECUTOR_VIEW_ID;
 import static javax.faces.state.StateFlow.VIEW_RESTORED_HINT;
 import javax.faces.state.execute.ExecuteContextManager;
 import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
@@ -98,6 +100,7 @@ public class FacetInvoker implements Invoker, Serializable {
     private String slot;
     private boolean useflash;
     private boolean usewindow;
+    private boolean storeView;
 
     /**
      * {@inheritDoc}.
@@ -142,9 +145,24 @@ public class FacetInvoker implements Invoker, Serializable {
         StateFlowHandler handler = StateFlowHandler.getInstance();
         ExternalContext ec = fc.getExternalContext();
         try {
-            Context sctx = executor.getRootContext();
-            if (viewId == null) {
-                viewId = fc.getViewRoot().getViewId();
+            Context ctx = executor.getRootContext();
+            String controllerType = (String) ctx.get(FACES_CHART_CONTROLLER_TYPE);
+            if (controllerType == null) {
+                controllerType = VIEWROOT_CONTROLLER_TYPE;
+            }
+
+            storeView = false;
+            if (controllerType.equals(EXECUTOR_CONTROLLER_TYPE)) {
+                storeView = false;
+                if (viewId == null) {
+                    viewId = (String) ctx.get(FACES_CHART_EXECUTOR_VIEW_ID);
+                    storeView = true;
+                }
+            } else {
+                if (viewId == null) {
+                    viewId = (String) ctx.get(EXECUTOR_CONTEXT_VIEW_PATH);
+                    storeView = true;
+                }
             }
 
             reqparams = new HashMap<>();
@@ -174,13 +192,27 @@ public class FacetInvoker implements Invoker, Serializable {
             }
 
             slot = "content";
+            String facet = source;
+            if (source.startsWith("@renderer:")) {
+                facet = facet.substring(10);
+
+                int ppos = facet.indexOf(":");
+                if (ppos >= 0) {
+                    slot = facet.substring(0, ppos);
+                    facet = facet.substring(ppos);
+                }
+                facet = "@renderer:" + facet;
+
+            } else {
+                throwUknowTypeException(fc, source);
+            }
+
             if (facetparams.containsKey("slot")) {
                 Object val = facetparams.get("slot");
                 slot = String.valueOf(val);
                 facetparams.remove("slot");
             }
 
-            Context ctx = executor.getRootContext();
             path = executor.getId() + ":" + slot;
 
             boolean transientState = false;
@@ -215,7 +247,7 @@ public class FacetInvoker implements Invoker, Serializable {
                 }
             }
 
-            if (!transientState) {
+            if (!transientState && storeView) {
                 stateKey = "__@@Invoke:" + invokeId + ":";
             }
 
@@ -247,7 +279,7 @@ public class FacetInvoker implements Invoker, Serializable {
             ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
             manager.initExecuteContext(fc, path, viewContext);
 
-            setRenderFacet(fc, source);
+            setRenderFacet(fc, source, facet);
 
             UIViewRoot currentViewRoot = fc.getViewRoot();
 
@@ -279,7 +311,7 @@ public class FacetInvoker implements Invoker, Serializable {
                 ajaxredirect = (boolean) fc.getAttributes().get(VIEW_RESTORED_HINT);
             }
 
-            if (fc.getResponseComplete()) {
+            if (!storeView || fc.getResponseComplete()) {
                 return;
             }
 
@@ -369,18 +401,13 @@ public class FacetInvoker implements Invoker, Serializable {
     }
 
     @SuppressWarnings("UnusedAssignment")
-    private void setRenderFacet(FacesContext context, String source) throws InvokerException {
+    private void setRenderFacet(FacesContext context, String source, String facet) throws InvokerException {
 
         Context ctx = executor.getRootContext();
 
-        String controllerType = (String) ctx.get(FACES_CHART_CONTROLLER_TYPE);
-        if (controllerType == null) {
-            controllerType = VIEWROOT_CONTROLLER_TYPE;
-        }
+        if (facet.startsWith("@renderer:")) {
 
-        if (source.startsWith("@renderer:")) {
-
-            ctx.setLocal(RENDER_EXECUTOR_FACET.get(slot), source);
+            ctx.setLocal(RENDER_EXECUTOR_FACET.get(slot), facet);
 
 //        } else if (source.startsWith("@executor:")) {
 //            if (!controllerType.equals(EXECUTOR_CONTROLLER_TYPE)) {

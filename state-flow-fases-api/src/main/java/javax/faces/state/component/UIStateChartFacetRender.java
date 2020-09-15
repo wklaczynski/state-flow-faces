@@ -17,11 +17,15 @@ package javax.faces.state.component;
 
 import javax.faces.state.utils.ComponentUtils;
 import java.io.IOException;
+import java.util.Iterator;
 import javax.faces.FacesException;
+import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIPanel;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.faces.event.PostValidateEvent;
+import javax.faces.event.PreValidateEvent;
 import javax.faces.view.Location;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
@@ -70,6 +74,60 @@ public class UIStateChartFacetRender extends UIPanel {
         return COMPONENT_FAMILY;
     }
 
+    @Override
+    public void processDecodes(FacesContext context) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        if (!isRendered()) {
+            return;
+        }
+
+        pushComponentToEL(context, null);
+
+        try {
+            UIComponent renderComponent = getCurentEncodeFacet(context);
+            if (renderComponent != null) {
+                renderComponent.processDecodes(context);
+            }
+        } finally {
+            popComponentFromEL(context);
+        }
+    }
+
+    @Override
+    public void processValidators(FacesContext context) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        // Skip processing if our rendered flag is false
+        if (!isRendered()) {
+            return;
+        }
+
+        pushComponentToEL(context, null);
+
+        try {
+            Application app = context.getApplication();
+            app.publishEvent(context, PreValidateEvent.class, this);
+            // Process all the facets and children of this component
+            UIComponent renderComponent = getCurentEncodeFacet(context);
+            if (renderComponent != null) {
+                renderComponent.processDecodes(context);
+            }
+            app.publishEvent(context, PostValidateEvent.class, this);
+        } finally {
+            popComponentFromEL(context);
+        }
+    }
+
+    @Override
+    public void decode(FacesContext context) {
+        System.out.println("decode");
+    }
+
     public String getExecutorId() {
         return _executorId;
     }
@@ -109,7 +167,7 @@ public class UIStateChartFacetRender extends UIPanel {
 
         String executorId = getExecutorId();
         if (executorId != null) {
-            executor = handler.getRootExecutor(context, executorId);
+            executor = handler.getExecutor(context, executorId);
         }
 
         if (executor != null) {
