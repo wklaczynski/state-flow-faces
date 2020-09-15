@@ -102,7 +102,6 @@ public class UIStateChartFacetRender extends UIPanel {
             throw new NullPointerException();
         }
 
-        // Skip processing if our rendered flag is false
         if (!isRendered()) {
             return;
         }
@@ -112,10 +111,9 @@ public class UIStateChartFacetRender extends UIPanel {
         try {
             Application app = context.getApplication();
             app.publishEvent(context, PreValidateEvent.class, this);
-            // Process all the facets and children of this component
             UIComponent renderComponent = getCurentEncodeFacet(context);
             if (renderComponent != null) {
-                renderComponent.processDecodes(context);
+                renderComponent.processValidators(context);
             }
             app.publishEvent(context, PostValidateEvent.class, this);
         } finally {
