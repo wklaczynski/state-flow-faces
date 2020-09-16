@@ -17,7 +17,6 @@ package javax.faces.state.component;
 
 import javax.faces.state.utils.ComponentUtils;
 import java.io.IOException;
-import java.util.Iterator;
 import javax.faces.FacesException;
 import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
@@ -123,7 +122,7 @@ public class UIStateChartFacetRender extends UIPanel {
 
     @Override
     public void decode(FacesContext context) {
-        System.out.println("decode");
+
     }
 
     public String getExecutorId() {
