@@ -55,32 +55,15 @@ public class RenderFacetHandler extends ComponentHandler {
 
     @Override
     public void onComponentCreated(FaceletContext ctx, UIComponent c, UIComponent parent) {
-        FacesContext context = ctx.getFacesContext();
+        FacesContext fc = ctx.getFacesContext();
         UIStateChartFacetRender render = (UIStateChartFacetRender) c;
+        
+        String executorId = ExecuteExpressionFactory.getBuildPathStack(fc).peek();
 
-        UIComponent cc = ComponentUtils.findExecutorComponentUsingLocation(context, parent, tag.getLocation());
-
-        if (cc != null) {
-            ExecutorController controller = (ExecutorController) cc
-                    .getAttributes().get(StateFlow.EXECUTOR_CONTROLLER_KEY);
-
-            if (controller == null) {
-                throw new TagException(this.tag,
-                        "Unable to render facet execute component, controller "
-                        + "executor can not be defined in the component.");
-            }
-
-            String executorId = controller.getExecutorId();
-
-            if (executorId == null) {
-                throw new TagException(this.tag,
-                        "Unable to render facet execute component, controller "
-                        + "executor can not be started.");
-            }
-
+        if (executorId != null) {
             render.setExecutorId(executorId);
         } else {
-            String rootId = (String) context.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
+            String rootId = (String) fc.getAttributes().get(FACES_VIEW_ROOT_EXECUTOR_ID);
             if (rootId == null) {
                 throw new TagException(this.tag,
                         "Unable to render facet execute component, "
@@ -94,13 +77,13 @@ public class RenderFacetHandler extends ComponentHandler {
 
     @Override
     public void applyNextHandler(FaceletContext ctx, UIComponent c) throws IOException, FacesException, ELException {
-        FacesContext context = ctx.getFacesContext();
+        FacesContext fc = ctx.getFacesContext();
         UIStateChartFacetRender render = (UIStateChartFacetRender) c;
         try {
-            ExecuteExpressionFactory.getBuildPathStack(context).push(render.getExecutePath(context));
+            ExecuteExpressionFactory.getBuildPathStack(fc).push(render.getExecutePath(fc));
             super.applyNextHandler(ctx, c);
         } finally {
-            ExecuteExpressionFactory.getBuildPathStack(context).pop();
+            ExecuteExpressionFactory.getBuildPathStack(fc).pop();
         }
     }
 
