@@ -39,6 +39,7 @@ import java.util.logging.Logger;
 import javax.el.ELContext;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.FacesException;
+import javax.faces.application.Application;
 import javax.faces.application.ProjectStage;
 import javax.faces.application.ViewHandler;
 import javax.faces.component.UIComponent;
@@ -49,6 +50,7 @@ import javax.faces.component.visit.VisitResult;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.FacesContextWrapper;
+import javax.faces.event.SystemEvent;
 import javax.faces.lifecycle.ClientWindow;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
@@ -108,6 +110,8 @@ import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.scxml.SCXMLSystemContext;
 import javax.faces.state.execute.ExecuteContextManager;
 import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
+import javax.faces.state.events.PostExecuteEvent;
+import javax.faces.state.events.PreExecutorExitedEvent;
 
 /**
  *
@@ -691,15 +695,15 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             SCXMLExecutor currentExecutor = getCurrentExecutor(context);
             if (currentExecutor != null) {
                 String parentSessionId = (String) currentExecutor.getSCInstance().getSystemContext().get(SCXMLSystemContext.SESSIONID_KEY);
-                Context ctx = executor.getGlobalContext();
-                ctx.setLocal("##parent_executor_session_id", parentSessionId);
+                Context gctx = executor.getGlobalContext();
+                gctx.setLocal("##parent_executor_session_id", parentSessionId);
             }
 
             SCXMLExecutor rootExecutor = getRootExecutor(context);
             if (rootExecutor != null) {
                 String parentSessionId = (String) rootExecutor.getSCInstance().getSystemContext().get(SCXMLSystemContext.SESSIONID_KEY);
-                Context ctx = executor.getGlobalContext();
-                ctx.setLocal("##root_executor_session_id", parentSessionId);
+                Context gctx = executor.getGlobalContext();
+                gctx.setLocal("##root_executor_session_id", parentSessionId);
             }
 
             executorEntered(executor);
@@ -872,11 +876,17 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
     @Override
     public void executorEntered(SCXMLExecutor executor) {
         StateFlowCDIHelper.executorEntered(executor);
+        FacesContext context = FacesContext.getCurrentInstance();
+        Application application = context.getApplication();
+        application.publishEvent(context, PostExecuteEvent.class, executor);
     }
 
     @Override
     public void executorExited(SCXMLExecutor executor) {
         StateFlowCDIHelper.executorExited(executor);
+        FacesContext context = FacesContext.getCurrentInstance();
+        Application application = context.getApplication();
+        application.publishEvent(context, PreExecutorExitedEvent.class, executor);
     }
 
     private FlowDeque getFlowDeque(FacesContext context, boolean create) {

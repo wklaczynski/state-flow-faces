@@ -32,7 +32,7 @@ import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.task.TimerEventProducer;
 
 /**
- *
+ *  
  * @author Waldemar Kłaczyński
  */
 public abstract class StateFlowHandler {

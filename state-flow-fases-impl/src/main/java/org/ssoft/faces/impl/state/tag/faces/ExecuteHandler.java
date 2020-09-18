@@ -28,11 +28,15 @@ import java.util.logging.Logger;
 import javax.el.ELException;
 import javax.el.ValueExpression;
 import javax.faces.FacesException;
+import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.faces.event.AbortProcessingException;
 import javax.faces.event.PhaseId;
+import javax.faces.event.SystemEvent;
 import javax.faces.state.StateFlow;
+import static javax.faces.state.StateFlow.AFTER_BUILD_VIEW;
 import static javax.faces.state.StateFlow.BEFORE_BUILD_VIEW;
 import static javax.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import javax.faces.view.facelets.ComponentConfig;
@@ -68,8 +72,10 @@ import org.ssoft.faces.impl.state.el.ExecuteExpressionFactory;
 import org.ssoft.faces.impl.state.log.FlowLogger;
 import static org.ssoft.faces.impl.state.utils.Util.findStateMachine;
 import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
+import javax.faces.state.events.PostInitExecutorEvent;
 
 /**
+ *
  */
 public class ExecuteHandler extends ComponentHandler {
 
@@ -202,11 +208,42 @@ public class ExecuteHandler extends ComponentHandler {
 
     @Override
     public void onComponentPopulated(FaceletContext ctx, UIComponent c, UIComponent parent) {
-        FacesContext context = ctx.getFacesContext();
-        ArrayList<String> clientIds = (ArrayList<String>) context.getViewRoot().getAttributes().get(CONTROLLER_SET_HINT);
+        FacesContext fc = ctx.getFacesContext();
+        Application application = fc.getApplication();
+        UIStateChartExecutor component = (UIStateChartExecutor) c;
+
+        ExecuteContextManager manager = ExecuteContextManager.getManager(fc);
+        boolean pushed = false;
+        try {
+            String executorId = component.getExecutorId();
+            ExecuteExpressionFactory.getBuildPathStack(fc).push(executorId);
+
+            StateFlowHandler handler = StateFlowHandler.getInstance();
+            SCXMLExecutor executor = handler.getRootExecutor(fc, executorId);
+            if (executor != null) {
+                executor.getEvaluator().setELContext(ctx);
+                String executePath = executor.getId();
+                ExecuteContext executeContext = manager.findExecuteContextByPath(fc, executePath);
+                if (executeContext != null) {
+                    pushed = manager.push(executeContext);
+                }
+            }
+
+            publishExecuteEvents(fc, application, parent, PostInitExecutorEvent.class);
+
+        } catch (AbortProcessingException ae) {
+
+        } finally {
+            if (pushed) {
+                manager.pop();
+            }
+            ExecuteExpressionFactory.getBuildPathStack(fc).pop();
+        }
+
+        ArrayList<String> clientIds = (ArrayList<String>) fc.getViewRoot().getAttributes().get(CONTROLLER_SET_HINT);
         if (clientIds == null) {
             clientIds = new ArrayList<>();
-            context.getViewRoot().getAttributes().put(CONTROLLER_SET_HINT, clientIds);
+            fc.getViewRoot().getAttributes().put(CONTROLLER_SET_HINT, clientIds);
         }
 
 //        String clientId = c.getClientId(context);
@@ -228,12 +265,12 @@ public class ExecuteHandler extends ComponentHandler {
         SCXMLExecutor executor = handler.getRootExecutor(fc, executorId);
         if (executor == null) {
             SCXMLExecutor parent = handler.getCurrentExecutor(fc);
-            
+
             String uuid = UUID.nameUUIDFromBytes(url.getPath().getBytes()).toString();
             String continerName = STATE_CHART_FACET_NAME + "_" + uuid;
 
             Map<String, Object> params = new HashMap<>();
-            //            component.pushComponentToEL(fc, component);
+            //component.pushComponentToEL(fc, component);
             try {
                 SCXML stateMachine = findStateMachine(fc, continerName, scxmlName, url);
                 executor = handler.createRootExecutor(executorId, fc, parent, component.getId(), stateMachine);
@@ -246,17 +283,16 @@ public class ExecuteHandler extends ComponentHandler {
 
                 rctx.setLocal(FACES_CHART_EXECUTOR_VIEW_ID, viewId);
 
+                resolveParams(ctx, component, params);
+                ctx.getELResolver();
+                executor.getEvaluator().setELContext(ctx);
+
+                handler.execute(fc, executor, params);
             } catch (ModelException ex) {
                 throw new TagException(tag, ex);
             } finally {
-//                component.popComponentFromEL(fc);
+                //component.popComponentFromEL(fc);
             }
-
-            resolveParams(ctx, component, params);
-            ctx.getELResolver();
-            executor.getEvaluator().setELContext(ctx);
-
-            handler.execute(fc, executor, params);
         }
 
         if (!executor.isRunning()) {
@@ -287,6 +323,18 @@ public class ExecuteHandler extends ComponentHandler {
     private void resolveParams(FaceletContext ctx, UIStateChartExecutor component, Map<String, Object> params) {
         Map<String, Object> paramsMap = getParamsMap(ctx);
         params.putAll(paramsMap);
+    }
+
+    public static void publishExecuteEvents(FacesContext context, Application application, UIComponent component, Class<? extends SystemEvent> systemEventClass) {
+        try {
+            component.pushComponentToEL(context, component);
+            application.publishEvent(context, systemEventClass, component);
+            if (component.getParent() != null && !(component instanceof UIStateChartExecutor)) {
+                publishExecuteEvents(context, application, component.getParent(), systemEventClass);
+            }
+        } finally {
+            component.popComponentFromEL(context);
+        }
     }
 
     public static URL getCompositeURL(FaceletContext ctx) {
