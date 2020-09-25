@@ -967,10 +967,12 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
         }
 
-        if (fc.getAttributes().containsKey(FIRST_FLOW_CONTEXT)) {
-            Context first = (Context) fc.getAttributes().get(FIRST_FLOW_CONTEXT);
-            result.getFlowContext().getVars().putAll(first.getVars());
-            fc.getAttributes().remove(FIRST_FLOW_CONTEXT);
+        if (result != null) {
+            if (fc.getAttributes().containsKey(FIRST_FLOW_CONTEXT)) {
+                Context first = (Context) fc.getAttributes().get(FIRST_FLOW_CONTEXT);
+                result.getFlowContext().getVars().putAll(first.getVars());
+                fc.getAttributes().remove(FIRST_FLOW_CONTEXT);
+            }
         }
 
         fc.getAttributes().put(STATE_FLOW_STACK, result);
