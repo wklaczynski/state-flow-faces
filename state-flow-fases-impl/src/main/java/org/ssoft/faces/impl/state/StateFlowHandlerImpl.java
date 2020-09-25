@@ -434,9 +434,12 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     @Override
     public Context getFlowContext(FacesContext fc, String executorId) {
-        Context context = (Context) fc.getAttributes().get(FIRST_FLOW_CONTEXT);
-        if (context != null) {
-            return context;
+        Context context = null;
+        if (executorId == null) {
+            context = (Context) fc.getAttributes().get(FIRST_FLOW_CONTEXT);
+            if (context != null) {
+                return context;
+            }
         }
 
         FlowDeque fs = getFlowDeque(fc, executorId, false);
@@ -962,11 +965,12 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             } else {
                 result = restoreFlowDequeState(fc, state, flowKey);
             }
-            if (fc.getAttributes().containsKey(FIRST_FLOW_CONTEXT)) {
-                Context first = (Context) fc.getAttributes().get(FIRST_FLOW_CONTEXT);
-                result.getFlowContext().getVars().putAll(first.getVars());
-                fc.getAttributes().remove(FIRST_FLOW_CONTEXT);
-            }
+        }
+
+        if (fc.getAttributes().containsKey(FIRST_FLOW_CONTEXT)) {
+            Context first = (Context) fc.getAttributes().get(FIRST_FLOW_CONTEXT);
+            result.getFlowContext().getVars().putAll(first.getVars());
+            fc.getAttributes().remove(FIRST_FLOW_CONTEXT);
         }
 
         fc.getAttributes().put(STATE_FLOW_STACK, result);

@@ -36,7 +36,6 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.PhaseId;
 import javax.faces.event.SystemEvent;
 import javax.faces.state.StateFlow;
-import static javax.faces.state.StateFlow.AFTER_BUILD_VIEW;
 import static javax.faces.state.StateFlow.BEFORE_BUILD_VIEW;
 import static javax.faces.state.StateFlow.BEFORE_PHASE_EVENT_PREFIX;
 import javax.faces.view.facelets.ComponentConfig;
