@@ -39,7 +39,7 @@ limitations under the License.
         <handler-class>javax.faces.state.tag.ActionHandler</handler-class>
         <attribute>
             <description><![CDATA[URL to to the external page or faces action name.]]></description>
-            <name>url</name>
+            <name>href</name>
             <required>true</required>
             <type>java.lang.String</type>
         </attribute>

@@ -67,24 +67,24 @@ public class Redirect extends Action implements ParamsContainer {
     private static final long serialVersionUID = 1L;
 
     /**
-     * The url to redirect.
+     * The href to redirect.
      */
-    private String url;
+    private String href;
 
     /**
      *
      * @return
      */
-    public String getUrl() {
-        return url;
+    public String getHref() {
+        return href;
     }
 
     /**
      *
-     * @param url
+     * @param href
      */
-    public void setUrl(String url) {
-        this.url = url;
+    public void setHref(String href) {
+        this.href = href;
     }
 
     /**
@@ -123,7 +123,7 @@ public class Redirect extends Action implements ParamsContainer {
 
             StateFlowHandler handler = StateFlowHandler.getInstance();
             
-            NavigationCase navCase = findNavigationCase(fc, url);
+            NavigationCase navCase = findNavigationCase(fc, href);
             if (navCase != null) {
                 String action = navCase.getToViewId(fc);
                 String actionURL = fc.getApplication().
@@ -137,7 +137,7 @@ public class Redirect extends Action implements ParamsContainer {
                 fc.responseComplete();
             } else {
                 ec.getClientWindow().disableClientWindowRenderMode(fc);
-                String redirectPath = ec.encodeRedirectURL(url, params);
+                String redirectPath = ec.encodeRedirectURL(href, params);
                 ec.redirect(redirectPath);
                 handler.closeAll(fc);
                 fc.responseComplete();
