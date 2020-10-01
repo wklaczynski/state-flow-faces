@@ -163,6 +163,10 @@ public class FacetInvoker implements Invoker, Serializable {
                     viewId = (String) ctx.get(EXECUTOR_CONTEXT_VIEW_PATH);
                     storeView = true;
                 }
+                if (viewId == null && fc.getViewRoot() != null) {
+                    viewId = fc.getViewRoot().getViewId();
+                    storeView = true;
+                }
             }
 
             reqparams = new HashMap<>();
