@@ -24,6 +24,7 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -98,7 +99,7 @@ public class ViewInvoker implements Invoker, Serializable {
     private String path;
     private boolean resolved;
     private Map<String, Object> vieparams;
-    private Map<String, List<String>> reqparams;
+    private Map<String, List<String>> reqparams = new LinkedHashMap<>();;
 
     private String lastStateKey;
     private String lastViewId;
@@ -188,7 +189,6 @@ public class ViewInvoker implements Invoker, Serializable {
 
             Map<String, Object> options = new HashMap();
 
-            reqparams = new HashMap<>();
             Map<String, List<String>> navparams = navCase.getParameters();
             if (navparams != null) {
                 reqparams.putAll(navparams);
@@ -341,6 +341,8 @@ public class ViewInvoker implements Invoker, Serializable {
                     fctx.setLocal(FACES_VIEW_STATE, lastViewState);
                 }
 
+                Map<String, List<String>> rparams = new HashMap<>();
+                rparams.putAll(reqparams);
                 if (!usewindow) {
                     if (useflash) {
                         Flash flash = ec.getFlash();
@@ -348,13 +350,13 @@ public class ViewInvoker implements Invoker, Serializable {
                         flash.setKeepMessages(true);
                         flash.setRedirect(true);
                     } else {
-                        reqparams.put("exid", Arrays.asList(executor.getId()));
+                        rparams.put("exid", Arrays.asList(executor.getId()));
                     }
                 }
 
                 Application application = fc.getApplication();
                 ViewHandler viewHandler = application.getViewHandler();
-                String url = viewHandler.getRedirectURL(fc, viewId, reqparams, false);
+                String url = viewHandler.getRedirectURL(fc, viewId, rparams, false);
                 clearViewMapIfNecessary(fc.getViewRoot(), viewId);
 
                 updateRenderTargets(fc, viewId);
@@ -460,7 +462,7 @@ public class ViewInvoker implements Invoker, Serializable {
 
             Map<String, Object> options = new HashMap();
 
-            reqparams = new HashMap<>();
+            reqparams = new LinkedHashMap<>();
             Map<String, List<String>> navparams = navCase.getParameters();
             if (navparams != null) {
                 reqparams.putAll(navparams);
@@ -481,6 +483,9 @@ public class ViewInvoker implements Invoker, Serializable {
                 }
                 if (skey.startsWith("@redirect.param.")) {
                     skey = skey.substring(16);
+                    if (ec.getRequestParameterMap().containsKey(skey)) {
+                        value = ec.getRequestParameterMap().get(skey);
+                    }
                     reqparams.put(skey, Collections.singletonList(value.toString()));
                 } else if (skey.startsWith("@view.param.")) {
                     skey = skey.substring(12);
@@ -600,6 +605,8 @@ public class ViewInvoker implements Invoker, Serializable {
                     fctx.setLocal(FACES_VIEW_STATE, lastViewState);
                 }
 
+                Map<String, List<String>> rparams = new HashMap<>();
+                rparams.putAll(reqparams);
                 if (!usewindow) {
                     if (useflash) {
                         Flash flash = ec.getFlash();
@@ -607,13 +614,13 @@ public class ViewInvoker implements Invoker, Serializable {
                         flash.setKeepMessages(true);
                         flash.setRedirect(true);
                     } else {
-                        reqparams.put("exid", Arrays.asList(executor.getId()));
+                        rparams.put("exid", Arrays.asList(executor.getId()));
                     }
                 }
 
                 Application application = fc.getApplication();
                 ViewHandler viewHandler = application.getViewHandler();
-                String url = viewHandler.getRedirectURL(fc, viewId, reqparams, false);
+                String url = viewHandler.getRedirectURL(fc, viewId, rparams, false);
                 clearViewMapIfNecessary(fc.getViewRoot(), viewId);
 
                 updateRenderTargets(fc, viewId);

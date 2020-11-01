@@ -32,7 +32,7 @@ import javax.faces.state.scxml.TriggerEvent;
 import javax.faces.state.task.TimerEventProducer;
 
 /**
- *  
+ *
  * @author Waldemar Kłaczyński
  */
 public abstract class StateFlowHandler {
@@ -49,7 +49,11 @@ public abstract class StateFlowHandler {
     public final static StateFlowHandler getInstance() {
         FacesContext fc = FacesContext.getCurrentInstance();
         StateFlowHandler handler = (StateFlowHandler) fc.getExternalContext().getApplicationMap().get(KEY);
-        return handler;
+        return cast(handler);
+    }
+
+    private static <T> T cast(Object obj) {
+        return (T) obj;
     }
 
     /**
@@ -84,7 +88,7 @@ public abstract class StateFlowHandler {
      * @return
      */
     public abstract String getFlowId(FacesContext context);
-    
+
     /**
      *
      * @param context
@@ -107,7 +111,6 @@ public abstract class StateFlowHandler {
         return getRootExecutor(context, null);
     }
 
-    
     /**
      *
      * @param context
@@ -115,14 +118,14 @@ public abstract class StateFlowHandler {
      * @return
      */
     public abstract SCXMLExecutor getExecutor(FacesContext context, String executorId);
-    
+
     /**
      *
      * @param context
      * @return
      */
     public abstract SCXMLExecutor getViewExecutor(FacesContext context);
-    
+
     /**
      *
      * @param context
@@ -156,7 +159,6 @@ public abstract class StateFlowHandler {
     public SCXMLExecutor createRootExecutor(String id, FacesContext context, SCXML scxml) throws ModelException {
         return createRootExecutor(id, context, null, null, scxml);
     }
-    
 
     /**
      *
@@ -200,7 +202,7 @@ public abstract class StateFlowHandler {
     /**
      *
      * @param context
-     * @return 
+     * @return
      */
     public abstract List<String> getControllerClientIds(FacesContext context);
 

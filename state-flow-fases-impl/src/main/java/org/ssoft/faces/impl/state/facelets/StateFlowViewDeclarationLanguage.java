@@ -336,9 +336,13 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
             }
         }
 
+        if (executorId != null) {
+            fc.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executorId);
+        }
+
         UIViewRoot viewRoot = super.restoreView(fc, viewId);
 
-        if (executorId != null) {
+        if (viewRoot != null && executorId != null) {
             viewRoot.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executorId);
         }
 
@@ -413,9 +417,14 @@ public class StateFlowViewDeclarationLanguage extends ViewDeclarationLanguageWra
                 if (executorId == null) {
                     executorId = UUID.randomUUID().toString();
                 }
-                UIViewRoot viewRoot = parent.restoreView(context, viewId, renderKitId);
 
                 if (executorId != null) {
+                    context.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executorId);
+                }
+
+                UIViewRoot viewRoot = parent.restoreView(context, viewId, renderKitId);
+
+                if (viewRoot != null && executorId != null) {
                     viewRoot.getAttributes().put(FACES_VIEW_ROOT_EXECUTOR_ID, executorId);
                 }
 

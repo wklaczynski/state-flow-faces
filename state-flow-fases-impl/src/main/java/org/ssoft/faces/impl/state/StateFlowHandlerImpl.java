@@ -50,7 +50,6 @@ import javax.faces.component.visit.VisitResult;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.FacesContextWrapper;
-import javax.faces.event.SystemEvent;
 import javax.faces.lifecycle.ClientWindow;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
