@@ -101,6 +101,7 @@ public class FacetInvoker implements Invoker, Serializable {
     private boolean useflash;
     private boolean usewindow;
     private boolean storeView;
+    private boolean eventsForView;
 
     /**
      * {@inheritDoc}.
@@ -152,8 +153,8 @@ public class FacetInvoker implements Invoker, Serializable {
             }
 
             storeView = false;
+            eventsForView = false;
             if (controllerType.equals(EXECUTOR_CONTROLLER_TYPE)) {
-                storeView = false;
                 if (viewId == null) {
                     viewId = (String) ctx.get(FACES_CHART_EXECUTOR_VIEW_ID);
                     storeView = true;
@@ -508,34 +509,38 @@ public class FacetInvoker implements Invoker, Serializable {
                 }
 
                 if (event.getName().startsWith(VIEW_EVENT_PREFIX)) {
-                    ExternalContext ec = fc.getExternalContext();
-
-                    Map<String, String> params = new HashMap<>();
-                    params.putAll(ec.getRequestParameterMap());
-
                     String outcome = event.getName().substring(VIEW_EVENT_PREFIX.length());
-                    EventBuilder evb = new EventBuilder("view." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
+                    if (!executor.hasPendingEvents("view." + outcome)) {
+                        ExternalContext ec = fc.getExternalContext();
 
-                    evb.data(params);
-                    evb.sendId(invokeId);
-                    executor.addEvent(evb.build());
+                        Map<String, String> params = new HashMap<>();
+                        params.putAll(ec.getRequestParameterMap());
+
+                        EventBuilder evb = new EventBuilder("view." + outcome, TriggerEvent.SIGNAL_EVENT);
+
+                        evb.data(params);
+                        evb.sendId(invokeId);
+                        executor.addEvent(evb.build());
+                    }
                 }
 
             }
 
             if (path.equals(event.getSendId())) {
                 if (event.getName().startsWith(VIEW_EVENT_PREFIX)) {
-                    ExternalContext ec = fc.getExternalContext();
-
-                    Map<String, String> params = new HashMap<>();
-                    params.putAll(ec.getRequestParameterMap());
-
                     String outcome = event.getName().substring(VIEW_EVENT_PREFIX.length());
-                    EventBuilder evb = new EventBuilder("view." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
+                    if (!executor.hasPendingEvents("view." + outcome)) {
+                        ExternalContext ec = fc.getExternalContext();
 
-                    evb.data(params);
-                    evb.sendId(invokeId);
-                    executor.addEvent(evb.build());
+                        Map<String, String> params = new HashMap<>();
+                        params.putAll(ec.getRequestParameterMap());
+
+                        EventBuilder evb = new EventBuilder("view." + outcome, TriggerEvent.SIGNAL_EVENT);
+
+                        evb.data(params);
+                        evb.sendId(invokeId);
+                        executor.addEvent(evb.build());
+                    }
                 }
             }
 

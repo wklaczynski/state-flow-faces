@@ -17,11 +17,14 @@
 package javax.faces.state.scxml;
 
 /**
- * The ExternalSCXMLIOProcessor is registered in the _ioprocessors system variable under the
- * {@link #DEFAULT_EVENT_PROCESSOR} key <b>and</b> maintains a {@link #getLocation() location} field
+ * The ExternalSCXMLIOProcessor is registered in the _ioprocessors system
+ * variable under the {@link #DEFAULT_EVENT_PROCESSOR} key <b>and</b> maintains
+ * a {@link #getLocation() location} field
  * <pre>
  *     <em>whose value holds an address that external entities can use to communicate with this SCXML session using the SCXML Event I/O Processor.</em></pre>
- * @see <a href="https://www.w3.org/TR/scxml/#SCXMLEventProcessor">SCXML specification C.1.1 _ioprocessors Value</a>
+ *
+ * @see <a href="https://www.w3.org/TR/scxml/#SCXMLEventProcessor">SCXML
+ * specification C.1.1 _ioprocessors Value</a>
  */
 public class ExternalSCXMLIOProcessor implements SCXMLIOProcessor {
 
@@ -67,7 +70,15 @@ public class ExternalSCXMLIOProcessor implements SCXMLIOProcessor {
     public String getLocation() {
         return SCXML_EVENT_PROCESSOR;
     }
-    
-    
-    
+
+    @Override
+    public void removeEvent(String name) {
+        processor.removeEvent(name);
+    }
+
+    @Override
+    public boolean hasPendingEvents(String name) {
+        return processor.hasPendingEvents(name);
+    }
+
 }

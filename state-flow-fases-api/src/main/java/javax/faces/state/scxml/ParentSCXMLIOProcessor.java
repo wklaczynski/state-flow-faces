@@ -45,6 +45,22 @@ public class ParentSCXMLIOProcessor implements SCXMLIOProcessor {
         }
     }
 
+    @Override
+    public void removeEvent(String name) {
+        if (executor != null) {
+            executor.removeEvent(name);
+        }
+    }
+
+    @Override
+    public boolean hasPendingEvents(String name) {
+        if (executor != null) {
+            return executor.hasPendingEvents(name);
+        } else {
+            return false;
+        }
+    }
+    
     public void triggerEvent(TriggerEvent evt) throws ModelException {
         if (executor != null) {
             executor.triggerEvent(evt);

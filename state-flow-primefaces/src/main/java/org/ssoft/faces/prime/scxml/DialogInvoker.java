@@ -421,17 +421,19 @@ public class DialogInvoker implements Invoker, Serializable {
                 }
 
                 if (event.getName().startsWith(VIEW_EVENT_PREFIX)) {
-                    ExternalContext ec = context.getExternalContext();
-
-                    Map<String, String> params = new HashMap<>();
-                    params.putAll(ec.getRequestParameterMap());
-
                     String outcome = event.getName().substring(VIEW_EVENT_PREFIX.length());
-                    EventBuilder evb = new EventBuilder("view." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
+                    if (!executor.hasPendingEvents("view." + outcome)) {
+                        ExternalContext ec = context.getExternalContext();
 
-                    evb.data(params);
-                    evb.sendId(invokeId);
-                    executor.addEvent(evb.build());
+                        Map<String, String> params = new HashMap<>();
+                        params.putAll(ec.getRequestParameterMap());
+
+                        EventBuilder evb = new EventBuilder("view." + outcome, TriggerEvent.SIGNAL_EVENT);
+
+                        evb.data(params);
+                        evb.sendId(invokeId);
+                        executor.addEvent(evb.build());
+                    }
                 }
             }
         }

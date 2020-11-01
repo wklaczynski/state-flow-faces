@@ -77,4 +77,22 @@ public interface SCXMLIOProcessor {
      * @param event the event to send
      */
     void addEvent(TriggerEvent event);
+    
+    /**
+     * Remove an event into the SCXML processor queue
+     * <p>
+     * @param name the prefix name event to send
+     */
+    void removeEvent(String name);
+    
+    
+    /**
+     * Test an event into the SCXML processor queue
+     * <p>
+     * @param name the prefix name event to send
+     * @return Returns true if there are pending external events to be
+     * processed.
+     */
+    boolean hasPendingEvents(String name);
+    
 }

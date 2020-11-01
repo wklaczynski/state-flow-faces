@@ -555,6 +555,31 @@ public class SCXMLExecutionContext implements SCXMLIOProcessor, StateHolder {
     }
 
     /**
+     * Remove an event to the internal event queue
+     *
+     * @param name The event name
+     */
+    @Override
+    public void removeEvent(String name) {
+        if (name != null) {
+            internalEventQueue.removeIf((t) -> {
+                return t.getName().startsWith(name);
+            });
+        }
+    }
+
+    @Override
+    public boolean hasPendingEvents(String name) {
+        if (name != null) {
+            return internalEventQueue.stream().anyMatch((t) -> {
+                return t.getName().startsWith(name);
+            });
+        } else {
+            return false;
+        }
+    }
+    
+    /**
      * @return Returns the next event from the internal event queue, if
      * available
      */

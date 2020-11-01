@@ -89,12 +89,12 @@
                 <x:state id="test-process-1">
                     <x:onentry>
                         <x:assign location="#{main.assignedTest1}" 
-                                  expr="I enty state in view process 1."/>
+                                  expr="On entry  state in view process 1."/>
                         <x:assign location="test_hasnext" expr="true"/>
                         <x:assign location="test_hasback" expr="false"/>
                     </x:onentry>
 
-                    <x:invoke type="facet" src="@renderer:facet1">
+                    <x:invoke id="render-facet-1" type="facet" src="@renderer:facet1">
                         <x:param name="slot" expr="monit"/>
                     </x:invoke>
                     
@@ -106,12 +106,12 @@
                         <x:assign location="#{currentState.assignedTest1}"
                                   expr="Changed by test-process 2"/>
                         <x:assign location="#{main.assignedTest1}"
-                                  expr="I enty state in view process 2."/>
+                                  expr="On entry state in view process 2."/>
                         <x:assign location="test_hasnext" expr="true"/>
                         <x:assign location="test_hasback" expr="true"/>
                     </x:onentry>
 
-                    <x:invoke type="facet" src="@renderer:facet2">
+                    <x:invoke id="render-facet-2" type="facet" src="@renderer:facet2">
                         <x:param name="slot" expr="monit"/>
                     </x:invoke>
                     
@@ -122,14 +122,14 @@
                 <x:state id="test-process-3">
                     <x:onentry>
                         <x:assign location="#{main.assignedTest1}"
-                                  expr="I enty state in view process 3."/>
+                                  expr="On entry state in view process 3."/>
                         <x:assign location="#{showState.assignedTest1}"
                                   expr="Changed by test-process 3"/>
                         <x:assign location="test_hasnext" expr="false"/>
                         <x:assign location="test_hasback" expr="true"/>
                     </x:onentry>
 
-                    <x:invoke type="facet" src="@renderer:facet3">
+                    <x:invoke id="render-facet-3" type="facet" src="@renderer:facet3">
                         <x:param name="slot" expr="monit"/>
                     </x:invoke>
                     

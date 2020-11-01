@@ -157,7 +157,7 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
      * @param semantics The SCXML semantics
      * @throws javax.faces.state.scxml.model.ModelException
      */
-    public SCXMLExecutor(String id, SCXMLExecutor parentSCXMLExecutor, String invokeId, 
+    public SCXMLExecutor(String id, SCXMLExecutor parentSCXMLExecutor, String invokeId,
             Evaluator expEvaluator,
             EventDispatcher evtDisp, ErrorReporter errRep,
             SCXMLSemantics semantics) throws ModelException {
@@ -612,11 +612,46 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
     }
 
     /**
+     * Remove external event, which may be done concurrently, and even when the
+     * current SCInstance is detached.
+     * <p>
+     * No processing of the vent will be done, until the next triggerEvent
+     * methods is invoked.
+     * </p>
+     *
+     * @param name an external event name prefix
+     */
+    @Override
+    public void removeEvent(String name) {
+        if (name != null) {
+            externalEventQueue.removeIf((t) -> {
+                return t.getName().startsWith(name);
+            });
+        }
+    }
+
+    /**
      * @return Returns true if there are pending external events to be
      * processed.
      */
     public boolean hasPendingEvents() {
         return !externalEventQueue.isEmpty();
+    }
+
+    /**
+     * @param name an external event name prefix
+     * @return Returns true if there are pending external events to be
+     * processed.
+     */
+    @Override
+    public boolean hasPendingEvents(String name) {
+        if (name != null) {
+            return externalEventQueue.stream().anyMatch((t) -> {
+                return t.getName().startsWith(name);
+            });
+        } else {
+            return false;
+        }
     }
 
     /**

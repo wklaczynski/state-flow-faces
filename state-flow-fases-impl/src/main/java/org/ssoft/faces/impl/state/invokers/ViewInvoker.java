@@ -99,7 +99,8 @@ public class ViewInvoker implements Invoker, Serializable {
     private String path;
     private boolean resolved;
     private Map<String, Object> vieparams;
-    private Map<String, List<String>> reqparams = new LinkedHashMap<>();;
+    private Map<String, List<String>> reqparams = new LinkedHashMap<>();
+    ;
 
     private String lastStateKey;
     private String lastViewId;
@@ -846,17 +847,19 @@ public class ViewInvoker implements Invoker, Serializable {
                 }
 
                 if (event.getName().startsWith(VIEW_EVENT_PREFIX)) {
-                    ExternalContext ec = context.getExternalContext();
-
-                    Map<String, String> params = new HashMap<>();
-                    params.putAll(ec.getRequestParameterMap());
-
                     String outcome = event.getName().substring(VIEW_EVENT_PREFIX.length());
-                    EventBuilder evb = new EventBuilder("view." + outcome + "." + invokeId, TriggerEvent.SIGNAL_EVENT);
+                    if (!executor.hasPendingEvents("view." + outcome)) {
+                        ExternalContext ec = context.getExternalContext();
 
-                    evb.data(params);
-                    evb.sendId(invokeId);
-                    executor.addEvent(evb.build());
+                        Map<String, String> params = new HashMap<>();
+                        params.putAll(ec.getRequestParameterMap());
+
+                        EventBuilder evb = new EventBuilder("view." + outcome, TriggerEvent.SIGNAL_EVENT);
+
+                        evb.data(params);
+                        evb.sendId(invokeId);
+                        executor.addEvent(evb.build());
+                    }
                 }
             }
         }
