@@ -51,6 +51,7 @@ import static javax.faces.state.StateFlow.EXECUTOR_CONTEXT_VIEW_PATH;
 import static javax.faces.state.StateFlow.FACES_CHART_VIEW_STATE;
 import static javax.faces.state.StateFlow.VIEW_RESTORED_HINT;
 import javax.faces.state.execute.ExecuteContextManager;
+import org.primefaces.component.api.AjaxSource;
 import org.primefaces.context.PrimeRequestContext;
 import org.primefaces.util.SharedStringBuilder;
 
@@ -67,7 +68,7 @@ import org.primefaces.util.SharedStringBuilder;
     @ResourceDependency(library = "primefaces", name = "components.js"),
     @ResourceDependency(library = "primeflow", name = "primescxml.js")
 })
-public class DialogInvoker implements Invoker, Serializable {
+public class DialogInvoker implements Invoker, AjaxSource, Serializable {
 
     public static final String DIALOG_CLOSE = DialogInvoker.class.getName() + "#close_dialog";
     public static final String DIALOG_OPEN = DialogInvoker.class.getName() + "#open_dialog";
@@ -321,6 +322,30 @@ public class DialogInvoker implements Invoker, Serializable {
             sb.append("}");
 
             if (firstDialog) {
+                
+        AjaxSource ajaxBehavior = this;
+                
+        String request = builder.init()
+                .source(sourceId)
+                .event("scxmltask")
+                .form(ajaxBehavior, component)
+                .process(component, process)
+                .update(component, ajaxBehavior.getUpdate())
+                .async(ajaxBehavior.isAsync())
+                .global(ajaxBehavior.isGlobal())
+                .delay(ajaxBehavior.getDelay())
+                .timeout(ajaxBehavior.getTimeout())
+                .partialSubmit(ajaxBehavior.isPartialSubmit(), ajaxBehavior.isPartialSubmitSet(), ajaxBehavior.getPartialSubmitFilter())
+                .resetValues(ajaxBehavior.isResetValues(), ajaxBehavior.isResetValuesSet())
+                .ignoreAutoUpdate(ajaxBehavior.isIgnoreAutoUpdate())
+                .onstart(ajaxBehavior.getOnstart())
+                .onerror(ajaxBehavior.getOnerror())
+                .onsuccess(ajaxBehavior.getOnsuccess())
+                .oncomplete(ajaxBehavior.getOncomplete())
+                .params(component)
+                .buildBehavior(renderingMode);
+                
+                
                 String reloadroot = builder.init()
                         .source(sourceId)
                         .form(formId)
@@ -706,4 +731,95 @@ public class DialogInvoker implements Invoker, Serializable {
         return sb.toString();
     }
 
+
+    @Override
+    public String getOnstart() {
+        return null;
+    }
+
+    @Override
+    public String getOncomplete() {
+        return null;
+    }
+
+    @Override
+    public String getOnsuccess() {
+        return null;
+    }
+
+    @Override
+    public String getOnerror() {
+        return null;
+    }
+
+    @Override
+    public String getUpdate() {
+        return null;
+    }
+
+    @Override
+    public String getProcess() {
+        return null;
+    }
+
+    @Override
+    public boolean isGlobal() {
+        return true;
+    }
+
+    @Override
+    public boolean isAsync() {
+        return false;
+    }
+
+    @Override
+    public boolean isPartialSubmit() {
+        return false;
+    }
+
+    @Override
+    public boolean isPartialSubmitSet() {
+        return false;
+    }
+
+    @Override
+    public String getPartialSubmitFilter() {
+        return null;
+    }
+
+    @Override
+    public boolean isResetValues() {
+        return false;
+    }
+
+    @Override
+    public boolean isResetValuesSet() {
+        return false;
+    }
+
+    @Override
+    public boolean isIgnoreAutoUpdate() {
+        return true;
+    }
+
+    @Override
+    public boolean isAjaxified() {
+        return false;
+    }
+
+    @Override
+    public String getDelay() {
+        return null;
+    }
+
+    @Override
+    public int getTimeout() {
+        return 0;
+    }
+
+    @Override
+    public String getForm() {
+        return null;
+    }
+    
 }

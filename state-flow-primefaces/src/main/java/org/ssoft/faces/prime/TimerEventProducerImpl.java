@@ -27,6 +27,7 @@ import javax.faces.state.task.DelayedEventTask;
 import javax.faces.state.task.TimerEventProducer;
 import org.kohsuke.MetaInfServices;
 import org.primefaces.PrimeFaces;
+import org.primefaces.component.api.AjaxSource;
 import org.primefaces.component.api.ClientBehaviorRenderingMode;
 import org.primefaces.context.PrimeRequestContext;
 import org.primefaces.util.AjaxRequestBuilder;
@@ -37,7 +38,7 @@ import org.primefaces.util.ComponentTraversalUtils;
  * @author Waldemar Kłaczyński
  */
 @MetaInfServices(TimerEventProducer.class)
-public class TimerEventProducerImpl extends TimerEventProducer {
+public class TimerEventProducerImpl extends TimerEventProducer implements AjaxSource{
 
     @Override
     public void encodeBegin(List<DelayedEventTask> taskList) {
@@ -108,34 +109,40 @@ public class TimerEventProducerImpl extends TimerEventProducer {
         }
 
         long delay = task.getTime() - System.currentTimeMillis();
+        
+        String process = "@none";
+        
+        AjaxSource ajaxBehavior = this;
 
         AjaxRequestBuilder builder = requestContext.getAjaxRequestBuilder();
-        String ajaxscript = builder.init()
+        String request = builder.init()
                 .source(sourceId)
-                .form(formId)
                 .event("scxmltask")
-                .update(component, update)
-                .process(component, "@none")
-                .async(false)
-                .global(false)
-                .delay(null)
-                .timeout(0)
-                .partialSubmit(false, false, null)
-                .resetValues(false, false)
-                .ignoreAutoUpdate(true)
-                .onstart(null)
-                .onerror(null)
-                .onsuccess(null)
-                .oncomplete(null)
+                .form(ajaxBehavior, component)
+                .process(component, process)
+                .update(component, ajaxBehavior.getUpdate())
+                .async(ajaxBehavior.isAsync())
+                .global(ajaxBehavior.isGlobal())
+                .delay(ajaxBehavior.getDelay())
+                .timeout(ajaxBehavior.getTimeout())
+                .partialSubmit(ajaxBehavior.isPartialSubmit(), ajaxBehavior.isPartialSubmitSet(), ajaxBehavior.getPartialSubmitFilter())
+                .resetValues(ajaxBehavior.isResetValues(), ajaxBehavior.isResetValuesSet())
+                .ignoreAutoUpdate(ajaxBehavior.isIgnoreAutoUpdate())
+                .onstart(ajaxBehavior.getOnstart())
+                .onerror(ajaxBehavior.getOnerror())
+                .onsuccess(ajaxBehavior.getOnsuccess())
+                .oncomplete(ajaxBehavior.getOncomplete())
+                .params(component)
                 .buildBehavior(renderingMode);
-
+        
+        
         StringBuilder sb = new StringBuilder();
 
         sb.append("{");
 
         sb.append("window.scxmltask = setTimeout(function(){");
         sb.append("clearTimeout(window.scxmltask);");
-        sb.append(ajaxscript);
+        sb.append(request);
         sb.append("},");
         sb.append(String.valueOf(delay));
         sb.append(")");
@@ -147,4 +154,93 @@ public class TimerEventProducerImpl extends TimerEventProducer {
 
     }
 
+    @Override
+    public String getOnstart() {
+        return null;
+    }
+
+    @Override
+    public String getOncomplete() {
+        return null;
+    }
+
+    @Override
+    public String getOnsuccess() {
+        return null;
+    }
+
+    @Override
+    public String getOnerror() {
+        return null;
+    }
+
+    @Override
+    public String getUpdate() {
+        return null;
+    }
+
+    @Override
+    public String getProcess() {
+        return null;
+    }
+
+    @Override
+    public boolean isGlobal() {
+        return true;
+    }
+
+    @Override
+    public boolean isAsync() {
+        return false;
+    }
+
+    @Override
+    public boolean isPartialSubmit() {
+        return false;
+    }
+
+    @Override
+    public boolean isPartialSubmitSet() {
+        return false;
+    }
+
+    @Override
+    public String getPartialSubmitFilter() {
+        return null;
+    }
+
+    @Override
+    public boolean isResetValues() {
+        return false;
+    }
+
+    @Override
+    public boolean isResetValuesSet() {
+        return false;
+    }
+
+    @Override
+    public boolean isIgnoreAutoUpdate() {
+        return true;
+    }
+
+    @Override
+    public boolean isAjaxified() {
+        return false;
+    }
+
+    @Override
+    public String getDelay() {
+        return null;
+    }
+
+    @Override
+    public int getTimeout() {
+        return 0;
+    }
+
+    @Override
+    public String getForm() {
+        return null;
+    }
 }

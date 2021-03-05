@@ -48,6 +48,11 @@
             <system-event-class>javax.faces.event.PreRenderViewEvent</system-event-class>
             <source-class>javax.faces.state.component.UIStateChartExecutor</source-class>
         </system-event-listener>
+
+        <system-event-listener>
+            <system-event-listener-class>org.ssoft.faces.impl.state.listener.StateFlowSystemListener</system-event-listener-class>
+            <system-event-class>javax.faces.event.SystemEvent</system-event-class>
+        </system-event-listener>
         
     </application>
     

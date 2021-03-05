@@ -216,6 +216,11 @@ public class StateFlow {
     /**
      *
      */
+    public static final String SYSTEM_EVENT_PREFIX = "faces.system.event.";
+
+    /**
+     *
+     */
     public static final String PORTLET_EVENT_PREFIX = "faces.view.portlet.";
 
     /**

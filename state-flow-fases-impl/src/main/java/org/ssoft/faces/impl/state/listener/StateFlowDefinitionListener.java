@@ -36,7 +36,6 @@ public class StateFlowDefinitionListener implements SystemEventListener {
         if (!(cse.getSource() instanceof UIStateChartMachine)) {
             return;
         }
-
         FacesContext facesContext = FacesContext.getCurrentInstance();
         UIStateChartMachine component = (UIStateChartMachine) cse.getSource();
         String clientId = ((UIComponent) component).getClientId(facesContext);
