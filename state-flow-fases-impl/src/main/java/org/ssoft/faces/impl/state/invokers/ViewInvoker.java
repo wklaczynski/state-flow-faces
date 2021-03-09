@@ -290,6 +290,28 @@ public class ViewInvoker implements Invoker, Serializable {
             if (currentViewRoot != null) {
                 prevViewId = currentViewRoot.getViewId();
 
+                if (ViewMetadata.hasMetadata(currentViewRoot)) {
+                    VisitContext vc = VisitContext.createVisitContext(fc);
+                    currentViewRoot.visitTree(vc, (VisitContext ivc, UIComponent target) -> {
+                        Map<String, String[]> values = fc.getExternalContext().getRequestParameterValuesMap();
+
+                        if (target instanceof UIViewParameter) {
+                            UIViewParameter parametr = (UIViewParameter) target;
+                            String name = parametr.getName();
+
+                            String[] value = values.get(name);
+                            if (value != null) {
+                                reqparams.put(name, Arrays.asList(value));
+                            }
+
+                            if (params.containsKey(name)) {
+                                parametr.setValue(params.get(name));
+                            }
+                        }
+                        return VisitResult.ACCEPT;
+                    });
+                }
+
                 String executePath = prevRootExecutorId + ":" + prevViewId;
                 ExecuteContext prevExecuteContext = manager.findExecuteContextByPath(fc, executePath);
 
@@ -553,6 +575,28 @@ public class ViewInvoker implements Invoker, Serializable {
             UIViewRoot currentViewRoot = fc.getViewRoot();
             if (currentViewRoot != null) {
                 prevViewId = currentViewRoot.getViewId();
+                
+                if (ViewMetadata.hasMetadata(currentViewRoot)) {
+                    VisitContext vc = VisitContext.createVisitContext(fc);
+                    currentViewRoot.visitTree(vc, (VisitContext ivc, UIComponent target) -> {
+                        Map<String, String[]> values = fc.getExternalContext().getRequestParameterValuesMap();
+
+                        if (target instanceof UIViewParameter) {
+                            UIViewParameter parametr = (UIViewParameter) target;
+                            String name = parametr.getName();
+
+                            String[] value = values.get(name);
+                            if (value != null) {
+                                reqparams.put(name, Arrays.asList(value));
+                            }
+
+                            if (params.containsKey(name)) {
+                                parametr.setValue(params.get(name));
+                            }
+                        }
+                        return VisitResult.ACCEPT;
+                    });
+                }
 
                 String executePath = prevRootExecutorId + ":" + prevViewId;
                 ExecuteContext prevExecuteContext = manager.findExecuteContextByPath(fc, executePath);
