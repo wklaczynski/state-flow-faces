@@ -4,7 +4,7 @@ This project integrates Java Server Faces with State Chat Flow. Uses scxml notat
 https://www.w3.org/TR/scxml/
 
 ## Code Example
-```
+```xhtml
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <f:metadata
@@ -159,7 +159,7 @@ https://www.w3.org/TR/scxml/
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ### Dependency configuration would be as follows;
-```
+```xml
 <dependency>
     <groupId>org.ssoft.faces</groupId>
     <artifactId>state-flow-fases-api</artifactId>
@@ -173,7 +173,7 @@ These instructions will get you a copy of the project up and running on your loc
 ```
 And primefaces extension to add dialog invoker and pull task with primefaces ajax script:
 
-```
+```xml
 <dependency>
     <groupId>org.ssoft.faces</groupId>
     <artifactId>state-flow-primefaces</artifactId>
