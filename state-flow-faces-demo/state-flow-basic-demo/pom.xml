@@ -19,17 +19,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     
-    <repositories>
-        <repository>
-            <id>state-flow-faces-mvn-repo</id>
-            <url>https://raw.github.com/wklaczynski/state-flow-faces/mvn-repo/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>
-    
     <dependencies>
         <dependency>
             <groupId>javax</groupId>
@@ -39,12 +28,12 @@
         </dependency>
         <dependency>
             <groupId>org.ssoft.faces</groupId>
-            <artifactId>state-flow-fases-api</artifactId>
+            <artifactId>state-flow-faces-api</artifactId>
             <version>1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.ssoft.faces</groupId>
-            <artifactId>state-flow-fases-impl</artifactId>
+            <artifactId>state-flow-faces-impl</artifactId>
             <version>1.2-SNAPSHOT</version>
             <scope>runtime</scope>
         </dependency>

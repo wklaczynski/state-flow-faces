@@ -6,7 +6,7 @@
         <artifactId>state-flow-faces</artifactId>
         <version>1.2-SNAPSHOT</version>
     </parent>
-    <artifactId>state-flow-fases-api</artifactId>
+    <artifactId>state-flow-faces-api</artifactId>
     <packaging>jar</packaging>
     <name>State Flow Faces Api</name>
     

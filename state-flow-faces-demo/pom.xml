@@ -10,8 +10,6 @@
     <packaging>pom</packaging>
     <name>State Flow Faces Demo</name>
     
-    
-    
   <modules>
     <module>state-flow-basic-demo</module>
     <module>state-flow-prime-demo</module>
