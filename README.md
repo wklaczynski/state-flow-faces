@@ -162,12 +162,12 @@ These instructions will get you a copy of the project up and running on your loc
 ```xml
 <dependency>
     <groupId>org.ssoft.faces</groupId>
-    <artifactId>state-flow-fases-api</artifactId>
+    <artifactId>state-flow-faces-api</artifactId>
     <version>1.2-SNAPSHOT</version>
 </dependency>
 <dependency>
     <groupId>org.ssoft.faces</groupId>
-    <artifactId>state-flow-fases-impl</artifactId>
+    <artifactId>state-flow-faces-impl</artifactId>
     <version>1.2-SNAPSHOT</version>
 </dependency>
 ```
