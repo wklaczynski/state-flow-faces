@@ -26,11 +26,6 @@ import javax.faces.state.scxml.env.AbstractContext;
 public final class StateFlowContext extends AbstractContext {
 
     /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 1L;
-
-    /**
      * Implementation independent log category.
      */
 

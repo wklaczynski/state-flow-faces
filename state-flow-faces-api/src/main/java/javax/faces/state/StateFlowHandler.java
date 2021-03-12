@@ -15,11 +15,11 @@
  */
 package javax.faces.state;
 
+import jakarta.el.ELContext;
+import jakarta.faces.context.FacesContext;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import javax.el.ELContext;
-import javax.faces.context.FacesContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.invoke.Invoker;

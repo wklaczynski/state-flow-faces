@@ -15,13 +15,13 @@
  */
 package org.ssoft.faces.impl.state.log;
 
+import jakarta.faces.component.UIViewRoot;
+import jakarta.faces.context.FacesContext;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
 import org.ssoft.faces.impl.state.utils.Util;
 
 /**

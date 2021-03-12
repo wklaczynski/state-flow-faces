@@ -15,13 +15,13 @@
  */
 package org.ssoft.faces.impl.state.facelets;
 
+import jakarta.faces.FacesException;
+import jakarta.faces.application.ResourceHandler;
+import jakarta.faces.application.ResourceHandlerWrapper;
+import jakarta.faces.context.FacesContext;
 import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Logger;
-import javax.faces.FacesException;
-import javax.faces.application.ResourceHandler;
-import javax.faces.application.ResourceHandlerWrapper;
-import javax.faces.context.FacesContext;
 import static javax.faces.state.StateFlow.BEFORE_HANDLE_RESOURCE;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.execute.ExecuteContext;

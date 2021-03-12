@@ -16,15 +16,14 @@
  */
 package org.ssoft.faces.impl.state.tag;
 
+import jakarta.faces.view.facelets.Tag;
+import jakarta.faces.view.facelets.TagException;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.UUID;
-import javax.faces.view.facelets.Tag;
-import javax.faces.view.facelets.TagException;
 import static javax.faces.state.scxml.SCXMLConstants.META_ELEMENT_IDMAP;
 import javax.faces.state.scxml.model.Action;
 import javax.faces.state.scxml.model.EnterableState;

@@ -5,8 +5,8 @@
  */
 package javax.faces.state.utils;
 
-import javax.el.ELContext;
-import javax.el.ValueExpression;
+import jakarta.el.ELContext;
+import jakarta.el.ValueExpression;
 
 /**
  *

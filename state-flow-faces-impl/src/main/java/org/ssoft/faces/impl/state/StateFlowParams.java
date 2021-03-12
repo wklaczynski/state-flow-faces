@@ -15,7 +15,7 @@
  */
 package org.ssoft.faces.impl.state;
 
-import javax.faces.context.FacesContext;
+import jakarta.faces.context.FacesContext;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.STATE_CHART_AJAX_REDIRECT_PARAM_NAME;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.STATE_CHART_DEFAULT_PARAM_NAME;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.STATE_CHART_REQUEST_PARAM_NAME;

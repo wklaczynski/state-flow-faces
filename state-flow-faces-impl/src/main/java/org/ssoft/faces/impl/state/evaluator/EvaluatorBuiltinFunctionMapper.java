@@ -15,12 +15,12 @@
  */
 package org.ssoft.faces.impl.state.evaluator;
 
+import jakarta.el.ELContext;
+import jakarta.el.FunctionMapper;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.el.ELContext;
-import javax.el.FunctionMapper;
 import org.ssoft.faces.impl.state.log.FlowLogger;
 import org.ssoft.faces.impl.state.tag.FacesFlowBuiltin;
 import javax.faces.state.scxml.model.SCXML;

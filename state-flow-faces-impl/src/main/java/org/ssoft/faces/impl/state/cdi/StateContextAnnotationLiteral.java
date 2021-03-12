@@ -15,7 +15,7 @@
  */
 package org.ssoft.faces.impl.state.cdi;
 
-import javax.enterprise.util.AnnotationLiteral;
+import jakarta.enterprise.util.AnnotationLiteral;
 import javax.faces.state.annotation.StateContext;
 
 /**

@@ -15,8 +15,8 @@
  */
 package javax.faces.state.tag;
 
-import javax.faces.FacesWrapper;
-import javax.faces.view.facelets.TagHandlerDelegate;
+import jakarta.faces.FacesWrapper;
+import jakarta.faces.view.facelets.TagHandlerDelegate;
 
 /**
  *

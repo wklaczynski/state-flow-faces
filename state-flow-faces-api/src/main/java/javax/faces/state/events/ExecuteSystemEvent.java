@@ -5,12 +5,12 @@
  */
 package javax.faces.state.events;
 
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ComponentSystemEventListener;
-import javax.faces.event.FacesListener;
-import javax.faces.event.SystemEvent;
-import javax.faces.event.SystemEventListener;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ComponentSystemEventListener;
+import jakarta.faces.event.FacesListener;
+import jakarta.faces.event.SystemEvent;
+import jakarta.faces.event.SystemEventListener;
 import javax.faces.state.scxml.SCXMLExecutor;
 
 /**

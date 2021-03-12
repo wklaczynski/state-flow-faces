@@ -5,9 +5,9 @@
  */
 package javax.faces.state.events;
 
-import javax.faces.context.FacesContext;
-import javax.faces.event.FacesListener;
-import javax.faces.event.SystemEventListener;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.FacesListener;
+import jakarta.faces.event.SystemEventListener;
 import javax.faces.state.scxml.SCXMLExecutor;
 
 /**

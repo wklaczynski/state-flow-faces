@@ -15,10 +15,10 @@
  */
 package org.ssoft.faces.impl.state.cdi;
 
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.faces.context.FacesContext;
 import java.lang.reflect.Type;
 import java.util.Map;
-import javax.enterprise.context.RequestScoped;
-import javax.faces.context.FacesContext;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.env.EffectiveContextMap;
 

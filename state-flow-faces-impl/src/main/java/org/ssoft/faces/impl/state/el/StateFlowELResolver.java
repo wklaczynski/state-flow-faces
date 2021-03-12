@@ -15,7 +15,7 @@
  */
 package org.ssoft.faces.impl.state.el;
 
-import javax.el.CompositeELResolver;
+import jakarta.el.CompositeELResolver;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.LOCAL_XPATH_RESOLVER;
 import org.ssoft.faces.impl.state.config.StateWebConfiguration;
 import org.ssoft.faces.impl.state.el.xpath.XPathELResolver;

@@ -15,14 +15,14 @@
  */
 package org.ssoft.faces.demo.basic;
 
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.event.Observes;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 import javax.faces.state.events.OnEntryEvent;
 import javax.faces.state.events.OnExitEvent;
 import javax.faces.state.events.OnFinishEvent;

@@ -15,11 +15,11 @@
  */
 package org.ssoft.faces.impl.state.el;
 
+import jakarta.el.ELException;
+import jakarta.el.ValueExpression;
+import jakarta.el.VariableMapper;
 import java.util.HashMap;
 import java.util.Map;
-import javax.el.ELException;
-import javax.el.ValueExpression;
-import javax.el.VariableMapper;
 
 /**
  *

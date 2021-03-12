@@ -15,7 +15,7 @@
  */
 package javax.faces.state;
 
-import javax.faces.event.PhaseId;
+import jakarta.faces.event.PhaseId;
 
 /**
  *

@@ -16,12 +16,12 @@
  */
 package javax.faces.state.scxml.model;
 
+import jakarta.el.ValueExpression;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.el.ValueExpression;
 import javax.faces.state.scxml.ActionExecutionContext;
 import javax.faces.state.scxml.io.ContentParser;
 import javax.faces.state.scxml.Context;

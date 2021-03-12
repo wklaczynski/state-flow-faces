@@ -15,14 +15,14 @@
  */
 package org.ssoft.faces.impl.state.el;
 
+import jakarta.el.ELContext;
+import jakarta.el.ELResolver;
+import jakarta.el.PropertyNotFoundException;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
 import java.beans.FeatureDescriptor;
 import java.io.Serializable;
 import java.util.Iterator;
-import javax.el.ELContext;
-import javax.el.ELResolver;
-import javax.el.PropertyNotFoundException;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 import org.ssoft.faces.impl.state.invokers.ViewParamsContext;
 
 /**

@@ -8,12 +8,12 @@ package org.ssoft.faces.impl.state.facelets;
  * To change this template, choose Tools | Template Manager and open the
  * template in the editor.
  */
+import jakarta.faces.FacesException;
+import jakarta.faces.application.ViewHandler;
+import jakarta.faces.application.ViewHandlerWrapper;
+import jakarta.faces.component.UIViewRoot;
+import jakarta.faces.context.FacesContext;
 import java.io.IOException;
-import javax.faces.FacesException;
-import javax.faces.application.ViewHandler;
-import javax.faces.application.ViewHandlerWrapper;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
 import org.ssoft.faces.impl.state.config.StateWebConfiguration;
 
 /**

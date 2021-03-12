@@ -15,15 +15,15 @@
  */
 package org.ssoft.faces.impl.state.facelets;
 
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.PartialResponseWriter;
+import jakarta.faces.context.PartialViewContext;
+import jakarta.faces.context.PartialViewContextWrapper;
+import jakarta.faces.event.PhaseId;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.faces.context.FacesContext;
-import javax.faces.context.PartialResponseWriter;
-import javax.faces.context.PartialViewContext;
-import javax.faces.context.PartialViewContextWrapper;
-import javax.faces.event.PhaseId;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.STATE_FLOW_DISPATCH_TASK;
 import javax.faces.state.task.DelayedEventTask;
 

@@ -15,14 +15,14 @@
  */
 package org.ssoft.faces.impl.state.evaluator;
 
+import jakarta.el.CompositeELResolver;
+import jakarta.el.ELContext;
+import jakarta.el.ELResolver;
+import jakarta.el.FunctionMapper;
+import jakarta.el.VariableMapper;
+import jakarta.faces.context.FacesContext;
 import java.io.Serializable;
 import java.util.HashMap;
-import javax.el.CompositeELResolver;
-import javax.el.ELContext;
-import javax.el.ELResolver;
-import javax.el.FunctionMapper;
-import javax.el.VariableMapper;
-import javax.faces.context.FacesContext;
 
 /**
  *

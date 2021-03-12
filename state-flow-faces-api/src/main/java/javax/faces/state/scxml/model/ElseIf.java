@@ -16,7 +16,7 @@
  */
 package javax.faces.state.scxml.model;
 
-import javax.el.ValueExpression;
+import jakarta.el.ValueExpression;
 import javax.faces.state.scxml.ActionExecutionContext;
 import javax.faces.state.scxml.SCXMLExpressionException;
 

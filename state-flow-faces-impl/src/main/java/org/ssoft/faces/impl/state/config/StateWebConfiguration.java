@@ -15,11 +15,11 @@
  */
 package org.ssoft.faces.impl.state.config;
 
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.ServletContext;
 import java.util.HashMap;
 import java.util.Map;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
 import org.ssoft.faces.impl.state.utils.Util;
 
 /**

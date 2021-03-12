@@ -4,12 +4,12 @@
     <parent>
         <artifactId>state-flow-faces-demo</artifactId>
         <groupId>org.ssoft.faces</groupId>
-        <version>1.2-SNAPSHOT</version>
+        <version>3.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.ssoft.faces.demo</groupId>
     <artifactId>state-flow-prime-demo</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>3.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <name>State Flow Faces Demo (Primefaces)</name>

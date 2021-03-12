@@ -15,18 +15,18 @@
  */
 package org.ssoft.faces.impl.state.cdi;
 
+import jakarta.enterprise.context.spi.Contextual;
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.enterprise.context.spi.Contextual;
-import javax.enterprise.context.spi.CreationalContext;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.Context;
-import javax.servlet.http.HttpSession;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.env.SimpleContext;
 

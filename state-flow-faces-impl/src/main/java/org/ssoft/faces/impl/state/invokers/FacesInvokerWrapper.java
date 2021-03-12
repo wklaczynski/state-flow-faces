@@ -15,10 +15,9 @@
  */
 package org.ssoft.faces.impl.state.invokers;
 
+import jakarta.faces.component.UIViewRoot;
+import jakarta.faces.context.FacesContext;
 import java.util.Map;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
-import static javax.faces.state.StateFlow.BEFORE_RENDER_VIEW;
 import javax.faces.state.scxml.InvokeContext;
 import javax.faces.state.scxml.InvokerWrapper;
 import javax.faces.state.scxml.TriggerEvent;

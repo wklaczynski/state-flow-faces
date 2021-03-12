@@ -15,8 +15,8 @@
  */
 package org.ssoft.faces.impl.state.evaluator;
 
+import jakarta.el.FunctionMapper;
 import java.lang.reflect.Method;
-import javax.el.FunctionMapper;
 
 /**
  *
@@ -78,7 +78,7 @@ public final class EvalueatorFunctionMapper extends FunctionMapper {
                 return method;
             }
         }
-        if (evaluator.getELContext() != null && evaluator.getELContext().getFunctionMapper()!= null) {
+        if (evaluator.getELContext() != null && evaluator.getELContext().getFunctionMapper() != null) {
             Method method = evaluator.getELContext().getFunctionMapper().resolveFunction(prefix, name);
             if (method != null) {
                 return method;
@@ -87,11 +87,9 @@ public final class EvalueatorFunctionMapper extends FunctionMapper {
 
         return null;
     }
-    
+
     public void reset() {
         size = 0;
     }
-     
-    
 
 }

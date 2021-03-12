@@ -15,12 +15,12 @@
  */
 package org.ssoft.faces.impl.state.tag.scxml;
 
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.view.facelets.FaceletContext;
+import jakarta.faces.view.facelets.TagAttribute;
+import jakarta.faces.view.facelets.TagConfig;
+import jakarta.faces.view.facelets.TagException;
 import java.io.IOException;
-import javax.faces.component.UIComponent;
-import javax.faces.view.facelets.FaceletContext;
-import javax.faces.view.facelets.TagAttribute;
-import javax.faces.view.facelets.TagConfig;
-import javax.faces.view.facelets.TagException;
 import org.ssoft.faces.impl.state.tag.AbstractFlowTagHandler;
 import javax.faces.state.scxml.model.ParsedValue;
 import javax.faces.state.scxml.model.SCXML;

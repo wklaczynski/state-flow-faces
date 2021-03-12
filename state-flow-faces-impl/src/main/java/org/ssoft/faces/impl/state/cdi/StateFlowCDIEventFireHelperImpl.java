@@ -15,10 +15,10 @@
  */
 package org.ssoft.faces.impl.state.cdi;
 
-import javax.enterprise.context.Destroyed;
-import javax.enterprise.context.Initialized;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Destroyed;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.model.TransitionTarget;
 import javax.faces.state.annotation.DialogScoped;

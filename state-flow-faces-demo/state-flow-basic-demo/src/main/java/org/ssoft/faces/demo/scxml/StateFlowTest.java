@@ -4,10 +4,10 @@
  */
 package org.ssoft.faces.demo.scxml;
 
+import jakarta.faces.application.FacesMessage;
+import static jakarta.faces.application.FacesMessage.SEVERITY_INFO;
+import jakarta.faces.context.FacesContext;
 import java.util.logging.Logger;
-import javax.faces.application.FacesMessage;
-import static javax.faces.application.FacesMessage.SEVERITY_INFO;
-import javax.faces.context.FacesContext;
 import javax.faces.state.scxml.model.Action;
 import javax.faces.state.annotation.StateChartAction;
 import javax.faces.state.scxml.ActionExecutionContext;

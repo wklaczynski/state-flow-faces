@@ -16,11 +16,11 @@
  */
 package javax.faces.state.scxml.model;
 
+import jakarta.el.ValueExpression;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
-import javax.el.ValueExpression;
 
 /**
  * The class in this SCXML object model that corresponds to the

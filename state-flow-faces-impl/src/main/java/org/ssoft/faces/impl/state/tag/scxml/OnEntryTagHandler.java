@@ -15,14 +15,14 @@
  */
 package org.ssoft.faces.impl.state.tag.scxml;
 
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.view.facelets.FaceletContext;
+import jakarta.faces.view.facelets.TagConfig;
 import java.io.IOException;
-import javax.faces.component.UIComponent;
 import javax.faces.state.scxml.model.Final;
 import javax.faces.state.scxml.model.OnEntry;
 import javax.faces.state.scxml.model.Parallel;
 import javax.faces.state.scxml.model.State;
-import javax.faces.view.facelets.FaceletContext;
-import javax.faces.view.facelets.TagConfig;
 import org.ssoft.faces.impl.state.tag.AbstractFlowTagHandler;
 import javax.faces.state.scxml.model.EnterableState;
 import javax.faces.state.scxml.model.SCXML;

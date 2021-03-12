@@ -16,6 +16,13 @@
 package org.ssoft.faces.impl.state.utils;
 
 import com.sun.faces.util.LRUMap;
+import jakarta.faces.FacesException;
+import jakarta.faces.application.StateManager;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIParameter;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.view.facelets.Facelet;
+import jakarta.faces.view.facelets.FaceletContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,16 +39,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.faces.FacesException;
-import javax.faces.application.StateManager;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIParameter;
-import javax.faces.context.FacesContext;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.model.ModelException;
 import javax.faces.state.scxml.model.SCXML;
-import javax.faces.view.facelets.Facelet;
-import javax.faces.view.facelets.FaceletContext;
 import org.ssoft.faces.impl.state.StateFlowImplConstants;
 import org.ssoft.faces.impl.state.log.FlowLogger;
 

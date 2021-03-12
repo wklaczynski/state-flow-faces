@@ -15,9 +15,9 @@
  */
 package org.ssoft.faces.impl.state.cdi;
 
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.faces.context.FacesContext;
 import java.io.Serializable;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.faces.context.FacesContext;
 import javax.faces.state.events.OnEntryEvent;
 import javax.faces.state.events.OnExitEvent;
 import javax.faces.state.events.OnTransitionEvent;

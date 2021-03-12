@@ -15,10 +15,10 @@
  */
 package javax.faces.state.component;
 
-import javax.faces.component.UIComponentBase;
-import javax.faces.event.ComponentSystemEvent;
-import javax.faces.event.ComponentSystemEventListener;
-import javax.faces.event.PostRestoreStateEvent;
+import jakarta.faces.component.UIComponentBase;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.event.ComponentSystemEventListener;
+import jakarta.faces.event.PostRestoreStateEvent;
 import javax.faces.state.scxml.model.SCXML;
 
 /**

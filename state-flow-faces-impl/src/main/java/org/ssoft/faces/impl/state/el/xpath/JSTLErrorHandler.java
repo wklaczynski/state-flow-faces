@@ -15,9 +15,9 @@
  */
 package org.ssoft.faces.impl.state.el.xpath;
 
+import jakarta.faces.context.FacesContext;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.faces.context.FacesContext;
 import org.ssoft.faces.impl.state.log.FlowLogger;
 import org.ssoft.faces.impl.state.log.WebMessage;
 import org.xml.sax.ErrorHandler;

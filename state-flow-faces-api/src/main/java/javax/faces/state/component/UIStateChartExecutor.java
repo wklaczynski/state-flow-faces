@@ -15,7 +15,7 @@
  */
 package javax.faces.state.component;
 
-import javax.faces.component.UIPanel;
+import jakarta.faces.component.UIPanel;
 
 /**
  *

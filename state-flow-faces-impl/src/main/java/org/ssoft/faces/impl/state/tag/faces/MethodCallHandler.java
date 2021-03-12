@@ -15,10 +15,10 @@
  */
 package org.ssoft.faces.impl.state.tag.faces;
 
+import jakarta.faces.view.facelets.MetaRule;
+import jakarta.faces.view.facelets.MetaRuleset;
+import jakarta.faces.view.facelets.TagConfig;
 import javax.faces.state.tag.ActionHandler;
-import javax.faces.view.facelets.MetaRule;
-import javax.faces.view.facelets.MetaRuleset;
-import javax.faces.view.facelets.TagConfig;
 import org.ssoft.faces.impl.state.tag.MethodPropertyTagRule;
 
 /**

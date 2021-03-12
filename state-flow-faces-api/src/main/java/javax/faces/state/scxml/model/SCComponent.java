@@ -5,18 +5,14 @@
  */
 package javax.faces.state.scxml.model;
 
+import jakarta.el.ValueExpression;
+import jakarta.faces.view.facelets.Tag;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import javax.el.ELContext;
-import javax.el.ELException;
-import javax.el.ValueExpression;
-import javax.faces.FacesException;
-import javax.faces.context.FacesContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.Evaluator;
 import javax.faces.state.scxml.SCXMLExpressionException;
-import javax.faces.view.facelets.Tag;
 
 /**
  *

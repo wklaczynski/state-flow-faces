@@ -5,8 +5,8 @@
  */
 package javax.faces.state.event;
 
-import javax.faces.context.FacesContext;
-import javax.faces.event.SystemEvent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.SystemEvent;
 import javax.faces.state.scxml.SendContext;
 import javax.faces.state.scxml.model.Invoke;
 

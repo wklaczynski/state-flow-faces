@@ -5,10 +5,10 @@
  */
 package javax.faces.state.utils;
 
+import jakarta.el.ELContext;
+import jakarta.el.ValueExpression;
 import java.io.Serializable;
 import java.util.Map;
-import javax.el.ELContext;
-import javax.el.ValueExpression;
 
 /**
  *

@@ -16,8 +16,8 @@
  */
 package javax.faces.state.scxml.model;
 
+import jakarta.el.ValueExpression;
 import java.io.Serializable;
-import javax.el.ValueExpression;
 
 /**
  * The class in this SCXML object model that corresponds to the

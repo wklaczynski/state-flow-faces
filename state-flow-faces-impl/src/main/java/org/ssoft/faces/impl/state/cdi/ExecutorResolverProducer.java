@@ -15,7 +15,7 @@
  */
 package org.ssoft.faces.impl.state.cdi;
 
-import javax.faces.context.FacesContext;
+import jakarta.faces.context.FacesContext;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.annotation.ChartScoped;

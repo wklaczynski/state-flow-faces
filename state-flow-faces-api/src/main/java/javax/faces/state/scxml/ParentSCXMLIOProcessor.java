@@ -16,7 +16,7 @@
  */
 package javax.faces.state.scxml;
 
-import javax.faces.FacesException;
+import jakarta.faces.FacesException;
 import javax.faces.state.scxml.model.ModelException;
 
 /**

@@ -15,9 +15,9 @@
  */
 package org.ssoft.faces.impl.state.resouce;
 
-import javax.faces.application.Resource;
-import javax.faces.application.ResourceWrapper;
-import javax.faces.context.FacesContext;
+import jakarta.faces.application.Resource;
+import jakarta.faces.application.ResourceWrapper;
+import jakarta.faces.context.FacesContext;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.SCXMLExecutor;
 

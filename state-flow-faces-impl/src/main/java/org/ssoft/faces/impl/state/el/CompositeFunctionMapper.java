@@ -15,8 +15,8 @@
  */
 package org.ssoft.faces.impl.state.el;
 
+import jakarta.el.FunctionMapper;
 import java.lang.reflect.Method;
-import javax.el.FunctionMapper;
 
 /**
  *

@@ -15,12 +15,12 @@
  */
 package org.ssoft.faces.impl.state.config;
 
+import jakarta.servlet.ServletContainerInitializer;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.HandlesTypes;
 import java.util.HashSet;
 import java.util.Set;
-import javax.servlet.ServletContainerInitializer;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.HandlesTypes;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.ANNOTATED_CLASSES;
 import javax.faces.state.annotation.StateChartAction;
 import javax.faces.state.annotation.StateChartActions;

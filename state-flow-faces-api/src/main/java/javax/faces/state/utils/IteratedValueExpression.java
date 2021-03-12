@@ -5,12 +5,12 @@
  */
 package javax.faces.state.utils;
 
+import jakarta.el.ELContext;
+import jakarta.el.ELException;
+import jakarta.el.PropertyNotWritableException;
+import jakarta.el.ValueExpression;
 import java.util.Collection;
 import java.util.Iterator;
-import javax.el.ELContext;
-import javax.el.ELException;
-import javax.el.PropertyNotWritableException;
-import javax.el.ValueExpression;
 
 /**
  *

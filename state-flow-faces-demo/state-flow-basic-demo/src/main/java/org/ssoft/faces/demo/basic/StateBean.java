@@ -15,8 +15,8 @@
  */
 package org.ssoft.faces.demo.basic;
 
+import jakarta.inject.Named;
 import java.io.Serializable;
-import javax.inject.Named;
 import javax.faces.state.annotation.StateScoped;
 
 /**

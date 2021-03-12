@@ -15,16 +15,16 @@
  */
 package org.ssoft.faces.impl.state.facelets;
 
+import jakarta.faces.FacesException;
+import jakarta.faces.application.ConfigurableNavigationHandler;
+import jakarta.faces.application.NavigationCase;
+import jakarta.faces.application.NavigationHandler;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIViewRoot;
+import jakarta.faces.context.FacesContext;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
-import javax.faces.FacesException;
-import javax.faces.application.ConfigurableNavigationHandler;
-import javax.faces.application.NavigationCase;
-import javax.faces.application.NavigationHandler;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
 import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import static javax.faces.state.StateFlow.OUTCOME_EVENT_PREFIX;
 import javax.faces.state.scxml.EventBuilder;

@@ -5,9 +5,9 @@
  */
 package javax.faces.state.events;
 
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.FacesListener;
-import javax.faces.event.SystemEvent;
+import jakarta.faces.event.AbortProcessingException;
+import jakarta.faces.event.FacesListener;
+import jakarta.faces.event.SystemEvent;
 
 /**
  *  <p class="changed_added_2_0">Implementors of this class do not need

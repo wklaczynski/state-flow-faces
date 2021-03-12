@@ -16,8 +16,8 @@
  */
 package org.ssoft.faces.impl.state.tag.faces;
 
+import jakarta.el.ValueExpression;
 import java.util.logging.Level;
-import javax.el.ValueExpression;
 import javax.faces.state.scxml.ActionExecutionContext;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.Evaluator;

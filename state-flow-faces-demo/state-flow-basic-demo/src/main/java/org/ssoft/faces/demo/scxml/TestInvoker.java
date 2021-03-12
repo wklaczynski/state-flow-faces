@@ -16,13 +16,13 @@
  */
 package org.ssoft.faces.demo.scxml;
 
+import jakarta.faces.application.FacesMessage;
+import static jakarta.faces.application.FacesMessage.SEVERITY_INFO;
+import jakarta.faces.context.FacesContext;
 import java.io.IOException;
 import java.io.ObjectOutput;
 import java.util.Map;
 import java.util.logging.Logger;
-import javax.faces.application.FacesMessage;
-import static javax.faces.application.FacesMessage.SEVERITY_INFO;
-import javax.faces.context.FacesContext;
 import javax.faces.state.annotation.StateChartInvoker;
 import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.InvokeContext;

@@ -15,12 +15,12 @@
  */
 package org.ssoft.faces.impl.state.renderer;
 
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
+import jakarta.faces.render.Renderer;
 import java.io.IOException;
 import java.util.Map;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.faces.render.Renderer;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.STATE_FLOW_DISPATCH_TASK;
 import javax.faces.state.task.DelayedEventTask;
 

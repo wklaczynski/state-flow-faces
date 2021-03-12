@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ssoft.faces</groupId>
     <artifactId>state-flow-faces</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -49,7 +49,5 @@
     <modules>
         <module>state-flow-faces-api</module>
         <module>state-flow-faces-impl</module>
-        <module>state-flow-primefaces</module>
-        <module>state-flow-faces-demo</module>
     </modules>
 </project>

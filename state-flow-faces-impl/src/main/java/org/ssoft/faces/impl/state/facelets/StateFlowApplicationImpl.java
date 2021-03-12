@@ -15,10 +15,10 @@
  */
 package org.ssoft.faces.impl.state.facelets;
 
-import javax.el.ExpressionFactory;
-import javax.faces.application.Application;
-import javax.faces.application.ApplicationWrapper;
-import javax.faces.application.ResourceHandler;
+import jakarta.el.ExpressionFactory;
+import jakarta.faces.application.Application;
+import jakarta.faces.application.ApplicationWrapper;
+import jakarta.faces.application.ResourceHandler;
 import org.ssoft.faces.impl.state.el.ExecuteExpressionFactory;
 
 /**

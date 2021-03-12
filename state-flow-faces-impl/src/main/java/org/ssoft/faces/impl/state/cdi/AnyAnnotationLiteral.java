@@ -15,8 +15,8 @@
  */
 package org.ssoft.faces.impl.state.cdi;
 
-import javax.enterprise.inject.Any;
-import javax.enterprise.util.AnnotationLiteral;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.util.AnnotationLiteral;
 
 /**
  *

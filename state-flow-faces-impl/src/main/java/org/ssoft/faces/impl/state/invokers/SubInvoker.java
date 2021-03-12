@@ -17,17 +17,17 @@
 package org.ssoft.faces.impl.state.invokers;
 
 import static com.sun.faces.util.RequestStateManager.FACES_VIEW_STATE;
+import jakarta.faces.FacesException;
+import jakarta.faces.application.StateManager;
+import jakarta.faces.application.ViewHandler;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIViewRoot;
+import jakarta.faces.context.FacesContext;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
-import javax.faces.FacesException;
-import javax.faces.application.StateManager;
-import javax.faces.application.ViewHandler;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
 import static javax.faces.state.StateFlow.CURRENT_COMPONENT_HINT;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.task.FacesProcessHolder;
