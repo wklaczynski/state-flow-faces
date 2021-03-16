@@ -42,7 +42,7 @@
         </dependency>
         <dependency>
             <groupId>org.ssoft.faces</groupId>
-            <artifactId>state-flow-fases-api</artifactId>
+            <artifactId>state-flow-faces-api</artifactId>
             <version>1.2-SNAPSHOT</version>
         </dependency>
         <dependency>

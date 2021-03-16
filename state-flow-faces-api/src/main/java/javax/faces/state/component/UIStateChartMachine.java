@@ -16,9 +16,7 @@
 package javax.faces.state.component;
 
 import javax.faces.component.UIComponentBase;
-import javax.faces.event.ComponentSystemEvent;
-import javax.faces.event.ComponentSystemEventListener;
-import javax.faces.event.PostRestoreStateEvent;
+import javax.faces.context.FacesContext;
 import javax.faces.state.scxml.model.SCXML;
 
 /**
@@ -31,7 +29,7 @@ public class UIStateChartMachine extends UIComponentBase {
      *
      */
     public static final String COMPONENT_FAMILY = "javax.faces.state.StateFlow";
-    
+
     /**
      *
      */
@@ -44,18 +42,12 @@ public class UIStateChartMachine extends UIComponentBase {
     /**
      *
      */
-    @SuppressWarnings("OverridableMethodCallInConstructor")
+    @SuppressWarnings({"OverridableMethodCallInConstructor", "Convert2Lambda"})
     public UIStateChartMachine() {
         super();
         setRendererType(null);
         setTransient(false);
         setRendered(false);
-
-        addFacesListener((ComponentSystemEventListener) (ComponentSystemEvent event) -> {
-            if (event instanceof PostRestoreStateEvent) {
-                postRestoreState();
-            }
-        });
     }
 
     /**
@@ -74,9 +66,21 @@ public class UIStateChartMachine extends UIComponentBase {
         getStateHelper().put(PropertyKeys.stateChart, stateChart);
     }
 
-    private void postRestoreState() {
+    @Override
+    public boolean isTransient() {
+        return true;
+    }
+    
+    @Override
+    public void restoreState(FacesContext context, Object state) {
+
     }
 
+    @Override
+    public Object saveState(FacesContext context) {
+        return null;
+    }
+    
     @Override
     public String getFamily() {
         return COMPONENT_FAMILY;
