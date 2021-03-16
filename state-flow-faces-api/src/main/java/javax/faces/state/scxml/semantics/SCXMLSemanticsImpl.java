@@ -616,9 +616,10 @@ public class SCXMLSemanticsImpl implements SCXMLSemantics {
                 if (es instanceof Final) {
                     // Final states don't have transitions, skip to parent
                     if (es.getParent() == null) {
+                        continue;
                         // should not happen: a top level active Final state should have stopped the state machine
-                        throw new ModelException("Illegal state machine configuration: encountered top level <final> "
-                                + "state while processing an event");
+//                        throw new ModelException("Illegal state machine configuration: encountered top level <final> "
+//                                + "state while processing an event");
                     } else {
                         es = es.getParent();
                     }

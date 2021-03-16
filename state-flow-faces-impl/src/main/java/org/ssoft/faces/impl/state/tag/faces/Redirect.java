@@ -16,6 +16,7 @@
  */
 package org.ssoft.faces.impl.state.tag.faces;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -25,6 +26,7 @@ import javax.faces.application.ConfigurableNavigationHandler;
 import javax.faces.application.NavigationCase;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.lifecycle.ClientWindow;
 import javax.faces.state.StateFlowHandler;
 import javax.faces.state.scxml.ActionExecutionContext;
 import javax.faces.state.scxml.Context;
@@ -108,11 +110,13 @@ public class Redirect extends Action implements ParamsContainer {
     @Override
     public void execute(ActionExecutionContext exctx) throws ModelException, SCXMLExpressionException {
         Context ctx = exctx.getContext(getParentEnterableState());
+        boolean cldisabled = false;
         Evaluator eval = exctx.getEvaluator();
+        FacesContext fc = FacesContext.getCurrentInstance();
+        ExternalContext ec = fc.getExternalContext();
+
         try {
-            FacesContext fc = FacesContext.getCurrentInstance();
-            ExternalContext ec = fc.getExternalContext();
-            
+
             Map<String, List<String>> params = new LinkedHashMap<>();
             for (int i = 0; i < paramsList.size(); i++) {
                 Param param = paramsList.get(i);
@@ -122,21 +126,24 @@ public class Redirect extends Action implements ParamsContainer {
             }
 
             StateFlowHandler handler = StateFlowHandler.getInstance();
-            
+
+            ClientWindow clientWindow = ec.getClientWindow();
+            if (clientWindow != null && clientWindow.isClientWindowRenderModeEnabled(fc)) {
+                cldisabled = true;
+                ec.getClientWindow().disableClientWindowRenderMode(fc);
+            }
+
             NavigationCase navCase = findNavigationCase(fc, href);
             if (navCase != null) {
                 String action = navCase.getToViewId(fc);
                 String actionURL = fc.getApplication().
                         getViewHandler().getActionURL(fc, action);
-                
-                
-                ec.getClientWindow().disableClientWindowRenderMode(fc);
+
                 String redirectPath = ec.encodeRedirectURL(actionURL, params);
                 ec.redirect(redirectPath);
                 handler.closeAll(fc);
                 fc.responseComplete();
             } else {
-                ec.getClientWindow().disableClientWindowRenderMode(fc);
                 String redirectPath = ec.encodeRedirectURL(href, params);
                 ec.redirect(redirectPath);
                 handler.closeAll(fc);
@@ -145,8 +152,15 @@ public class Redirect extends Action implements ParamsContainer {
 
         } catch (SCXMLExpressionException ex) {
             throw ex;
-        } catch (Throwable ex) {
+        } catch (IOException | RuntimeException ex) {
             throw new ModelException(ex);
+        } finally {
+            if (cldisabled) {
+                ClientWindow clientWindow = ec.getClientWindow();
+                if (clientWindow != null && clientWindow.isClientWindowRenderModeEnabled(fc)) {
+                    ec.getClientWindow().enableClientWindowRenderMode(fc);
+                }
+            }
         }
     }
 
