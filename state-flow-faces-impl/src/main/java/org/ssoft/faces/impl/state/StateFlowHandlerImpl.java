@@ -109,6 +109,7 @@ import javax.faces.state.component.UIStateChartExecutor;
 import javax.faces.state.scxml.SCXMLSystemContext;
 import javax.faces.state.execute.ExecuteContextManager;
 import static javax.faces.state.StateFlow.FACES_VIEW_ROOT_EXECUTOR_ID;
+import javax.faces.state.events.OnExecuteEvent;
 import javax.faces.state.events.PostExecuteEvent;
 import javax.faces.state.events.PreExecutorExitedEvent;
 
@@ -709,6 +710,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
 
             executorEntered(executor);
+            if (CdiUtil.isCdiAvailable(context)) {
+                BeanManager bm = CdiUtil.getCdiBeanManager(context);
+                bm.fireEvent(new OnExecuteEvent(executor));
+            }
 
             try {
                 executor.go(params);

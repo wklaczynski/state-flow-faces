@@ -83,7 +83,7 @@ public class StateFlowViewMetadata extends ViewMetadata {
             pushed = manager.push(executeContext);
         }
 
-       UIViewRoot viewRoot = wraped.createMetadataView(fc);
+        UIViewRoot viewRoot = wraped.createMetadataView(fc);
 
         ExecuteExpressionFactory.getBuildPathStack(fc).pop();
 

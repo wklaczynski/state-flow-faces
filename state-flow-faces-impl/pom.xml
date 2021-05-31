@@ -11,10 +11,16 @@
     <name>State Flow Faces Impl</name>
     
     <dependencies>
-        <dependency>
+        <!--dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>jakarta.faces</artifactId>
             <version>2.3.14</version>
+            <scope>provided</scope>
+        </dependency-->
+        <dependency>
+            <groupId>com.sun.faces</groupId>
+            <artifactId>jsf-impl</artifactId>
+            <version>2.3.9.SP06</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -104,7 +110,7 @@
                         </goals> 
                     </execution>
                 </executions>
-            </plugin>            
+            </plugin>  
         </plugins>
     </build>
             
