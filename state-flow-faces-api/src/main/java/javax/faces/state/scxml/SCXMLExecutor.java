@@ -49,7 +49,7 @@ import javax.faces.state.scxml.semantics.SCXMLSemanticsImpl;
  *
  * @see SCXMLSemantics
  */
-public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
+public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder, Observable {
 
     /**
      * The Logger for the SCXMLExecutor.
@@ -66,6 +66,12 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
      * Parent SCXMLIOProcessor
      */
     private ParentSCXMLIOProcessor parentSCXMLIOProcessor;
+
+    /**
+     * The id for this {@link Observable} which is unique within the execute state
+     * machine
+     */
+    private Integer observableId;
 
     /**
      * Interpretation semantics.
@@ -781,4 +787,24 @@ public final class SCXMLExecutor implements SCXMLIOProcessor, StateHolder {
             exctx.restoreState(context, values[1]);
         }
     }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final Integer getObservableId() {
+        return observableId;
+    }
+
+    /**
+     * Sets the observableId for this Observable, which must be unique within
+     * the SCXML state machine
+     *
+     * @param observableId the observableId
+     */
+    public final void setObservableId(Integer observableId) {
+        this.observableId = observableId;
+    }
+    
 }

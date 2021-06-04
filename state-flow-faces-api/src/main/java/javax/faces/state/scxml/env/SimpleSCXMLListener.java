@@ -19,22 +19,25 @@ package javax.faces.state.scxml.env;
 import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.SCXMLListener;
 import javax.faces.state.scxml.SCXMLLogger;
 import javax.faces.state.scxml.model.EnterableState;
 import javax.faces.state.scxml.model.Transition;
 import javax.faces.state.scxml.model.TransitionTarget;
 
-
-
 /**
  * Simple SCXML Listener that logs execution.
  */
 public class SimpleSCXMLListener implements SCXMLListener, Serializable {
 
-    /** Serial version UID. */
+    /**
+     * Serial version UID.
+     */
     private static final long serialVersionUID = 1L;
-    /** Implementation independent log category. */
+    /**
+     * Implementation independent log category.
+     */
     protected static final Logger log = SCXMLLogger.SCXML.getLogger();
 
     /**
@@ -42,7 +45,7 @@ public class SimpleSCXMLListener implements SCXMLListener, Serializable {
      */
     public SimpleSCXMLListener() {
     }
-    
+
     /**
      * @param state
      * @see SCXMLListener#onEntry(EnterableState)
@@ -65,7 +68,18 @@ public class SimpleSCXMLListener implements SCXMLListener, Serializable {
     }
 
     /**
-* @see SCXMLListener#onTransition(TransitionTarget,TransitionTarget,Transition,String)
+     * @see SCXMLListener#onClose(SCXMLExecutor)
+     */
+    @Override
+    public void onClose(final SCXMLExecutor executor) {
+        if (log.isLoggable(Level.INFO)) {
+            log.log(Level.INFO, "closed {0}", LogUtils.getExecutePath(executor));
+        }
+    }
+
+    /**
+     * @see
+     * SCXMLListener#onTransition(TransitionTarget,TransitionTarget,Transition,String)
      */
     @Override
     public void onTransition(final TransitionTarget from, final TransitionTarget to, final Transition transition, String event) {
@@ -75,4 +89,3 @@ public class SimpleSCXMLListener implements SCXMLListener, Serializable {
     }
 
 }
-

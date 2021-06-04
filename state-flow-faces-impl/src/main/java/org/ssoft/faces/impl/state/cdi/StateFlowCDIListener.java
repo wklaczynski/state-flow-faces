@@ -18,6 +18,7 @@ package org.ssoft.faces.impl.state.cdi;
 import java.io.Serializable;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.context.FacesContext;
+import javax.faces.state.events.OnCloseEvent;
 import javax.faces.state.events.OnEntryEvent;
 import javax.faces.state.events.OnExitEvent;
 import javax.faces.state.events.OnTransitionEvent;
@@ -81,14 +82,19 @@ public class StateFlowCDIListener implements SCXMLListener, Serializable {
             
             BeanManager bm = CdiUtil.getCdiBeanManager(fc);
             bm.fireEvent(new OnExitEvent(executor, tt));
-            
-            if(tt instanceof State) {
-                State state = (State) tt;
+        }
+    }
 
-            }
-            if(tt instanceof Parallel) {
-                Parallel parallel = (Parallel) tt;
-            }
+    @Override
+    public void onClose(SCXMLExecutor executor) {
+        if(!this.executor.getId().equals(executor.getId())) {
+            return;
+        }
+        
+        FacesContext fc = FacesContext.getCurrentInstance();
+        if (CdiUtil.isCdiAvailable(fc)) {
+            BeanManager bm = CdiUtil.getCdiBeanManager(fc);
+            bm.fireEvent(new OnCloseEvent(executor));
         }
     }
 

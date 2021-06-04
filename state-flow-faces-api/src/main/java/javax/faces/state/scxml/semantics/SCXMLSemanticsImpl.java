@@ -179,6 +179,8 @@ public class SCXMLSemanticsImpl implements SCXMLSemantics {
         }
         if (isCancelEvent(event)) {
             exctx.stop();
+            exctx.getNotificationRegistry().fireOnClose(exctx.getSCXMLExecutor(), exctx.getSCXMLExecutor());
+            exctx.getNotificationRegistry().fireOnClose(exctx.getStateMachine(), exctx.getSCXMLExecutor());
         } else {
             setSystemEventVariable(exctx.getScInstance(), event, false);
             processInvokes(exctx, event);
@@ -238,6 +240,8 @@ public class SCXMLSemanticsImpl implements SCXMLSemantics {
             if (es instanceof Final && es.getParent() == null) {
                 Object donedata = ((Final) es).processDoneData(exctx);
                 exctx.getScInstance().getGlobalContext().getSystemContext().getPlatformVariables().put(SCXMLSystemContext.FINAL_DONE_DATA_KEY, donedata);
+                exctx.getNotificationRegistry().fireOnClose(exctx.getSCXMLExecutor(), exctx.getSCXMLExecutor());
+                exctx.getNotificationRegistry().fireOnClose(exctx.getStateMachine(), exctx.getSCXMLExecutor());
                 if (exctx.getSCXMLExecutor().getParentSCXMLIOProcessor() != null) {
                     ParentSCXMLIOProcessor ioProcessor = exctx.getSCXMLExecutor().getParentSCXMLIOProcessor();
                     if (!ioProcessor.isClosed()) {
@@ -335,6 +339,8 @@ public class SCXMLSemanticsImpl implements SCXMLSemantics {
                     if (event != null) {
                         if (isCancelEvent(event)) {
                             exctx.stop();
+                            exctx.getNotificationRegistry().fireOnClose(exctx.getSCXMLExecutor(), exctx.getSCXMLExecutor());
+                            exctx.getNotificationRegistry().fireOnClose(exctx.getStateMachine(), exctx.getSCXMLExecutor());
                         } else {
                             setSystemEventVariable(exctx.getScInstance(), event, true);
                             step = new Step(event);
@@ -1081,7 +1087,7 @@ public class SCXMLSemanticsImpl implements SCXMLSemantics {
                     if (parent.isRegion()) {
                         if (isInFinalState(parent.getParent(), exctx.getScInstance().getStateConfiguration().getActiveStates())) {
                             exctx.getInternalIOProcessor().addEvent(new EventBuilder("done.state." + parent.getParent().getId(),
-                                     TriggerEvent.CHANGE_EVENT).build());
+                                    TriggerEvent.CHANGE_EVENT).build());
                         }
                     }
                 }

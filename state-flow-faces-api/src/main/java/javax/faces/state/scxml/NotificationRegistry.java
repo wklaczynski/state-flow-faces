@@ -39,7 +39,7 @@ public final class NotificationRegistry {
     /**
      * The Map of all listeners keyed by {@link Observable#getObservableId()}.
      */
-    private final Map<Integer, Set<SCXMLListener>> regs;
+    private final Map<String, Set<SCXMLListener>> regs;
 
     /**
      * Constructor.
@@ -48,6 +48,10 @@ public final class NotificationRegistry {
         this.regs = new HashMap<>();
     }
 
+    private String getKeyOf(final Observable source) {
+        return source.getClass().getName() + "" + source.getObservableId();
+    }
+    
     /**
      * Register this SCXMLListener for this Observable.
      *
@@ -56,7 +60,7 @@ public final class NotificationRegistry {
      */
     synchronized void addListener(final Observable source, final SCXMLListener lst) {
         if (source != null && source.getObservableId() != null) {
-            Set<SCXMLListener> entries = regs.computeIfAbsent(source.getObservableId(), k -> new LinkedHashSet<>());
+            Set<SCXMLListener> entries = regs.computeIfAbsent(getKeyOf(source), k -> new LinkedHashSet<>());
             entries.add(lst);
         }
     }
@@ -69,11 +73,11 @@ public final class NotificationRegistry {
      */
     synchronized void removeListener(final Observable source, final SCXMLListener lst) {
         if (source != null && source.getObservableId() != null) {
-            Set<SCXMLListener> entries = regs.get(source.getObservableId());
+            Set<SCXMLListener> entries = regs.get(getKeyOf(source));
             if (entries != null) {
                 entries.remove(lst);
-                if (entries.size() == 0) {
-                    regs.remove(source.getObservableId());
+                if (entries.isEmpty()) {
+                    regs.remove(getKeyOf(source));
                 }
             }
         }
@@ -88,7 +92,7 @@ public final class NotificationRegistry {
      */
     public synchronized void fireOnEntry(final Observable source, final EnterableState state) {
         if (source != null && source.getObservableId() != null) {
-            Set<SCXMLListener> entries = regs.get(source.getObservableId());
+            Set<SCXMLListener> entries = regs.get(getKeyOf(source));
             if (entries != null) {
                 for (SCXMLListener lst : entries) {
                     lst.onEntry(state);
@@ -106,10 +110,28 @@ public final class NotificationRegistry {
      */
     public synchronized void fireOnExit(final Observable source, final EnterableState state) {
         if (source != null && source.getObservableId() != null) {
-            Set<SCXMLListener> entries = regs.get(source.getObservableId());
+            Set<SCXMLListener> entries = regs.get(getKeyOf(source));
             if (entries != null) {
                 for (SCXMLListener lst : entries) {
                     lst.onExit(state);
+                }
+            }
+        }
+    }
+
+    /**
+     * Inform all relevant listeners that a Executor has been
+     * closed.
+     *
+     * @param source The Observable
+     * @param executor The SCXMLExecutor that was closed
+     */
+    public synchronized void fireOnClose(final Observable source, final SCXMLExecutor executor) {
+        if (source != null && source.getObservableId() != null) {
+            Set<SCXMLListener> entries = regs.get(getKeyOf(source));
+            if (entries != null) {
+                for (SCXMLListener lst : entries) {
+                    lst.onClose(executor);
                 }
             }
         }
@@ -128,7 +150,7 @@ public final class NotificationRegistry {
             final TransitionTarget from, final TransitionTarget to,
             final Transition transition, final String event) {
         if (source != null && source.getObservableId() != null) {
-            Set<SCXMLListener> entries = regs.get(source.getObservableId());
+            Set<SCXMLListener> entries = regs.get(getKeyOf(source));
             if (entries != null) {
                 for (SCXMLListener lst : entries) {
                     lst.onTransition(from, to, transition, event);

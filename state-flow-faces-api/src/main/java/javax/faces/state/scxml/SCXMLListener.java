@@ -47,6 +47,13 @@ public interface SCXMLListener {
     void onExit(EnterableState state);
 
     /**
+     * Handle the close out of a Executor.
+     *
+     * @param executor The Executor closed
+     */
+    void onClose(SCXMLExecutor executor);
+
+    /**
      * Handle the transition.
      *
      * @param from The source TransitionTarget

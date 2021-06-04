@@ -16,15 +16,16 @@
  */
 package javax.faces.state.scxml.env;
 
+import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.SCXMLListener;
 import javax.faces.state.scxml.model.EnterableState;
 import javax.faces.state.scxml.model.Transition;
 import javax.faces.state.scxml.model.TransitionTarget;
 
 /**
- * An abstract adapter class for the <code>SXCMLListener</code> interface.
- * This class exists as a convenience for creating listener objects, and as
- * such all the methods in this class are empty.
+ * An abstract adapter class for the <code>SXCMLListener</code> interface. This
+ * class exists as a convenience for creating listener objects, and as such all
+ * the methods in this class are empty.
  */
 public abstract class AbstractSCXMLListener implements SCXMLListener {
 
@@ -45,7 +46,15 @@ public abstract class AbstractSCXMLListener implements SCXMLListener {
     }
 
     /**
-* @see SCXMLListener#onTransition(TransitionTarget,TransitionTarget,Transition,String)
+     * @see SCXMLListener#onClose(SCXMLExecutor)
+     */
+    @Override
+    public void onClose(final SCXMLExecutor executor) {
+        // empty
+    }
+
+    /**
+     * @see SCXMLListener#onTransition(TransitionTarget,TransitionTarget,Transition,String)
      */
     @Override
     public void onTransition(final TransitionTarget from,
@@ -54,4 +63,3 @@ public abstract class AbstractSCXMLListener implements SCXMLListener {
     }
 
 }
-

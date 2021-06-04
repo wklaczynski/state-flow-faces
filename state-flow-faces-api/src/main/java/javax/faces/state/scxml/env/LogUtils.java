@@ -16,6 +16,7 @@
  */
 package javax.faces.state.scxml.env;
 
+import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.model.Transition;
 import javax.faces.state.scxml.model.TransitionTarget;
 
@@ -57,6 +58,19 @@ public final class LogUtils {
             sb.append("/");
         }
         sb.append(tt.getId());
+        return sb.toString();
+    }
+
+    /**
+     * Write out this TransitionTarget location in a XPath style format.
+     *
+     * @param executor The SCXMLExecutor whose &quot;path&quot; is to needed
+     * @return String The XPath style location of the SCXMLExecutor within
+     *                the SCXML document
+     */
+    public static String getExecutePath(final SCXMLExecutor executor) {
+        StringBuilder sb = new StringBuilder("/");
+        sb.append(executor.getId());
         return sb.toString();
     }
 

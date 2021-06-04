@@ -373,7 +373,7 @@ public class SubInvoker implements Invoker, StateHolder {
         }
         FacesContext context = FacesContext.getCurrentInstance();
 
-        if (executor != null) {
+        if (executor != null && executor.isRunning()) {
             ExecuteContext viewContext = new ExecuteContext(
                     path, invokeId, executor, executor.getGlobalContext());
             ExecuteContextManager manager = ExecuteContextManager.getManager(context);
@@ -412,15 +412,24 @@ public class SubInvoker implements Invoker, StateHolder {
     @Override
     public void cancel() throws InvokerException {
         cancelled = true;
-        if (!executor.isRoot()) {
-            ParentSCXMLIOProcessor ioProcessor = executor.getParentSCXMLIOProcessor();
-            if (!ioProcessor.isClosed()) {
+        if (executor != null) {
+            try {
                 executor.addEvent(new EventBuilder("cancel.invoke." + invokeId, TriggerEvent.CANCEL_EVENT).build());
-                ioProcessor.close();
+                executor.triggerEvents();
+            } catch (FacesException ex) {
+                throw ex;
+            } catch (ModelException me) {
+                throw new InvokerException(me);
             }
+//            if (!executor.isRoot()) {
+//                ParentSCXMLIOProcessor ioProcessor = executor.getParentSCXMLIOProcessor();
+//                if (!ioProcessor.isClosed()) {
+//                    ioProcessor.close();
+//                }
+//        FacesContext context = FacesContext.getCurrentInstance();
+//        StateFlowHandler.getInstance().close(context, executor);
+//            }
         }
-        FacesContext context = FacesContext.getCurrentInstance();
-        StateFlowHandler.getInstance().close(context, executor);
     }
 
     private void exitExecutor() {

@@ -85,7 +85,6 @@ import javax.faces.state.annotation.StateChartInvokers;
 import javax.faces.state.scxml.env.AbstractSCXMLListener;
 import javax.faces.state.scxml.env.SimpleContext;
 import javax.faces.state.scxml.env.SimpleSCXMLListener;
-import javax.faces.state.scxml.model.EnterableState;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.FXSCXML_DATA_MODEL;
 import static org.ssoft.faces.impl.state.StateFlowImplConstants.SCXML_DATA_MODEL;
 import org.ssoft.faces.impl.state.invokers.FacetInvoker;
@@ -603,6 +602,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             rootCtx = executor.getEvaluator().newContext(flowContext);
         }
 
+        executor.setObservableId(fs.observableId++);
         executor.setStateMachine(scxml);
         executor.addListener(scxml, new StateFlowCDIListener(executor));
 
@@ -619,7 +619,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         executor.addListener(scxml, new AbstractSCXMLListener() {
             @Override
-            public void onExit(EnterableState state) {
+            public void onClose(SCXMLExecutor executor) {
                 if (!executor.isRunning()) {
                     FacesContext fc = FacesContext.getCurrentInstance();
                     close(fc, executor);
@@ -635,6 +635,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
     @Override
     public SCXMLExecutor createChildExecutor(String id, FacesContext context, SCXMLExecutor parent, String invokeId, SCXML scxml) throws ModelException {
+        FlowDeque fs = getFlowDeque(context, true);
 
         StateFlowErrorReporter errorReporter = (StateFlowErrorReporter) parent.getErrorReporter();
 
@@ -642,6 +643,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         errorReporter.getTags().putAll(new HashMap<>(tags));
 
         SCXMLExecutor executor = new SCXMLExecutor(id, parent, invokeId, scxml);
+        executor.setObservableId(fs.observableId++);
 
         executor.setRootContext(executor.getEvaluator().newContext(parent.getRootContext()));
 
@@ -656,6 +658,16 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             }
         }
 
+        executor.addListener(scxml, new AbstractSCXMLListener() {
+            @Override
+            public void onClose(SCXMLExecutor executor) {
+                if (!executor.isRunning()) {
+                    FacesContext fc = FacesContext.getCurrentInstance();
+                    close(fc, executor);
+                }
+            }
+        });
+        
         Context ctx = executor.getRootContext();
         ctx.setLocal("scxml_has_parent", parent != null);
 
@@ -1079,6 +1091,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         private final Map<String, List<String>> map;
         private final String key;
         private final SimpleContext flowContext;
+        private Integer observableId = 0;
         private boolean closed;
 
         public FlowDeque(final String sessionKey) {
@@ -1117,6 +1130,14 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             return flowContext;
         }
 
+        public Integer getObservableId() {
+            return observableId;
+        }
+
+        public void setObservableId(Integer observableId) {
+            this.observableId = observableId;
+        }
+
         // ----------------------------------------------- Serialization Methods
         // This is dependent on serialization occuring with in a
         // a Faces request, however, since SCXMLExecutor.{save,restore}State()
@@ -1135,9 +1156,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
         public Object saveState(FacesContext fc) {
 
-            Object states[] = new Object[5];
+            Object states[] = new Object[6];
 
             states[0] = closed;
+            states[1] = observableId;
 
             if (null != roots && !roots.isEmpty()) {
                 Object[] attached = new Object[roots.size()];
@@ -1149,7 +1171,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     attached[i++] = values;
 
                 }
-                states[1] = attached;
+                states[2] = attached;
             }
 
             if (null != executors && !executors.isEmpty()) {
@@ -1180,13 +1202,13 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
 
                     attached[i++] = values;
                 }
-                states[2] = attached;
+                states[3] = attached;
             }
 
-            states[3] = saveMapState(map);
+            states[4] = saveMapState(map);
 
             Context context = new SimpleContext();
-            states[4] = saveContext(context, flowContext);
+            states[5] = saveContext(context, flowContext);
 
             return states;
         }
@@ -1202,6 +1224,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 Object[] blocks = (Object[]) state;
 
                 closed = (boolean) blocks[0];
+                observableId = (Integer) blocks[1];
 
                 if (blocks[1] != null) {
                     Object[] values = (Object[]) blocks[1];
@@ -1211,8 +1234,8 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     }
                 }
 
-                if (blocks[2] != null) {
-                    Object[] entries = (Object[]) blocks[2];
+                if (blocks[3] != null) {
+                    Object[] entries = (Object[]) blocks[3];
                     for (Object entry : entries) {
                         Object[] values = (Object[]) entry;
 
@@ -1258,13 +1281,13 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                     }
                 }
 
-                if (blocks[3] != null) {
-                    restoreMapState(map, blocks[3]);
+                if (blocks[4] != null) {
+                    restoreMapState(map, blocks[4]);
                 }
 
-                if (blocks[4] != null) {
+                if (blocks[5] != null) {
                     Context context = new SimpleContext();
-                    restoreContext(context, flowContext, blocks[4]);
+                    restoreContext(context, flowContext, blocks[5]);
                 }
 
             }
