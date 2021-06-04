@@ -325,7 +325,7 @@ public class XPathELResolver extends ELResolver {
                     return false;
             }
         } else {
-            throw new PropertyNotFoundException();
+            return false;
         }
     }
 

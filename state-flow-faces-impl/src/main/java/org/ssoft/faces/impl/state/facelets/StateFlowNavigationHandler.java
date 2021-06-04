@@ -106,7 +106,7 @@ public class StateFlowNavigationHandler extends ConfigurableNavigationHandler {
                     } catch (ModelException ex) {
                         throw new FacesException(ex);
                     }
-
+                    
                     if (facesContext.getResponseComplete()) {
                         handler.writeState(facesContext);
                     }
