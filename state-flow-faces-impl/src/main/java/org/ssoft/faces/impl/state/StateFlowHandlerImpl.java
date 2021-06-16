@@ -667,7 +667,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
                 }
             }
         });
-        
+
         Context ctx = executor.getRootContext();
         ctx.setLocal("scxml_has_parent", parent != null);
 
@@ -918,7 +918,7 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
         FlowDeque result = (FlowDeque) fc.getAttributes()
                 .get(STATE_FLOW_STACK);
 
-        if (result != null) {
+        if (result != null && !(result.isClosed() && create)) {
             return result;
         }
 
@@ -981,6 +981,10 @@ public final class StateFlowHandlerImpl extends StateFlowHandler {
             } else {
                 result = restoreFlowDequeState(fc, state, flowKey);
             }
+        }
+        if (result != null && result.isClosed() && create) {
+            result = new FlowDeque(flowKey);
+            flowMap.put(flowKey, result);
         }
 
         if (result != null) {

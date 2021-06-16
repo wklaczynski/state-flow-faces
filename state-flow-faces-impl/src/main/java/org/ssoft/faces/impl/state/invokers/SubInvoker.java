@@ -35,7 +35,6 @@ import javax.faces.state.scxml.Context;
 import javax.faces.state.scxml.EventBuilder;
 import javax.faces.state.scxml.EventDispatcher;
 import javax.faces.state.scxml.InvokeContext;
-import javax.faces.state.scxml.ParentSCXMLIOProcessor;
 import javax.faces.state.scxml.SCXMLExecutor;
 import javax.faces.state.scxml.SCXMLIOProcessor;
 import javax.faces.state.scxml.TriggerEvent;
@@ -146,6 +145,7 @@ public class SubInvoker implements Invoker, StateHolder {
     public void invoke(final InvokeContext ictx, final String url, final Map<String, Object> params)
             throws InvokerException {
         FacesContext fc = FacesContext.getCurrentInstance();
+        ViewHandler vh = fc.getApplication().getViewHandler();
         StateFlowHandler handler = StateFlowHandler.getInstance();
         SCXML scxml;
         try {
@@ -217,7 +217,7 @@ public class SubInvoker implements Invoker, StateHolder {
 
             UIViewRoot currentViewRoot = fc.getViewRoot();
             if (currentViewRoot != null) {
-                prevViewId = currentViewRoot.getViewId();
+                prevViewId = vh.deriveViewId(fc, currentViewRoot.getViewId());
 
                 StateManager sm = fc.getApplication().getStateManager();
                 prevViewState = sm.saveView(fc);

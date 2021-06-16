@@ -100,7 +100,6 @@ public class ViewInvoker implements Invoker, Serializable {
     private boolean resolved;
     private Map<String, Object> vieparams;
     private Map<String, List<String>> reqparams = new LinkedHashMap<>();
-    ;
 
     private String lastStateKey;
     private String lastViewId;
@@ -288,7 +287,7 @@ public class ViewInvoker implements Invoker, Serializable {
 
             UIViewRoot currentViewRoot = fc.getViewRoot();
             if (currentViewRoot != null) {
-                prevViewId = currentViewRoot.getViewId();
+                prevViewId = vh.deriveViewId(fc, currentViewRoot.getViewId());
 
                 if (ViewMetadata.hasMetadata(currentViewRoot)) {
                     VisitContext vc = VisitContext.createVisitContext(fc);
@@ -575,7 +574,7 @@ public class ViewInvoker implements Invoker, Serializable {
             UIViewRoot currentViewRoot = fc.getViewRoot();
             if (currentViewRoot != null) {
                 prevViewId = currentViewRoot.getViewId();
-                
+
                 if (ViewMetadata.hasMetadata(currentViewRoot)) {
                     VisitContext vc = VisitContext.createVisitContext(fc);
                     currentViewRoot.visitTree(vc, (VisitContext ivc, UIComponent target) -> {
